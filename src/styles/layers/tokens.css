@@ -6,5 +6,4 @@
 @import "../tokens/motion.css";
 @import "../tokens/elevation.css";
 
-@layer tokens.color, tokens.semantic, tokens.spacing, tokens.typography,
-  tokens.radius, tokens.motion, tokens.elevation;
+@layer tokens.color, tokens.semantic, tokens.spacing, tokens.typography, tokens.radius, tokens.motion, tokens.elevation;

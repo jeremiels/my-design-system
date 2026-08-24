@@ -14,14 +14,7 @@ const meta = preview.meta({
     },
     variant: {
       control: { type: "select" },
-      options: [
-        "primary",
-        "secondary",
-        "success",
-        "danger",
-        "warning",
-        "information",
-      ],
+      options: ["primary", "secondary", "success", "danger", "warning", "information"],
     },
     disabled: { control: "boolean" },
     slot: { control: "text" },
@@ -47,16 +40,12 @@ export const Default = meta.story({
   parameters: {
     docs: {
       description: {
-        story:
-          "The default button with customizable size, variant, and disabled state.",
+        story: "The default button with customizable size, variant, and disabled state.",
       },
     },
   },
   render: (args) => html`
-    <my-button
-      size="${args.size}"
-      variant="${args.variant}"
-      ?disabled="${args.disabled}"
+    <my-button size="${args.size}" variant="${args.variant}" ?disabled="${args.disabled}"
       >${args.slot}</my-button
     >
   `,

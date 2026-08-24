@@ -55,7 +55,8 @@ export class ButtonLink extends ButtonBase {
         role="button"
         aria-disabled=${ifDefined(this.disabled ? "true" : undefined)}
         @click=${this.handleClick}
-      ><slot></slot></a>
+        ><slot></slot
+      ></a>
     `;
   }
 }

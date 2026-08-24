@@ -92,8 +92,7 @@ export abstract class ButtonBase extends DisabledDSBaseElement {
       }
 
       .button:focus-visible {
-        outline: var(--my-button-focus-ring-width) solid
-          var(--my-button-focus-ring-color);
+        outline: var(--my-button-focus-ring-width) solid var(--my-button-focus-ring-color);
         outline-offset: var(--my-button-focus-ring-offset);
       }
 

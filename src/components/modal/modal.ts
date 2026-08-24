@@ -63,9 +63,7 @@ export class Modal extends LitElement {
       <my-button @click=${this.openModal}>Open modal</my-button>
       <dialog @close=${this.handleDialogClose}>
         <div class="content">
-          <button autofocus @click=${this.closeModal}>
-            ${this.closeLabel}
-          </button>
+          <button autofocus @click=${this.closeModal}>${this.closeLabel}</button>
           <slot></slot>
         </div>
       </dialog>

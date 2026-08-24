@@ -45,9 +45,7 @@ export const Default = meta.story({
       },
     },
   },
-  render: (args) => html`
-    <my-modal ?open=${args.open}>${args.slot}</my-modal>
-  `,
+  render: (args) => html` <my-modal ?open=${args.open}>${args.slot}</my-modal> `,
   play: async ({ canvasElement }) => {
     const modal = canvasElement.querySelector("my-modal");
     expect(modal).toBeTruthy();
@@ -85,9 +83,7 @@ export const OpeningModal = meta.story({
       },
     },
   },
-  render: (args) => html`
-    <my-modal ?open=${args.open}>${args.slot}</my-modal>
-  `,
+  render: (args) => html` <my-modal ?open=${args.open}>${args.slot}</my-modal> `,
   play: async ({ canvasElement }) => {
     const modal = canvasElement.querySelector("my-modal") as Modal;
     const shadow = modal?.shadowRoot;

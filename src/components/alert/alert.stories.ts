@@ -37,17 +37,14 @@ export const Default = meta.story({
       },
     },
   },
-  render: (args) => html`
-    <my-alert type="${args.type}">${args.slot}</my-alert>
-  `,
+  render: (args) => html` <my-alert type="${args.type}">${args.slot}</my-alert> `,
 });
 
 export const Variants = meta.story({
   parameters: {
     docs: {
       description: {
-        story:
-          "Alerts in different types: information, success, warning, and error.",
+        story: "Alerts in different types: information, success, warning, and error.",
       },
     },
   },
