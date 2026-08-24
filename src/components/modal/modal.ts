@@ -1,10 +1,25 @@
-import { LitElement, html, css } from "lit";
+import { LitElement, html, css, type PropertyValues } from "lit";
 import { customElement, property, query } from "lit/decorators.js";
 import "../button/button.ts";
 
 @customElement("my-modal")
 export class Modal extends LitElement {
-  @property({ type: Boolean }) open = false;
+  /**
+   * Whether the modal is open. Reflects to the `open` attribute, so it can
+   * be set declaratively (`<my-modal open>`) or bound reactively
+   * (`?open=${state}`) — the underlying `<dialog>` is kept in sync in
+   * `updated()`. Reading `.open` always reflects the real dialog state,
+   * including when the user closes it via Escape.
+   */
+  @property({ type: Boolean, reflect: true }) open = false;
+
+  /**
+   * Accessible label for the built-in close button.
+   * @default "Close"
+   */
+  @property({ type: String })
+  closeLabel = "Close";
+
   @query("dialog") dialog!: HTMLDialogElement;
 
   /**
@@ -46,23 +61,44 @@ export class Modal extends LitElement {
   render() {
     return html`
       <my-button @click=${this.openModal}>Open modal</my-button>
-      <dialog>
+      <dialog @close=${this.handleDialogClose}>
         <div class="content">
-          <button autofocus @click=${this.closeModal}>Fermer</button>
+          <button autofocus @click=${this.closeModal}>
+            ${this.closeLabel}
+          </button>
           <slot></slot>
         </div>
       </dialog>
     `;
   }
 
+  protected updated(changedProperties: PropertyValues<this>) {
+    super.updated(changedProperties);
+
+    if (changedProperties.has("open")) {
+      if (this.open && !this.dialog.open) {
+        this.dialog.showModal();
+      } else if (!this.open && this.dialog.open) {
+        this.dialog.close();
+      }
+    }
+  }
+
+  /**
+   * Fires whenever the native <dialog> closes, regardless of cause
+   * (close button, Escape key, or a future close-on-backdrop-click) — the
+   * single place that keeps `open` truthful to the actual dialog state.
+   */
+  private handleDialogClose() {
+    this.open = false;
+  }
+
   openModal() {
     this.open = true;
-    this.dialog?.showModal();
   }
 
   closeModal() {
     this.open = false;
-    this.dialog?.close();
   }
 }
 

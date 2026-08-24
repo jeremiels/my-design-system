@@ -2,7 +2,9 @@ import { css } from "lit";
 import { property } from "lit/decorators.js";
 import { withDisabled } from "../../mixins/withDisabled.ts";
 import { DSBaseElement } from "../MyDSBaseElement.ts";
-import type { ComponentSize, ButtonVariant } from "../../types/common.ts";
+import type { ComponentSize, SemanticVariant } from "../../types/common.ts";
+
+type ButtonVariant = "primary" | "secondary" | SemanticVariant;
 
 const DisabledDSBaseElement = withDisabled(DSBaseElement);
 
@@ -134,12 +136,8 @@ export abstract class ButtonBase extends DisabledDSBaseElement {
 
       .button--information {
         --my-button-background-color: var(--color-information-bg);
-        --my-button-background-color-hover: var(
-          --color-information-bg-hover
-        );
-        --my-button-background-color-active: var(
-          --color-information-bg-active
-        );
+        --my-button-background-color-hover: var(--color-information-bg-hover);
+        --my-button-background-color-active: var(--color-information-bg-active);
         --my-button-text-color: var(--color-information-text);
       }
 

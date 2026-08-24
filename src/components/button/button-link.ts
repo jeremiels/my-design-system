@@ -43,13 +43,17 @@ export class ButtonLink extends ButtonBase {
   ];
 
   render() {
+    // A disabled <a> has no native equivalent to <button disabled>: dropping
+    // href is what removes it from the tab order and stops navigation, per
+    // https://www.w3.org/WAI/ARIA/apg/practices/disabled-controls/.
     return html`
       <a
         class="button button--${this.size} button--${this.variant}"
-        href=${this.href ?? "#"}
+        href=${ifDefined(this.disabled ? undefined : (this.href ?? "#"))}
         target=${ifDefined(this.target)}
         rel=${ifDefined(this.relAttribute)}
         role="button"
+        aria-disabled=${ifDefined(this.disabled ? "true" : undefined)}
         @click=${this.handleClick}
       ><slot></slot></a>
     `;

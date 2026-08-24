@@ -22,6 +22,12 @@ const meta = preview.meta({
         component:
           "The `my-modal` component displays content in a modal dialog. It manages open/closed states and provides user interaction through a dedicated button.",
       },
+      // `<dialog>` opened via showModal() renders in the browser's top
+      // layer, which is shared by the whole Docs page under Storybook's
+      // default inline rendering — every "open" story would stack its
+      // dialog on top of the others. Each story gets its own iframe (and
+      // so its own top layer) instead.
+      story: { inline: false, iframeHeight: 400 },
     },
   },
 });

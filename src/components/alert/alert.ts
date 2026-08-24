@@ -60,9 +60,21 @@ export class Alert extends LitElement {
     }
   `;
 
+  /**
+   * `danger`/`warning` interrupt immediately (role="alert", implicit
+   * aria-live="assertive"); `success`/`information` are announced without
+   * interrupting the user (role="status", implicit aria-live="polite").
+   * See https://www.w3.org/WAI/ARIA/apg/patterns/alert/.
+   */
+  private get alertRole(): "alert" | "status" {
+    return this.type === "danger" || this.type === "warning"
+      ? "alert"
+      : "status";
+  }
+
   render() {
     return html`
-      <div class="alert alert--${this.type}">
+      <div class="alert alert--${this.type}" role=${this.alertRole}>
         <slot></slot>
       </div>
     `;
