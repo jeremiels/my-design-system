@@ -1,0 +1,9 @@
+@layer tokens.typography {
+  :root {
+    --font-family-base: "Helvetica Neue", sans-serif;
+    --font-size-base: 1rem;
+    --font-size-lg: 1.25rem;
+    --font-size-sm: 0.875rem;
+    --line-height-base: 1.5;
+  }
+}

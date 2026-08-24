@@ -1,0 +1,28 @@
+/**
+ * shame.css - Emergency Override Layer
+ * 
+ * STRICT USAGE RULES:
+ * 1. This file should ONLY contain !important declarations
+ * 2. Every override MUST be documented with:
+ *    - The reason for the override
+ *    - The date it was added
+ *    - The ticket/issue reference
+ *    - A plan to remove it (if possible)
+ * 
+ * This file should be kept as small as possible.
+ * Before adding anything here, consider:
+ * - Can this be solved with proper CSS cascade layers?
+ * - Is there a more maintainable solution?
+ * - Can the component structure be improved instead?
+ * 
+ * Example documentation format:
+ * 
+ * // Date: 2025-10-05
+ * // Issue: DS-123
+ * // Reason: Temporary fix for button contrast in legacy portal
+ * // Todo: Remove when portal migrates to new button component
+ * .legacy-portal .button { color: #000 !important; }
+ */
+@layer shame {
+  /* Add emergency overrides here */
+}

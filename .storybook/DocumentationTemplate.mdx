@@ -1,0 +1,23 @@
+import {
+  Meta,
+  Title,
+  Subtitle,
+  Description,
+  Primary,
+  Controls,
+  Stories,
+} from "@storybook/addon-docs/blocks";
+
+<Meta isTemplate />
+
+<Title />
+<Subtitle />
+<Description />
+
+<Primary />
+
+<Controls />
+
+{/* This is the magic part: it lists all stories EXCEPT the primary one */}
+
+<Stories includePrimary={false} />

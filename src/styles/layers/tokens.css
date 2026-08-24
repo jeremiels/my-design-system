@@ -1,0 +1,10 @@
+@import "../tokens/color.css";
+@import "../tokens/semantic.css";
+@import "../tokens/spacing.css";
+@import "../tokens/typography.css";
+@import "../tokens/radius.css";
+@import "../tokens/motion.css";
+@import "../tokens/elevation.css";
+
+@layer tokens.color, tokens.semantic, tokens.spacing, tokens.typography,
+  tokens.radius, tokens.motion, tokens.elevation;

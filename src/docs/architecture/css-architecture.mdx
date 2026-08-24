@@ -1,0 +1,119 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Documentation/Architecture CSS" />
+
+# Architecture CSS
+
+Ce document décrit l'architecture CSS utilisée dans ce projet, en mettant l'accent sur la modularité, la maintenabilité et l'évolutivité. L'architecture est conçue pour faciliter la collaboration entre développeurs et assurer une approche cohérente du style dans l'application.
+
+## Les Couches (Layers)
+
+Le CSS est organisé en couches, chacune ayant un objectif spécifique:
+
+1. **Reset**: Une réinitialisation CSS moderne pour assurer une base cohérente entre les navigateurs.
+2. **Tokens**: Jetons de design pour les couleurs, la typographie, l'espacement, etc.
+3. **Base**: Styles de base pour les éléments HTML (par exemple, titres, paragraphes, liens).
+4. **Components**: Styles pour les composants réutilisables (par exemple, boutons, cartes, modales).
+5. **Utilities**: Classes utilitaires pour les motifs de style communs (par exemple, marge, remplissage, flexbox).
+6. **Shame**: Une couche spéciale pour les surcharges d'urgence avec `!important`. Cette couche doit être:
+   - Utilisée en dernier recours uniquement
+   - Documentée de manière exhaustive
+   - Maintenue au minimum absolu
+   - Accompagnée d'un plan pour supprimer ces surcharges
+
+## L'API @layer
+
+L'API `@layer` est une fonctionnalité puissante de CSS qui nous permet de déclarer explicitement des "couches en cascade" et de contrôler leur ordre de priorité. Dans notre architecture, nous utilisons `@layer` pour organiser notre code de manière plus structurée:
+
+```css
+@layer reset, tokens, base, components, utilities;
+
+@layer reset {
+  /* Styles de réinitialisation */
+}
+
+@layer base {
+  /* Styles de base */
+}
+```
+
+### Avantages de @layer
+
+- **Contrôle de la Spécificité**: Les couches permettent de gérer la spécificité de manière plus prévisible
+- **Organisation Claire**: Meilleure organisation du code avec une hiérarchie explicite
+- **Maintenance Simplifiée**: Facilite la maintenance en isolant les styles par couche
+
+### Organiser les Tokens avec @layer
+
+Pour maintenir une architecture claire et scalable, chaque fichier de token doit déclarer sa propre couche `@layer`. Cette approche présente plusieurs avantages:
+
+```css
+/* src/styles/tokens/color.css */
+@layer tokens.color {
+  :root {
+    --color-primary: hsl(210, 100%, 50%);
+    --color-secondary: hsl(150, 100%, 50%);
+    /* ... */
+  }
+}
+```
+
+```css
+/* src/styles/layers/tokens.css - imports simplifiés */
+@import "../tokens/color.css";
+@import "../tokens/spacing.css";
+@import "../tokens/typography.css";
+
+/* Déclaration de l'ordre des sous-couches */
+@layer tokens.color, tokens.spacing, tokens.typography;
+```
+
+**Avantages de cette approche:**
+
+- **Auto-documentée**: Chaque fichier de token déclare clairement sa couche
+- **Scalable**: Ajouter de nouveaux tokens ne nécessite que d'ajouter le fichier et l'import
+- **Évite les imbrications**: Pas de `layer()` dans les imports évite les nids de couches invalides
+- **Maintenance simplifiée**: La hiérarchie est explicite et centralisée dans `tokens.css`
+
+### Les Trois Niveaux de Tokens (Primitif → Sémantique → Composant)
+
+Pour que le système soit réellement themable, une seule source de vérité doit exister pour chaque valeur. Cela impose une hiérarchie stricte à trois niveaux, où chaque niveau ne référence que le niveau précédent — jamais de valeur littérale en dehors du niveau primitif :
+
+1. **Primitif** (`src/styles/tokens/color.css`, `spacing.css`, …) — valeurs brutes de la marque (`--color-primary: hsl(210, 100%, 50%)`).
+2. **Sémantique** (`src/styles/tokens/semantic.css`) — alias par intention, jamais par apparence (`--color-action-bg: var(--color-primary)`, `--color-danger-bg: var(--color-danger)`). Les états d'interaction (hover/active) sont dérivés avec `color-mix()` plutôt que codés en dur, pour n'avoir qu'une seule couleur à maintenir par intention.
+3. **Composant** — chaque composant Lit déclare ses propres custom properties sur `:host`, dont la valeur par défaut pointe vers le token **sémantique** correspondant (jamais vers un token primitif ni une valeur littérale) :
+
+   ```css
+   :host {
+     --my-button-background-color: var(--color-action-bg, #007bff);
+   }
+   .button {
+     background-color: var(--my-button-background-color);
+   }
+   ```
+
+   Le fallback littéral (`#007bff`) n'est qu'un filet de sécurité si la feuille de tokens du design system n'est pas chargée — il ne doit jamais être la source de vérité utilisée en pratique.
+
+**Pourquoi ce niveau intermédiaire est indispensable :** sans lui, changer `--color-primary` ne se propage à aucun composant, et le dark mode devrait être ré-implémenté dans chaque fichier de composant au lieu d'être remappé une seule fois au niveau primitif (voir le bloc `@media (prefers-color-scheme: dark)` dans `color.css`).
+
+**Convention de nommage :** `--<tag>-<propriété-css>[-<état>]`, ex. `--my-button-background-color-hover`. Le nom de la propriété CSS ciblée (`background-color`, non `bg`) doit apparaître en toutes lettres pour rester non-ambigu à grande échelle.
+
+**Documentation :** chaque composant liste ses tokens dans un bloc JSDoc au-dessus de `static styles`, à la manière des `@property`.
+
+### Ressources Utiles
+
+- [MDN: Utilisation de @layer](https://developer.mozilla.org/fr/docs/Web/CSS/@layer)
+- [CSS Cascade Layers](https://www.bram.us/2021/09/15/the-future-of-css-cascade-layers-css-at-layer/)
+- [CSS Working Group: Cascade Layers Specification](https://www.w3.org/TR/css-cascade-5/#layering)
+
+## Méthodologie
+
+L'architecture suit plusieurs principes clés:
+
+- **BEM (Block Element Modifier)**: Une convention de nommage pour créer des styles modulaires et réutilisables.
+- **CSS Atomique**: Classes utilitaires pour les styles communs afin de promouvoir la réutilisabilité et réduire la spécificité.
+- **Design Responsive**: Approche "mobile-first" avec des utilitaires responsives pour différentes tailles d'écran.
+
+## Conclusion
+
+Cette architecture CSS vise à créer un système de style évolutif et maintenable qui peut se développer avec le projet tout en assurant une apparence et une expérience cohérentes dans toute l'application.

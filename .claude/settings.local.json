@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run *)",
+      "Bash(npx vite *)",
+      "Bash(npx tsc *)",
+      "Bash(npx vitest *)",
+      "Bash(node -e \"console.log\\(require.resolve\\('storybook/test'\\)\\)\")"
+    ]
+  }
+}

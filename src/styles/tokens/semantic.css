@@ -1,0 +1,52 @@
+/**
+ * Semantic tokens alias primitive tokens to a purpose ("action", "danger", "surface")
+ * instead of a raw value. Components should reference these — never a primitive
+ * token or a literal value — directly. Interactive-state colors (hover/active)
+ * are derived with color-mix() so there is exactly one color to maintain per
+ * intent; dark mode "just works" because it's inherited from the primitive layer.
+ */
+@layer tokens.semantic {
+  :root {
+    /* Action (primary interactive surfaces, e.g. primary button) */
+    --color-action-bg: var(--color-primary);
+    --color-action-bg-hover: color-mix(in oklch, var(--color-primary) 85%, black);
+    --color-action-bg-active: color-mix(in oklch, var(--color-primary) 70%, black);
+    --color-action-text: var(--color-text-inverse);
+
+    /* Secondary interactive surfaces */
+    --color-secondary-bg: var(--color-secondary);
+    --color-secondary-bg-hover: color-mix(in oklch, var(--color-secondary) 85%, black);
+    --color-secondary-bg-active: color-mix(in oklch, var(--color-secondary) 70%, black);
+    --color-secondary-text: var(--color-text-inverse);
+
+    /* Status intents, shared across button/alert/badge/etc. */
+    --color-success-bg: var(--color-success);
+    --color-success-bg-hover: color-mix(in oklch, var(--color-success) 85%, black);
+    --color-success-bg-active: color-mix(in oklch, var(--color-success) 70%, black);
+    --color-success-text: var(--color-text-inverse);
+
+    --color-warning-bg: var(--color-warning);
+    --color-warning-bg-hover: color-mix(in oklch, var(--color-warning) 85%, black);
+    --color-warning-bg-active: color-mix(in oklch, var(--color-warning) 70%, black);
+    --color-warning-text: var(--color-text-inverse);
+
+    --color-danger-bg: var(--color-danger);
+    --color-danger-bg-hover: color-mix(in oklch, var(--color-danger) 85%, black);
+    --color-danger-bg-active: color-mix(in oklch, var(--color-danger) 70%, black);
+    --color-danger-text: var(--color-text-inverse);
+
+    --color-information-bg: var(--color-information);
+    --color-information-bg-hover: color-mix(in oklch, var(--color-information) 85%, black);
+    --color-information-bg-active: color-mix(in oklch, var(--color-information) 70%, black);
+    --color-information-text: var(--color-text-inverse);
+
+    /* Surfaces & structure */
+    --color-surface: var(--color-background);
+    --color-surface-raised: var(--color-fill);
+    --color-border-default: var(--color-border);
+    --color-text-default: var(--color-text);
+
+    /* A single, consistent focus indicator across every component */
+    --color-focus-ring: var(--color-primary);
+  }
+}

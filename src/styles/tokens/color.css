@@ -1,0 +1,48 @@
+@layer tokens.color {
+  :root {
+    --color-primary: hsl(210, 100%, 50%);
+    --color-secondary: hsl(150, 100%, 50%);
+    --color-success: hsl(122, 39%, 45%);
+    --color-warning: hsl(36, 100%, 45%);
+    --color-danger: hsl(4, 74%, 52%);
+    --color-information: hsl(207, 90%, 54%);
+    --color-background: hsl(0, 0%, 100%);
+    --color-border: hsl(0, 0%, 80%);
+    --color-fill: hsl(0, 0%, 90%);
+    --color-text: hsl(0, 0%, 0%);
+    --color-text-inverse: hsl(0, 0%, 100%);
+  }
+
+  /* Automatic dark mode: remapping primitives here cascades through the
+     semantic and component layers without touching a single component. */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --color-primary: hsl(210, 100%, 65%);
+      --color-secondary: hsl(150, 80%, 55%);
+      --color-success: hsl(122, 39%, 60%);
+      --color-warning: hsl(36, 100%, 60%);
+      --color-danger: hsl(4, 90%, 68%);
+      --color-information: hsl(207, 90%, 68%);
+      --color-background: hsl(0, 0%, 12%);
+      --color-border: hsl(0, 0%, 30%);
+      --color-fill: hsl(0, 0%, 20%);
+      --color-text: hsl(0, 0%, 95%);
+      --color-text-inverse: hsl(0, 0%, 10%);
+    }
+  }
+
+  /* Manual override (e.g. a theme toggle setting document.documentElement.dataset.theme) */
+  :root[data-theme="dark"] {
+    --color-primary: hsl(210, 100%, 65%);
+    --color-secondary: hsl(150, 80%, 55%);
+    --color-success: hsl(122, 39%, 60%);
+    --color-warning: hsl(36, 100%, 60%);
+    --color-danger: hsl(4, 90%, 68%);
+    --color-information: hsl(207, 90%, 68%);
+    --color-background: hsl(0, 0%, 12%);
+    --color-border: hsl(0, 0%, 30%);
+    --color-fill: hsl(0, 0%, 20%);
+    --color-text: hsl(0, 0%, 95%);
+    --color-text-inverse: hsl(0, 0%, 10%);
+  }
+}

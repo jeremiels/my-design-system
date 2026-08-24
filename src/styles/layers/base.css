@@ -1,0 +1,6 @@
+@layer base {
+  /* Inherit font size for better scaling */
+  html {
+    font-size: inherit;
+  }
+}
