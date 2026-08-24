@@ -27,7 +27,7 @@ const meta = preview.meta({
       // default inline rendering — every "open" story would stack its
       // dialog on top of the others. Each story gets its own iframe (and
       // so its own top layer) instead.
-      story: { inline: false, iframeHeight: 400 },
+      story: { inline: false, iframeHeight: "400px" },
     },
   },
 });
