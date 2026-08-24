@@ -11,7 +11,12 @@ export default definePreview({
         date: /Date$/i,
       },
     },
-
+    docs: {
+      toc: true, // Enables the table of contents
+      canvas: {
+        sourceState: "shown", // Expands the source code block by default for every story
+      },
+    },
     a11y: {
       // 'todo' - show a11y violations in the test UI only
       // 'error' - fail CI on a11y violations
