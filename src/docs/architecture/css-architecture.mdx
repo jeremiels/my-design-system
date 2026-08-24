@@ -61,11 +61,16 @@ Pour maintenir une architecture claire et scalable, chaque fichier de token doit
 ```css
 /* src/styles/layers/tokens.css - imports simplifiés */
 @import "../tokens/color.css";
+@import "../tokens/semantic.css";
 @import "../tokens/spacing.css";
 @import "../tokens/typography.css";
+@import "../tokens/radius.css";
+@import "../tokens/motion.css";
+@import "../tokens/elevation.css";
 
 /* Déclaration de l'ordre des sous-couches */
-@layer tokens.color, tokens.spacing, tokens.typography;
+@layer tokens.color, tokens.semantic, tokens.spacing, tokens.typography,
+  tokens.radius, tokens.motion, tokens.elevation;
 ```
 
 **Avantages de cette approche:**
@@ -85,20 +90,37 @@ Pour que le système soit réellement themable, une seule source de vérité doi
 
    ```css
    :host {
-     --my-button-background-color: var(--color-action-bg, #007bff);
+     --my-button-background-color: var(--color-action-bg);
    }
    .button {
      background-color: var(--my-button-background-color);
    }
    ```
 
-   Le fallback littéral (`#007bff`) n'est qu'un filet de sécurité si la feuille de tokens du design system n'est pas chargée — il ne doit jamais être la source de vérité utilisée en pratique.
+**Pourquoi ce niveau intermédiaire est indispensable :** sans lui, changer `--color-primary` ne se propage à aucun composant, et le dark mode devrait être ré-implémenté dans chaque fichier de composant au lieu d'être remappé une seule fois au niveau primitif.
 
-**Pourquoi ce niveau intermédiaire est indispensable :** sans lui, changer `--color-primary` ne se propage à aucun composant, et le dark mode devrait être ré-implémenté dans chaque fichier de composant au lieu d'être remappé une seule fois au niveau primitif (voir le bloc `@media (prefers-color-scheme: dark)` dans `color.css`).
+**Dark mode :** `tokens/color.css` remappe les primitives à deux endroits, jamais ailleurs — un composant ne doit donc jamais contenir sa propre logique de thème :
+
+- `@media (prefers-color-scheme: dark)` sur `:root:not([data-theme="light"])` — bascule automatique selon la préférence OS de l'utilisateur.
+- `:root[data-theme="dark"]` — bascule manuelle, pour un sélecteur de thème dans l'application consommatrice (ex. `document.documentElement.dataset.theme = "dark"`).
 
 **Convention de nommage :** `--<tag>-<propriété-css>[-<état>]`, ex. `--my-button-background-color-hover`. Le nom de la propriété CSS ciblée (`background-color`, non `bg`) doit apparaître en toutes lettres pour rester non-ambigu à grande échelle.
 
 **Documentation :** chaque composant liste ses tokens dans un bloc JSDoc au-dessus de `static styles`, à la manière des `@property`.
+
+### Prérequis : la feuille de tokens est une dépendance, pas une option
+
+Les tokens de composant ci-dessus **n'ont pas de fallback littéral** (`var(--x, #007bff)`). C'est un choix délibéré, pas un oubli :
+
+- Un fallback littéral duplique la valeur qui existe déjà dans `tokens/`. Dès qu'un deuxième composant a besoin de la même couleur, on a deux sources de vérité qui peuvent diverger silencieusement — exactement le problème que les trois niveaux de tokens sont censés éliminer.
+- `src/index.ts` charge `src/styles/main.css` en effet de bord (`import "./styles/main.css"`) : tout consommateur qui importe le point d'entrée du package reçoit donc automatiquement la feuille de tokens. C'est la même convention que Spectrum, Shoelace/Web Awesome, Material Web ou Carbon — le thème est une dépendance du composant, chargée une seule fois, jamais dupliquée dans chaque fichier de composant.
+- Un composant importé directement (`@/components/button/button.ts`) en contournant `src/index.ts` doit toujours avoir la feuille de tokens chargée sur la page — sinon les custom properties sont simplement non définies (valeur initiale CSS de la propriété ciblée, souvent `transparent` ou `medium`). Ce n'est pas un filet de sécurité à coder en dur ; c'est un prérequis d'intégration à documenter/respecter.
+
+**Exception légitime à cette règle :** les mots-clés système du mode `forced-colors` (`ButtonText`, `Highlight`, `CanvasText`, …) utilisés dans les media queries d'accessibilité. Ce ne sont pas des valeurs de marque et ils ne doivent jamais passer par les tokens — ils appartiennent au thème du système d'exploitation de l'utilisateur, pas au design system.
+
+### Accessibilité : `prefers-reduced-motion`
+
+`tokens/motion.css` redéfinit `--motion-duration-*` à `0ms` sous `@media (prefers-reduced-motion: reduce)`. Comme chaque composant consomme `var(--motion-duration-fast)` plutôt qu'une durée codée en dur, toutes les transitions de tous les composants se désactivent simultanément via ce seul point de contrôle — un composant n'a donc jamais besoin de sa propre media query `prefers-reduced-motion`.
 
 ### Ressources Utiles
 

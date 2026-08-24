@@ -1,10 +1,5 @@
-/**
- * Semantic tokens alias primitive tokens to a purpose ("action", "danger", "surface")
- * instead of a raw value. Components should reference these — never a primitive
- * token or a literal value — directly. Interactive-state colors (hover/active)
- * are derived with color-mix() so there is exactly one color to maintain per
- * intent; dark mode "just works" because it's inherited from the primitive layer.
- */
+/* Intent-based aliases over tokens/color.css primitives.
+   See src/docs/architecture/css-architecture.mdx (Trois Niveaux de Tokens). */
 @layer tokens.semantic {
   :root {
     /* Action (primary interactive surfaces, e.g. primary button) */

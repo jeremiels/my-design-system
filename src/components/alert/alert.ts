@@ -20,14 +20,16 @@ export class Alert extends LitElement {
    * --my-alert-padding           Internal padding (default: var(--spacing-md))
    * --my-alert-border-radius     Corner radius (default: var(--radius-md))
    * --my-alert-font-family       Font family (default: var(--font-family-base))
+   *
+   * @see src/docs/architecture/css-architecture.mdx for token conventions.
    */
   static styles = css`
     :host {
-      --my-alert-background-color: var(--color-information-bg, #2196f3);
-      --my-alert-text-color: var(--color-information-text, #fff);
-      --my-alert-padding: var(--spacing-md, 1rem);
-      --my-alert-border-radius: var(--radius-md, 4px);
-      --my-alert-font-family: var(--font-family-base, inherit);
+      --my-alert-background-color: var(--color-information-bg);
+      --my-alert-text-color: var(--color-information-text);
+      --my-alert-padding: var(--spacing-md);
+      --my-alert-border-radius: var(--radius-md);
+      --my-alert-font-family: var(--font-family-base);
     }
 
     .alert {
@@ -44,21 +46,17 @@ export class Alert extends LitElement {
       }
     }
 
-    .alert--information {
-      --my-alert-background-color: var(--color-information-bg, #2196f3);
-      --my-alert-text-color: var(--color-information-text, #fff);
-    }
     .alert--success {
-      --my-alert-background-color: var(--color-success-bg, #4caf50);
-      --my-alert-text-color: var(--color-success-text, #fff);
+      --my-alert-background-color: var(--color-success-bg);
+      --my-alert-text-color: var(--color-success-text);
     }
     .alert--warning {
-      --my-alert-background-color: var(--color-warning-bg, #ff9800);
-      --my-alert-text-color: var(--color-warning-text, #fff);
+      --my-alert-background-color: var(--color-warning-bg);
+      --my-alert-text-color: var(--color-warning-text);
     }
     .alert--danger {
-      --my-alert-background-color: var(--color-danger-bg, #f44336);
-      --my-alert-text-color: var(--color-danger-text, #fff);
+      --my-alert-background-color: var(--color-danger-bg);
+      --my-alert-text-color: var(--color-danger-text);
     }
   `;
 

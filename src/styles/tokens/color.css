@@ -13,8 +13,6 @@
     --color-text-inverse: hsl(0, 0%, 100%);
   }
 
-  /* Automatic dark mode: remapping primitives here cascades through the
-     semantic and component layers without touching a single component. */
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
       --color-primary: hsl(210, 100%, 65%);
@@ -31,7 +29,6 @@
     }
   }
 
-  /* Manual override (e.g. a theme toggle setting document.documentElement.dataset.theme) */
   :root[data-theme="dark"] {
     --color-primary: hsl(210, 100%, 65%);
     --color-secondary: hsl(150, 80%, 55%);

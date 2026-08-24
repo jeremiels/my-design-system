@@ -15,14 +15,16 @@ export class Modal extends LitElement {
    * --my-modal-padding           Internal padding (default: var(--spacing-md))
    * --my-modal-backdrop-color    Backdrop overlay color (default: var(--shadow-backdrop))
    * --my-modal-shadow            Elevation shadow (default: var(--shadow-elevation-lg))
+   *
+   * @see src/docs/architecture/css-architecture.mdx for token conventions.
    */
   static styles = css`
     :host {
-      --my-modal-background-color: var(--color-surface-raised, #e5e5e5);
-      --my-modal-border-radius: var(--radius-lg, 8px);
-      --my-modal-padding: var(--spacing-md, 1rem);
-      --my-modal-backdrop-color: var(--shadow-backdrop, rgba(0, 0, 0, 0.5));
-      --my-modal-shadow: var(--shadow-elevation-lg, 0 12px 32px rgba(0, 0, 0, 0.2));
+      --my-modal-background-color: var(--color-surface-raised);
+      --my-modal-border-radius: var(--radius-lg);
+      --my-modal-padding: var(--spacing-md);
+      --my-modal-backdrop-color: var(--shadow-backdrop);
+      --my-modal-shadow: var(--shadow-elevation-lg);
     }
 
     dialog {

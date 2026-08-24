@@ -19,7 +19,7 @@ export function withDisabled<T extends Constructor<LitElement>>(Base: T) {
       css`
         :host([disabled]) {
           pointer-events: none;
-          opacity: var(--opacity-disabled, 0.6);
+          opacity: var(--opacity-disabled);
           cursor: not-allowed;
         }
       `,

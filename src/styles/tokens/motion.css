@@ -5,8 +5,6 @@
     --motion-easing-standard: ease;
   }
 
-  /* Single override point: every component transition collapses to 0
-     because they all consume --motion-duration-* rather than hardcoding ms. */
   @media (prefers-reduced-motion: reduce) {
     :root {
       --motion-duration-fast: 0ms;
