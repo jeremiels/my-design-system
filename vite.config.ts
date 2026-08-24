@@ -3,12 +3,24 @@ import { resolve } from "path";
 
 export default defineConfig({
   build: {
+    // Lib mode defaults this to false (one merged CSS file); we need it on
+    // so the standalone "styles" CSS entry can be emitted on its own.
+    cssCodeSplit: true,
     lib: {
-      // Entry point of your design system
-      entry: resolve(__dirname, "src/index.ts"),
-      name: "MyDesignSystem",
+      // One entry per public module, so consumers can import just what they
+      // need (e.g. "my-design-system/button") and bundlers can tree-shake
+      // the rest. Shared code (base classes, mixins, tokens) is split into
+      // common chunks automatically by Rollup.
+      entry: {
+        index: resolve(__dirname, "src/index.ts"),
+        styles: resolve(__dirname, "src/styles/main.css"),
+        button: resolve(__dirname, "src/components/button/button.ts"),
+        "button-link": resolve(__dirname, "src/components/button/button-link.ts"),
+        alert: resolve(__dirname, "src/components/alert/alert.ts"),
+        modal: resolve(__dirname, "src/components/modal/modal.ts"),
+      },
       formats: ["es"],
-      fileName: "my-design-system",
+      fileName: (_format, entryName) => `${entryName}.js`,
     },
     rollupOptions: {
       // Don’t bundle lit, consumers should install their own

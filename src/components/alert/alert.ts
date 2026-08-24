@@ -1,16 +1,16 @@
 import { LitElement, html, css } from "lit";
 import { customElement, property } from "lit/decorators.js";
-import type { SemanticVariant } from "../../types/common.ts";
+import type { MyAlertType } from "./alert.type.js";
 
 @customElement("my-alert")
 export class Alert extends LitElement {
   /**
    * Alert type.
-   * @property {SemanticVariant} type - The type of the alert.
+   * @property {MyAlertType} type - The type of the alert.
    * @default "information"
    */
   @property({ type: String })
-  type: SemanticVariant = "information";
+  type: MyAlertType = "information";
 
   /**
    * CSS Tokens (customize via CSS custom properties on `my-alert`):

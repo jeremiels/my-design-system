@@ -1,6 +1,7 @@
 import { html } from "lit";
 import { customElement, property } from "lit/decorators.js";
-import { ButtonBase } from "./button-base.ts";
+import { ButtonBase } from "./button-base.js";
+import type { MyButtonType } from "./button.type.js";
 
 @customElement("my-button")
 export class Button extends ButtonBase {
@@ -19,7 +20,7 @@ export class Button extends ButtonBase {
    * @default "button"
    */
   @property({ type: String })
-  type: "button" | "submit" | "reset" = "button";
+  type: MyButtonType = "button";
 
   protected override handleClick(e: MouseEvent) {
     super.handleClick(e);

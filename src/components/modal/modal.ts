@@ -1,6 +1,6 @@
 import { LitElement, html, css, type PropertyValues } from "lit";
 import { customElement, property, query } from "lit/decorators.js";
-import "../button/button.ts";
+import "../button/button.js";
 
 @customElement("my-modal")
 export class Modal extends LitElement {

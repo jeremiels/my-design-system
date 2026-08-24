@@ -1,6 +1,6 @@
 import { LitElement, css, type PropertyValues } from "lit";
 import { property } from "lit/decorators.js";
-import type { Constructor } from "../types/common.ts";
+import type { Constructor } from "../types/common.js";
 
 export declare class DisabledInterface {
   disabled: boolean;

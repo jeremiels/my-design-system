@@ -1,10 +1,8 @@
 import { css } from "lit";
 import { property } from "lit/decorators.js";
-import { withDisabled } from "../../mixins/withDisabled.ts";
-import { DSBaseElement } from "../MyDSBaseElement.ts";
-import type { ComponentSize, SemanticVariant } from "../../types/common.ts";
-
-type ButtonVariant = "primary" | "secondary" | SemanticVariant;
+import { withDisabled } from "../../mixins/withDisabled.js";
+import { DSBaseElement } from "../MyDSBaseElement.js";
+import type { MyButtonSize, MyButtonVariant } from "./button.type.js";
 
 const DisabledDSBaseElement = withDisabled(DSBaseElement);
 
@@ -12,10 +10,10 @@ export abstract class ButtonBase extends DisabledDSBaseElement {
   /**
    * Button size.
    * @property {ComponentSize} size - The size of the button.
-   * @default "medium"
+   * @default "md"
    */
   @property({ type: String })
-  size: ComponentSize = "medium";
+  size: MyButtonSize = "medium";
 
   /**
    * Button variant.
@@ -23,7 +21,7 @@ export abstract class ButtonBase extends DisabledDSBaseElement {
    * @default "primary"
    */
   @property({ type: String })
-  variant: ButtonVariant = "primary";
+  variant: MyButtonVariant = "primary";
 
   /**
    * CSS Tokens (customize via CSS custom properties on `my-button` or `my-button-link`):
@@ -92,7 +90,8 @@ export abstract class ButtonBase extends DisabledDSBaseElement {
       }
 
       .button:focus-visible {
-        outline: var(--my-button-focus-ring-width) solid var(--my-button-focus-ring-color);
+        outline: var(--my-button-focus-ring-width) solid
+          var(--my-button-focus-ring-color);
         outline-offset: var(--my-button-focus-ring-offset);
       }
 

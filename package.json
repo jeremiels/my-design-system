@@ -2,7 +2,13 @@
   "name": "my-design-system",
   "version": "0.0.0",
   "private": true,
+  "files": [
+    "dist"
+  ],
   "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "imports": {
     "#*": [
       "./*",
@@ -12,9 +18,32 @@
       "./*.jsx"
     ]
   },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./styles.css": "./dist/styles.css",
+    "./button": {
+      "types": "./dist/components/button/button.d.ts",
+      "import": "./dist/button.js"
+    },
+    "./button-link": {
+      "types": "./dist/components/button/button-link.d.ts",
+      "import": "./dist/button-link.js"
+    },
+    "./alert": {
+      "types": "./dist/components/alert/alert.d.ts",
+      "import": "./dist/alert.js"
+    },
+    "./modal": {
+      "types": "./dist/components/modal/modal.d.ts",
+      "import": "./dist/modal.js"
+    }
+  },
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "rm -rf dist && vite build && tsc -p tsconfig.build.json",
     "preview": "vite preview",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
