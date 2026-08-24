@@ -1,5 +1,6 @@
 import preview from "#.storybook/preview";
 import { html } from "lit";
+import { ifDefined } from "lit/directives/if-defined.js";
 import "./button";
 
 const meta = preview.meta({
@@ -14,7 +15,14 @@ const meta = preview.meta({
     },
     variant: {
       control: { type: "select" },
-      options: ["primary", "secondary", "success", "danger", "warning", "information"],
+      options: [
+        "primary",
+        "secondary",
+        "success",
+        "danger",
+        "warning",
+        "information",
+      ],
     },
     disabled: { control: "boolean" },
     slot: { control: "text" },
@@ -40,12 +48,16 @@ export const Default = meta.story({
   parameters: {
     docs: {
       description: {
-        story: "The default button with customizable size, variant, and disabled state.",
+        story:
+          "The default button with customizable size, variant, and disabled state.",
       },
     },
   },
   render: (args) => html`
-    <my-button size="${args.size}" variant="${args.variant}" ?disabled="${args.disabled}"
+    <my-button
+      size="${ifDefined(args.size)}"
+      variant="${ifDefined(args.variant)}"
+      ?disabled="${args.disabled}"
       >${args.slot}</my-button
     >
   `,
