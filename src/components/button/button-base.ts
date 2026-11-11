@@ -5,44 +5,39 @@ import { DSBaseElement } from "../MyDSBaseElement.js";
 import buttonBaseStyles from "./button-base.css" with { type: "css" };
 import type { MyButtonSize, MyButtonVariant } from "./button.type.js";
 
-const DisabledDSBaseElement = withDisabled(DSBaseElement);
-
-export abstract class ButtonBase extends DisabledDSBaseElement {
-  /**
-   * Button size.
-   * @property {ComponentSize} size - The size of the button.
-   * @default "md"
-   */
+/**
+ * Shared base of `button` and `button-link`: size, variant, disabled state,
+ * click handling and styles. Abstract: extend `Button` or `ButtonLink`.
+ *
+ * @slot - The button label.
+ * @csspart button - The native `<button>` (or `<a>` for `button-link`).
+ * @fires {MyClickEvent} my-click - On click, unless disabled. `detail.originalEvent` is the native click.
+ * @cssprop [--u-button-background-color=var(--u-color-action-bg)] - Background color (variants change the default).
+ * @cssprop [--u-button-background-color-hover=var(--u-color-action-bg-hover)] - Background color on hover.
+ * @cssprop [--u-button-background-color-active=var(--u-color-action-bg-active)] - Background color while pressed.
+ * @cssprop [--u-button-text-color=var(--u-color-action-text)] - Text color.
+ * @cssprop [--u-button-border=none] - Border shorthand.
+ * @cssprop [--u-button-border-radius=var(--u-radius-md)] - Corner radius.
+ * @cssprop [--u-button-font-family=var(--u-font-family-base)] - Font family.
+ * @cssprop [--u-button-font-size=var(--u-font-size-base)] - Font size (sizes change the default).
+ * @cssprop [--u-button-font-weight=var(--u-font-weight-medium)] - Font weight.
+ * @cssprop [--u-button-padding-inline=var(--u-spacing-md)] - Horizontal padding (sizes change the default).
+ * @cssprop [--u-button-padding-block=var(--u-spacing-sm)] - Vertical padding (sizes change the default).
+ * @cssprop [--u-button-focus-ring-color=var(--u-color-focus-ring)] - Focus outline color.
+ * @cssprop [--u-button-focus-ring-width=var(--u-focus-ring-width)] - Focus outline width.
+ * @cssprop [--u-button-focus-ring-offset=var(--u-focus-ring-offset)] - Focus outline offset.
+ * @cssprop [--u-button-transition-duration=var(--u-motion-duration-fast)] - Background color transition duration.
+ */
+export abstract class ButtonBase extends withDisabled(DSBaseElement) {
+  /** Button size. */
   @property({ type: String })
   size: MyButtonSize = "medium";
 
-  /**
-   * Button variant.
-   * @property {ButtonVariant} variant - The variant of the button.
-   * @default "primary"
-   */
+  /** Button variant: `primary`, `secondary` or a semantic variant. */
   @property({ type: String })
   variant: MyButtonVariant = "primary";
 
-  /**
-   * CSS Tokens (customize via CSS custom properties on `my-button` or `my-button-link`):
-   *
-   * --u-button-background-color      Background color (default: var(--u-color-action-bg))
-   * --u-button-background-color-hover  Hover background (default: var(--u-color-action-bg-hover))
-   * --u-button-background-color-active Active/pressed background (default: var(--u-color-action-bg-active))
-   * --u-button-text-color            Text color (default: var(--u-color-action-text))
-   * --u-button-border                Border shorthand (default: none)
-   * --u-button-border-radius         Corner radius (default: var(--u-radius-md))
-   * --u-button-font-family           Font family (default: var(--u-font-family-base))
-   * --u-button-font-size             Text size (default: var(--u-font-size-base))
-   * --u-button-padding-inline        Horizontal padding (default: var(--u-spacing-md))
-   * --u-button-padding-block         Vertical padding (default: var(--u-spacing-sm))
-   * --u-button-focus-ring-color      Focus outline color (default: var(--u-color-focus-ring))
-   * --u-button-transition-duration   Background transition duration (default: var(--u-motion-duration-fast))
-   *
-   * @see src/docs/architecture/css-architecture.mdx for token conventions.
-   */
-  static styles = [DisabledDSBaseElement.styles ?? [], buttonBaseStyles];
+  static styles = [super.styles ?? [], buttonBaseStyles];
 
   protected handleClick(e: MouseEvent) {
     if (this.disabled) {

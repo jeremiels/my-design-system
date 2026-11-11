@@ -108,7 +108,7 @@ Pour que le système soit réellement themable, une seule source de vérité doi
 
 **Convention de nommage des tokens de composant :** `--u-<composant>-<propriété-css>[-<état>]`, ex. `--u-button-background-color-hover`. `<composant>` est le nom du composant sans le préfixe de balise : `button`, que la balise soit `my-button` ou `acme-button`. Le nom de la propriété CSS ciblée (`background-color`, non `bg`) doit apparaître en toutes lettres pour rester non-ambigu à grande échelle.
 
-**Documentation :** chaque composant liste ses tokens dans un bloc JSDoc au-dessus de `static styles`, à la manière des `@property`.
+**Documentation :** chaque token de composant est documenté dans la JSDoc de la classe : `@cssprop [--u-button-background-color=var(--u-color-action-bg)] - description`. Le Custom Elements Manifest (`npm run analyze`) les affiche dans Storybook, et `src/api-contract.test.ts` vérifie que les tokens documentés sont exactement ceux déclarés sur `:host`.
 
 **Fichiers de styles :** les styles shadow DOM d'un composant (ou d'un mixin) vivent dans un fichier `.css` voisin (`alert.css` à côté de `alert.ts`), importé comme _CSS module script_ — jamais dans un template littéral Lit `css` inline :
 

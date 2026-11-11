@@ -6,24 +6,21 @@ import buttonLinkStyles from "./button-link.css" with { type: "css" };
 
 type LinkTarget = "_blank" | "_self" | "_parent" | "_top";
 
+/**
+ * A link that looks like a button, for navigation. When disabled it drops its
+ * `href`, so it leaves the tab order and can't navigate.
+ *
+ * @element my-button-link
+ * @summary A link styled as a button.
+ */
 export class ButtonLink extends ButtonBase {
   static override componentName = "button-link";
 
-  /**
-   * URL for the link when asLink is true.
-   * @property {string} href - The URL the link points to.
-   */
+  /** URL the link points to. */
   @property({ type: String })
   href?: string;
 
-  /**
-   * Target attribute for the link.
-   * @property {LinkTarget} target - Where to display the linked URL.
-   * '_blank' - Opens in new window/tab
-   * '_self' - Opens in same window/tab (default)
-   * '_parent' - Opens in parent frame
-   * '_top' - Opens in full window
-   */
+  /** Where to open the link; `_blank` also sets `rel="noopener noreferrer"`. */
   @property({ type: String })
   target?: LinkTarget = "_self";
 
@@ -43,6 +40,7 @@ export class ButtonLink extends ButtonBase {
     // https://www.w3.org/WAI/ARIA/apg/practices/disabled-controls/.
     return html`
       <a
+        part="button"
         class="button button--${this.size} button--${this.variant}"
         href=${ifDefined(this.disabled ? undefined : (this.href ?? "#"))}
         target=${ifDefined(this.target)}

@@ -5,6 +5,24 @@ import { DSBaseElement } from "../MyDSBaseElement.js";
 import { Button } from "../button/button.js";
 import modalStyles from "./modal.css" with { type: "css" };
 
+/**
+ * A modal dialog opened by its own trigger button. Built on the native
+ * `<dialog>`: the browser provides the backdrop, closes it on Escape and
+ * makes the rest of the page inert while it's open.
+ *
+ * @element my-modal
+ * @summary A modal dialog with a built-in trigger.
+ * @slot - The dialog content.
+ * @csspart trigger - The opening button: the `button` component of the same registration.
+ * @csspart dialog - The native `<dialog>`.
+ * @csspart content - The content wrapper inside the dialog.
+ * @csspart close-button - The native button that closes the dialog.
+ * @cssprop [--u-modal-background-color=var(--u-color-surface-raised)] - Content background color.
+ * @cssprop [--u-modal-border-radius=var(--u-radius-lg)] - Corner radius.
+ * @cssprop [--u-modal-padding=var(--u-spacing-md)] - Content padding.
+ * @cssprop [--u-modal-backdrop-color=var(--u-shadow-backdrop)] - Backdrop color.
+ * @cssprop [--u-modal-shadow=var(--u-shadow-elevation-lg)] - Dialog shadow.
+ */
 export class Modal extends DSBaseElement {
   static override componentName = "modal";
 
@@ -27,28 +45,20 @@ export class Modal extends DSBaseElement {
   @property({ type: String })
   closeLabel = "Close";
 
+  /** @internal */
   @query("dialog") dialog!: HTMLDialogElement;
 
-  /**
-   * CSS Tokens (customize via CSS custom properties on `my-modal`):
-   *
-   * --u-modal-background-color  Content background (default: var(--u-color-surface-raised))
-   * --u-modal-border-radius     Corner radius (default: var(--u-radius-lg))
-   * --u-modal-padding           Internal padding (default: var(--u-spacing-md))
-   * --u-modal-backdrop-color    Backdrop overlay color (default: var(--u-shadow-backdrop))
-   * --u-modal-shadow            Elevation shadow (default: var(--u-shadow-elevation-lg))
-   *
-   * @see src/docs/architecture/css-architecture.mdx for token conventions.
-   */
   static styles = [DSBaseElement.styles ?? [], modalStyles];
 
   render() {
     const button = this.tagFor(Button);
     return html`
-      <${button} @click=${this.openModal}>Open modal</${button}>
-      <dialog @close=${this.handleDialogClose}>
-        <div class="content">
-          <button autofocus @click=${this.closeModal}>${this.closeLabel}</button>
+      <${button} part="trigger" @click=${this.openModal}>Open modal</${button}>
+      <dialog part="dialog" @close=${this.handleDialogClose}>
+        <div part="content" class="content">
+          <button part="close-button" autofocus @click=${this.closeModal}>
+            ${this.closeLabel}
+          </button>
           <slot></slot>
         </div>
       </dialog>

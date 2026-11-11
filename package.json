@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "files": [
-    "dist"
+    "dist",
+    "custom-elements.json"
   ],
   "type": "module",
   "main": "./dist/index.js",
@@ -28,6 +29,7 @@
       "import": "./dist/define.js"
     },
     "./styles.css": "./dist/styles.css",
+    "./custom-elements.json": "./custom-elements.json",
     "./button": {
       "types": "./dist/components/button/button.d.ts",
       "import": "./dist/button.js"
@@ -47,10 +49,12 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "rm -rf dist && vite build && tsc -p tsconfig.build.json",
+    "build": "npm run analyze && rm -rf dist && vite build && tsc -p tsconfig.build.json",
     "preview": "vite preview",
-    "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build",
+    "storybook": "npm run analyze && storybook dev -p 6006",
+    "build-storybook": "npm run analyze && storybook build",
+    "analyze": "cem analyze",
+    "api:check": "cem analyze && git diff --exit-code -- custom-elements.json",
     "lint": "oxlint src --fix",
     "fmt": "oxfmt",
     "fmt:check": "oxfmt --check",
@@ -62,9 +66,11 @@
   },
   "devDependencies": {
     "@chromatic-com/storybook": "^5.6.0",
+    "@custom-elements-manifest/analyzer": "^0.11.0",
     "@storybook/addon-a11y": "^10.6.7",
     "@storybook/addon-docs": "^10.6.7",
     "@storybook/addon-vitest": "^10.6.7",
+    "@storybook/web-components": "^10.6.7",
     "@storybook/web-components-vite": "^10.6.7",
     "@types/node": "^26.6.6",
     "@vitest/browser": "^5.1.0",
@@ -95,5 +101,6 @@
   "engines": {
     "node": ">=24.8.0",
     "npm": ">=11.6.0"
-  }
+  },
+  "customElements": "custom-elements.json"
 }

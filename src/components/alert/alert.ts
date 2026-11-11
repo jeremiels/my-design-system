@@ -8,8 +8,14 @@ import type { MyAlertType } from "./alert.type.js";
  * An alert component that displays a message to the user.
  *
  * @element my-alert
+ * @summary Displays a message, announced to assistive technologies.
  * @slot - The content of the alert.
- * @csspart alert - The alert element.
+ * @csspart alert - The alert container.
+ * @cssprop [--u-alert-background-color=var(--u-color-information-bg)] - Background color (types change the default).
+ * @cssprop [--u-alert-text-color=var(--u-color-information-text)] - Text color (types change the default).
+ * @cssprop [--u-alert-padding=var(--u-spacing-md)] - Internal padding.
+ * @cssprop [--u-alert-border-radius=var(--u-radius-md)] - Corner radius.
+ * @cssprop [--u-alert-font-family=var(--u-font-family-base)] - Font family.
  */
 export class Alert extends DSBaseElement {
   static override componentName = "alert";
@@ -22,17 +28,6 @@ export class Alert extends DSBaseElement {
   @property({ type: String })
   type: MyAlertType = "information";
 
-  /**
-   * CSS Tokens (customize via CSS custom properties on `my-alert`):
-   *
-   * --u-alert-background-color  Background color (default: var(--u-color-information-bg))
-   * --u-alert-text-color        Text color (default: var(--u-color-information-text))
-   * --u-alert-padding           Internal padding (default: var(--u-spacing-md))
-   * --u-alert-border-radius     Corner radius (default: var(--u-radius-md))
-   * --u-alert-font-family       Font family (default: var(--u-font-family-base))
-   *
-   * @see src/docs/architecture/css-architecture.mdx for token conventions.
-   */
   static styles = [DSBaseElement.styles ?? [], alertStyles];
 
   /**
@@ -49,7 +44,7 @@ export class Alert extends DSBaseElement {
 
   render() {
     return html`
-      <div class="alert alert--${this.type}" role=${this.alertRole}>
+      <div part="alert" class="alert alert--${this.type}" role=${this.alertRole}>
         <slot></slot>
       </div>
     `;

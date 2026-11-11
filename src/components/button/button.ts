@@ -4,16 +4,13 @@ import { withInternals } from "../../mixins/withInternals.js";
 import { ButtonBase } from "./button-base.js";
 import type { MyButtonType } from "./button.type.js";
 
-const InternalsButtonBase = withInternals(ButtonBase);
-
 /**
- * A button component that can be used to trigger actions.
+ * A button that triggers an action, or submits or resets its form (`type`).
  *
  * @element my-button
- * @slot - The content of the button.
- * @csspart button - The button element.
+ * @summary Triggers an action or submits a form.
  */
-export class Button extends InternalsButtonBase {
+export class Button extends withInternals(ButtonBase) {
   static override componentName = "button";
 
   /**
@@ -47,6 +44,7 @@ export class Button extends InternalsButtonBase {
   render() {
     return html`
       <button
+        part="button"
         class="button button--${this.size} button--${this.variant}"
         ?disabled=${this.disabled}
         type=${this.type}

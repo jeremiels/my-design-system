@@ -39,6 +39,7 @@ export class DSBaseElement extends LitElement {
    * Set by `defineComponents()` on the subclass it registers: component name
    * → tag name, for every component of that registration. Undefined on a
    * class nobody registered through `defineComponents()`.
+   * @internal
    */
   static tagNames?: Readonly<Record<string, string>>;
 
