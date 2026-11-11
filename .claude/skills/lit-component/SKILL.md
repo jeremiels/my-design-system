@@ -71,7 +71,7 @@ static override dependencies = [Button];
 
 render() {
   const button = this.tagFor(Button);
-  return html`<${button} part="trigger">Open</${button}>`;
+  return html`<${button} part="close-button">Close</${button}>`;
 }
 ```
 
@@ -81,7 +81,8 @@ render() {
   the brand override would be bypassed, and a later move to scoped registries
   would no longer be localized.
 - When the sub-element is an integration choice rather than a need, prefer a
-  slot.
+  slot: the modal's close button is rendered (`tagFor(Button)`), its trigger
+  is slotted (`slot="trigger"`).
 - Any new `lit/...` import must be added to `optimizeDeps.include` in
   `vite.config.ts` (otherwise Vitest/Storybook re-optimize mid-run and fail).
 
@@ -99,6 +100,11 @@ One typed `Event` subclass per event in `src/events/{owner}-{event}.ts`, named
 - Only through `withInternals()` (`this.internals`); never call
   `attachInternals()` yourself — it throws the second time.
 - Form-associated components: `static formAssociated = true` (see `button.ts`).
+- With `withDisabled`, render and handle interactions from `this.isDisabled`,
+  not `this.disabled`: it also covers a form-associated component inside a
+  `<fieldset disabled>` (`formDisabledCallback`).
+- `this.internals` and `this.customStates` are `protected`: for the component
+  and its subclasses, never exposed to the application.
 - `customStates` is a no-op on Chrome < 125, Firefox < 126 and Safari < 17.4:
   `:state()` styling is an enhancement only — reflect an attribute too when
   the state matters for rendering.
@@ -119,7 +125,14 @@ events and **documented `protected` members**. So:
 Native elements first (`<button>`, `<a>`, `<dialog>`); roles and ARIA where
 native semantics don't cover it (`alert.ts` maps types to `role="alert"` or
 `"status"`; `withDisabled` sets `aria-disabled`; a disabled `button-link`
-drops its `href`). Stories run the a11y addon.
+drops its `href` but keeps `role="link"`). Never give an element the role of
+another (a link stays a link). A component wrapping a native control delegates
+focus to it (`static shadowRootOptions = { ...super.shadowRootOptions,
+delegatesFocus: true }`, see `button-base.ts`), so `focus()` and `autofocus`
+work on the host. A dialog needs an accessible name (`modal`'s `label`). No
+user-facing text hard-coded in a template: a property with a default
+(`closeLabel`) or a slot. Stories run the a11y addon, and any violation fails
+the test.
 
 ## Browser support
 

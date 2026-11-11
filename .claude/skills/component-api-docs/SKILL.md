@@ -19,7 +19,7 @@ manifests, and checked against the rendered components by
  * One paragraph: what it is and when to use it.
  *
  * @element u-modal
- * @summary A modal dialog with a built-in trigger.
+ * @summary A modal dialog.
  * @slot - The dialog content.
  * @csspart dialog - The native `<dialog>`.
  * @cssprop [--u-modal-padding=var(--u-spacing-md)] - Content padding.

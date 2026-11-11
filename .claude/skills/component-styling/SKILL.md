@@ -60,7 +60,8 @@ colors), `src/components/modal/modal.css` (parts, documented exception).
   `@cssprop` (component-api-docs). `src/api-contract.test.ts` fails if declared
   and documented tokens differ — don't declare tokens nothing consumes.
 - **No theme logic in components:** dark mode and brand themes only change
-  token values (`tokens/color.css`, a brand's `tokens.brand` layer).
+  token values (`tokens/color.css`, a brand's `u.tokens.brand` layer). Default
+  colors keep WCAG AA contrast in both themes (`src/styles/tokens.test.ts`).
 - **Motion:** durations come from `--u-motion-duration-*`; reduced motion is
   handled once in `tokens/motion.css`.
 
@@ -68,9 +69,14 @@ colors), `src/components/modal/modal.css` (parts, documented exception).
 
 - Put `part="…"` on internal elements brands may need to style, and document
   each one with `@csspart`; the contract test checks it's rendered.
-- Style host states from attributes (`:host([disabled])`). `:state()` is an
-  enhancement only (unsupported on Chrome < 125, Firefox < 126, Safari < 17.4).
-- Class names: block / `block--modifier` (`.button`, `.button--large`).
+- Style host states from attributes (`:host([disabled])`, plus
+  `:host(:disabled)` for a form-associated element in a disabled fieldset).
+  `:state()` is an enhancement only (unsupported on Chrome < 125,
+  Firefox < 126, Safari < 17.4).
+- Class names: block / `block--modifier` (`.button`, `.button--large`). They
+  are **internal**: a subclass's sheet (a brand's `AcmeButton`) targets the
+  base's internals through their parts (`[part~="button"]`), never through
+  its classes.
 
 ## Browser support
 

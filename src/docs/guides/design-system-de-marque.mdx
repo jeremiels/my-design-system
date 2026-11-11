@@ -31,7 +31,12 @@ export default defineConfig({
   plugins: [cssImportAttributes()],
   build: {
     lib: {
-      entry: { index: "src/index.ts", define: "src/define.ts", styles: "src/styles.css" },
+      entry: {
+        index: "src/index.ts",
+        define: "src/define.ts",
+        styles: "src/styles.css",
+        reset: "src/reset.css",
+      },
       formats: ["es"],
     },
     rolldownOptions: { external: [/^lit/, /^my-design-system/] },
@@ -44,11 +49,11 @@ export default defineConfig({
 
 ## 3. Thème
 
-Une marque change les **valeurs** des tokens, jamais leurs noms. Ses valeurs vivent dans un sous-layer `tokens.brand`, déclaré après ceux du socle :
+Une marque change les **valeurs** des tokens, jamais leurs noms. Ses valeurs vivent dans un sous-layer `u.tokens.brand`, déclaré après ceux du socle :
 
 ```css
 /* src/theme.css */
-@layer tokens.brand {
+@layer u.tokens.brand {
   :root {
     --u-color-primary: hsl(268, 75%, 45%);
     --u-font-family-base: Georgia, serif;
@@ -64,6 +69,10 @@ Une marque change les **valeurs** des tokens, jamais leurs noms. Ses valeurs viv
 
 L'ordre des imports compte : un sous-layer déclaré avant ceux du socle passerait **sous** eux. Les valeurs du mode sombre se redéfinissent aux deux mêmes endroits que dans le socle (voir l'exemple). La production des tokens depuis Figma fera l'objet d'un ADR dédié.
 
+- **Plusieurs marques sur une page :** le thème s'applique à un conteneur plutôt qu'à `:root` (`[data-brand="acme"] { --u-color-primary: … }`). L'attribut `data-brand` est nécessaire : c'est sur lui que le socle redéclare ses tokens sémantiques, pour qu'ils suivent les primitives du conteneur.
+- **Contraste :** les valeurs par défaut du socle respectent WCAG AA (vérifié par `src/styles/tokens.test.ts`). Une marque qui change les couleurs doit garder un contraste de 4,5:1 entre chaque fond et son texte.
+- **Reset :** `my-design-system/reset.css` est optionnel. Pour que les applications ne dépendent que de la marque, elle le republie (`src/reset.css` : `@import "my-design-system/reset.css";`).
+
 ## 4. Étendre un composant du socle
 
 ```ts
@@ -75,7 +84,16 @@ export class AcmeButton extends Button {
 }
 ```
 
-La feuille de la marque s'ajoute à celle du socle. Elle peut changer la valeur par défaut d'un token de composant sur `:host` (`--u-button-border-radius: var(--u-radius-full)`), ou styler les éléments internes. Seule l'API documentée du socle est stable : tokens, parts, slots et membres `protected` documentés.
+La feuille de la marque s'ajoute à celle du socle. Elle peut changer la valeur par défaut d'un token de composant sur `:host` (`--u-button-border-radius: var(--u-radius-full)`), ou styler les éléments internes **par leurs parts** :
+
+```css
+/* acme-button.css */
+[part~="button"] {
+  text-transform: uppercase;
+}
+```
+
+Seule l'API documentée du socle est stable : tokens, parts, slots et membres `protected` documentés. Les parts sont vérifiées par le test de contrat du socle ; ses classes CSS (`.button`) sont internes et peuvent changer sans préavis.
 
 ## 5. Ajouter un composant de marque
 
@@ -97,6 +115,7 @@ export class AcmeCard extends DSBaseElement {
 - `componentName` donne la balise : `acme-card`.
 - Un composant qui en rend un autre le déclare dans `dependencies` et passe par `tagFor()` : la carte rend ainsi le bouton **de la marque**. Jamais de balise écrite en dur, ni de `document.createElement`.
 - Ses tokens prennent le préfixe de la marque (`--acme-card-padding`), et sa JSDoc suit les mêmes conventions que le socle (`@element`, `@csspart`, `@cssprop`…).
+- **Nom de composant :** si le socle ajoute plus tard un composant du même nom (`card`), `defineComponents()` lèvera une erreur à l'enregistrement, puisque `AcmeCard` ne l'étend pas. Vérifier les nouveautés du catalogue à chaque montée de version du socle ; un nom propre à la marque évite la question.
 
 ## 6. Enregistrer et republier
 
@@ -148,7 +167,9 @@ Le manifest de la marque inclut celui du socle (`dependencies: true` dans `custo
       <td>Les styles de la marque s'ajoutent à ceux du socle</td>
     </tr>
     <tr>
-      <td>Le déclencheur de `acme-modal` et l'action de `acme-card` sont des `AcmeButton`</td>
+      <td>
+        Le bouton de fermeture de `acme-modal` et l'action de `acme-card` sont des `AcmeButton`
+      </td>
       <td>Une surcharge s'applique partout, y compris dans les composants de la marque</td>
     </tr>
     <tr>

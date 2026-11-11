@@ -8,14 +8,14 @@ Ce document décrit l'architecture CSS utilisée dans ce projet, en mettant l'ac
 
 ## Les Couches (Layers)
 
-Le CSS est organisé en couches, chacune ayant un objectif spécifique:
+Le CSS global (hors shadow DOM) est organisé en couches, toutes rangées sous la couche `u`, de la moins à la plus prioritaire :
 
-1. **Reset**: Une réinitialisation CSS moderne pour assurer une base cohérente entre les navigateurs.
-2. **Tokens**: Jetons de design pour les couleurs, la typographie, l'espacement, etc.
-3. **Base**: Styles de base pour les éléments HTML (par exemple, titres, paragraphes, liens).
-4. **Components**: Styles pour les composants réutilisables (par exemple, boutons, cartes, modales).
-5. **Utilities**: Classes utilitaires pour les motifs de style communs (par exemple, marge, remplissage, flexbox).
-6. **Shame**: Une couche spéciale pour les surcharges d'urgence avec `!important`. Cette couche doit être:
+1. **`u.reset`** : une réinitialisation CSS moderne pour assurer une base cohérente entre les navigateurs.
+2. **`u.tokens`** : jetons de design pour les couleurs, la typographie, l'espacement, etc.
+3. **`u.base`** : styles de base pour les éléments HTML (par exemple, titres, paragraphes, liens).
+4. **`u.components`** : styles globaux visant les composants depuis la page (par exemple, l'espacement entre eux). Leurs styles internes vivent dans leur shadow DOM, que les couches de la page n'atteignent pas.
+5. **`u.utilities`** : classes utilitaires pour les motifs de style communs (par exemple, `.visually-hidden`).
+6. **`u.shame`** : une couche spéciale pour les surcharges d'urgence avec `!important`. Cette couche doit être:
    - Utilisée en dernier recours uniquement
    - Documentée de manière exhaustive
    - Maintenue au minimum absolu
@@ -23,19 +23,24 @@ Le CSS est organisé en couches, chacune ayant un objectif spécifique:
 
 ## L'API @layer
 
-L'API `@layer` est une fonctionnalité puissante de CSS qui nous permet de déclarer explicitement des "couches en cascade" et de contrôler leur ordre de priorité. Dans notre architecture, nous utilisons `@layer` pour organiser notre code de manière plus structurée:
+L'API `@layer` est une fonctionnalité puissante de CSS qui nous permet de déclarer explicitement des "couches en cascade" et de contrôler leur ordre de priorité. L'ordre est déclaré une seule fois, dans `src/styles/layers/order.css` :
 
 ```css
-@layer reset, tokens, base, components, utilities;
+@layer u.reset, u.tokens, u.base, u.components, u.utilities, u.shame;
 
-@layer reset {
+@layer u.reset {
   /* Styles de réinitialisation */
 }
-
-@layer base {
-  /* Styles de base */
-}
 ```
+
+**Pourquoi le préfixe `u` :** les noms de couches sont globaux au document. Des noms nus (`base`, `utilities`…) fusionneraient avec les couches de l'application hôte — Tailwind CSS v4, par exemple, déclare `theme, base, components, utilities`. C'est le même raisonnement que le préfixe `--u-` des tokens ([ADR 0001](?path=/docs/documentation-adr-0001-architecture-multi-marque--docs), D4). Les styles de l'application hors couche restent prioritaires sur toutes les couches du socle.
+
+### Deux feuilles : `styles.css` et `reset.css`
+
+- **`my-design-system/styles.css`** (`src/styles/main.css`) : les tokens et les classes utilitaires, c'est-à-dire ce dont les composants ont besoin. Elle ne style aucun élément de la page : toute application peut la charger.
+- **`my-design-system/reset.css`** (`src/styles/reset.css`), **optionnelle** : le reset et les styles de base, qui touchent toute la page (`body`, titres, médias, champs de formulaire, réduction des animations). À charger avec `styles.css`, dont elle utilise les tokens, sauf si l'application a déjà son propre reset.
+
+Les deux importent d'abord `layers/order.css` : l'ordre des couches tient quel que soit l'ordre de chargement.
 
 ### Avantages de @layer
 
@@ -49,10 +54,10 @@ Pour maintenir une architecture claire et scalable, chaque fichier de token doit
 
 ```css
 /* src/styles/tokens/color.css */
-@layer tokens.color {
+@layer u.tokens.color {
   :root {
-    --u-color-primary: hsl(210, 100%, 50%);
-    --u-color-secondary: hsl(150, 100%, 50%);
+    --u-color-primary: hsl(210, 100%, 44%);
+    --u-color-secondary: hsl(150, 100%, 26%);
     /* ... */
   }
 }
@@ -69,8 +74,8 @@ Pour maintenir une architecture claire et scalable, chaque fichier de token doit
 @import "../tokens/elevation.css";
 
 /* Déclaration de l'ordre des sous-couches */
-@layer tokens.color, tokens.semantic, tokens.spacing, tokens.typography,
-  tokens.radius, tokens.motion, tokens.elevation;
+@layer u.tokens.color, u.tokens.semantic, u.tokens.spacing, u.tokens.typography,
+  u.tokens.radius, u.tokens.motion, u.tokens.elevation;
 ```
 
 **Avantages de cette approche:**
@@ -84,8 +89,8 @@ Pour maintenir une architecture claire et scalable, chaque fichier de token doit
 
 Pour que le système soit réellement themable, une seule source de vérité doit exister pour chaque valeur. Cela impose une hiérarchie stricte à trois niveaux, où chaque niveau ne référence que le niveau précédent — jamais de valeur littérale en dehors du niveau primitif :
 
-1. **Primitif** (`src/styles/tokens/color.css`, `spacing.css`, …) — valeurs brutes de la marque (`--u-color-primary: hsl(210, 100%, 50%)`).
-2. **Sémantique** (`src/styles/tokens/semantic.css`) — alias par intention, jamais par apparence (`--u-color-action-bg: var(--u-color-primary)`, `--u-color-danger-bg: var(--u-color-danger)`). Les états d'interaction (hover/active) sont dérivés avec `color-mix()` plutôt que codés en dur, pour n'avoir qu'une seule couleur à maintenir par intention.
+1. **Primitif** (`src/styles/tokens/color.css`, `spacing.css`, …) — valeurs brutes de la marque (`--u-color-primary: hsl(210, 100%, 44%)`).
+2. **Sémantique** (`src/styles/tokens/semantic.css`) — alias par intention, jamais par apparence (`--u-color-action-bg: var(--u-color-primary)`, `--u-color-danger-bg: var(--u-color-danger)`). Les états d'interaction (hover/active) sont dérivés avec `color-mix()` plutôt que codés en dur, pour n'avoir qu'une seule couleur à maintenir par intention. Ils tirent la couleur vers `--u-color-text`, l'opposé du texte inversé qu'elle porte : plus sombre en mode clair, plus claire en mode sombre, si bien que le contraste ne peut qu'augmenter.
 3. **Composant** — chaque composant Lit déclare ses propres custom properties sur `:host`, dont la valeur par défaut pointe vers le token **sémantique** correspondant (jamais vers un token primitif ni une valeur littérale) :
 
    ```css
@@ -103,6 +108,10 @@ Pour que le système soit réellement themable, une seule source de vérité doi
 
 - `@media (prefers-color-scheme: dark)` sur `:root:not([data-theme="light"])` — bascule automatique selon la préférence OS de l'utilisateur.
 - `:root[data-theme="dark"]` — bascule manuelle, pour un sélecteur de thème dans l'application consommatrice (ex. `document.documentElement.dataset.theme = "dark"`).
+
+**Thème limité à un conteneur :** un `var()` est résolu sur l'élément qui déclare la custom property, puis hérité tel quel. Déclarés sur `:root` seulement, les tokens sémantiques garderaient les primitives de `:root`, même dans un conteneur qui les redéfinit. Ils sont donc déclarés sur `:root, [data-brand]` : un thème de marque appliqué à `[data-brand="acme"]` (plusieurs marques sur une page, ADR 0001, D4) atteint les composants de ce conteneur.
+
+**Accessibilité :** `src/styles/tokens.test.ts` vérifie, dans les deux thèmes, que chaque intention (au repos, survol, pression) offre un contraste de 4,5:1 avec son texte (WCAG AA), et l'anneau de focus 3:1 avec la surface.
 
 **Préfixe :** tous les tokens, des trois niveaux, portent le préfixe `--u-` ([ADR 0001](?path=/docs/documentation-adr-0001-architecture-multi-marque--docs), D4). Il évite les collisions avec les variables de l'application hôte ou d'autres librairies, et il est identique pour toutes les marques : une marque change les valeurs, jamais les noms.
 
@@ -125,8 +134,8 @@ L'import renvoie un `CSSStyleSheet` constructible, que Lit adopte directement. V
 Les tokens de composant ci-dessus **n'ont pas de fallback littéral** (`var(--u-color-action-bg, #007bff)`). C'est un choix délibéré, pas un oubli :
 
 - Un fallback littéral duplique la valeur qui existe déjà dans `tokens/`. Dès qu'un deuxième composant a besoin de la même couleur, on a deux sources de vérité qui peuvent diverger silencieusement — exactement le problème que les trois niveaux de tokens sont censés éliminer.
-- `src/index.ts` charge `src/styles/main.css` en effet de bord (`import "./styles/main.css"`) : tout consommateur qui importe le point d'entrée du package reçoit donc automatiquement la feuille de tokens. C'est la même convention que Spectrum, Shoelace/Web Awesome, Material Web ou Carbon — le thème est une dépendance du composant, chargée une seule fois, jamais dupliquée dans chaque fichier de composant.
-- Un composant importé directement (`@/components/button/button.ts`) en contournant `src/index.ts` doit toujours avoir la feuille de tokens chargée sur la page — sinon les custom properties sont simplement non définies (valeur initiale CSS de la propriété ciblée, souvent `transparent` ou `medium`). Ce n'est pas un filet de sécurité à coder en dur ; c'est un prérequis d'intégration à documenter/respecter.
+- La feuille de tokens est un point d'entrée séparé (`my-design-system/styles.css`, ou celle du design system de marque) que l'application charge une fois ; `src/index.ts` ne l'importe pas, pour rester sans effet de bord. C'est la même convention que Spectrum, Shoelace/Web Awesome, Material Web ou Carbon — le thème est une dépendance du composant, chargée une seule fois, jamais dupliquée dans chaque fichier de composant.
+- Sans cette feuille, les custom properties sont simplement non définies (valeur initiale CSS de la propriété ciblée, souvent `transparent` ou `medium`). Ce n'est pas un filet de sécurité à coder en dur ; c'est un prérequis d'intégration à documenter/respecter.
 
 **Exceptions légitimes à cette règle :**
 

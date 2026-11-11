@@ -1,6 +1,6 @@
 # withInternals Mixin
 
-The `withInternals` mixin attaches `ElementInternals` to a component and exposes it as `this.internals`. It exists because `attachInternals()` can only be called **once per element** — components that need form participation or custom states must go through this mixin rather than calling `this.attachInternals()` themselves.
+The `withInternals` mixin attaches `ElementInternals` to a component and exposes it, to the component and its subclasses only (`protected`), as `this.internals`. It exists because `attachInternals()` can only be called **once per element** — components that need form participation or custom states must go through this mixin rather than calling `this.attachInternals()` themselves.
 
 It is a real mixin: it extends whatever base class you pass in, so your base's own properties, methods, and styles are preserved and composed with — not replaced.
 
@@ -31,12 +31,14 @@ A purely decorative or display-only component (an alert message, a badge) gets n
 
 ## API
 
-### Properties
+### Protected members
 
-| Name            | Type                        | Description                                                                                          |
-| --------------- | --------------------------- | ------------------------------------------------------------------------------------------------------ |
-| `internals`     | `ElementInternals \| undefined` | Set once in the constructor. `undefined` if `attachInternals()` isn't supported in the environment. |
-| `customStates`  | `{ set, has }`               | Wraps `internals.states` to toggle/check `:state(x)` selectors.                                       |
+Both are `protected`: available to the component and its subclasses (brands included), not to the application — `internals` gives full control over the element's form value, validity and ARIA.
+
+| Name           | Type                            | Description                                                                                         |
+| -------------- | ------------------------------- | --------------------------------------------------------------------------------------------------- |
+| `internals`    | `ElementInternals \| undefined` | Set once in the constructor. `undefined` if `attachInternals()` isn't supported in the environment. |
+| `customStates` | `{ set, has }`                  | Wraps `internals.states` to toggle/check `:state(x)` selectors.                                     |
 
 ## Browser support
 
