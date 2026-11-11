@@ -22,7 +22,8 @@ const $ = (selector) => document.querySelector(selector);
 const shadow = (selector, inner) => $(selector).shadowRoot.querySelector(inner);
 const style = (element, pseudo) => getComputedStyle(element, pseudo);
 
-const tags = ["u-button", "u-button-link", "u-alert", "u-modal"];
+// Every catalog component, as registered by dist/define.js.
+const tags = allComponents.map(({ componentName }) => `u-${componentName}`);
 await Promise.all(tags.map((tag) => customElements.whenDefined(tag)));
 await Promise.all([...document.querySelectorAll(tags.join(","))].map((el) => el.updateComplete));
 

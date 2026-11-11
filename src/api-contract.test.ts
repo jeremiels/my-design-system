@@ -5,6 +5,7 @@ import { describe, expect, it } from "vitest";
 import manifest from "../custom-elements.json";
 import type { DSBaseElement } from "./components/base-element.js";
 import "./define.js";
+import { allComponents } from "./registry/catalog.js";
 
 interface Named {
   name: string;
@@ -46,13 +47,11 @@ async function render(tag: string): Promise<DSBaseElement> {
   return element;
 }
 
-it("finds the components in the manifest", () => {
-  expect(components.map((declaration) => declaration.tagName).sort()).toEqual([
-    "u-alert",
-    "u-button",
-    "u-button-link",
-    "u-modal",
-  ]);
+it("documents exactly the components of the catalog", () => {
+  // Fails when a component misses its @element JSDoc or its allComponents entry.
+  expect(components.map((declaration) => declaration.tagName).sort()).toEqual(
+    allComponents.map(({ componentName }) => `u-${componentName}`).sort(),
+  );
 });
 
 describe.each(components)("<$tagName> matches the manifest", (declaration) => {

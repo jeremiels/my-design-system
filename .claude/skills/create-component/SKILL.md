@@ -45,10 +45,11 @@ in a brand's registration). Follow every step.
 
 ## 3. API manifest
 
-`npm run analyze`, review the `custom-elements.json` diff, and add
-`"u-<name>"` to the expected tags in `src/api-contract.test.ts` ("finds the
-components in the manifest"). The contract test then checks its parts, slots,
-attributes and tokens automatically.
+`npm run analyze`, then review the `custom-elements.json` diff. Nothing to add
+to the tests: `src/api-contract.test.ts` checks that the manifest documents
+exactly the catalog's components (a missing `@element` or `allComponents` entry
+fails), then the new component's parts, slots, attributes and tokens; the
+registry and legacy tests also derive their lists from `allComponents`.
 
 ## 4. Stories
 
@@ -61,9 +62,10 @@ if any: storybook-documentation.
 
 ## 5. Legacy browsers
 
-Add the element to `tests/legacy/index.html` and to `tags` in
-`tests/legacy/checks.js`, plus a `check()` for anything that relies on a
-recent browser feature. `checks.js` is not transpiled: Firefox 115 syntax.
+Add the element to `tests/legacy/index.html` (the page `checks.js` waits for
+every catalog tag), plus a `check()` in `tests/legacy/checks.js` for anything
+relying on a recent browser feature. `checks.js` is not transpiled: Firefox
+115 syntax.
 
 ## 6. Verify
 

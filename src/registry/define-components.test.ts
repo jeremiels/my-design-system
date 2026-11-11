@@ -29,12 +29,12 @@ describe("defineComponents", () => {
     const prefix = uniquePrefix();
     const tags = defineComponents({ prefix, components: allComponents });
 
-    expect(tags).toEqual({
-      button: `${prefix}-button`,
-      "button-link": `${prefix}-button-link`,
-      alert: `${prefix}-alert`,
-      modal: `${prefix}-modal`,
-    });
+    // Derived from the catalog, so adding a component doesn't touch this test.
+    expect(tags).toEqual(
+      Object.fromEntries(
+        allComponents.map(({ componentName }) => [componentName, `${prefix}-${componentName}`]),
+      ),
+    );
     expect(customElements.get(`${prefix}-button`)?.prototype).toBeInstanceOf(Button);
     expect(customElements.get(`${prefix}-modal`)?.prototype).toBeInstanceOf(Modal);
   });
