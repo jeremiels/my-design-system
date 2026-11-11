@@ -10,7 +10,7 @@ import baseStyles from "./base-element.css" with { type: "css" };
  * delegation, form association, ...) belongs in a mixin from `src/mixins`.
  * Custom events are dispatched as typed `Event` subclasses from
  * `src/events`, not through a generic base-class `emit()` helper — see
- * `src/events/button-click.ts` for the pattern.
+ * `src/events/modal-close.ts` for the pattern.
  *
  * Classes never register themselves (ADR 0001, D1): `defineComponents()`
  * registers a subclass per prefix (`u-button`, `acme-button`, ...) and

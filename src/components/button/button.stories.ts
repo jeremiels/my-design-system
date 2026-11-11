@@ -57,9 +57,15 @@ export const Default = meta.story({
   play: async ({ canvasElement }) => {
     const button = canvasElement.querySelector<Button>("u-button")!;
     await button.updateComplete;
+    const inner = button.shadowRoot!.querySelector("button")!;
     // Focus is delegated to the native <button>: focus() and autofocus work on the host.
     button.focus();
-    expect(button.shadowRoot!.activeElement).toBe(button.shadowRoot!.querySelector("button"));
+    expect(button.shadowRoot!.activeElement).toBe(inner);
+    // Its native click is the button's event: it reaches the host.
+    const onClick = fn();
+    button.addEventListener("click", onClick);
+    await userEvent.click(inner);
+    expect(onClick).toHaveBeenCalledOnce();
   },
 });
 
@@ -135,7 +141,7 @@ export const Disabled = meta.story({
     const button = canvasElement.querySelector<Button>("u-button")!;
     await button.updateComplete;
     const onClick = fn();
-    button.addEventListener("u-click", onClick);
+    button.addEventListener("click", onClick);
     // Programmatic click: `pointer-events: none` would make userEvent refuse.
     button.shadowRoot!.querySelector<HTMLButtonElement>(".button")!.click();
     expect(onClick).not.toHaveBeenCalled();

@@ -91,9 +91,15 @@ render() {
 One typed `Event` subclass per event in `src/events/{owner}-{event}.ts`, named
 `u-<event>` (the base's prefix, whatever the brand), with its own
 `bubbles`/`composed`, augmenting `GlobalEventHandlersEventMap` — copy
-`src/events/button-click.ts`. Dispatch with
-`this.dispatchEvent(new ClickEvent({ originalEvent: e }))`, document it with
-`@fires`, and export it from `src/index.ts`.
+`src/events/modal-close.ts`. Dispatch with
+`this.dispatchEvent(new ModalCloseEvent())`, document it with `@fires`, and
+export it from `src/index.ts`.
+
+Only for what has no native event. A native event the inner control already
+composes out of the shadow root (`click` from a `<button>`) is the
+component's event: don't wrap it in a custom one (two events per action),
+document it with `@fires click`, and make sure it never escapes while the
+component is disabled (`ButtonBase.handleClick`).
 
 ## ElementInternals, forms, states
 

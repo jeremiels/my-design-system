@@ -1,5 +1,4 @@
 import { property } from "lit/decorators.js";
-import { ClickEvent } from "../../events/button-click.js";
 import { withDisabled } from "../../mixins/withDisabled.js";
 import { DSBaseElement } from "../base-element.js";
 import buttonBaseStyles from "./button-base.css" with { type: "css" };
@@ -13,7 +12,7 @@ import type { ButtonSize, ButtonVariant } from "./button.type.js";
  *
  * @slot - The button label.
  * @csspart button - The native `<button>` (or `<a>` for `button-link`).
- * @fires {ClickEvent} u-click - On click, unless disabled. `detail.originalEvent` is the native click.
+ * @fires click - The native click of the inner control, composed out of the shadow root. Never fired while disabled.
  * @cssprop [--u-button-background-color=var(--u-color-action-bg)] - Background color (variants change the default).
  * @cssprop [--u-button-background-color-hover=var(--u-color-action-bg-hover)] - Background color on hover.
  * @cssprop [--u-button-background-color-active=var(--u-color-action-bg-active)] - Background color while pressed.
@@ -43,14 +42,16 @@ export abstract class ButtonBase extends withDisabled(DSBaseElement) {
 
   static shadowRootOptions: ShadowRootInit = { ...super.shadowRootOptions, delegatesFocus: true };
 
+  /**
+   * Handles clicks on the inner control. While disabled, cancels the click
+   * and keeps it from reaching the host (a link without `href` still
+   * dispatches one). Subclasses add their behavior after calling it.
+   */
   protected handleClick(e: MouseEvent) {
     if (this.isDisabled) {
       e.preventDefault();
       e.stopPropagation();
-      return;
     }
-
-    this.dispatchEvent(new ClickEvent({ originalEvent: e }));
   }
 
   protected abstract render(): unknown;

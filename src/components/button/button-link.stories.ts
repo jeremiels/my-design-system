@@ -1,6 +1,6 @@
 import preview from "#.storybook/preview";
 import { html } from "lit";
-import { expect } from "storybook/test";
+import { expect, fn } from "storybook/test";
 import type { ButtonLink } from "./button-link";
 
 const meta = preview.meta({
@@ -48,5 +48,10 @@ export const Disabled = meta.story({
     expect(anchor.hasAttribute("href")).toBe(false);
     expect(anchor.getAttribute("role")).toBe("link");
     expect(anchor.getAttribute("aria-disabled")).toBe("true");
+    // A link without href still dispatches clicks: they must not reach the host.
+    const onClick = fn();
+    link.addEventListener("click", onClick);
+    anchor.click();
+    expect(onClick).not.toHaveBeenCalled();
   },
 });

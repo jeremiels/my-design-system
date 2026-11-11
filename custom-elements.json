@@ -68,14 +68,6 @@
           "name": "*",
           "declaration": {
             "name": "*",
-            "module": "src/events/button-click.js"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "*",
-          "declaration": {
-            "name": "*",
             "module": "src/events/modal-close.js"
           }
         },
@@ -135,7 +127,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "Base class every component extends.\n\nKept intentionally thin: universal resets/properties and the registration\ncontract only. Behavior that not every component needs (open/close, focus\ndelegation, form association, ...) belongs in a mixin from `src/mixins`.\nCustom events are dispatched as typed `Event` subclasses from\n`src/events`, not through a generic base-class `emit()` helper — see\n`src/events/button-click.ts` for the pattern.\n\nClasses never register themselves (ADR 0001, D1): `defineComponents()`\nregisters a subclass per prefix (`u-button`, `acme-button`, ...) and\nhands it the tag names of its registration through `tagNames`.",
+          "description": "Base class every component extends.\n\nKept intentionally thin: universal resets/properties and the registration\ncontract only. Behavior that not every component needs (open/close, focus\ndelegation, form association, ...) belongs in a mixin from `src/mixins`.\nCustom events are dispatched as typed `Event` subclasses from\n`src/events`, not through a generic base-class `emit()` helper — see\n`src/events/modal-close.ts` for the pattern.\n\nClasses never register themselves (ADR 0001, D1): `defineComponents()`\nregisters a subclass per prefix (`u-button`, `acme-button`, ...) and\nhands it the tag names of its registration through `tagNames`.",
           "name": "DSBaseElement",
           "members": [
             {
@@ -192,42 +184,6 @@
           "declaration": {
             "name": "DSBaseElement",
             "module": "src/components/base-element.ts"
-          }
-        }
-      ]
-    },
-    {
-      "kind": "javascript-module",
-      "path": "src/events/button-click.ts",
-      "declarations": [
-        {
-          "kind": "class",
-          "description": "",
-          "name": "ClickEvent",
-          "members": [
-            {
-              "kind": "field",
-              "name": "detail",
-              "type": {
-                "text": "ClickEventDetail"
-              },
-              "readonly": true,
-              "default": "detail"
-            }
-          ],
-          "superclass": {
-            "name": "Event",
-            "module": "src/events/button-click.ts"
-          }
-        }
-      ],
-      "exports": [
-        {
-          "kind": "js",
-          "name": "ClickEvent",
-          "declaration": {
-            "name": "ClickEvent",
-            "module": "src/events/button-click.ts"
           }
         }
       ]
@@ -751,7 +707,8 @@
                     "text": "MouseEvent"
                   }
                 }
-              ]
+              ],
+              "description": "Handles clicks on the inner control. While disabled, cancels the click\nand keeps it from reaching the host (a link without `href` still\ndispatches one). Subclasses add their behavior after calling it."
             },
             {
               "kind": "field",
@@ -862,11 +819,8 @@
           ],
           "events": [
             {
-              "type": {
-                "text": "ClickEvent"
-              },
-              "description": "On click, unless disabled. `detail.originalEvent` is the native click.",
-              "name": "u-click"
+              "description": "The native click of the inner control, composed out of the shadow root. Never fired while disabled.",
+              "name": "click"
             }
           ],
           "attributes": [
@@ -1085,6 +1039,7 @@
                   }
                 }
               ],
+              "description": "Handles clicks on the inner control. While disabled, cancels the click\nand keeps it from reaching the host (a link without `href` still\ndispatches one). Subclasses add their behavior after calling it.",
               "inheritedFrom": {
                 "name": "ButtonBase",
                 "module": "src/components/button/button-base.ts"
@@ -1352,11 +1307,8 @@
           ],
           "events": [
             {
-              "type": {
-                "text": "ClickEvent"
-              },
-              "description": "On click, unless disabled. `detail.originalEvent` is the native click.",
-              "name": "u-click",
+              "description": "The native click of the inner control, composed out of the shadow root. Never fired while disabled.",
+              "name": "click",
               "inheritedFrom": {
                 "name": "ButtonBase",
                 "module": "src/components/button/button-base.ts"
@@ -1431,6 +1383,7 @@
                   }
                 }
               ],
+              "description": "Handles clicks on the inner control. While disabled, cancels the click\nand keeps it from reaching the host (a link without `href` still\ndispatches one). Subclasses add their behavior after calling it.",
               "inheritedFrom": {
                 "name": "ButtonBase",
                 "module": "src/components/button/button-base.ts"
@@ -1818,11 +1771,8 @@
           ],
           "events": [
             {
-              "type": {
-                "text": "ClickEvent"
-              },
-              "description": "On click, unless disabled. `detail.originalEvent` is the native click.",
-              "name": "u-click",
+              "description": "The native click of the inner control, composed out of the shadow root. Never fired while disabled.",
+              "name": "click",
               "inheritedFrom": {
                 "name": "ButtonBase",
                 "module": "src/components/button/button-base.ts"

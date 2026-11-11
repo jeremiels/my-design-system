@@ -248,6 +248,6 @@ Aucune.
 ## Questions tranchées
 
 - **Préfixe des tokens :** `--u-`, neutre et identique pour toutes les marques (D4).
-- **Préfixe des balises du socle :** `u-` (`u-button`, `u-modal`…), aligné sur les tokens ; il ne sert qu'à l'enregistrement par défaut (Storybook, démo, usage sans marque). L'événement du bouton suit : `u-click`.
+- **Préfixe des balises du socle :** `u-` (`u-button`, `u-modal`…), aligné sur les tokens ; il ne sert qu'à l'enregistrement par défaut (Storybook, démo, usage sans marque). Les événements propres au socle suivent (`u-close`) ; le bouton, lui, émet le `click` natif de son contrôle, sans événement dupliqué (amendement du 11 novembre 2026).
 - **Deux versions d'une même marque sur une page :** non couvert, jugé peu probable ; les règles de D2 gardent la migration localisée.
 - **Publication :** registre privé interne (Artifactory), configuré hors de ce poste ; démo d'abord, via `npm pack`.

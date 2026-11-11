@@ -23,7 +23,7 @@ manifests, and checked against the rendered components by
  * @slot - The dialog content.
  * @csspart dialog - The native `<dialog>`.
  * @cssprop [--u-modal-padding=var(--u-spacing-md)] - Content padding.
- * @fires {ClickEvent} u-click - On click, unless disabled.
+ * @fires {ModalCloseEvent} u-close - When the dialog closes.
  */
 ```
 

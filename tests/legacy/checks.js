@@ -54,7 +54,7 @@ await check("color-mix() semantic tokens resolve", () => {
 await check("disabled button is inert and announced", () => {
   const host = $("#disabled");
   let clicked = false;
-  host.addEventListener("u-click", () => {
+  host.addEventListener("click", () => {
     clicked = true;
   });
   shadow("#disabled", ".button").click();
