@@ -1,0 +1,163 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Documentation/Guides/Créer un design system de marque" />
+
+# Créer un design system de marque
+
+Le socle (`my-design-system`) fournit des composants génériques, leurs tokens `--u-*` et l'outillage pour les étendre. Un design system de marque **dépend** du socle, l'**étend** (thème, composants modifiés, composants propres) et **republie** le tout sous son propre package, que les applications de la marque consomment. Le modèle est décrit dans l'[ADR 0001](?path=/docs/documentation-adr-0001-architecture-multi-marque--docs).
+
+Un exemple complet et testé se trouve dans `examples/acme-design-system`. `npm run example` construit le socle, l'empaquette avec `npm pack` comme pour une publication, puis installe, construit et teste ACME contre cette archive.
+
+## 1. Dépendances
+
+```json
+{
+  "dependencies": { "my-design-system": "^0.1.0" },
+  "peerDependencies": { "lit": "^3.3.3" }
+}
+```
+
+Lit est une **peer dependency** du socle comme de la marque : l'application en fournit une seule copie.
+
+## 2. Build
+
+Le socle compile les imports `with { type: "css" }` avec un plugin Vite qu'il exporte. La marque l'utilise, et laisse Lit et le socle en dépendances au lieu de les embarquer :
+
+```ts
+// vite.config.ts
+import { cssImportAttributes } from "my-design-system/vite-plugin";
+
+export default defineConfig({
+  plugins: [cssImportAttributes()],
+  build: {
+    lib: {
+      entry: { index: "src/index.ts", define: "src/define.ts", styles: "src/styles.css" },
+      formats: ["es"],
+    },
+    rolldownOptions: { external: [/^lit/, /^my-design-system/] },
+  },
+});
+```
+
+- Types des imports CSS : `/// <reference types="my-design-system/css-modules" />` dans un fichier `.d.ts`.
+- `tsconfig.json` : `experimentalDecorators: true` et `useDefineForClassFields: false`, comme dans le socle (décorateurs de Lit).
+
+## 3. Thème
+
+Une marque change les **valeurs** des tokens, jamais leurs noms. Ses valeurs vivent dans un sous-layer `tokens.brand`, déclaré après ceux du socle :
+
+```css
+/* src/theme.css */
+@layer tokens.brand {
+  :root {
+    --u-color-primary: hsl(268, 75%, 45%);
+    --u-font-family-base: Georgia, serif;
+  }
+}
+```
+
+```css
+/* src/styles.css : la feuille que chargent les applications */
+@import "my-design-system/styles.css";
+@import "./theme.css";
+```
+
+L'ordre des imports compte : un sous-layer déclaré avant ceux du socle passerait **sous** eux. Les valeurs du mode sombre se redéfinissent aux deux mêmes endroits que dans le socle (voir l'exemple). La production des tokens depuis Figma fera l'objet d'un ADR dédié.
+
+## 4. Étendre un composant du socle
+
+```ts
+import { Button } from "my-design-system";
+import acmeButtonStyles from "./acme-button.css" with { type: "css" };
+
+export class AcmeButton extends Button {
+  static styles = [Button.styles ?? [], acmeButtonStyles];
+}
+```
+
+La feuille de la marque s'ajoute à celle du socle. Elle peut changer la valeur par défaut d'un token de composant sur `:host` (`--u-button-border-radius: var(--u-radius-full)`), ou styler les éléments internes. Seule l'API documentée du socle est stable : tokens, parts, slots et membres `protected` documentés.
+
+## 5. Ajouter un composant de marque
+
+```ts
+import { Button, DSBaseElement } from "my-design-system";
+import { html } from "lit/static-html.js";
+
+export class AcmeCard extends DSBaseElement {
+  static override componentName = "card";
+  static override dependencies = [Button];
+
+  render() {
+    const button = this.tagFor(Button);
+    return html`<article><slot></slot><${button}>Action</${button}></article>`;
+  }
+}
+```
+
+- `componentName` donne la balise : `acme-card`.
+- Un composant qui en rend un autre le déclare dans `dependencies` et passe par `tagFor()` : la carte rend ainsi le bouton **de la marque**. Jamais de balise écrite en dur, ni de `document.createElement`.
+- Ses tokens prennent le préfixe de la marque (`--acme-card-padding`), et sa JSDoc suit les mêmes conventions que le socle (`@element`, `@csspart`, `@cssprop`…).
+
+## 6. Enregistrer et republier
+
+```ts
+// src/define.ts : les applications l'importent une fois
+import { allComponents, defineComponents } from "my-design-system";
+
+defineComponents({
+  prefix: "acme",
+  components: [...allComponents, AcmeCard],
+  overrides: { button: AcmeButton },
+});
+```
+
+```ts
+// src/index.ts : le socle republié avec les composants de la marque
+export * from "my-design-system";
+export * from "./components/acme-button/acme-button.js";
+export * from "./components/acme-card/acme-card.js";
+```
+
+- `overrides` remplace un composant **partout** dans l'enregistrement : `acme-modal` et `acme-card` rendent `AcmeButton`.
+- Le package déclare `"sideEffects": ["**/*.css", "./dist/define.js"]`, pour que les applications ne chargent que les composants qu'elles utilisent.
+
+## 7. Documentation
+
+Le manifest de la marque inclut celui du socle (`dependencies: true` dans `custom-elements-manifest.config.mjs`) : les composants qui étendent le socle sont documentés avec ce dont ils héritent (attributs, tokens, parts).
+
+## Ce que vérifie l'exemple
+
+<table>
+  <thead>
+    <tr>
+      <th>Vérification</th>
+      <th>Ce qu'elle garantit</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Le `dist/` d'ACME importe `my-design-system`</td>
+      <td>La marque republie sans embarquer de copie du socle</td>
+    </tr>
+    <tr>
+      <td>Le fond de `acme-button` a la couleur d'ACME</td>
+      <td>Le thème atteint les composants du socle</td>
+    </tr>
+    <tr>
+      <td>`acme-button` est en majuscules, aux coins arrondis</td>
+      <td>Les styles de la marque s'ajoutent à ceux du socle</td>
+    </tr>
+    <tr>
+      <td>Le déclencheur de `acme-modal` et l'action de `acme-card` sont des `AcmeButton`</td>
+      <td>Une surcharge s'applique partout, y compris dans les composants de la marque</td>
+    </tr>
+    <tr>
+      <td>Aucune balise `u-` n'est enregistrée</td>
+      <td>La marque n'enregistre que son propre préfixe</td>
+    </tr>
+    <tr>
+      <td>Le manifest documente ce qu'`AcmeButton` hérite</td>
+      <td>La documentation du socle suit la marque</td>
+    </tr>
+  </tbody>
+</table>

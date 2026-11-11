@@ -1,0 +1,9 @@
+:host {
+  /* Overrides the default of a base component token, still a token. */
+  --u-button-border-radius: var(--u-radius-full);
+}
+
+.button {
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}

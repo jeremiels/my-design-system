@@ -1,0 +1,24 @@
+:host {
+  --acme-card-padding: var(--u-spacing-lg);
+  --acme-card-background-color: var(--u-color-surface-raised);
+  --acme-card-border-radius: var(--u-radius-lg);
+  --acme-card-shadow: var(--u-shadow-elevation-md);
+
+  display: block;
+}
+
+.card {
+  display: grid;
+  gap: var(--u-spacing-sm);
+  justify-items: start;
+  padding: var(--acme-card-padding);
+  background-color: var(--acme-card-background-color);
+  border-radius: var(--acme-card-border-radius);
+  box-shadow: var(--acme-card-shadow);
+  font-family: var(--u-font-family-base);
+}
+
+.heading {
+  margin: 0;
+  font-size: var(--u-font-size-lg);
+}

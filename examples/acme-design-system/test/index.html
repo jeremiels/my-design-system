@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <title>ACME design system — smoke test</title>
+    <!-- ACME's build, as published: the base's styles then ACME's theme. -->
+    <link rel="stylesheet" href="/dist/styles.css" />
+    <!-- Bare specifiers resolve to the installed packages, as a bundler would. -->
+    <script type="importmap">
+      {
+        "imports": {
+          "my-design-system": "/node_modules/my-design-system/dist/index.js",
+          "lit": "/node_modules/lit/index.js",
+          "lit/": "/node_modules/lit/",
+          "lit-html": "/node_modules/lit-html/lit-html.js",
+          "lit-html/": "/node_modules/lit-html/",
+          "lit-element/": "/node_modules/lit-element/",
+          "@lit/reactive-element": "/node_modules/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "/node_modules/@lit/reactive-element/"
+        }
+      }
+    </script>
+    <script>
+      window.__errors = [];
+      addEventListener("error", (event) => window.__errors.push(String(event.message)));
+      addEventListener("unhandledrejection", (event) => window.__errors.push(String(event.reason)));
+    </script>
+    <script
+      type="module"
+      src="./checks.js"
+      onerror="window.__errors.push('checks.js failed to load')"
+    ></script>
+  </head>
+  <body>
+    <acme-button id="button">Valider</acme-button>
+    <acme-card id="card" heading="Offre" action-label="Souscrire">Contenu de la carte</acme-card>
+    <acme-modal id="modal"><p>Contenu</p></acme-modal>
+    <acme-alert type="success">Enregistré</acme-alert>
+  </body>
+</html>

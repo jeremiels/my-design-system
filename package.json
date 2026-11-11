@@ -70,7 +70,8 @@
     "fmt": "oxfmt",
     "fmt:check": "oxfmt --check",
     "compat": "npm run build && es-check checkBrowser \"dist/**/*.js\" --module --checkFeatures && node scripts/check-css-compat.mjs",
-    "test:legacy": "npm run build && node tests/legacy/run.mjs"
+    "test:legacy": "npm run build && node tests/legacy/run.mjs",
+    "example": "node scripts/run-example.mjs"
   },
   "devDependencies": {
     "@chromatic-com/storybook": "^5.6.0",
