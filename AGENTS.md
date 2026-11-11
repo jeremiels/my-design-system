@@ -125,6 +125,7 @@
 - **Strict TypeScript:** Strict mode enabled; follow type safety rigorously.
 - **Accessibility:** Use `a11y` Storybook addon; tests run via vitest in real browser.
 - **Component Exports:** Only export public components from `src/index.ts`.
+- **Storybook MDX Docs:** Storybook's MDX has no GitHub-flavored Markdown — write tables in HTML (`<table>`), never pipe tables (they render as raw text). See `.claude/skills/storybook-documentation/SKILL.md`.
 - **Build Output:** `npm run build` produces ES module in `dist/` (bundled CSS included).
 - **Component Styles:** Each component/mixin keeps its styles in a sibling `.css` file, imported as a CSS module script and appended to `static styles` after the inherited ones — never inline Lit `css` tagged templates:
   ```ts
