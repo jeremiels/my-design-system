@@ -1,7 +1,8 @@
-import { html, css } from "lit";
+import { html } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { ifDefined } from "lit/directives/if-defined.js";
 import { ButtonBase } from "./button-base.js";
+import buttonLinkStyles from "./button-link.css" with { type: "css" };
 
 type LinkTarget = "_blank" | "_self" | "_parent" | "_top";
 
@@ -33,14 +34,7 @@ export class ButtonLink extends ButtonBase {
     return this.target === "_blank" ? "noopener noreferrer" : undefined;
   }
 
-  static styles = [
-    ButtonBase.styles,
-    css`
-      .button {
-        text-decoration: none;
-      }
-    `,
-  ];
+  static styles = [ButtonBase.styles, buttonLinkStyles];
 
   render() {
     // A disabled <a> has no native equivalent to <button disabled>: dropping

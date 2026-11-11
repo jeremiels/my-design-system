@@ -1,5 +1,6 @@
-import { LitElement, css, type CSSResultGroup } from "lit";
+import { LitElement, type CSSResultGroup } from "lit";
 import { property } from "lit/decorators.js";
+import baseStyles from "./MyDSBaseElement.css" with { type: "css" };
 
 /**
  * Base class every component extends.
@@ -12,23 +13,7 @@ import { property } from "lit/decorators.js";
  * `src/events/click.ts` for the pattern.
  */
 export class DSBaseElement extends LitElement {
-  static styles: CSSResultGroup = [
-    css`
-      :host {
-        box-sizing: border-box;
-      }
-
-      :host *,
-      :host *::before,
-      :host *::after {
-        box-sizing: inherit;
-      }
-
-      :host([hidden]) {
-        display: none !important;
-      }
-    `,
-  ];
+  static styles: CSSResultGroup = [baseStyles];
 
   /**
    * Reflected so `:dir()`/`:lang()` and locale-aware formatting work from

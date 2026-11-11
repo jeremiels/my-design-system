@@ -1,7 +1,10 @@
 import { defineConfig } from "vite";
 import { resolve } from "path";
+import { cssImportAttributes } from "./plugins/css-import-attributes.ts";
 
 export default defineConfig({
+  // `import sheet from "./x.css" with { type: "css" }` in components/mixins.
+  plugins: [cssImportAttributes()],
   build: {
     // Lib mode defaults this to false (one merged CSS file); we need it on
     // so the standalone "styles" CSS entry can be emitted on its own.

@@ -13,10 +13,12 @@
 - `src/index.ts` — Main entry point; exports all public components (ES modules only).
 - `src/components/` — Web components live here; each component gets its own folder (e.g., `button/`, `modal/`). Each component folder includes:
   - `component-name.ts` — The main component class
+  - `component-name.css` — Its shadow-DOM styles, imported as a `CSSStyleSheet` (see Component Styles below)
   - `component-name.type.ts` — Types local to that component
   - `component-name.stories.ts` — Storybook stories and visual tests
-  - Variant files (e.g., `button-link.ts`) for extended behaviors
-- `src/mixins/` — Reusable behavior mixins (e.g., `withDisabled.ts`, `withInternals.ts`) that compose with components.
+  - Variant files (e.g., `button-link.ts` + `button-link.css`) for extended behaviors
+- `src/mixins/` — Reusable behavior mixins (e.g., `withDisabled.ts`, `withInternals.ts`) that compose with components; a mixin with styles keeps them in a sibling `.css` file (`withDisabled.css`).
+- `plugins/css-import-attributes.ts` — Local Vite plugin implementing `import sheet from "./x.css" with { type: "css" }` (Vite has no native support); unit-tested in `css-import-attributes.test.ts`.
 - `src/events/` — Custom event classes for the whole design system, one file per event, named `{owner}-{event}.ts` (e.g., `button-click.ts` → `MyClickEvent`). Centralized regardless of how many components currently dispatch a given event — an event's name/shape is public API the moment it exists (it augments the global `GlobalEventHandlersEventMap`), unlike a private type, so this is the one place to scan "what does this design system emit" as it grows.
 - `src/types/` — Shared types like `ComponentSize`, `SemanticVariant`, `ButtonVariant` (from `common.ts`).
 - `src/components/MyDSBaseElement.ts` — Minimal base class with shadow DOM defaults (`box-sizing`, `[hidden]`) and `dir`/`lang` reactive properties.
@@ -73,7 +75,7 @@
   - Build Storybook: `npm run build-storybook`
   - Tests: Vitest automatically runs `.stories.ts` files in browser via Storybook addon
 - **Testing:**
-  - Run all tests: `npx vitest` (runs Storybook stories in Chromium/Playwright)
+  - Run all tests: `npx vitest` (`unit` project: plugin tests in Node; `storybook` project: stories in Chromium via Playwright)
   - Setup: `.storybook/vitest.setup.ts` configures Storybook test environment
 - **Linting & Formatting:**
   - Lint: `npm run lint` (oxlint, auto-fixes issues)
@@ -113,7 +115,14 @@
 - **Accessibility:** Use `a11y` Storybook addon; tests run via vitest in real browser.
 - **Component Exports:** Only export public components from `src/index.ts`.
 - **Build Output:** `npm run build` produces ES module in `dist/` (bundled CSS included).
-- **CSS-in-JS:** Component styles use Lit's `css` template tag; no external CSS file in components.
+- **Component Styles:** Each component/mixin keeps its styles in a sibling `.css` file, imported as a CSS module script and appended to `static styles` after the inherited ones — never inline Lit `css` tagged templates:
+  ```ts
+  import alertStyles from "./alert.css" with { type: "css" };
+  // ...
+  static styles = [DSBaseElement.styles ?? [], alertStyles];
+  ```
+  The default export is a constructable `CSSStyleSheet` (typed in `src/css-modules.d.ts`). `plugins/css-import-attributes.ts` makes this work in Vite, Storybook and Vitest (`vitest.config.ts` merges `vite.config.ts`), and inlines the minified CSS into the built JS, so consumers need no CSS-import support. Don't use a default import of a `.css` file without `with { type: "css" }`, and don't import the global `src/styles/` sheets this way — those are document-level, not shadow-DOM, styles. The plugin errors on such misuse (value import without the attribute, dynamic `import()` of a CSS module) and fails the build if any `.css` import is left in the shipped JS (Safari has no CSS module scripts).
+  **When Vite supports `type: "css"` natively** (vitejs/vite#18534): delete the plugin, check that the build output still has no `.css` imports (keep the `findUncompiledCssImports` check), and drop `src/css-modules.d.ts` if `vite/client` types these imports.
 
 ## Examples
 
@@ -134,7 +143,7 @@
 - [Withes Documentation](src/docs/mixins/withDisabled.md) — Mixin patterns and composition
 - [withInternals Documentation](src/docs/mixins/withInternals.md) — `ElementInternals` sharing across mixins/components
 - `.oxlintrc.json` — Linting rules
-- `vite.config.ts` — Build configuration and external dependencies
+- `vite.config.ts` — Build configuration, plugins and external dependencies
 - `vitest.config.ts` — Test runner and browser configuration
 - `.storybook/` — Storybook setup and testing integration
 

@@ -108,6 +108,16 @@ Pour que le système soit réellement themable, une seule source de vérité doi
 
 **Documentation :** chaque composant liste ses tokens dans un bloc JSDoc au-dessus de `static styles`, à la manière des `@property`.
 
+**Fichiers de styles :** les styles shadow DOM d'un composant (ou d'un mixin) vivent dans un fichier `.css` voisin (`alert.css` à côté de `alert.ts`), importé comme _CSS module script_ — jamais dans un template littéral Lit `css` inline :
+
+```ts
+import alertStyles from "./alert.css" with { type: "css" };
+
+static styles = [DSBaseElement.styles ?? [], alertStyles];
+```
+
+L'import renvoie un `CSSStyleSheet` constructible, que Lit adopte directement. Vite ne supporte pas nativement `with { type: "css" }` : le plugin local `plugins/css-import-attributes.ts` le prend en charge (dev, Storybook, Vitest et build) et inline le CSS minifié dans le JS publié, le consommateur n'a donc rien à configurer.
+
 ### Prérequis : la feuille de tokens est une dépendance, pas une option
 
 Les tokens de composant ci-dessus **n'ont pas de fallback littéral** (`var(--x, #007bff)`). C'est un choix délibéré, pas un oubli :

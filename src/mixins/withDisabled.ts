@@ -1,6 +1,7 @@
-import { LitElement, css, type PropertyValues } from "lit";
+import { LitElement, type PropertyValues } from "lit";
 import { property } from "lit/decorators.js";
 import type { Constructor } from "../types/common.js";
+import disabledStyles from "./withDisabled.css" with { type: "css" };
 
 export declare class DisabledInterface {
   disabled: boolean;
@@ -14,16 +15,7 @@ export function withDisabled<T extends Constructor<LitElement>>(Base: T) {
     @property({ type: Boolean, reflect: true })
     disabled = false;
 
-    static styles = [
-      (Base as unknown as typeof LitElement).styles ?? [],
-      css`
-        :host([disabled]) {
-          pointer-events: none;
-          opacity: var(--opacity-disabled);
-          cursor: not-allowed;
-        }
-      `,
-    ];
+    static styles = [(Base as unknown as typeof LitElement).styles ?? [], disabledStyles];
 
     protected updated(changedProperties: PropertyValues): void {
       super.updated(changedProperties);
