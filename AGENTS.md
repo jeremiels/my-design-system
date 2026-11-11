@@ -29,7 +29,7 @@ This file is an index. The details live in the docs and in the project skills (`
 - `plugins/css-import-attributes.ts` — the Vite plugin behind `import sheet from "./x.css" with { type: "css" }` (exit strategy in its header).
 - `examples/acme-design-system/` — an example brand design system, built and tested against the packed base.
 - `tests/legacy/` — smoke test of `dist/` in a real Firefox ESR 115.
-- `.changeset/` — pending release notes; `.github/workflows/ci.yml` — CI.
+- `.github/workflows/ci.yml` — CI.
 
 Docs (also in Storybook): [ADR 0001](src/docs/adr/0001-architecture-multi-marque.mdx) · [CSS architecture](src/docs/architecture/css-architecture.mdx) · [Browser support](src/docs/architecture/browser-support.mdx) · [Brand design system guide](src/docs/guides/design-system-de-marque.mdx).
 
@@ -40,7 +40,6 @@ Docs (also in Storybook): [ADR 0001](src/docs/adr/0001-architecture-multi-marque
 - **Styles:** a sibling `.css` file imported `with { type: "css" }`, never Lit's `css`. Tokens: `--u-` prefix, primitive → semantic → component, no literal values. Global layers all live under `u` (`u.reset` … `u.shame`). Brands style the base's internals through its parts (`[part~="button"]`), never its classes.
 - **Browsers:** the matrix is pinned in `package.json` (Chrome/Edge 111, Firefox 115 ESR, Safari 16.4): check any recent CSS/JS feature against it first.
 - **Accessibility:** native elements first; stories fail on any axe violation; default tokens keep WCAG AA contrast (`src/styles/tokens.test.ts`, through `src/testing/contrast.ts`).
-- **Release notes:** every change to what the package ships comes with a changeset (`npm run changeset`); a breaking change to the public API is `major`.
 - **Lit imports:** any new `lit/...` module goes in `optimizeDeps.include` (`vite.config.ts`).
 
 ## Commands
@@ -54,7 +53,6 @@ npm run example                  # packed base → ACME install, build, smoke te
 npm run compat                   # es-check + doiuse against the browser matrix
 npm run test:legacy              # dist/ in a real Firefox ESR 115
 npm run lint | fmt               # auto-fix
-npm run changeset                # describe a change for the changelog
 ```
 
 `api:check` compares the regenerated manifest with the one in the git index: stage `custom-elements.json` before running `check` locally.

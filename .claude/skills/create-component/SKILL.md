@@ -77,8 +77,7 @@ npm run example                       # packed base → ACME build + smoke test
 npx publint && npx @arethetypeswrong/cli --pack . --profile esm-only   # if exports changed
 ```
 
-Then commit the manifest with the code, and add a changeset
-(`npm run changeset`, `minor` for a new component).
+Then commit the manifest with the code.
 
 ## Brand component
 

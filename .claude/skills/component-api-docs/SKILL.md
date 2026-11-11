@@ -57,8 +57,7 @@ manifests, and checked against the rendered components by
 1. Change the code and its JSDoc together.
 2. `npm run analyze`, then **read the `custom-elements.json` diff**: it is the
    API diff. Anything removed or renamed is a breaking change for brands
-   (property, attribute, slot, part, token, event, protected member) — it
-   needs a major version and a changelog entry.
+   (property, attribute, slot, part, token, event, protected member).
 3. `npx vitest run`: `src/api-contract.test.ts` fails if a documented part,
    slot or attribute doesn't exist, or if documented and declared `:host`
    tokens differ. A new component also goes in its list of expected tags.

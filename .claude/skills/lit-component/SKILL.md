@@ -125,7 +125,7 @@ events and **documented `protected` members**. So:
   `ButtonBase.handleClick`); everything else `private`/`#private`.
 - Prefer splitting `render()` into documented `protected` parts over a
   monolithic template when brands will need to change one region.
-- Renaming or removing anything public is a breaking change (major version).
+- Renaming or removing anything public is a breaking change for brands.
 
 ## Accessibility
 
