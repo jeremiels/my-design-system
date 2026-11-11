@@ -37,7 +37,7 @@ in a brand's registration). Follow every step.
   through `defineComponents({ components: [...allComponents, …] })`.
 - `src/define.ts`: add `"u-<name>": <Class>` to `HTMLElementTagNameMap`.
 - `src/index.ts`: export the class (and its event/types).
-- `vite.config.ts`: add a `lib.entry` (`"<name>": resolve(__dirname,
+- `vite.config.ts`: add a `lib.entry` (`"<name>": resolve(import.meta.dirname,
   "src/components/<name>/<name>.ts")`).
 - `package.json` `exports`: add `"./<name>"` with `types`
   (`./dist/components/<name>/<name>.d.ts`) and `import` (`./dist/<name>.js`).
@@ -70,14 +70,15 @@ relying on a recent browser feature. `checks.js` is not transpiled: Firefox
 ## 6. Verify
 
 ```sh
-npx tsc -p tsconfig.json --noEmit && npm run lint && npm run fmt:check
-npm run analyze && npx vitest run     # unit, registry, contract, stories ×3 engines
+npm run analyze && git add custom-elements.json   # api:check compares with the staged manifest
+npm run check                         # lint, fmt, tsc, api:check, Vitest (stories ×3 engines)
 npm run compat && npm run test:legacy # matrix + real Firefox 115 on dist/
 npm run example                       # packed base → ACME build + smoke test
 npx publint && npx @arethetypeswrong/cli --pack . --profile esm-only   # if exports changed
 ```
 
-Then commit the manifest with the code.
+Then commit the manifest with the code, and add a changeset
+(`npm run changeset`, `minor` for a new component).
 
 ## Brand component
 
