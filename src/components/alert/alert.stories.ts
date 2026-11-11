@@ -2,6 +2,8 @@ import preview from "#.storybook/preview";
 import { html } from "lit";
 import "./alert";
 import { ifDefined } from "lit/directives/if-defined.js";
+import { expect } from "storybook/test";
+import type { Alert } from "./alert";
 
 const meta = preview.meta({
   title: "Components/Alert",
@@ -58,4 +60,19 @@ export const Variants = meta.story({
     <my-alert type="warning">This is a warning alert.</my-alert>
     <my-alert type="danger">This is an error alert.</my-alert>
   `,
+  play: async ({ canvasElement }) => {
+    const alerts = [...canvasElement.querySelectorAll<Alert>("my-alert")];
+    await Promise.all(alerts.map((alert) => alert.updateComplete));
+    const inner = alerts.map((alert) => alert.shadowRoot!.querySelector(".alert")!);
+    // warning/danger interrupt (role="alert"); information/success are polite.
+    expect(inner.map((el) => el.getAttribute("role"))).toEqual([
+      "status",
+      "status",
+      "alert",
+      "alert",
+    ]);
+    // Each type resolves to its own semantic token.
+    const backgrounds = inner.map((el) => getComputedStyle(el).backgroundColor);
+    expect(new Set(backgrounds).size).toBe(alerts.length);
+  },
 });

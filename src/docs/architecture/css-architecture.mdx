@@ -126,7 +126,10 @@ Les tokens de composant ci-dessus **n'ont pas de fallback littéral** (`var(--x,
 - `src/index.ts` charge `src/styles/main.css` en effet de bord (`import "./styles/main.css"`) : tout consommateur qui importe le point d'entrée du package reçoit donc automatiquement la feuille de tokens. C'est la même convention que Spectrum, Shoelace/Web Awesome, Material Web ou Carbon — le thème est une dépendance du composant, chargée une seule fois, jamais dupliquée dans chaque fichier de composant.
 - Un composant importé directement (`@/components/button/button.ts`) en contournant `src/index.ts` doit toujours avoir la feuille de tokens chargée sur la page — sinon les custom properties sont simplement non définies (valeur initiale CSS de la propriété ciblée, souvent `transparent` ou `medium`). Ce n'est pas un filet de sécurité à coder en dur ; c'est un prérequis d'intégration à documenter/respecter.
 
-**Exception légitime à cette règle :** les mots-clés système du mode `forced-colors` (`ButtonText`, `Highlight`, `CanvasText`, …) utilisés dans les media queries d'accessibilité. Ce ne sont pas des valeurs de marque et ils ne doivent jamais passer par les tokens — ils appartiennent au thème du système d'exploitation de l'utilisateur, pas au design system.
+**Exceptions légitimes à cette règle :**
+
+- Les mots-clés système du mode `forced-colors` (`ButtonText`, `Highlight`, `CanvasText`, …) utilisés dans les media queries d'accessibilité. Ce ne sont pas des valeurs de marque et ils ne doivent jamais passer par les tokens — ils appartiennent au thème du système d'exploitation de l'utilisateur, pas au design system.
+- `::backdrop` (`modal.css`) : avant Chrome 122, Firefox 120 et Safari 17.4 — tous dans la [matrice supportée](?path=/docs/documentation-support-navigateurs--docs) —, le pseudo-élément n'hérite de rien, ni de `:host` ni de `:root`. Aucun token ne peut l'atteindre, donc `var(--my-modal-backdrop-color, hsl(0deg 0% 0% / 50%))` porte un fallback littéral, aligné sur `--shadow-backdrop` (thème clair). Sur les navigateurs récents, le token s'applique normalement, dark mode compris.
 
 ### Accessibilité : `prefers-reduced-motion`
 

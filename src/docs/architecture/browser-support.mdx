@@ -1,0 +1,52 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Documentation/Support navigateurs" />
+
+# Support navigateurs
+
+Le design system vise les versions « LTS » des navigateurs : les canaux étendus des entreprises (Firefox ESR, Chrome/Edge Extended Stable) et les Safari encore installés sur des appareils qui ne peuvent plus se mettre à jour.
+
+## Matrice
+
+| Navigateur    | Version minimale | Pourquoi ce plancher                                                                    |
+| ------------- | ---------------- | --------------------------------------------------------------------------------------- |
+| Chrome / Edge | 111              | `color-mix()` (tokens sémantiques de survol/actif)                                      |
+| Firefox       | 115              | ESR 115, maintenue pour Windows 7/8.1 jusqu'en mars 2027 (l'ESR courante est la 153)    |
+| Safari / iOS  | 16.4             | `CSSStyleSheet` constructibles adoptées, `ElementInternals`, blocs `static {}` (ES2022) |
+
+**Source de vérité :** le champ `"browserslist"` de `package.json`. Il alimente `build.target` (JS) et `build.cssTarget` (CSS, abaissé par Lightning CSS) dans `vite.config.ts`, ainsi que `npm run compat`.
+
+**Versions figées, pas une requête glissante :** une requête comme `baseline widely available` remonte chaque mois et retirerait des navigateurs sans que personne ne le décide — un breaking change silencieux pour les applications consommatrices. On fige donc les versions, et on les révise volontairement.
+
+**Prochaine révision : mars 2027**, à la fin d'ESR 115. Le plancher Firefox pourra alors passer à l'ESR la plus ancienne encore maintenue.
+
+## Règles pour écrire un composant
+
+- **Vérifier toute fonctionnalité CSS ou JS récente** (MDN, caniuse) contre la matrice avant de l'utiliser. `npm run compat` ne détecte pas tout (voir plus bas).
+- **Le nesting CSS est autorisé dans les sources :** Lightning CSS l'aplatit au build. Le serveur de dev, lui, ne l'abaisse pas — il suppose un navigateur récent.
+- **Les CSS module scripts ne sont jamais livrés tels quels.** Safari ne les supporte pas, ni Firefox avant 147. Le plugin `plugins/css-import-attributes.ts` les compile et fait échouer le build s'il reste un import `.css` dans le JS produit.
+- **`:state()` est une amélioration progressive.** `customStates` est sans effet sur Chrome 90–124 (ancienne syntaxe `--nom`, qui lève une erreur sur un nom simple), Firefox < 126 et Safari < 17.4. Si l'état est nécessaire au rendu, reflétez aussi un attribut et stylez-le.
+- **`::backdrop` n'hérite de rien** avant Chrome 122, Firefox 120 et Safari 17.4 : aucune custom property ne l'atteint. Un fallback littéral y est donc toléré (voir l'exception documentée dans [Architecture CSS](?path=/docs/documentation-architecture-css--docs)).
+- **Améliorations progressives acceptées**, simplement ignorées par les navigateurs plus anciens : `text-wrap: balance | pretty`, `interpolate-size` (sous `@supports`).
+
+### Écarts connus, acceptés
+
+- `color-mix(in oklch, <couleur>, black)` : les anciennes versions (constaté sur Chrome 113 et Firefox 115) interpolent la teinte du noir différemment. La couleur de survol/actif y est légèrement décalée vers le violet. Passer ces mélanges en `in oklab` supprimerait l'écart si besoin.
+
+## Vérifications
+
+| Commande              | Ce qu'elle vérifie                                                                                    |
+| --------------------- | ----------------------------------------------------------------------------------------------------- |
+| `npm run compat`      | Syntaxe JS de `dist/` (`es-check`) et fonctionnalités CSS des sources (`doiuse`) contre la matrice    |
+| `npx vitest`          | Stories et tests du plugin, sur les versions **récentes** de Chromium, Firefox et WebKit (Playwright) |
+| `npm run test:legacy` | Le `dist/` livré, dans un **vrai Firefox ESR 115** (WebdriverIO + geckodriver)                        |
+
+**Limites de `npm run compat` :** `doiuse` ne connaît que les fonctionnalités de caniuse. Il ne détecte ni `color-mix()`, ni `text-wrap`, ni l'héritage de `::backdrop`, ni `:state()`, ni les at-rules imbriquées. Les constats revus et acceptés sont listés, avec leur justification, dans `IGNORED` (`scripts/check-css-compat.mjs`).
+
+**`npm run test:legacy`** construit la librairie, télécharge Firefox 115 ESR (somme SHA-256 vérifiée, installé dans `~/.cache/firefox-esr/`) via `scripts/install-firefox-esr.sh`, puis exécute `tests/legacy/checks.js` sur la page `tests/legacy/index.html`. Celle-ci charge `dist/` tel que publié, et Lit via une import map. Les vérifications : feuilles adoptées, tokens et `color-mix()` résolus, bouton désactivé inerte, soumission de formulaire via `ElementInternals`, rôles des alertes, fond de la modale visible, `customStates` sans erreur et aucune erreur à l'exécution.
+
+- Linux x86_64 uniquement. Sur une distribution récente, Firefox 115 a besoin de `libdbus-glib-1-2` (`sudo apt-get install libdbus-glib-1-2`).
+- Un autre binaire Firefox peut être testé avec `FIREFOX_ESR_BIN=/chemin/vers/firefox node tests/legacy/run.mjs`.
+- `tests/legacy/checks.js` n'est pas transpilé : sa syntaxe doit rester dans la matrice.
+
+**Non couvert automatiquement :** les anciens Safari/iOS (le WebKit de Playwright est un moteur récent) et Chrome 111–112 (Chrome for Testing commence à 113). La page de test a été validée manuellement sur Chrome for Testing 113 le 11 novembre 2026 (elle y a reproduit les bugs `customStates` et `::backdrop` avant correctif).

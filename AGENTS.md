@@ -4,7 +4,7 @@
 
 - **Purpose:** TypeScript design system on [Lit](https://lit.dev/) providing reusable web components (e.g., `my-button`, `my-modal`).
 - **Build:** [Vite](https://vitejs.dev/) (v8 beta) bundles to ES modules; Lit is external (consumers install separately).
-- **Testing:** [Vitest](https://vitest.dev/) with Storybook integration; tests run in Chromium via Playwright.
+- **Testing:** [Vitest](https://vitest.dev/) with Storybook integration; stories run in Chromium, Firefox and WebKit via Playwright, plus a real Firefox ESR smoke test of `dist/`.
 - **Linting:** [Oxlint](https://oxlint.com/) for TypeScript with `oxfmt` for formatting.
 - **Node:** v24.8.0+; npm v11.6.0+
 
@@ -19,6 +19,8 @@
   - Variant files (e.g., `button-link.ts` + `button-link.css`) for extended behaviors
 - `src/mixins/` — Reusable behavior mixins (e.g., `withDisabled.ts`, `withInternals.ts`) that compose with components; a mixin with styles keeps them in a sibling `.css` file (`withDisabled.css`).
 - `plugins/css-import-attributes.ts` — Local Vite plugin implementing `import sheet from "./x.css" with { type: "css" }` (Vite has no native support); unit-tested in `css-import-attributes.test.ts`.
+- `scripts/` — `check-css-compat.mjs` (doiuse against browserslist) and `install-firefox-esr.sh` (downloads the Firefox ESR used by `test:legacy`).
+- `tests/legacy/` — Smoke test of the built `dist/` in a real Firefox ESR (`run.mjs` drives `index.html` + `checks.js` through WebdriverIO).
 - `src/events/` — Custom event classes for the whole design system, one file per event, named `{owner}-{event}.ts` (e.g., `button-click.ts` → `MyClickEvent`). Centralized regardless of how many components currently dispatch a given event — an event's name/shape is public API the moment it exists (it augments the global `GlobalEventHandlersEventMap`), unlike a private type, so this is the one place to scan "what does this design system emit" as it grows.
 - `src/types/` — Shared types like `ComponentSize`, `SemanticVariant`, `ButtonVariant` (from `common.ts`).
 - `src/components/MyDSBaseElement.ts` — Minimal base class with shadow DOM defaults (`box-sizing`, `[hidden]`) and `dir`/`lang` reactive properties.
@@ -75,12 +77,21 @@
   - Build Storybook: `npm run build-storybook`
   - Tests: Vitest automatically runs `.stories.ts` files in browser via Storybook addon
 - **Testing:**
-  - Run all tests: `npx vitest` (`unit` project: plugin tests in Node; `storybook` project: stories in Chromium via Playwright)
+  - Run all tests: `npx vitest` (`unit` project: plugin tests in Node; `storybook` project: stories in Chromium, Firefox and WebKit via Playwright)
   - Setup: `.storybook/vitest.setup.ts` configures Storybook test environment
+  - Browser compatibility: `npm run compat` (es-check on `dist/`, doiuse on CSS) and `npm run test:legacy` (builds, then runs `dist/` in a real Firefox ESR 115)
 - **Linting & Formatting:**
   - Lint: `npm run lint` (oxlint, auto-fixes issues)
   - Format check: `npm run fmt:check` (oxfmt)
   - Format: `npm run fmt`
+
+## Browser Support
+
+- **Matrix:** pinned in `package.json` `"browserslist"` (Chrome/Edge ≥ 111, Firefox ≥ 115 ESR, Safari/iOS ≥ 16.4). It feeds `build.target`/`build.cssTarget` and `npm run compat`. Versions are pinned on purpose (a rolling query would silently drop browsers); next review March 2027, when Firefox ESR 115 ends. Details: [Browser Support](src/docs/architecture/browser-support.mdx).
+- **Before using a recent CSS/JS feature**, check it against the matrix (MDN/caniuse): `npm run compat` misses `color-mix()`, `text-wrap`, `::backdrop` inheritance, `:state()` and nested at-rules.
+- **`:state()` is an enhancement only:** `customStates` is a no-op on Chrome 90–124, Firefox < 126 and Safari < 17.4 — reflect an attribute too when the state matters for rendering.
+- **`::backdrop` inherits nothing** before Chrome 122 / Firefox 120 / Safari 17.4: never rely on custom properties alone there (documented literal-fallback exception in `modal.css`).
+- **CSS nesting** is fine in sources (Lightning CSS flattens it at build time).
 
 ## CSS Architecture & Layer Organization
 

@@ -38,6 +38,10 @@ A purely decorative or display-only component (an alert message, a badge) gets n
 | `internals`     | `ElementInternals \| undefined` | Set once in the constructor. `undefined` if `attachInternals()` isn't supported in the environment. |
 | `customStates`  | `{ set, has }`               | Wraps `internals.states` to toggle/check `:state(x)` selectors.                                       |
 
+## Browser support
+
+`customStates` is a no-op wherever standard `:state()` isn't supported: Firefox < 126 and Safari < 17.4 (no `internals.states`), and Chrome 90–124, whose `CustomStateSet` only accepts the old `--name` syntax and throws on plain names. All three are in the supported matrix (see [browser support](../architecture/browser-support.mdx)), so treat `:state(x)` styling as an enhancement: if the component must look right in that state, also reflect an attribute and style that.
+
 ## Gotcha
 
 Never call `this.attachInternals()` yourself in a component that applies this mixin (or extends one that does) — the browser throws `NotSupportedError: ElementInternals for the specified element was already attached`. Always read `this.internals` instead.

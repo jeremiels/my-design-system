@@ -1,11 +1,19 @@
 import { defineConfig } from "vite";
 import { resolve } from "path";
+import browserslistToEsbuild from "browserslist-to-esbuild";
 import { cssImportAttributes } from "./plugins/css-import-attributes.ts";
+
+// Supported browsers live in package.json "browserslist" (see
+// src/docs/architecture/browser-support.mdx); JS and CSS are lowered to them.
+const browserTargets = browserslistToEsbuild();
 
 export default defineConfig({
   // `import sheet from "./x.css" with { type: "css" }` in components/mixins.
   plugins: [cssImportAttributes()],
   build: {
+    target: browserTargets,
+    // Also applies to component CSS (`?inline`), lowered by Lightning CSS.
+    cssTarget: browserTargets,
     // Lib mode defaults this to false (one merged CSS file); we need it on
     // so the standalone "styles" CSS entry can be emitted on its own.
     cssCodeSplit: true,

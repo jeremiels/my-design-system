@@ -38,7 +38,9 @@ export default mergeConfig(
               enabled: true,
               headless: true,
               provider: playwright(),
-              instances: [{ browser: "chromium" }],
+              // Current versions of the three engines. The oldest supported
+              // versions are covered by `npm run test:legacy` (real Firefox ESR).
+              instances: [{ browser: "chromium" }, { browser: "firefox" }, { browser: "webkit" }],
             },
             setupFiles: [".storybook/vitest.setup.ts"],
           },
