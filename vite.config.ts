@@ -15,7 +15,7 @@ export default defineConfig({
     // Also applies to component CSS (`?inline`), lowered by Lightning CSS.
     cssTarget: browserTargets,
     // Lib mode defaults this to false (one merged CSS file); we need it on
-    // so the standalone "styles" CSS entry can be emitted on its own.
+    // so the standalone CSS entries ("styles", "reset") are emitted on their own.
     cssCodeSplit: true,
     lib: {
       // One entry per public module, so consumers can import just what they
@@ -26,7 +26,10 @@ export default defineConfig({
         index: resolve(__dirname, "src/index.ts"),
         // Side effect: registers the catalog under the default `u-` prefix.
         define: resolve(__dirname, "src/define.ts"),
+        // Tokens + utilities: everything the components need, nothing that
+        // styles the host page. The reset is a separate, opt-in sheet.
         styles: resolve(__dirname, "src/styles/main.css"),
+        reset: resolve(__dirname, "src/styles/reset.css"),
         button: resolve(__dirname, "src/components/button/button.ts"),
         "button-link": resolve(__dirname, "src/components/button/button-link.ts"),
         alert: resolve(__dirname, "src/components/alert/alert.ts"),

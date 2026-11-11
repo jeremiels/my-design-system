@@ -1,9 +1,9 @@
 /*
  * ACME's values for the base's tokens (ADR 0001, D4): same names, brand
- * values. `tokens.brand` is declared after the base's token sub-layers, so it
- * wins over them — which is why styles.css imports the base first.
+ * values. `u.tokens.brand` is declared after the base's token sub-layers, so
+ * it wins over them — which is why styles.css imports the base first.
  */
-@layer tokens.brand {
+@layer u.tokens.brand {
   :root {
     --u-color-primary: hsl(268, 75%, 45%);
     --u-color-secondary: hsl(330, 80%, 55%);

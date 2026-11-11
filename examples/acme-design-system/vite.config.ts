@@ -14,6 +14,7 @@ export default defineConfig({
         index: resolve(root, "src/index.ts"),
         define: resolve(root, "src/define.ts"),
         styles: resolve(root, "src/styles.css"),
+        reset: resolve(root, "src/reset.css"),
       },
       formats: ["es"],
       fileName: (_format, entryName) => `${entryName}.js`,

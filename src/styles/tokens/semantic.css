@@ -1,6 +1,6 @@
 /* Intent-based aliases over tokens/color.css primitives.
    See src/docs/architecture/css-architecture.mdx (Trois Niveaux de Tokens). */
-@layer tokens.semantic {
+@layer u.tokens.semantic {
   :root {
     /* Action (primary interactive surfaces, e.g. primary button) */
     --u-color-action-bg: var(--u-color-primary);

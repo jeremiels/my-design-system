@@ -1,0 +1,9 @@
+/* Cascade layer order, imported first by every entry (styles.css, reset.css)
+   so it holds whatever order the application loads them in.
+
+   Every layer lives under `u`, like the `--u-` prefix of the tokens
+   (ADR 0001, D4): layer names are global to the document, and unprefixed
+   ones (`base`, `utilities`…) would merge with the application's own layers
+   — Tailwind CSS v4, for one, declares `theme, base, components, utilities`.
+   The application's unlayered styles still win over all of them. */
+@layer u.reset, u.tokens, u.base, u.components, u.utilities, u.shame;

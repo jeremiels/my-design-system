@@ -23,6 +23,6 @@
  * // Todo: Remove when portal migrates to new button component
  * .legacy-portal .button { color: #000 !important; }
  */
-@layer shame {
+@layer u.shame {
   /* Add emergency overrides here */
 }

@@ -33,6 +33,7 @@
       "import": "./dist/define.js"
     },
     "./styles.css": "./dist/styles.css",
+    "./reset.css": "./dist/reset.css",
     "./custom-elements.json": "./custom-elements.json",
     "./vite-plugin": {
       "types": "./dist/plugins/css-import-attributes.d.ts",

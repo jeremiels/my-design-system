@@ -1,6 +1,4 @@
-@layer base {
-  /* Inherit font size for better scaling */
-  html {
-    font-size: inherit;
-  }
+/* Global element styles (headings, links…), loaded with the opt-in reset.css.
+   Nothing yet beyond what the reset sets. */
+@layer u.base {
 }

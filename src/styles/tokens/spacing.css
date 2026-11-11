@@ -1,4 +1,4 @@
-@layer tokens.spacing {
+@layer u.tokens.spacing {
   :root {
     --u-spacing-2xs: 0.125rem;
     --u-spacing-xs: 0.25rem;

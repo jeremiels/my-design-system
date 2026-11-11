@@ -1,4 +1,4 @@
-@layer tokens.color {
+@layer u.tokens.color {
   :root {
     --u-color-primary: hsl(210, 100%, 50%);
     --u-color-secondary: hsl(150, 100%, 50%);

@@ -1,6 +1,7 @@
-@import "./layers/reset.css" layer(reset);
-@import "./layers/tokens.css" layer(tokens);
-@import "./layers/base.css" layer(base);
-@import "./layers/utilities.css" layer(utilities);
-
-@layer reset, tokens, base, components, utilities;
+/* my-design-system/styles.css — what the components need: the design tokens,
+   plus the utility classes. It styles no element of the page, so any
+   application can load it. The reset is opt-in: my-design-system/reset.css. */
+@import "./layers/order.css";
+@import "./layers/tokens.css";
+@import "./layers/utilities.css";
+@import "./layers/shame.css";

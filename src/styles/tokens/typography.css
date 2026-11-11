@@ -1,4 +1,4 @@
-@layer tokens.typography {
+@layer u.tokens.typography {
   :root {
     --u-font-family-base: "Helvetica Neue", sans-serif;
     --u-font-size-base: 1rem;

@@ -4,7 +4,7 @@
    Based on Andy Bell, Josh Comeau, Piccalilli & Adhocracy patterns
    ================================================= */
 
-@layer reset {
+@layer u.reset {
   /* Enable interpolate-size for smoother animations where supported */
   :root {
     @supports (interpolate-size: allow-keywords) {
@@ -51,13 +51,14 @@
     scroll-behavior: smooth;
   }
 
+  /* The page follows the tokens, dark mode included (tokens from styles.css) */
   body {
     min-height: 100vh;
     line-height: var(--u-line-height-base);
     text-rendering: optimizeSpeed;
-    font-family: system-ui, sans-serif;
-    background-color: Canvas;
-    color: CanvasText;
+    font-family: var(--u-font-family-base);
+    background-color: var(--u-color-surface);
+    color: var(--u-color-text-default);
   }
 
   /* Media elements */
@@ -119,26 +120,5 @@
       transition-duration: 0.01ms !important;
       scroll-behavior: auto !important;
     }
-  }
-
-  /* =========================================================
-     WEB COMPONENT BASELINE — for use inside shadow roots
-     ========================================================= */
-
-  :host {
-    box-sizing: border-box;
-    font: inherit;
-    color: inherit;
-    line-height: inherit;
-  }
-
-  :host([hidden]) {
-    display: none !important;
-  }
-
-  /* Respect focus outlines */
-  :host(:focus-visible) {
-    outline: 2px solid Highlight;
-    outline-offset: 2px;
   }
 }
