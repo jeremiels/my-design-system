@@ -13,7 +13,11 @@ dialog {
   box-shadow: var(--my-modal-shadow);
 }
 dialog::backdrop {
-  background-color: var(--my-modal-backdrop-color);
+  /* Documented exception to "no literal fallback": before Chrome 122,
+     Firefox 120 and Safari 17.4, ::backdrop inherits nothing, so no token can
+     reach it and the backdrop would be transparent. Keep in sync with
+     --shadow-backdrop (light theme) in tokens/elevation.css. */
+  background-color: var(--my-modal-backdrop-color, hsl(0deg 0% 0% / 50%));
 }
 .content {
   background-color: var(--my-modal-background-color);
