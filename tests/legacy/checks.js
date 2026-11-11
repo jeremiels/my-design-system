@@ -41,7 +41,7 @@ await check("design tokens reach the shadow DOM", () => {
 await check("color-mix() semantic tokens resolve", () => {
   // Unsupported color-mix() makes the var() invalid → transparent background.
   const probe = document.createElement("div");
-  probe.style.backgroundColor = "var(--color-action-bg-hover)";
+  probe.style.backgroundColor = "var(--u-color-action-bg-hover)";
   document.body.append(probe);
   const color = style(probe).backgroundColor;
   probe.remove();

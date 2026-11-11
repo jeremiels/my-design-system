@@ -1,17 +1,17 @@
 :host {
-  --my-alert-background-color: var(--color-information-bg);
-  --my-alert-text-color: var(--color-information-text);
-  --my-alert-padding: var(--spacing-md);
-  --my-alert-border-radius: var(--radius-md);
-  --my-alert-font-family: var(--font-family-base);
+  --u-alert-background-color: var(--u-color-information-bg);
+  --u-alert-text-color: var(--u-color-information-text);
+  --u-alert-padding: var(--u-spacing-md);
+  --u-alert-border-radius: var(--u-radius-md);
+  --u-alert-font-family: var(--u-font-family-base);
 }
 
 .alert {
-  padding: var(--my-alert-padding);
-  border-radius: var(--my-alert-border-radius);
-  font-family: var(--my-alert-font-family);
-  color: var(--my-alert-text-color);
-  background-color: var(--my-alert-background-color);
+  padding: var(--u-alert-padding);
+  border-radius: var(--u-alert-border-radius);
+  font-family: var(--u-alert-font-family);
+  color: var(--u-alert-text-color);
+  background-color: var(--u-alert-background-color);
 }
 
 @media (forced-colors: active) {
@@ -21,14 +21,14 @@
 }
 
 .alert--success {
-  --my-alert-background-color: var(--color-success-bg);
-  --my-alert-text-color: var(--color-success-text);
+  --u-alert-background-color: var(--u-color-success-bg);
+  --u-alert-text-color: var(--u-color-success-text);
 }
 .alert--warning {
-  --my-alert-background-color: var(--color-warning-bg);
-  --my-alert-text-color: var(--color-warning-text);
+  --u-alert-background-color: var(--u-color-warning-bg);
+  --u-alert-text-color: var(--u-color-warning-text);
 }
 .alert--danger {
-  --my-alert-background-color: var(--color-danger-bg);
-  --my-alert-text-color: var(--color-danger-text);
+  --u-alert-background-color: var(--u-color-danger-bg);
+  --u-alert-text-color: var(--u-color-danger-text);
 }

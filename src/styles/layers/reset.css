@@ -53,7 +53,7 @@
 
   body {
     min-height: 100vh;
-    line-height: var(--line-height-base);
+    line-height: var(--u-line-height-base);
     text-rendering: optimizeSpeed;
     font-family: system-ui, sans-serif;
     background-color: Canvas;

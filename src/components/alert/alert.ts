@@ -24,11 +24,11 @@ export class Alert extends DSBaseElement {
   /**
    * CSS Tokens (customize via CSS custom properties on `my-alert`):
    *
-   * --my-alert-background-color  Background color (default: var(--color-information-bg))
-   * --my-alert-text-color        Text color (default: var(--color-information-text))
-   * --my-alert-padding           Internal padding (default: var(--spacing-md))
-   * --my-alert-border-radius     Corner radius (default: var(--radius-md))
-   * --my-alert-font-family       Font family (default: var(--font-family-base))
+   * --u-alert-background-color  Background color (default: var(--u-color-information-bg))
+   * --u-alert-text-color        Text color (default: var(--u-color-information-text))
+   * --u-alert-padding           Internal padding (default: var(--u-spacing-md))
+   * --u-alert-border-radius     Corner radius (default: var(--u-radius-md))
+   * --u-alert-font-family       Font family (default: var(--u-font-family-base))
    *
    * @see src/docs/architecture/css-architecture.mdx for token conventions.
    */

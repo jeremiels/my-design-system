@@ -51,8 +51,8 @@ Pour maintenir une architecture claire et scalable, chaque fichier de token doit
 /* src/styles/tokens/color.css */
 @layer tokens.color {
   :root {
-    --color-primary: hsl(210, 100%, 50%);
-    --color-secondary: hsl(150, 100%, 50%);
+    --u-color-primary: hsl(210, 100%, 50%);
+    --u-color-secondary: hsl(150, 100%, 50%);
     /* ... */
   }
 }
@@ -84,27 +84,29 @@ Pour maintenir une architecture claire et scalable, chaque fichier de token doit
 
 Pour que le système soit réellement themable, une seule source de vérité doit exister pour chaque valeur. Cela impose une hiérarchie stricte à trois niveaux, où chaque niveau ne référence que le niveau précédent — jamais de valeur littérale en dehors du niveau primitif :
 
-1. **Primitif** (`src/styles/tokens/color.css`, `spacing.css`, …) — valeurs brutes de la marque (`--color-primary: hsl(210, 100%, 50%)`).
-2. **Sémantique** (`src/styles/tokens/semantic.css`) — alias par intention, jamais par apparence (`--color-action-bg: var(--color-primary)`, `--color-danger-bg: var(--color-danger)`). Les états d'interaction (hover/active) sont dérivés avec `color-mix()` plutôt que codés en dur, pour n'avoir qu'une seule couleur à maintenir par intention.
+1. **Primitif** (`src/styles/tokens/color.css`, `spacing.css`, …) — valeurs brutes de la marque (`--u-color-primary: hsl(210, 100%, 50%)`).
+2. **Sémantique** (`src/styles/tokens/semantic.css`) — alias par intention, jamais par apparence (`--u-color-action-bg: var(--u-color-primary)`, `--u-color-danger-bg: var(--u-color-danger)`). Les états d'interaction (hover/active) sont dérivés avec `color-mix()` plutôt que codés en dur, pour n'avoir qu'une seule couleur à maintenir par intention.
 3. **Composant** — chaque composant Lit déclare ses propres custom properties sur `:host`, dont la valeur par défaut pointe vers le token **sémantique** correspondant (jamais vers un token primitif ni une valeur littérale) :
 
    ```css
    :host {
-     --my-button-background-color: var(--color-action-bg);
+     --u-button-background-color: var(--u-color-action-bg);
    }
    .button {
-     background-color: var(--my-button-background-color);
+     background-color: var(--u-button-background-color);
    }
    ```
 
-**Pourquoi ce niveau intermédiaire est indispensable :** sans lui, changer `--color-primary` ne se propage à aucun composant, et le dark mode devrait être ré-implémenté dans chaque fichier de composant au lieu d'être remappé une seule fois au niveau primitif.
+**Pourquoi ce niveau intermédiaire est indispensable :** sans lui, changer `--u-color-primary` ne se propage à aucun composant, et le dark mode devrait être ré-implémenté dans chaque fichier de composant au lieu d'être remappé une seule fois au niveau primitif.
 
 **Dark mode :** `tokens/color.css` remappe les primitives à deux endroits, jamais ailleurs — un composant ne doit donc jamais contenir sa propre logique de thème :
 
 - `@media (prefers-color-scheme: dark)` sur `:root:not([data-theme="light"])` — bascule automatique selon la préférence OS de l'utilisateur.
 - `:root[data-theme="dark"]` — bascule manuelle, pour un sélecteur de thème dans l'application consommatrice (ex. `document.documentElement.dataset.theme = "dark"`).
 
-**Convention de nommage :** `--<tag>-<propriété-css>[-<état>]`, ex. `--my-button-background-color-hover`. Le nom de la propriété CSS ciblée (`background-color`, non `bg`) doit apparaître en toutes lettres pour rester non-ambigu à grande échelle.
+**Préfixe :** tous les tokens, des trois niveaux, portent le préfixe `--u-` ([ADR 0001](?path=/docs/documentation-adr-0001-architecture-multi-marque--docs), D4). Il évite les collisions avec les variables de l'application hôte ou d'autres librairies, et il est identique pour toutes les marques : une marque change les valeurs, jamais les noms.
+
+**Convention de nommage des tokens de composant :** `--u-<composant>-<propriété-css>[-<état>]`, ex. `--u-button-background-color-hover`. `<composant>` est le nom du composant sans le préfixe de balise : `button`, que la balise soit `my-button` ou `acme-button`. Le nom de la propriété CSS ciblée (`background-color`, non `bg`) doit apparaître en toutes lettres pour rester non-ambigu à grande échelle.
 
 **Documentation :** chaque composant liste ses tokens dans un bloc JSDoc au-dessus de `static styles`, à la manière des `@property`.
 
@@ -120,7 +122,7 @@ L'import renvoie un `CSSStyleSheet` constructible, que Lit adopte directement. V
 
 ### Prérequis : la feuille de tokens est une dépendance, pas une option
 
-Les tokens de composant ci-dessus **n'ont pas de fallback littéral** (`var(--x, #007bff)`). C'est un choix délibéré, pas un oubli :
+Les tokens de composant ci-dessus **n'ont pas de fallback littéral** (`var(--u-color-action-bg, #007bff)`). C'est un choix délibéré, pas un oubli :
 
 - Un fallback littéral duplique la valeur qui existe déjà dans `tokens/`. Dès qu'un deuxième composant a besoin de la même couleur, on a deux sources de vérité qui peuvent diverger silencieusement — exactement le problème que les trois niveaux de tokens sont censés éliminer.
 - `src/index.ts` charge `src/styles/main.css` en effet de bord (`import "./styles/main.css"`) : tout consommateur qui importe le point d'entrée du package reçoit donc automatiquement la feuille de tokens. C'est la même convention que Spectrum, Shoelace/Web Awesome, Material Web ou Carbon — le thème est une dépendance du composant, chargée une seule fois, jamais dupliquée dans chaque fichier de composant.
@@ -129,11 +131,11 @@ Les tokens de composant ci-dessus **n'ont pas de fallback littéral** (`var(--x,
 **Exceptions légitimes à cette règle :**
 
 - Les mots-clés système du mode `forced-colors` (`ButtonText`, `Highlight`, `CanvasText`, …) utilisés dans les media queries d'accessibilité. Ce ne sont pas des valeurs de marque et ils ne doivent jamais passer par les tokens — ils appartiennent au thème du système d'exploitation de l'utilisateur, pas au design system.
-- `::backdrop` (`modal.css`) : avant Chrome 122, Firefox 120 et Safari 17.4 — tous dans la [matrice supportée](?path=/docs/documentation-support-navigateurs--docs) —, le pseudo-élément n'hérite de rien, ni de `:host` ni de `:root`. Aucun token ne peut l'atteindre, donc `var(--my-modal-backdrop-color, hsl(0deg 0% 0% / 50%))` porte un fallback littéral, aligné sur `--shadow-backdrop` (thème clair). Sur les navigateurs récents, le token s'applique normalement, dark mode compris.
+- `::backdrop` (`modal.css`) : avant Chrome 122, Firefox 120 et Safari 17.4 — tous dans la [matrice supportée](?path=/docs/documentation-support-navigateurs--docs) —, le pseudo-élément n'hérite de rien, ni de `:host` ni de `:root`. Aucun token ne peut l'atteindre, donc `var(--u-modal-backdrop-color, hsl(0deg 0% 0% / 50%))` porte un fallback littéral, aligné sur `--u-shadow-backdrop` (thème clair). Sur les navigateurs récents, le token s'applique normalement, dark mode compris.
 
 ### Accessibilité : `prefers-reduced-motion`
 
-`tokens/motion.css` redéfinit `--motion-duration-*` à `0ms` sous `@media (prefers-reduced-motion: reduce)`. Comme chaque composant consomme `var(--motion-duration-fast)` plutôt qu'une durée codée en dur, toutes les transitions de tous les composants se désactivent simultanément via ce seul point de contrôle — un composant n'a donc jamais besoin de sa propre media query `prefers-reduced-motion`.
+`tokens/motion.css` redéfinit `--u-motion-duration-*` à `0ms` sous `@media (prefers-reduced-motion: reduce)`. Comme chaque composant consomme `var(--u-motion-duration-fast)` plutôt qu'une durée codée en dur, toutes les transitions de tous les composants se désactivent simultanément via ce seul point de contrôle — un composant n'a donc jamais besoin de sa propre media query `prefers-reduced-motion`.
 
 ### Ressources Utiles
 

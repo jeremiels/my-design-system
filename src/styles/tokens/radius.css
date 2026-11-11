@@ -1,8 +1,8 @@
 @layer tokens.radius {
   :root {
-    --radius-sm: 2px;
-    --radius-md: 4px;
-    --radius-lg: 8px;
-    --radius-full: 9999px;
+    --u-radius-sm: 2px;
+    --u-radius-md: 4px;
+    --u-radius-lg: 8px;
+    --u-radius-full: 9999px;
   }
 }

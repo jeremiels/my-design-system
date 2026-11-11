@@ -1,14 +1,14 @@
 @layer tokens.motion {
   :root {
-    --motion-duration-fast: 150ms;
-    --motion-duration-base: 250ms;
-    --motion-easing-standard: ease;
+    --u-motion-duration-fast: 150ms;
+    --u-motion-duration-base: 250ms;
+    --u-motion-easing-standard: ease;
   }
 
   @media (prefers-reduced-motion: reduce) {
     :root {
-      --motion-duration-fast: 0ms;
-      --motion-duration-base: 0ms;
+      --u-motion-duration-fast: 0ms;
+      --u-motion-duration-base: 0ms;
     }
   }
 }

@@ -21,7 +21,7 @@
 - `plugins/css-import-attributes.ts` — Local Vite plugin implementing `import sheet from "./x.css" with { type: "css" }` (Vite has no native support); unit-tested in `css-import-attributes.test.ts`.
 - `scripts/` — `check-css-compat.mjs` (doiuse against browserslist) and `install-firefox-esr.sh` (downloads the Firefox ESR used by `test:legacy`).
 - `tests/legacy/` — Smoke test of the built `dist/` in a real Firefox ESR (`run.mjs` drives `index.html` + `checks.js` through WebdriverIO).
-- `src/docs/adr/` — Architecture Decision Records. **ADR 0001 (accepted) sets the multi-brand target**: classes without self-registration + `defineComponents({ prefix, overrides })`, declared inter-component dependencies (no hard-coded tags), documented extension surface, `--u-` prefix on every token, generated Custom Elements Manifest, Lit as a peer dependency. The code is not migrated yet: the conventions below describe the current state.
+- `src/docs/adr/` — Architecture Decision Records. **ADR 0001 (accepted) sets the multi-brand target**: classes without self-registration + `defineComponents({ prefix, overrides })`, declared inter-component dependencies (no hard-coded tags), documented extension surface, `--u-` prefix on every token, generated Custom Elements Manifest, Lit as a peer dependency. Migration in progress: the `--u-` token prefix is done; registration, inter-component dependencies, parts, manifest and packaging still follow the conventions described below.
 - `src/events/` — Custom event classes for the whole design system, one file per event, named `{owner}-{event}.ts` (e.g., `button-click.ts` → `MyClickEvent`). Centralized regardless of how many components currently dispatch a given event — an event's name/shape is public API the moment it exists (it augments the global `GlobalEventHandlersEventMap`), unlike a private type, so this is the one place to scan "what does this design system emit" as it grows.
 - `src/types/` — Shared types like `ComponentSize`, `SemanticVariant`, `ButtonVariant` (from `common.ts`).
 - `src/components/MyDSBaseElement.ts` — Minimal base class with shadow DOM defaults (`box-sizing`, `[hidden]`) and `dir`/`lang` reactive properties.
@@ -103,7 +103,7 @@
   /* src/styles/tokens/color.css */
   @layer tokens.color {
     :root {
-      --color-primary: hsl(210, 100%, 50%);
+      --u-color-primary: hsl(210, 100%, 50%);
     }
   }
   ```
@@ -117,7 +117,8 @@
   This avoids nested layer syntax errors during minification.
 - **Reset & Utilities:** Provides baseline styles and helper classes (e.g., `.visually-hidden`)
 - **Shame Layer:** For emergency `!important` overrides only — must be documented with issue/ticket reference
-- **Three-Tier Tokens:** primitive (`tokens/color.css`, etc.) → semantic (`tokens/semantic.css`, intent-based aliases like `--color-action-bg`) → component (`--my-button-background-color`, declared on `:host`, defaulting to a semantic token — never a literal). Components must not hardcode colors/spacing/radius/motion; see [CSS Architecture Documentation](src/docs/architecture/css-architecture.mdx) for the full pattern.
+- **Token Prefix:** every token, at all three tiers, starts with `--u-` (ADR 0001, D4): no collisions with host apps, same names for every brand. Component tokens are named `--u-<component>-<css-property>[-<state>]`, where `<component>` is the tag name without its prefix (`button` for `my-button` or a brand's `acme-button`).
+- **Three-Tier Tokens:** primitive (`tokens/color.css`, etc.) → semantic (`tokens/semantic.css`, intent-based aliases like `--u-color-action-bg`) → component (`--u-button-background-color`, declared on `:host`, defaulting to a semantic token — never a literal). Components must not hardcode colors/spacing/radius/motion; see [CSS Architecture Documentation](src/docs/architecture/css-architecture.mdx) for the full pattern.
 
 ## Conventions & Key Points
 

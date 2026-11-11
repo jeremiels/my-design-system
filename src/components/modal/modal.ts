@@ -27,11 +27,11 @@ export class Modal extends DSBaseElement {
   /**
    * CSS Tokens (customize via CSS custom properties on `my-modal`):
    *
-   * --my-modal-background-color  Content background (default: var(--color-surface-raised))
-   * --my-modal-border-radius     Corner radius (default: var(--radius-lg))
-   * --my-modal-padding           Internal padding (default: var(--spacing-md))
-   * --my-modal-backdrop-color    Backdrop overlay color (default: var(--shadow-backdrop))
-   * --my-modal-shadow            Elevation shadow (default: var(--shadow-elevation-lg))
+   * --u-modal-background-color  Content background (default: var(--u-color-surface-raised))
+   * --u-modal-border-radius     Corner radius (default: var(--u-radius-lg))
+   * --u-modal-padding           Internal padding (default: var(--u-spacing-md))
+   * --u-modal-backdrop-color    Backdrop overlay color (default: var(--u-shadow-backdrop))
+   * --u-modal-shadow            Elevation shadow (default: var(--u-shadow-elevation-lg))
    *
    * @see src/docs/architecture/css-architecture.mdx for token conventions.
    */

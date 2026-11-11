@@ -27,18 +27,18 @@ export abstract class ButtonBase extends DisabledDSBaseElement {
   /**
    * CSS Tokens (customize via CSS custom properties on `my-button` or `my-button-link`):
    *
-   * --my-button-background-color      Background color (default: var(--color-action-bg))
-   * --my-button-background-color-hover  Hover background (default: var(--color-action-bg-hover))
-   * --my-button-background-color-active Active/pressed background (default: var(--color-action-bg-active))
-   * --my-button-text-color            Text color (default: var(--color-action-text))
-   * --my-button-border                Border shorthand (default: none)
-   * --my-button-border-radius         Corner radius (default: var(--radius-md))
-   * --my-button-font-family           Font family (default: var(--font-family-base))
-   * --my-button-font-size             Text size (default: var(--font-size-base))
-   * --my-button-padding-inline        Horizontal padding (default: var(--spacing-md))
-   * --my-button-padding-block         Vertical padding (default: var(--spacing-sm))
-   * --my-button-focus-ring-color      Focus outline color (default: var(--color-focus-ring))
-   * --my-button-transition-duration   Background transition duration (default: var(--motion-duration-fast))
+   * --u-button-background-color      Background color (default: var(--u-color-action-bg))
+   * --u-button-background-color-hover  Hover background (default: var(--u-color-action-bg-hover))
+   * --u-button-background-color-active Active/pressed background (default: var(--u-color-action-bg-active))
+   * --u-button-text-color            Text color (default: var(--u-color-action-text))
+   * --u-button-border                Border shorthand (default: none)
+   * --u-button-border-radius         Corner radius (default: var(--u-radius-md))
+   * --u-button-font-family           Font family (default: var(--u-font-family-base))
+   * --u-button-font-size             Text size (default: var(--u-font-size-base))
+   * --u-button-padding-inline        Horizontal padding (default: var(--u-spacing-md))
+   * --u-button-padding-block         Vertical padding (default: var(--u-spacing-sm))
+   * --u-button-focus-ring-color      Focus outline color (default: var(--u-color-focus-ring))
+   * --u-button-transition-duration   Background transition duration (default: var(--u-motion-duration-fast))
    *
    * @see src/docs/architecture/css-architecture.mdx for token conventions.
    */
