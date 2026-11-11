@@ -1,11 +1,11 @@
 @layer u.tokens.color {
   :root {
-    --u-color-primary: hsl(210, 100%, 50%);
-    --u-color-secondary: hsl(150, 100%, 50%);
-    --u-color-success: hsl(122, 39%, 45%);
-    --u-color-warning: hsl(36, 100%, 45%);
-    --u-color-danger: hsl(4, 74%, 52%);
-    --u-color-information: hsl(207, 90%, 54%);
+    --u-color-primary: hsl(210, 100%, 44%);
+    --u-color-secondary: hsl(150, 100%, 26%);
+    --u-color-success: hsl(122, 39%, 37%);
+    --u-color-warning: hsl(36, 100%, 33%);
+    --u-color-danger: hsl(4, 74%, 50%);
+    --u-color-information: hsl(207, 90%, 42%);
     --u-color-background: hsl(0, 0%, 100%);
     --u-color-border: hsl(0, 0%, 80%);
     --u-color-fill: hsl(0, 0%, 90%);
