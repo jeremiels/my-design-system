@@ -26,6 +26,20 @@ export default mergeConfig(
           },
         },
         {
+          // Component-level logic that needs a real DOM (e.g. the registry).
+          extends: true,
+          test: {
+            name: "browser",
+            include: ["src/**/*.test.ts"],
+            browser: {
+              enabled: true,
+              headless: true,
+              provider: playwright(),
+              instances: [{ browser: "chromium" }],
+            },
+          },
+        },
+        {
           extends: true,
           plugins: [
             // The plugin will run tests for the stories defined in your Storybook config

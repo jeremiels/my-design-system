@@ -1,11 +1,16 @@
-import { html, type PropertyValues } from "lit";
-import { customElement, property, query } from "lit/decorators.js";
+import type { PropertyValues } from "lit";
+import { property, query } from "lit/decorators.js";
+import { html } from "lit/static-html.js";
 import { DSBaseElement } from "../MyDSBaseElement.js";
-import "../button/button.js";
+import { Button } from "../button/button.js";
 import modalStyles from "./modal.css" with { type: "css" };
 
-@customElement("my-modal")
 export class Modal extends DSBaseElement {
+  static override componentName = "modal";
+
+  /** Renders the trigger with the `button` of its own registration (ADR 0001, D2). */
+  static override dependencies = [Button];
+
   /**
    * Whether the modal is open. Reflects to the `open` attribute, so it can
    * be set declaratively (`<my-modal open>`) or bound reactively
@@ -38,8 +43,9 @@ export class Modal extends DSBaseElement {
   static styles = [DSBaseElement.styles ?? [], modalStyles];
 
   render() {
+    const button = this.tagFor(Button);
     return html`
-      <my-button @click=${this.openModal}>Open modal</my-button>
+      <${button} @click=${this.openModal}>Open modal</${button}>
       <dialog @close=${this.handleDialogClose}>
         <div class="content">
           <button autofocus @click=${this.closeModal}>${this.closeLabel}</button>
@@ -76,11 +82,5 @@ export class Modal extends DSBaseElement {
 
   closeModal() {
     this.open = false;
-  }
-}
-
-declare global {
-  interface HTMLElementTagNameMap {
-    "my-modal": Modal;
   }
 }

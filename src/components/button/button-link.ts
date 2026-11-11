@@ -1,13 +1,14 @@
 import { html } from "lit";
-import { customElement, property } from "lit/decorators.js";
+import { property } from "lit/decorators.js";
 import { ifDefined } from "lit/directives/if-defined.js";
 import { ButtonBase } from "./button-base.js";
 import buttonLinkStyles from "./button-link.css" with { type: "css" };
 
 type LinkTarget = "_blank" | "_self" | "_parent" | "_top";
 
-@customElement("my-button-link")
 export class ButtonLink extends ButtonBase {
+  static override componentName = "button-link";
+
   /**
    * URL for the link when asLink is true.
    * @property {string} href - The URL the link points to.
@@ -52,11 +53,5 @@ export class ButtonLink extends ButtonBase {
         ><slot></slot
       ></a>
     `;
-  }
-}
-
-declare global {
-  interface HTMLElementTagNameMap {
-    "my-button-link": ButtonLink;
   }
 }

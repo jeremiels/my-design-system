@@ -2,6 +2,8 @@ import addonA11y from "@storybook/addon-a11y";
 import addonDocs from "@storybook/addon-docs";
 import { definePreview } from "@storybook/web-components-vite";
 import "../src/styles/main.css";
+// Registers every component under the default `my-` prefix (ADR 0001, D1).
+import "../src/define.ts";
 
 export default definePreview({
   parameters: {

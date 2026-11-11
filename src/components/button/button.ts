@@ -1,12 +1,11 @@
 import { html } from "lit";
-import { customElement, property } from "lit/decorators.js";
+import { property } from "lit/decorators.js";
 import { withInternals } from "../../mixins/withInternals.js";
 import { ButtonBase } from "./button-base.js";
 import type { MyButtonType } from "./button.type.js";
 
 const InternalsButtonBase = withInternals(ButtonBase);
 
-@customElement("my-button")
 /**
  * A button component that can be used to trigger actions.
  *
@@ -15,6 +14,8 @@ const InternalsButtonBase = withInternals(ButtonBase);
  * @csspart button - The button element.
  */
 export class Button extends InternalsButtonBase {
+  static override componentName = "button";
+
   /**
    * Required for ElementInternals.form to resolve an ancestor <form> — a
    * shadow-rendered <button type="submit"> has no light-DOM form owner
@@ -54,11 +55,5 @@ export class Button extends InternalsButtonBase {
         <slot></slot>
       </button>
     `;
-  }
-}
-
-declare global {
-  interface HTMLElementTagNameMap {
-    "my-button": Button;
   }
 }

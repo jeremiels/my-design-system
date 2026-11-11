@@ -2,7 +2,6 @@ import preview from "#.storybook/preview";
 import { html } from "lit";
 import { ifDefined } from "lit/directives/if-defined.js";
 import { expect, fn, userEvent } from "storybook/test";
-import "./button";
 import type { Button } from "./button";
 
 const meta = preview.meta({

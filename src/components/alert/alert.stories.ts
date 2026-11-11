@@ -1,6 +1,5 @@
 import preview from "#.storybook/preview";
 import { html } from "lit";
-import "./alert";
 import { ifDefined } from "lit/directives/if-defined.js";
 import { expect } from "storybook/test";
 import type { Alert } from "./alert";

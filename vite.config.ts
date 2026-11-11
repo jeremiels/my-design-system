@@ -24,6 +24,8 @@ export default defineConfig({
       // common chunks automatically by Rollup.
       entry: {
         index: resolve(__dirname, "src/index.ts"),
+        // Side effect: registers the catalog under the default `my-` prefix.
+        define: resolve(__dirname, "src/define.ts"),
         styles: resolve(__dirname, "src/styles/main.css"),
         button: resolve(__dirname, "src/components/button/button.ts"),
         "button-link": resolve(__dirname, "src/components/button/button-link.ts"),
@@ -37,6 +39,13 @@ export default defineConfig({
       // Don’t bundle lit, consumers should install their own
       external: /^lit/,
     },
+  },
+  optimizeDeps: {
+    // Pre-bundle every Lit entry point the code imports. Otherwise Vite
+    // discovers one mid-run in Vitest/Storybook (e.g. lit/static-html.js),
+    // re-optimizes, and already-loaded test iframes fail on a cold cache.
+    // Add any new `lit/...` import here.
+    include: ["lit", "lit/decorators.js", "lit/directives/if-defined.js", "lit/static-html.js"],
   },
   resolve: {
     alias: {

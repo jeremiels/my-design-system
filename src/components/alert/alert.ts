@@ -1,10 +1,9 @@
 import { html } from "lit";
-import { customElement, property } from "lit/decorators.js";
+import { property } from "lit/decorators.js";
 import { DSBaseElement } from "../MyDSBaseElement.js";
 import alertStyles from "./alert.css" with { type: "css" };
 import type { MyAlertType } from "./alert.type.js";
 
-@customElement("my-alert")
 /**
  * An alert component that displays a message to the user.
  *
@@ -13,6 +12,8 @@ import type { MyAlertType } from "./alert.type.js";
  * @csspart alert - The alert element.
  */
 export class Alert extends DSBaseElement {
+  static override componentName = "alert";
+
   /**
    * Alert type.
    * @property {MyAlertType} type - The type of the alert.
@@ -52,11 +53,5 @@ export class Alert extends DSBaseElement {
         <slot></slot>
       </div>
     `;
-  }
-}
-
-declare global {
-  interface HTMLElementTagNameMap {
-    "my-alert": Alert;
   }
 }

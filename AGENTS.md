@@ -21,10 +21,12 @@
 - `plugins/css-import-attributes.ts` — Local Vite plugin implementing `import sheet from "./x.css" with { type: "css" }` (Vite has no native support); unit-tested in `css-import-attributes.test.ts`.
 - `scripts/` — `check-css-compat.mjs` (doiuse against browserslist) and `install-firefox-esr.sh` (downloads the Firefox ESR used by `test:legacy`).
 - `tests/legacy/` — Smoke test of the built `dist/` in a real Firefox ESR (`run.mjs` drives `index.html` + `checks.js` through WebdriverIO).
-- `src/docs/adr/` — Architecture Decision Records. **ADR 0001 (accepted) sets the multi-brand target**: classes without self-registration + `defineComponents({ prefix, overrides })`, declared inter-component dependencies (no hard-coded tags), documented extension surface, `--u-` prefix on every token, generated Custom Elements Manifest, Lit as a peer dependency. Migration in progress: the `--u-` token prefix is done; registration, inter-component dependencies, parts, manifest and packaging still follow the conventions described below.
+- `src/docs/adr/` — Architecture Decision Records. **ADR 0001 (accepted) sets the multi-brand target**: classes without self-registration + `defineComponents({ prefix, overrides })`, declared inter-component dependencies (no hard-coded tags), documented extension surface, `--u-` prefix on every token, generated Custom Elements Manifest, Lit as a peer dependency. Migration in progress: the `--u-` token prefix and the registration model (no self-registration, `defineComponents`, declared dependencies) are done; parts, manifest and packaging still follow the conventions described below.
+- `src/registry/` — `define-components.ts` (`defineComponents({ prefix, components, overrides })`, registers each component as `<prefix>-<componentName>`) and `catalog.ts` (`allComponents`).
+- `src/define.ts` — Side-effect entry (`my-design-system/define`) registering the catalog under the default `my-` prefix, for Storybook, the demo and brand-less apps; also holds the `my-*` `HTMLElementTagNameMap` declarations. `src/index.ts` itself is side-effect free.
 - `src/events/` — Custom event classes for the whole design system, one file per event, named `{owner}-{event}.ts` (e.g., `button-click.ts` → `MyClickEvent`). Centralized regardless of how many components currently dispatch a given event — an event's name/shape is public API the moment it exists (it augments the global `GlobalEventHandlersEventMap`), unlike a private type, so this is the one place to scan "what does this design system emit" as it grows.
 - `src/types/` — Shared types like `ComponentSize`, `SemanticVariant`, `ButtonVariant` (from `common.ts`).
-- `src/components/MyDSBaseElement.ts` — Minimal base class with shadow DOM defaults (`box-sizing`, `[hidden]`) and `dir`/`lang` reactive properties.
+- `src/components/MyDSBaseElement.ts` — Minimal base class with shadow DOM defaults (`box-sizing`, `[hidden]`), `dir`/`lang` reactive properties and the registration contract (`componentName`, `dependencies`, `tagFor()`).
 - `src/styles/` — CSS organized by layer:
   - `main.css` — Entry point; imports and declares layer order
   - `layers/reset.css` — CSS reset for baseline consistency
@@ -47,7 +49,8 @@
   - `ComponentSize = "small" | "medium" | "large"`
   - `SemanticVariant = "success" | "danger" | "warning" | "information"` — Shared across components for semantic meaning
   - `ButtonVariant = "primary" | "secondary" | SemanticVariant` — Button-specific variants extending semantic variants
-- **Custom Elements:** Register with `@customElement('my-component-name')` and declare in `HTMLElementTagNameMap` interface.
+- **Custom Elements (ADR 0001, D1–D2):** a component class never registers itself — no `@customElement`, no `customElements.define`. It sets `static componentName = "button"` (tag name without prefix) and is added to `allComponents` in `src/registry/catalog.ts` and to the `HTMLElementTagNameMap` block of `src/define.ts`. `defineComponents()` registers a fresh subclass per prefix.
+- **Component Dependencies:** a component that renders another one lists its class in `static dependencies = [Button]` and renders it with `lit/static-html.js`: `const button = this.tagFor(Button); html\`<${button}>…</${button}>\``. Never hard-code another component's tag, nor create one with `document.createElement`: a brand's override (`overrides: { button: AcmeButton }`) would be bypassed. Any new `lit/...`import goes in`optimizeDeps.include` (`vite.config.ts`).
 - **Accessibility:** Mixins like `withDisabled` manage aria attributes (e.g., `aria-disabled`). Use shadow DOM `:host` selectors for focus/hidden states.
 - **ElementInternals:** `attachInternals()` can only be called once per element. Components that need form participation, custom states (`:state()`), or `ElementInternals`-based ARIA must apply `withInternals()` and read `this.internals` — never call `this.attachInternals()` directly (see `src/docs/mixins/withInternals.md`). Most display-only components don't need it.
 - **Custom Events:** Dispatch events as typed `Event` subclasses from `src/events/`, not a generic string-keyed `emit()` helper. One file per event, named `{owner}-{event}.ts` (e.g. `button-click.ts`) so names stay collision-free as more components add events. Each class hardcodes its own `bubbles`/`cancelable`/`composed` and augments `GlobalEventHandlersEventMap` so listeners get a typed `event.detail` for free:
@@ -78,7 +81,7 @@
   - Build Storybook: `npm run build-storybook`
   - Tests: Vitest automatically runs `.stories.ts` files in browser via Storybook addon
 - **Testing:**
-  - Run all tests: `npx vitest` (`unit` project: plugin tests in Node; `storybook` project: stories in Chromium, Firefox and WebKit via Playwright)
+  - Run all tests: `npx vitest` (`unit` project: plugin tests in Node; `browser` project: `src/**/*.test.ts` in Chromium, e.g. the registry; `storybook` project: stories in Chromium, Firefox and WebKit via Playwright)
   - Setup: `.storybook/vitest.setup.ts` configures Storybook test environment
   - Browser compatibility: `npm run compat` (es-check on `dist/`, doiuse on CSS) and `npm run test:legacy` (builds, then runs `dist/` in a real Firefox ESR 115)
 - **Linting & Formatting:**

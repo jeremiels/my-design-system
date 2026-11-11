@@ -1,7 +1,6 @@
 import preview from "#.storybook/preview";
 import { html } from "lit";
 import { expect, userEvent } from "storybook/test";
-import "./modal";
 import type { Modal } from "./modal";
 
 const meta = preview.meta({

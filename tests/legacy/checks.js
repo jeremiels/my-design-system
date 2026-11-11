@@ -2,7 +2,9 @@
 // `window.__results` for tests/legacy/run.mjs. This file is NOT transpiled:
 // keep its syntax and APIs within the supported matrix (Firefox 115,
 // Safari 16.4 — see package.json "browserslist").
-import "/dist/index.js";
+// Registers the catalog under the default `my-` prefix, as an app would.
+import "/dist/define.js";
+import { Button, allComponents, defineComponents } from "/dist/index.js";
 
 const TRANSPARENT = "rgba(0, 0, 0, 0)";
 const results = [];
@@ -118,6 +120,26 @@ await check("custom states never throw", () => {
   const active = host.customStates.has("pressed");
   host.customStates.set("pressed", false);
   return [true, `:state() supported: ${active}`];
+});
+
+await check("a brand prefix and override reach nested components", async () => {
+  class AcmeButton extends Button {}
+  defineComponents({
+    prefix: "acme",
+    components: allComponents,
+    overrides: { button: AcmeButton },
+  });
+  const modal = document.createElement("acme-modal");
+  document.body.append(modal);
+  await modal.updateComplete;
+  const inner = modal.shadowRoot.querySelector("acme-button");
+  const defaultStillWorks = $("#modal").shadowRoot.querySelector("my-button") !== null;
+  modal.remove();
+  return [
+    inner instanceof AcmeButton && defaultStillWorks,
+    `acme-modal renders ${inner ? inner.localName : "nothing"} ` +
+      `(AcmeButton: ${inner instanceof AcmeButton}), my-modal still renders my-button: ${defaultStillWorks}`,
+  ];
 });
 
 await check("no runtime errors", () => [
