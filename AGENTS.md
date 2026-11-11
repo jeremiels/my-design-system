@@ -21,6 +21,7 @@
 - `plugins/css-import-attributes.ts` — Local Vite plugin implementing `import sheet from "./x.css" with { type: "css" }` (Vite has no native support); unit-tested in `css-import-attributes.test.ts`.
 - `scripts/` — `check-css-compat.mjs` (doiuse against browserslist) and `install-firefox-esr.sh` (downloads the Firefox ESR used by `test:legacy`).
 - `tests/legacy/` — Smoke test of the built `dist/` in a real Firefox ESR (`run.mjs` drives `index.html` + `checks.js` through WebdriverIO).
+- `src/docs/adr/` — Architecture Decision Records. **ADR 0001 (accepted) sets the multi-brand target**: classes without self-registration + `defineComponents({ prefix, overrides })`, declared inter-component dependencies (no hard-coded tags), documented extension surface, `--u-` prefix on every token, generated Custom Elements Manifest, Lit as a peer dependency. The code is not migrated yet: the conventions below describe the current state.
 - `src/events/` — Custom event classes for the whole design system, one file per event, named `{owner}-{event}.ts` (e.g., `button-click.ts` → `MyClickEvent`). Centralized regardless of how many components currently dispatch a given event — an event's name/shape is public API the moment it exists (it augments the global `GlobalEventHandlersEventMap`), unlike a private type, so this is the one place to scan "what does this design system emit" as it grows.
 - `src/types/` — Shared types like `ComponentSize`, `SemanticVariant`, `ButtonVariant` (from `common.ts`).
 - `src/components/MyDSBaseElement.ts` — Minimal base class with shadow DOM defaults (`box-sizing`, `[hidden]`) and `dir`/`lang` reactive properties.
@@ -151,6 +152,7 @@
 
 ## See Also
 
+- [ADR 0001 — Architecture multi-marque](src/docs/adr/0001-architecture-multi-marque.mdx) — Multi-brand target architecture (accepted, migration pending)
 - [CSS Architecture Documentation](src/docs/architecture/css-architecture.mdx) — Detailed CSS layer organization and patterns
 - [Withes Documentation](src/docs/mixins/withDisabled.md) — Mixin patterns and composition
 - [withInternals Documentation](src/docs/mixins/withInternals.md) — `ElementInternals` sharing across mixins/components
