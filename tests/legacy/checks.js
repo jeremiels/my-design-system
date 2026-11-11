@@ -117,6 +117,19 @@ await check("alert roles and variant styles", () => {
   ];
 });
 
+await check("alert reveals its message in an existing live region", async () => {
+  const alert = document.createElement("u-alert");
+  alert.innerHTML = "<p>Saved</p>";
+  document.body.append(alert);
+  await alert.updateComplete;
+  const message = alert.querySelector("p");
+  const before = style(message).visibility;
+  await new Promise((resolve) => setTimeout(resolve, 300));
+  const after = style(message).visibility;
+  alert.remove();
+  return [before === "hidden" && after === "visible", `visibility: ${before} → ${after}`];
+});
+
 await check("modal opens with a visible backdrop, then closes", async () => {
   const modal = $("#modal");
   const dialog = modal.shadowRoot.querySelector("dialog");

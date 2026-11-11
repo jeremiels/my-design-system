@@ -14,6 +14,16 @@
   background-color: var(--u-alert-background-color);
 }
 
+/* Until the message is revealed in the live region (see alert.ts): laid out,
+   so nothing moves, but invisible — and, through `visibility`, out of the
+   accessibility tree, so revealing it is an addition screen readers announce. */
+.alert--pending {
+  opacity: 0;
+}
+.alert--pending slot {
+  visibility: hidden;
+}
+
 @media (forced-colors: active) {
   .alert {
     border: 1px solid CanvasText;

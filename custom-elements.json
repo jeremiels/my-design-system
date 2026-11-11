@@ -418,7 +418,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "An alert component that displays a message to the user.",
+          "description": "An alert component that displays a message to the user.\n\nIts container is a live region (`role=\"status\"` or `\"alert\"`, from\n`type`). Screen readers announce what is added to a live region, not what\nit already held when it appeared, so the message is revealed 100 ms after\nthe alert is first rendered: an alert inserted with its message is\nannounced too. Until then the message is laid out (nothing moves) but\ninvisible.",
           "name": "Alert",
           "cssProperties": [
             {
@@ -483,6 +483,16 @@
               "default": "\"information\"",
               "description": "Alert type: sets the colors and how assistive technologies announce it.",
               "attribute": "type"
+            },
+            {
+              "kind": "field",
+              "name": "revealed",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "private",
+              "default": "false",
+              "description": "Whether the message has been revealed in the live region."
             },
             {
               "kind": "field",

@@ -135,7 +135,7 @@ drops its `href` but keeps `role="link"`). Never give an element the role of
 another (a link stays a link). A component wrapping a native control delegates
 focus to it (`static shadowRootOptions = { ...super.shadowRootOptions,
 delegatesFocus: true }`, see `button-base.ts`), so `focus()` and `autofocus`
-work on the host. A dialog needs an accessible name (`modal`'s `label`). No
+work on the host. A dialog needs an accessible name (`modal`'s `label`). A live region must exist before its content: `alert` reveals its message 100 ms after its first render, or a region inserted with its message may stay silent. No
 user-facing text hard-coded in a template: a property with a default
 (`closeLabel`) or a slot. Stories run the a11y addon, and any violation fails
 the test.

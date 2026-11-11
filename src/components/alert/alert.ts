@@ -1,11 +1,25 @@
-import { html } from "lit";
-import { property } from "lit/decorators.js";
+import { html, type PropertyValues } from "lit";
+import { property, state } from "lit/decorators.js";
 import { DSBaseElement } from "../base-element.js";
 import alertStyles from "./alert.css" with { type: "css" };
 import type { AlertType } from "./alert.type.js";
 
 /**
+ * How long the live region stays empty before the message is revealed: the
+ * time screen readers need to register a new live region (Angular CDK's
+ * LiveAnnouncer waits 100 ms for the same reason).
+ */
+const REVEAL_DELAY_MS = 100;
+
+/**
  * An alert component that displays a message to the user.
+ *
+ * Its container is a live region (`role="status"` or `"alert"`, from
+ * `type`). Screen readers announce what is added to a live region, not what
+ * it already held when it appeared, so the message is revealed 100 ms after
+ * the alert is first rendered: an alert inserted with its message is
+ * announced too. Until then the message is laid out (nothing moves) but
+ * invisible.
  *
  * @element u-alert
  * @summary Displays a message, announced to assistive technologies.
@@ -26,6 +40,10 @@ export class Alert extends DSBaseElement {
 
   static styles = [DSBaseElement.styles ?? [], alertStyles];
 
+  /** Whether the message has been revealed in the live region. */
+  @state()
+  private revealed = false;
+
   /**
    * `danger`/`warning` interrupt immediately (role="alert", implicit
    * aria-live="assertive"); `success`/`information` are announced without
@@ -36,9 +54,17 @@ export class Alert extends DSBaseElement {
     return this.type === "danger" || this.type === "warning" ? "alert" : "status";
   }
 
+  protected firstUpdated(changedProperties: PropertyValues<this>) {
+    super.firstUpdated(changedProperties);
+    setTimeout(() => {
+      this.revealed = true;
+    }, REVEAL_DELAY_MS);
+  }
+
   render() {
+    const pending = this.revealed ? "" : "alert--pending";
     return html`
-      <div part="alert" class="alert alert--${this.type}" role=${this.alertRole}>
+      <div part="alert" class="alert alert--${this.type} ${pending}" role=${this.alertRole}>
         <slot></slot>
       </div>
     `;
