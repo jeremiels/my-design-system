@@ -5,7 +5,7 @@ import type { Modal } from "./modal";
 
 const meta = preview.meta({
   title: "Components/Modal",
-  component: "my-modal",
+  component: "u-modal",
   tags: ["autodocs"],
   argTypes: {
     open: { control: "boolean" },
@@ -19,7 +19,7 @@ const meta = preview.meta({
     docs: {
       description: {
         component:
-          "The `my-modal` component displays content in a modal dialog. It manages open/closed states and provides user interaction through a dedicated button.",
+          "The `u-modal` component displays content in a modal dialog. It manages open/closed states and provides user interaction through a dedicated button.",
       },
       // `<dialog>` opened via showModal() renders in the browser's top
       // layer, which is shared by the whole Docs page under Storybook's
@@ -45,10 +45,10 @@ export const Default = meta.story({
     },
   },
   render: (args) => html`
-    <my-modal ?open=${args.open}>${args.slot}</my-modal>
+    <u-modal ?open=${args.open}>${args.slot}</u-modal>
   `,
   play: async ({ canvasElement }) => {
-    const modal = canvasElement.querySelector("my-modal");
+    const modal = canvasElement.querySelector("u-modal");
     expect(modal).toBeTruthy();
     expect(modal?.getAttribute("open")).toBeNull();
   },
@@ -65,9 +65,9 @@ export const Opened = meta.story({
       },
     },
   },
-  render: (args) => html` <my-modal open>${args.slot}</my-modal> `,
+  render: (args) => html` <u-modal open>${args.slot}</u-modal> `,
   play: async ({ canvasElement }) => {
-    const modal = canvasElement.querySelector("my-modal");
+    const modal = canvasElement.querySelector("u-modal");
     expect(modal).toBeTruthy();
     expect(modal?.getAttribute("open")).toBe("");
   },
@@ -85,12 +85,12 @@ export const OpeningModal = meta.story({
     },
   },
   render: (args) => html`
-    <my-modal ?open=${args.open}>${args.slot}</my-modal>
+    <u-modal ?open=${args.open}>${args.slot}</u-modal>
   `,
   play: async ({ canvasElement }) => {
-    const modal = canvasElement.querySelector("my-modal") as Modal;
+    const modal = canvasElement.querySelector("u-modal") as Modal;
     const shadow = modal?.shadowRoot;
-    const openButton = shadow?.querySelector("my-button");
+    const openButton = shadow?.querySelector("u-button");
 
     expect(modal?.open).toBe(false);
     expect(openButton).toBeTruthy();
@@ -113,9 +113,9 @@ export const ClosingModal = meta.story({
       },
     },
   },
-  render: () => html` <my-modal open>Modal content here</my-modal> `,
+  render: () => html` <u-modal open>Modal content here</u-modal> `,
   play: async ({ canvasElement }) => {
-    const modal = canvasElement.querySelector("my-modal") as Modal;
+    const modal = canvasElement.querySelector("u-modal") as Modal;
     const shadow = modal?.shadowRoot;
     const closeButton = shadow?.querySelector("dialog button");
 
@@ -141,13 +141,13 @@ export const WithCustomContent = meta.story({
     },
   },
   render: () => html`
-    <my-modal open>
+    <u-modal open>
       <h2>Custom Title</h2>
       <p>This is custom content in the modal.</p>
-    </my-modal>
+    </u-modal>
   `,
   play: async ({ canvasElement }) => {
-    const modal = canvasElement.querySelector("my-modal");
+    const modal = canvasElement.querySelector("u-modal");
     const shadow = modal?.shadowRoot;
     const slot = shadow?.querySelector("slot");
 

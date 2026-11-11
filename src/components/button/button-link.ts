@@ -10,7 +10,7 @@ type LinkTarget = "_blank" | "_self" | "_parent" | "_top";
  * A link that looks like a button, for navigation. When disabled it drops its
  * `href`, so it leaves the tab order and can't navigate.
  *
- * @element my-button-link
+ * @element u-button-link
  * @summary A link styled as a button.
  */
 export class ButtonLink extends ButtonBase {

@@ -1,7 +1,7 @@
 import { nothing } from "lit";
 import { html } from "lit/static-html.js";
 import { afterEach, describe, expect, it } from "vitest";
-import { DSBaseElement } from "../components/MyDSBaseElement.js";
+import { DSBaseElement } from "../components/base-element.js";
 import { Alert } from "../components/alert/alert.js";
 import { Button } from "../components/button/button.js";
 import { Modal } from "../components/modal/modal.js";

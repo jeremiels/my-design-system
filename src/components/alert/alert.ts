@@ -1,13 +1,13 @@
 import { html } from "lit";
 import { property } from "lit/decorators.js";
-import { DSBaseElement } from "../MyDSBaseElement.js";
+import { DSBaseElement } from "../base-element.js";
 import alertStyles from "./alert.css" with { type: "css" };
-import type { MyAlertType } from "./alert.type.js";
+import type { AlertType } from "./alert.type.js";
 
 /**
  * An alert component that displays a message to the user.
  *
- * @element my-alert
+ * @element u-alert
  * @summary Displays a message, announced to assistive technologies.
  * @slot - The content of the alert.
  * @csspart alert - The alert container.
@@ -22,11 +22,11 @@ export class Alert extends DSBaseElement {
 
   /**
    * Alert type.
-   * @property {MyAlertType} type - The type of the alert.
+   * @property {AlertType} type - The type of the alert.
    * @default "information"
    */
   @property({ type: String })
-  type: MyAlertType = "information";
+  type: AlertType = "information";
 
   static styles = [DSBaseElement.styles ?? [], alertStyles];
 

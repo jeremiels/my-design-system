@@ -16,8 +16,8 @@ export default {
   litelement: true,
   plugins: [
     {
-      // `dispatchEvent(new MyClickEvent(...))` yields an unnamed event next to
-      // the documented one (`@fires my-click`): keep documented events only.
+      // `dispatchEvent(new ClickEvent(...))` yields an unnamed event next to
+      // the documented one (`@fires u-click`): keep documented events only.
       name: "drop-unnamed-events",
       packageLinkPhase({ customElementsManifest }) {
         for (const module of customElementsManifest.modules) {

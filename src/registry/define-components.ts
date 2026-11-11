@@ -1,4 +1,4 @@
-import type { DSBaseElement } from "../components/MyDSBaseElement.js";
+import type { DSBaseElement } from "../components/base-element.js";
 
 type ComponentClass = typeof DSBaseElement;
 

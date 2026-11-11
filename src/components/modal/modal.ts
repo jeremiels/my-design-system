@@ -1,7 +1,7 @@
 import type { PropertyValues } from "lit";
 import { property, query } from "lit/decorators.js";
 import { html } from "lit/static-html.js";
-import { DSBaseElement } from "../MyDSBaseElement.js";
+import { DSBaseElement } from "../base-element.js";
 import { Button } from "../button/button.js";
 import modalStyles from "./modal.css" with { type: "css" };
 
@@ -10,7 +10,7 @@ import modalStyles from "./modal.css" with { type: "css" };
  * `<dialog>`: the browser provides the backdrop, closes it on Escape and
  * makes the rest of the page inert while it's open.
  *
- * @element my-modal
+ * @element u-modal
  * @summary A modal dialog with a built-in trigger.
  * @slot - The dialog content.
  * @csspart trigger - The opening button: the `button` component of the same registration.
@@ -31,7 +31,7 @@ export class Modal extends DSBaseElement {
 
   /**
    * Whether the modal is open. Reflects to the `open` attribute, so it can
-   * be set declaratively (`<my-modal open>`) or bound reactively
+   * be set declaratively (`<u-modal open>`) or bound reactively
    * (`?open=${state}`) — the underlying `<dialog>` is kept in sync in
    * `updated()`. Reading `.open` always reflects the real dialog state,
    * including when the user closes it via Escape.

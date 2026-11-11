@@ -1,3 +1,3 @@
 import type { SemanticVariant } from "../../types/common.js";
 
-export type MyAlertType = SemanticVariant;
+export type AlertType = SemanticVariant;

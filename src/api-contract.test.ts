@@ -3,7 +3,7 @@
 // tokens or attributes that don't exist — or miss tokens that do.
 import { describe, expect, it } from "vitest";
 import manifest from "../custom-elements.json";
-import type { DSBaseElement } from "./components/MyDSBaseElement.js";
+import type { DSBaseElement } from "./components/base-element.js";
 import "./define.js";
 
 interface Named {
@@ -48,10 +48,10 @@ async function render(tag: string): Promise<DSBaseElement> {
 
 it("finds the components in the manifest", () => {
   expect(components.map((declaration) => declaration.tagName).sort()).toEqual([
-    "my-alert",
-    "my-button",
-    "my-button-link",
-    "my-modal",
+    "u-alert",
+    "u-button",
+    "u-button-link",
+    "u-modal",
   ]);
 });
 

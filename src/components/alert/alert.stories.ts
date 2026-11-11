@@ -6,7 +6,7 @@ import type { Alert } from "./alert";
 
 const meta = preview.meta({
   title: "Components/Alert",
-  component: "my-alert",
+  component: "u-alert",
   tags: ["autodocs"],
   argTypes: {
     type: {
@@ -25,7 +25,7 @@ const meta = preview.meta({
     docs: {
       description: {
         component:
-          "The `my-alert` component is used to display important messages to users. It supports four types (information, success, warning, error) that determine the visual style of the alert. The content of the alert can be customized using the default slot.",
+          "The `u-alert` component is used to display important messages to users. It supports four types (information, success, warning, error) that determine the visual style of the alert. The content of the alert can be customized using the default slot.",
       },
     },
   },
@@ -40,7 +40,7 @@ export const Default = meta.story({
     },
   },
   render: (args) => html`
-    <my-alert type="${ifDefined(args.type)}">${args.slot}</my-alert>
+    <u-alert type="${ifDefined(args.type)}">${args.slot}</u-alert>
   `,
 });
 
@@ -54,13 +54,13 @@ export const Variants = meta.story({
     },
   },
   render: () => html`
-    <my-alert type="information">This is an information alert.</my-alert>
-    <my-alert type="success">This is a success alert.</my-alert>
-    <my-alert type="warning">This is a warning alert.</my-alert>
-    <my-alert type="danger">This is an error alert.</my-alert>
+    <u-alert type="information">This is an information alert.</u-alert>
+    <u-alert type="success">This is a success alert.</u-alert>
+    <u-alert type="warning">This is a warning alert.</u-alert>
+    <u-alert type="danger">This is an error alert.</u-alert>
   `,
   play: async ({ canvasElement }) => {
-    const alerts = [...canvasElement.querySelectorAll<Alert>("my-alert")];
+    const alerts = [...canvasElement.querySelectorAll<Alert>("u-alert")];
     await Promise.all(alerts.map((alert) => alert.updateComplete));
     const inner = alerts.map((alert) => alert.shadowRoot!.querySelector(".alert")!);
     // warning/danger interrupt (role="alert"); information/success are polite.

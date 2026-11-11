@@ -24,7 +24,7 @@ export default defineConfig({
       // common chunks automatically by Rollup.
       entry: {
         index: resolve(__dirname, "src/index.ts"),
-        // Side effect: registers the catalog under the default `my-` prefix.
+        // Side effect: registers the catalog under the default `u-` prefix.
         define: resolve(__dirname, "src/define.ts"),
         styles: resolve(__dirname, "src/styles/main.css"),
         button: resolve(__dirname, "src/components/button/button.ts"),

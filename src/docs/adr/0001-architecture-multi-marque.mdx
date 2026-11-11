@@ -243,10 +243,11 @@ Le package sera publié sur un **registre privé interne (Artifactory)**, config
 
 ## Questions ouvertes
 
-1. **Préfixe des balises du socle :** `my-` est conservé pour la démo et Storybook ; à revoir avec le nom du package.
+Aucune.
 
 ## Questions tranchées
 
 - **Préfixe des tokens :** `--u-`, neutre et identique pour toutes les marques (D4).
+- **Préfixe des balises du socle :** `u-` (`u-button`, `u-modal`…), aligné sur les tokens ; il ne sert qu'à l'enregistrement par défaut (Storybook, démo, usage sans marque). L'événement du bouton suit : `u-click`.
 - **Deux versions d'une même marque sur une page :** non couvert, jugé peu probable ; les règles de D2 gardent la migration localisée.
 - **Publication :** registre privé interne (Artifactory), configuré hors de ce poste ; démo d'abord, via `npm pack`.

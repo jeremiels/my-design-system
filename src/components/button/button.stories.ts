@@ -6,7 +6,7 @@ import type { Button } from "./button";
 
 const meta = preview.meta({
   title: "Components/Button",
-  component: "my-button",
+  component: "u-button",
   tags: ["autodocs"],
   argTypes: {
     size: {
@@ -39,7 +39,7 @@ const meta = preview.meta({
     docs: {
       description: {
         component:
-          "The `my-button` component is a versatile button element with customizable size, variant, and disabled state. It supports three sizes (small, medium, large) and six variants (primary, secondary, success, danger, warning, information). The button can also be disabled to prevent user interaction.",
+          "The `u-button` component is a versatile button element with customizable size, variant, and disabled state. It supports three sizes (small, medium, large) and six variants (primary, secondary, success, danger, warning, information). The button can also be disabled to prevent user interaction.",
       },
     },
   },
@@ -55,11 +55,11 @@ export const Default = meta.story({
     },
   },
   render: (args) => html`
-    <my-button
+    <u-button
       size="${ifDefined(args.size)}"
       variant="${ifDefined(args.variant)}"
       ?disabled="${args.disabled}"
-      >${args.slot}</my-button
+      >${args.slot}</u-button
     >
   `,
 });
@@ -76,9 +76,9 @@ export const Sizes = meta.story({
     },
   },
   render: () => html`
-    <my-button size="small">Small</my-button>
-    <my-button size="medium">Medium</my-button>
-    <my-button size="large">Large</my-button>
+    <u-button size="small">Small</u-button>
+    <u-button size="medium">Medium</u-button>
+    <u-button size="large">Large</u-button>
   `,
 });
 
@@ -95,15 +95,15 @@ export const Variants = meta.story({
     },
   },
   render: () => html`
-    <my-button variant="primary">Primary</my-button>
-    <my-button variant="secondary">Secondary</my-button>
-    <my-button variant="success">Success</my-button>
-    <my-button variant="danger">Danger</my-button>
-    <my-button variant="warning">Warning</my-button>
-    <my-button variant="information">Information</my-button>
+    <u-button variant="primary">Primary</u-button>
+    <u-button variant="secondary">Secondary</u-button>
+    <u-button variant="success">Success</u-button>
+    <u-button variant="danger">Danger</u-button>
+    <u-button variant="warning">Warning</u-button>
+    <u-button variant="information">Information</u-button>
   `,
   play: async ({ canvasElement }) => {
-    const buttons = [...canvasElement.querySelectorAll<Button>("my-button")];
+    const buttons = [...canvasElement.querySelectorAll<Button>("u-button")];
     await Promise.all(buttons.map((button) => button.updateComplete));
     const backgrounds = buttons.map((button) => {
       // Base, disabled-mixin and button sheets (CSS module scripts), all adopted.
@@ -129,14 +129,14 @@ export const Disabled = meta.story({
     },
   },
   render: () => html`
-    <my-button disabled>Disabled</my-button>
-    <my-button variant="secondary" disabled>Disabled Secondary</my-button>
+    <u-button disabled>Disabled</u-button>
+    <u-button variant="secondary" disabled>Disabled Secondary</u-button>
   `,
   play: async ({ canvasElement }) => {
-    const button = canvasElement.querySelector<Button>("my-button")!;
+    const button = canvasElement.querySelector<Button>("u-button")!;
     await button.updateComplete;
     const onClick = fn();
-    button.addEventListener("my-click", onClick);
+    button.addEventListener("u-click", onClick);
     // Programmatic click: `pointer-events: none` would make userEvent refuse.
     button.shadowRoot!.querySelector<HTMLButtonElement>(".button")!.click();
     expect(onClick).not.toHaveBeenCalled();
@@ -155,11 +155,11 @@ export const SubmitsForm = meta.story({
   },
   render: () => html`
     <form @submit=${(event: SubmitEvent) => event.preventDefault()}>
-      <my-button type="submit">Submit</my-button>
+      <u-button type="submit">Submit</u-button>
     </form>
   `,
   play: async ({ canvasElement }) => {
-    const button = canvasElement.querySelector<Button>("my-button")!;
+    const button = canvasElement.querySelector<Button>("u-button")!;
     await button.updateComplete;
     const onSubmit = fn();
     canvasElement.querySelector("form")!.addEventListener("submit", onSubmit);

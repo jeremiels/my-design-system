@@ -9,7 +9,7 @@ It is a real mixin: it extends whatever base class you pass in, so your base's o
 Import and apply the mixin to your component:
 
 ```ts
-import { DSBaseElement } from "@/components/MyDSBaseElement";
+import { DSBaseElement } from "@/components/base-element";
 import { withInternals } from "@/mixins/withInternals";
 
 export class MyComponent extends withInternals(DSBaseElement) {

@@ -1,9 +1,9 @@
 import { property } from "lit/decorators.js";
-import { MyClickEvent } from "../../events/button-click.js";
+import { ClickEvent } from "../../events/button-click.js";
 import { withDisabled } from "../../mixins/withDisabled.js";
-import { DSBaseElement } from "../MyDSBaseElement.js";
+import { DSBaseElement } from "../base-element.js";
 import buttonBaseStyles from "./button-base.css" with { type: "css" };
-import type { MyButtonSize, MyButtonVariant } from "./button.type.js";
+import type { ButtonSize, ButtonVariant } from "./button.type.js";
 
 /**
  * Shared base of `button` and `button-link`: size, variant, disabled state,
@@ -11,7 +11,7 @@ import type { MyButtonSize, MyButtonVariant } from "./button.type.js";
  *
  * @slot - The button label.
  * @csspart button - The native `<button>` (or `<a>` for `button-link`).
- * @fires {MyClickEvent} my-click - On click, unless disabled. `detail.originalEvent` is the native click.
+ * @fires {ClickEvent} u-click - On click, unless disabled. `detail.originalEvent` is the native click.
  * @cssprop [--u-button-background-color=var(--u-color-action-bg)] - Background color (variants change the default).
  * @cssprop [--u-button-background-color-hover=var(--u-color-action-bg-hover)] - Background color on hover.
  * @cssprop [--u-button-background-color-active=var(--u-color-action-bg-active)] - Background color while pressed.
@@ -31,11 +31,11 @@ import type { MyButtonSize, MyButtonVariant } from "./button.type.js";
 export abstract class ButtonBase extends withDisabled(DSBaseElement) {
   /** Button size. */
   @property({ type: String })
-  size: MyButtonSize = "medium";
+  size: ButtonSize = "medium";
 
   /** Button variant: `primary`, `secondary` or a semantic variant. */
   @property({ type: String })
-  variant: MyButtonVariant = "primary";
+  variant: ButtonVariant = "primary";
 
   static styles = [super.styles ?? [], buttonBaseStyles];
 
@@ -46,7 +46,7 @@ export abstract class ButtonBase extends withDisabled(DSBaseElement) {
       return;
     }
 
-    this.dispatchEvent(new MyClickEvent({ originalEvent: e }));
+    this.dispatchEvent(new ClickEvent({ originalEvent: e }));
   }
 
   protected abstract render(): unknown;

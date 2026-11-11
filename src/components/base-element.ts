@@ -1,7 +1,7 @@
 import { LitElement, type CSSResultGroup } from "lit";
 import { property } from "lit/decorators.js";
 import { unsafeStatic, type StaticValue } from "lit/static-html.js";
-import baseStyles from "./MyDSBaseElement.css" with { type: "css" };
+import baseStyles from "./base-element.css" with { type: "css" };
 
 /**
  * Base class every component extends.
@@ -14,7 +14,7 @@ import baseStyles from "./MyDSBaseElement.css" with { type: "css" };
  * `src/events/button-click.ts` for the pattern.
  *
  * Classes never register themselves (ADR 0001, D1): `defineComponents()`
- * registers a subclass per prefix (`my-button`, `acme-button`, ...) and
+ * registers a subclass per prefix (`u-button`, `acme-button`, ...) and
  * hands it the tag names of its registration through `tagNames`.
  */
 export class DSBaseElement extends LitElement {
@@ -53,8 +53,8 @@ export class DSBaseElement extends LitElement {
   /**
    * The tag of a component declared in `static dependencies`, for templates
    * from `lit/static-html.js`: `` html`<${this.tagFor(Button)}>…</${…}>` ``.
-   * It follows the registration of this element: `my-modal` renders
-   * `my-button`, `acme-modal` renders `acme-button` — the brand's override
+   * It follows the registration of this element: `u-modal` renders
+   * `u-button`, `acme-modal` renders `acme-button` — the brand's override
    * of `Button` if it has one.
    */
   protected tagFor(component: typeof DSBaseElement): StaticValue {

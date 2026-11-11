@@ -2,12 +2,12 @@ import { html } from "lit";
 import { property } from "lit/decorators.js";
 import { withInternals } from "../../mixins/withInternals.js";
 import { ButtonBase } from "./button-base.js";
-import type { MyButtonType } from "./button.type.js";
+import type { ButtonType } from "./button.type.js";
 
 /**
  * A button that triggers an action, or submits or resets its form (`type`).
  *
- * @element my-button
+ * @element u-button
  * @summary Triggers an action or submits a form.
  */
 export class Button extends withInternals(ButtonBase) {
@@ -26,7 +26,7 @@ export class Button extends withInternals(ButtonBase) {
    * @default "button"
    */
   @property({ type: String })
-  type: MyButtonType = "button";
+  type: ButtonType = "button";
 
   protected override handleClick(e: MouseEvent) {
     super.handleClick(e);

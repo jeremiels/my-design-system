@@ -1,8 +1,8 @@
 // Side-effect free: classes, building blocks for brand components and the
 // registration API. Import "my-design-system/define" to register the catalog
-// under the default `my-` prefix, or call defineComponents() with a brand
+// under the default `u-` prefix, or call defineComponents() with a brand
 // prefix (ADR 0001, D1).
-export * from "./components/MyDSBaseElement.js";
+export * from "./components/base-element.js";
 export * from "./components/button/button.js";
 export * from "./components/button/button-link.js";
 export * from "./components/alert/alert.js";

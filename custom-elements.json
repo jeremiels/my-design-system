@@ -12,7 +12,7 @@
           "name": "*",
           "declaration": {
             "name": "*",
-            "module": "src/components/MyDSBaseElement.js"
+            "module": "src/components/base-element.js"
           }
         },
         {
@@ -123,11 +123,11 @@
     },
     {
       "kind": "javascript-module",
-      "path": "src/components/MyDSBaseElement.ts",
+      "path": "src/components/base-element.ts",
       "declarations": [
         {
           "kind": "class",
-          "description": "Base class every component extends.\n\nKept intentionally thin: universal resets/properties and the registration\ncontract only. Behavior that not every component needs (open/close, focus\ndelegation, form association, ...) belongs in a mixin from `src/mixins`.\nCustom events are dispatched as typed `Event` subclasses from\n`src/events`, not through a generic base-class `emit()` helper — see\n`src/events/button-click.ts` for the pattern.\n\nClasses never register themselves (ADR 0001, D1): `defineComponents()`\nregisters a subclass per prefix (`my-button`, `acme-button`, ...) and\nhands it the tag names of its registration through `tagNames`.",
+          "description": "Base class every component extends.\n\nKept intentionally thin: universal resets/properties and the registration\ncontract only. Behavior that not every component needs (open/close, focus\ndelegation, form association, ...) belongs in a mixin from `src/mixins`.\nCustom events are dispatched as typed `Event` subclasses from\n`src/events`, not through a generic base-class `emit()` helper — see\n`src/events/button-click.ts` for the pattern.\n\nClasses never register themselves (ADR 0001, D1): `defineComponents()`\nregisters a subclass per prefix (`u-button`, `acme-button`, ...) and\nhands it the tag names of its registration through `tagNames`.",
           "name": "DSBaseElement",
           "members": [
             {
@@ -184,7 +184,7 @@
                   }
                 }
               ],
-              "description": "The tag of a component declared in `static dependencies`, for templates\nfrom `lit/static-html.js`: `` html`<${this.tagFor(Button)}>…</${…}>` ``.\nIt follows the registration of this element: `my-modal` renders\n`my-button`, `acme-modal` renders `acme-button` — the brand's override\nof `Button` if it has one."
+              "description": "The tag of a component declared in `static dependencies`, for templates\nfrom `lit/static-html.js`: `` html`<${this.tagFor(Button)}>…</${…}>` ``.\nIt follows the registration of this element: `u-modal` renders\n`u-button`, `acme-modal` renders `acme-button` — the brand's override\nof `Button` if it has one."
             }
           ],
           "attributes": [
@@ -217,7 +217,7 @@
           "name": "DSBaseElement",
           "declaration": {
             "name": "DSBaseElement",
-            "module": "src/components/MyDSBaseElement.ts"
+            "module": "src/components/base-element.ts"
           }
         }
       ]
@@ -229,13 +229,13 @@
         {
           "kind": "class",
           "description": "",
-          "name": "MyClickEvent",
+          "name": "ClickEvent",
           "members": [
             {
               "kind": "field",
               "name": "detail",
               "type": {
-                "text": "MyClickEventDetail"
+                "text": "ClickEventDetail"
               },
               "readonly": true,
               "default": "detail"
@@ -250,9 +250,9 @@
       "exports": [
         {
           "kind": "js",
-          "name": "MyClickEvent",
+          "name": "ClickEvent",
           "declaration": {
-            "name": "MyClickEvent",
+            "name": "ClickEvent",
             "module": "src/events/button-click.ts"
           }
         }
@@ -481,14 +481,14 @@
               "description": "Name of the component in the catalog, without any tag prefix: the\nregistered tag is `<prefix>-<componentName>`. Every concrete component\nsets it; abstract bases (e.g. `ButtonBase`) don't.",
               "inheritedFrom": {
                 "name": "DSBaseElement",
-                "module": "src/components/MyDSBaseElement.ts"
+                "module": "src/components/base-element.ts"
               }
             },
             {
               "kind": "field",
               "name": "type",
               "type": {
-                "text": "MyAlertType"
+                "text": "AlertType"
               },
               "default": "\"information\"",
               "description": "Alert type.",
@@ -515,7 +515,7 @@
               "description": "Components this one renders (ADR 0001, D2): `defineComponents()`\nregisters them too, and `tagFor()` resolves their tag. Never hard-code\nanother component's tag in a template, nor create one with\n`document.createElement` — a brand's override would be bypassed.",
               "inheritedFrom": {
                 "name": "DSBaseElement",
-                "module": "src/components/MyDSBaseElement.ts"
+                "module": "src/components/base-element.ts"
               }
             },
             {
@@ -528,7 +528,7 @@
               "attribute": "dir",
               "inheritedFrom": {
                 "name": "DSBaseElement",
-                "module": "src/components/MyDSBaseElement.ts"
+                "module": "src/components/base-element.ts"
               }
             },
             {
@@ -540,7 +540,7 @@
               "attribute": "lang",
               "inheritedFrom": {
                 "name": "DSBaseElement",
-                "module": "src/components/MyDSBaseElement.ts"
+                "module": "src/components/base-element.ts"
               }
             },
             {
@@ -560,10 +560,10 @@
                   }
                 }
               ],
-              "description": "The tag of a component declared in `static dependencies`, for templates\nfrom `lit/static-html.js`: `` html`<${this.tagFor(Button)}>…</${…}>` ``.\nIt follows the registration of this element: `my-modal` renders\n`my-button`, `acme-modal` renders `acme-button` — the brand's override\nof `Button` if it has one.",
+              "description": "The tag of a component declared in `static dependencies`, for templates\nfrom `lit/static-html.js`: `` html`<${this.tagFor(Button)}>…</${…}>` ``.\nIt follows the registration of this element: `u-modal` renders\n`u-button`, `acme-modal` renders `acme-button` — the brand's override\nof `Button` if it has one.",
               "inheritedFrom": {
                 "name": "DSBaseElement",
-                "module": "src/components/MyDSBaseElement.ts"
+                "module": "src/components/base-element.ts"
               }
             }
           ],
@@ -571,7 +571,7 @@
             {
               "name": "type",
               "type": {
-                "text": "MyAlertType"
+                "text": "AlertType"
               },
               "default": "\"information\"",
               "description": "Alert type.",
@@ -586,7 +586,7 @@
               "fieldName": "dir",
               "inheritedFrom": {
                 "name": "DSBaseElement",
-                "module": "src/components/MyDSBaseElement.ts"
+                "module": "src/components/base-element.ts"
               }
             },
             {
@@ -597,15 +597,15 @@
               "fieldName": "lang",
               "inheritedFrom": {
                 "name": "DSBaseElement",
-                "module": "src/components/MyDSBaseElement.ts"
+                "module": "src/components/base-element.ts"
               }
             }
           ],
           "superclass": {
             "name": "DSBaseElement",
-            "module": "/src/components/MyDSBaseElement.js"
+            "module": "/src/components/base-element.js"
           },
-          "tagName": "my-alert",
+          "tagName": "u-alert",
           "customElement": true,
           "summary": "Displays a message, announced to assistive technologies."
         }
@@ -729,7 +729,7 @@
               "kind": "field",
               "name": "size",
               "type": {
-                "text": "MyButtonSize"
+                "text": "ButtonSize"
               },
               "default": "\"medium\"",
               "description": "Button size.",
@@ -739,7 +739,7 @@
               "kind": "field",
               "name": "variant",
               "type": {
-                "text": "MyButtonVariant"
+                "text": "ButtonVariant"
               },
               "default": "\"primary\"",
               "description": "Button variant: `primary`, `secondary` or a semantic variant.",
@@ -796,7 +796,7 @@
               "description": "Name of the component in the catalog, without any tag prefix: the\nregistered tag is `<prefix>-<componentName>`. Every concrete component\nsets it; abstract bases (e.g. `ButtonBase`) don't.",
               "inheritedFrom": {
                 "name": "DSBaseElement",
-                "module": "src/components/MyDSBaseElement.ts"
+                "module": "src/components/base-element.ts"
               }
             },
             {
@@ -810,7 +810,7 @@
               "description": "Components this one renders (ADR 0001, D2): `defineComponents()`\nregisters them too, and `tagFor()` resolves their tag. Never hard-code\nanother component's tag in a template, nor create one with\n`document.createElement` — a brand's override would be bypassed.",
               "inheritedFrom": {
                 "name": "DSBaseElement",
-                "module": "src/components/MyDSBaseElement.ts"
+                "module": "src/components/base-element.ts"
               }
             },
             {
@@ -823,7 +823,7 @@
               "attribute": "dir",
               "inheritedFrom": {
                 "name": "DSBaseElement",
-                "module": "src/components/MyDSBaseElement.ts"
+                "module": "src/components/base-element.ts"
               }
             },
             {
@@ -835,7 +835,7 @@
               "attribute": "lang",
               "inheritedFrom": {
                 "name": "DSBaseElement",
-                "module": "src/components/MyDSBaseElement.ts"
+                "module": "src/components/base-element.ts"
               }
             },
             {
@@ -855,27 +855,27 @@
                   }
                 }
               ],
-              "description": "The tag of a component declared in `static dependencies`, for templates\nfrom `lit/static-html.js`: `` html`<${this.tagFor(Button)}>…</${…}>` ``.\nIt follows the registration of this element: `my-modal` renders\n`my-button`, `acme-modal` renders `acme-button` — the brand's override\nof `Button` if it has one.",
+              "description": "The tag of a component declared in `static dependencies`, for templates\nfrom `lit/static-html.js`: `` html`<${this.tagFor(Button)}>…</${…}>` ``.\nIt follows the registration of this element: `u-modal` renders\n`u-button`, `acme-modal` renders `acme-button` — the brand's override\nof `Button` if it has one.",
               "inheritedFrom": {
                 "name": "DSBaseElement",
-                "module": "src/components/MyDSBaseElement.ts"
+                "module": "src/components/base-element.ts"
               }
             }
           ],
           "events": [
             {
               "type": {
-                "text": "MyClickEvent"
+                "text": "ClickEvent"
               },
               "description": "On click, unless disabled. `detail.originalEvent` is the native click.",
-              "name": "my-click"
+              "name": "u-click"
             }
           ],
           "attributes": [
             {
               "name": "size",
               "type": {
-                "text": "MyButtonSize"
+                "text": "ButtonSize"
               },
               "default": "\"medium\"",
               "description": "Button size.",
@@ -884,7 +884,7 @@
             {
               "name": "variant",
               "type": {
-                "text": "MyButtonVariant"
+                "text": "ButtonVariant"
               },
               "default": "\"primary\"",
               "description": "Button variant: `primary`, `secondary` or a semantic variant.",
@@ -911,7 +911,7 @@
               "fieldName": "dir",
               "inheritedFrom": {
                 "name": "DSBaseElement",
-                "module": "src/components/MyDSBaseElement.ts"
+                "module": "src/components/base-element.ts"
               }
             },
             {
@@ -922,7 +922,7 @@
               "fieldName": "lang",
               "inheritedFrom": {
                 "name": "DSBaseElement",
-                "module": "src/components/MyDSBaseElement.ts"
+                "module": "src/components/base-element.ts"
               }
             }
           ],
@@ -934,7 +934,7 @@
           ],
           "superclass": {
             "name": "DSBaseElement",
-            "module": "/src/components/MyDSBaseElement.js"
+            "module": "/src/components/base-element.js"
           }
         }
       ],
@@ -969,7 +969,7 @@
               "description": "Name of the component in the catalog, without any tag prefix: the\nregistered tag is `<prefix>-<componentName>`. Every concrete component\nsets it; abstract bases (e.g. `ButtonBase`) don't.",
               "inheritedFrom": {
                 "name": "DSBaseElement",
-                "module": "src/components/MyDSBaseElement.ts"
+                "module": "src/components/base-element.ts"
               }
             },
             {
@@ -1032,7 +1032,7 @@
               "kind": "field",
               "name": "size",
               "type": {
-                "text": "MyButtonSize"
+                "text": "ButtonSize"
               },
               "default": "\"medium\"",
               "description": "Button size.",
@@ -1046,7 +1046,7 @@
               "kind": "field",
               "name": "variant",
               "type": {
-                "text": "MyButtonVariant"
+                "text": "ButtonVariant"
               },
               "default": "\"primary\"",
               "description": "Button variant: `primary`, `secondary` or a semantic variant.",
@@ -1084,7 +1084,7 @@
               "description": "Components this one renders (ADR 0001, D2): `defineComponents()`\nregisters them too, and `tagFor()` resolves their tag. Never hard-code\nanother component's tag in a template, nor create one with\n`document.createElement` — a brand's override would be bypassed.",
               "inheritedFrom": {
                 "name": "DSBaseElement",
-                "module": "src/components/MyDSBaseElement.ts"
+                "module": "src/components/base-element.ts"
               }
             },
             {
@@ -1097,7 +1097,7 @@
               "attribute": "dir",
               "inheritedFrom": {
                 "name": "DSBaseElement",
-                "module": "src/components/MyDSBaseElement.ts"
+                "module": "src/components/base-element.ts"
               }
             },
             {
@@ -1109,7 +1109,7 @@
               "attribute": "lang",
               "inheritedFrom": {
                 "name": "DSBaseElement",
-                "module": "src/components/MyDSBaseElement.ts"
+                "module": "src/components/base-element.ts"
               }
             },
             {
@@ -1129,10 +1129,10 @@
                   }
                 }
               ],
-              "description": "The tag of a component declared in `static dependencies`, for templates\nfrom `lit/static-html.js`: `` html`<${this.tagFor(Button)}>…</${…}>` ``.\nIt follows the registration of this element: `my-modal` renders\n`my-button`, `acme-modal` renders `acme-button` — the brand's override\nof `Button` if it has one.",
+              "description": "The tag of a component declared in `static dependencies`, for templates\nfrom `lit/static-html.js`: `` html`<${this.tagFor(Button)}>…</${…}>` ``.\nIt follows the registration of this element: `u-modal` renders\n`u-button`, `acme-modal` renders `acme-button` — the brand's override\nof `Button` if it has one.",
               "inheritedFrom": {
                 "name": "DSBaseElement",
-                "module": "src/components/MyDSBaseElement.ts"
+                "module": "src/components/base-element.ts"
               }
             }
           ],
@@ -1169,7 +1169,7 @@
             {
               "name": "size",
               "type": {
-                "text": "MyButtonSize"
+                "text": "ButtonSize"
               },
               "default": "\"medium\"",
               "description": "Button size.",
@@ -1182,7 +1182,7 @@
             {
               "name": "variant",
               "type": {
-                "text": "MyButtonVariant"
+                "text": "ButtonVariant"
               },
               "default": "\"primary\"",
               "description": "Button variant: `primary`, `secondary` or a semantic variant.",
@@ -1201,7 +1201,7 @@
               "fieldName": "dir",
               "inheritedFrom": {
                 "name": "DSBaseElement",
-                "module": "src/components/MyDSBaseElement.ts"
+                "module": "src/components/base-element.ts"
               }
             },
             {
@@ -1212,7 +1212,7 @@
               "fieldName": "lang",
               "inheritedFrom": {
                 "name": "DSBaseElement",
-                "module": "src/components/MyDSBaseElement.ts"
+                "module": "src/components/base-element.ts"
               }
             }
           ],
@@ -1220,7 +1220,7 @@
             "name": "ButtonBase",
             "module": "/src/components/button/button-base.js"
           },
-          "tagName": "my-button-link",
+          "tagName": "u-button-link",
           "customElement": true,
           "summary": "A link styled as a button.",
           "slots": [
@@ -1383,10 +1383,10 @@
           "events": [
             {
               "type": {
-                "text": "MyClickEvent"
+                "text": "ClickEvent"
               },
               "description": "On click, unless disabled. `detail.originalEvent` is the native click.",
-              "name": "my-click",
+              "name": "u-click",
               "inheritedFrom": {
                 "name": "ButtonBase",
                 "module": "src/components/button/button-base.ts"
@@ -1426,7 +1426,7 @@
               "description": "Name of the component in the catalog, without any tag prefix: the\nregistered tag is `<prefix>-<componentName>`. Every concrete component\nsets it; abstract bases (e.g. `ButtonBase`) don't.",
               "inheritedFrom": {
                 "name": "DSBaseElement",
-                "module": "src/components/MyDSBaseElement.ts"
+                "module": "src/components/base-element.ts"
               }
             },
             {
@@ -1443,7 +1443,7 @@
               "kind": "field",
               "name": "type",
               "type": {
-                "text": "MyButtonType"
+                "text": "ButtonType"
               },
               "default": "\"button\"",
               "description": "Button type.",
@@ -1521,7 +1521,7 @@
               "kind": "field",
               "name": "size",
               "type": {
-                "text": "MyButtonSize"
+                "text": "ButtonSize"
               },
               "default": "\"medium\"",
               "description": "Button size.",
@@ -1535,7 +1535,7 @@
               "kind": "field",
               "name": "variant",
               "type": {
-                "text": "MyButtonVariant"
+                "text": "ButtonVariant"
               },
               "default": "\"primary\"",
               "description": "Button variant: `primary`, `secondary` or a semantic variant.",
@@ -1556,7 +1556,7 @@
               "description": "Components this one renders (ADR 0001, D2): `defineComponents()`\nregisters them too, and `tagFor()` resolves their tag. Never hard-code\nanother component's tag in a template, nor create one with\n`document.createElement` — a brand's override would be bypassed.",
               "inheritedFrom": {
                 "name": "DSBaseElement",
-                "module": "src/components/MyDSBaseElement.ts"
+                "module": "src/components/base-element.ts"
               }
             },
             {
@@ -1569,7 +1569,7 @@
               "attribute": "dir",
               "inheritedFrom": {
                 "name": "DSBaseElement",
-                "module": "src/components/MyDSBaseElement.ts"
+                "module": "src/components/base-element.ts"
               }
             },
             {
@@ -1581,7 +1581,7 @@
               "attribute": "lang",
               "inheritedFrom": {
                 "name": "DSBaseElement",
-                "module": "src/components/MyDSBaseElement.ts"
+                "module": "src/components/base-element.ts"
               }
             },
             {
@@ -1601,10 +1601,10 @@
                   }
                 }
               ],
-              "description": "The tag of a component declared in `static dependencies`, for templates\nfrom `lit/static-html.js`: `` html`<${this.tagFor(Button)}>…</${…}>` ``.\nIt follows the registration of this element: `my-modal` renders\n`my-button`, `acme-modal` renders `acme-button` — the brand's override\nof `Button` if it has one.",
+              "description": "The tag of a component declared in `static dependencies`, for templates\nfrom `lit/static-html.js`: `` html`<${this.tagFor(Button)}>…</${…}>` ``.\nIt follows the registration of this element: `u-modal` renders\n`u-button`, `acme-modal` renders `acme-button` — the brand's override\nof `Button` if it has one.",
               "inheritedFrom": {
                 "name": "DSBaseElement",
-                "module": "src/components/MyDSBaseElement.ts"
+                "module": "src/components/base-element.ts"
               }
             }
           ],
@@ -1612,7 +1612,7 @@
             {
               "name": "type",
               "type": {
-                "text": "MyButtonType"
+                "text": "ButtonType"
               },
               "default": "\"button\"",
               "description": "Button type.",
@@ -1633,7 +1633,7 @@
             {
               "name": "size",
               "type": {
-                "text": "MyButtonSize"
+                "text": "ButtonSize"
               },
               "default": "\"medium\"",
               "description": "Button size.",
@@ -1646,7 +1646,7 @@
             {
               "name": "variant",
               "type": {
-                "text": "MyButtonVariant"
+                "text": "ButtonVariant"
               },
               "default": "\"primary\"",
               "description": "Button variant: `primary`, `secondary` or a semantic variant.",
@@ -1665,7 +1665,7 @@
               "fieldName": "dir",
               "inheritedFrom": {
                 "name": "DSBaseElement",
-                "module": "src/components/MyDSBaseElement.ts"
+                "module": "src/components/base-element.ts"
               }
             },
             {
@@ -1676,7 +1676,7 @@
               "fieldName": "lang",
               "inheritedFrom": {
                 "name": "DSBaseElement",
-                "module": "src/components/MyDSBaseElement.ts"
+                "module": "src/components/base-element.ts"
               }
             }
           ],
@@ -1690,7 +1690,7 @@
             "name": "ButtonBase",
             "module": "/src/components/button/button-base.js"
           },
-          "tagName": "my-button",
+          "tagName": "u-button",
           "customElement": true,
           "summary": "Triggers an action or submits a form.",
           "slots": [
@@ -1853,10 +1853,10 @@
           "events": [
             {
               "type": {
-                "text": "MyClickEvent"
+                "text": "ClickEvent"
               },
               "description": "On click, unless disabled. `detail.originalEvent` is the native click.",
-              "name": "my-click",
+              "name": "u-click",
               "inheritedFrom": {
                 "name": "ButtonBase",
                 "module": "src/components/button/button-base.ts"
@@ -1953,7 +1953,7 @@
               "description": "Name of the component in the catalog, without any tag prefix: the\nregistered tag is `<prefix>-<componentName>`. Every concrete component\nsets it; abstract bases (e.g. `ButtonBase`) don't.",
               "inheritedFrom": {
                 "name": "DSBaseElement",
-                "module": "src/components/MyDSBaseElement.ts"
+                "module": "src/components/base-element.ts"
               }
             },
             {
@@ -1967,7 +1967,7 @@
               "description": "Renders the trigger with the `button` of its own registration (ADR 0001, D2).",
               "inheritedFrom": {
                 "name": "DSBaseElement",
-                "module": "src/components/MyDSBaseElement.ts"
+                "module": "src/components/base-element.ts"
               }
             },
             {
@@ -1977,7 +1977,7 @@
                 "text": "boolean"
               },
               "default": "false",
-              "description": "Whether the modal is open. Reflects to the `open` attribute, so it can\nbe set declaratively (`<my-modal open>`) or bound reactively\n(`?open=${state}`) — the underlying `<dialog>` is kept in sync in\n`updated()`. Reading `.open` always reflects the real dialog state,\nincluding when the user closes it via Escape.",
+              "description": "Whether the modal is open. Reflects to the `open` attribute, so it can\nbe set declaratively (`<u-modal open>`) or bound reactively\n(`?open=${state}`) — the underlying `<dialog>` is kept in sync in\n`updated()`. Reading `.open` always reflects the real dialog state,\nincluding when the user closes it via Escape.",
               "attribute": "open",
               "reflects": true
             },
@@ -2015,7 +2015,7 @@
               "attribute": "dir",
               "inheritedFrom": {
                 "name": "DSBaseElement",
-                "module": "src/components/MyDSBaseElement.ts"
+                "module": "src/components/base-element.ts"
               }
             },
             {
@@ -2027,7 +2027,7 @@
               "attribute": "lang",
               "inheritedFrom": {
                 "name": "DSBaseElement",
-                "module": "src/components/MyDSBaseElement.ts"
+                "module": "src/components/base-element.ts"
               }
             },
             {
@@ -2047,10 +2047,10 @@
                   }
                 }
               ],
-              "description": "The tag of a component declared in `static dependencies`, for templates\nfrom `lit/static-html.js`: `` html`<${this.tagFor(Button)}>…</${…}>` ``.\nIt follows the registration of this element: `my-modal` renders\n`my-button`, `acme-modal` renders `acme-button` — the brand's override\nof `Button` if it has one.",
+              "description": "The tag of a component declared in `static dependencies`, for templates\nfrom `lit/static-html.js`: `` html`<${this.tagFor(Button)}>…</${…}>` ``.\nIt follows the registration of this element: `u-modal` renders\n`u-button`, `acme-modal` renders `acme-button` — the brand's override\nof `Button` if it has one.",
               "inheritedFrom": {
                 "name": "DSBaseElement",
-                "module": "src/components/MyDSBaseElement.ts"
+                "module": "src/components/base-element.ts"
               }
             }
           ],
@@ -2061,7 +2061,7 @@
                 "text": "boolean"
               },
               "default": "false",
-              "description": "Whether the modal is open. Reflects to the `open` attribute, so it can\nbe set declaratively (`<my-modal open>`) or bound reactively\n(`?open=${state}`) — the underlying `<dialog>` is kept in sync in\n`updated()`. Reading `.open` always reflects the real dialog state,\nincluding when the user closes it via Escape.",
+              "description": "Whether the modal is open. Reflects to the `open` attribute, so it can\nbe set declaratively (`<u-modal open>`) or bound reactively\n(`?open=${state}`) — the underlying `<dialog>` is kept in sync in\n`updated()`. Reading `.open` always reflects the real dialog state,\nincluding when the user closes it via Escape.",
               "fieldName": "open"
             },
             {
@@ -2082,7 +2082,7 @@
               "fieldName": "dir",
               "inheritedFrom": {
                 "name": "DSBaseElement",
-                "module": "src/components/MyDSBaseElement.ts"
+                "module": "src/components/base-element.ts"
               }
             },
             {
@@ -2093,15 +2093,15 @@
               "fieldName": "lang",
               "inheritedFrom": {
                 "name": "DSBaseElement",
-                "module": "src/components/MyDSBaseElement.ts"
+                "module": "src/components/base-element.ts"
               }
             }
           ],
           "superclass": {
             "name": "DSBaseElement",
-            "module": "/src/components/MyDSBaseElement.js"
+            "module": "/src/components/base-element.js"
           },
-          "tagName": "my-modal",
+          "tagName": "u-modal",
           "customElement": true,
           "summary": "A modal dialog with a built-in trigger."
         }

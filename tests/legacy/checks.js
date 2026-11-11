@@ -2,7 +2,7 @@
 // `window.__results` for tests/legacy/run.mjs. This file is NOT transpiled:
 // keep its syntax and APIs within the supported matrix (Firefox 115,
 // Safari 16.4 — see package.json "browserslist").
-// Registers the catalog under the default `my-` prefix, as an app would.
+// Registers the catalog under the default `u-` prefix, as an app would.
 import "/dist/define.js";
 import { Button, allComponents, defineComponents } from "/dist/index.js";
 
@@ -22,7 +22,7 @@ const $ = (selector) => document.querySelector(selector);
 const shadow = (selector, inner) => $(selector).shadowRoot.querySelector(inner);
 const style = (element, pseudo) => getComputedStyle(element, pseudo);
 
-const tags = ["my-button", "my-button-link", "my-alert", "my-modal"];
+const tags = ["u-button", "u-button-link", "u-alert", "u-modal"];
 await Promise.all(tags.map((tag) => customElements.whenDefined(tag)));
 await Promise.all([...document.querySelectorAll(tags.join(","))].map((el) => el.updateComplete));
 
@@ -53,7 +53,7 @@ await check("color-mix() semantic tokens resolve", () => {
 await check("disabled button is inert and announced", () => {
   const host = $("#disabled");
   let clicked = false;
-  host.addEventListener("my-click", () => {
+  host.addEventListener("u-click", () => {
     clicked = true;
   });
   shadow("#disabled", ".button").click();
@@ -133,12 +133,12 @@ await check("a brand prefix and override reach nested components", async () => {
   document.body.append(modal);
   await modal.updateComplete;
   const inner = modal.shadowRoot.querySelector("acme-button");
-  const defaultStillWorks = $("#modal").shadowRoot.querySelector("my-button") !== null;
+  const defaultStillWorks = $("#modal").shadowRoot.querySelector("u-button") !== null;
   modal.remove();
   return [
     inner instanceof AcmeButton && defaultStillWorks,
     `acme-modal renders ${inner ? inner.localName : "nothing"} ` +
-      `(AcmeButton: ${inner instanceof AcmeButton}), my-modal still renders my-button: ${defaultStillWorks}`,
+      `(AcmeButton: ${inner instanceof AcmeButton}), u-modal still renders u-button: ${defaultStillWorks}`,
   ];
 });
 
