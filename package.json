@@ -61,12 +61,13 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "npm run analyze && rm -rf dist && vite build && tsc -p tsconfig.build.json && tsc -p tsconfig.plugin.json && cp src/css-modules.d.ts dist/",
+    "build": "npm run analyze && vite build && tsc -p tsconfig.build.json && tsc -p tsconfig.plugin.json && cp src/css-modules.d.ts dist/",
     "preview": "vite preview",
     "storybook": "npm run analyze && storybook dev -p 6006",
     "build-storybook": "npm run analyze && storybook build",
     "analyze": "cem analyze",
     "api:check": "cem analyze && git diff --exit-code -- custom-elements.json",
+    "check": "oxlint src && oxfmt --check && tsc -p tsconfig.json --noEmit && npm run api:check && vitest run",
     "lint": "oxlint src --fix",
     "fmt": "oxfmt",
     "fmt:check": "oxfmt --check",
@@ -119,8 +120,8 @@
     "Firefox ESR"
   ],
   "engines": {
-    "node": ">=24.8.0",
-    "npm": ">=11.6.0"
+    "node": ">=26.13.1",
+    "npm": ">=11.20.0"
   },
   "customElements": "custom-elements.json"
 }

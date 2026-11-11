@@ -39,17 +39,14 @@ export const Default = meta.story({
       },
     },
   },
-  render: (args) => html`
-    <u-alert type="${ifDefined(args.type)}">${args.slot}</u-alert>
-  `,
+  render: (args) => html` <u-alert type="${ifDefined(args.type)}">${args.slot}</u-alert> `,
 });
 
 export const Variants = meta.story({
   parameters: {
     docs: {
       description: {
-        story:
-          "Alerts in different types: information, success, warning, and error.",
+        story: "Alerts in different types: information, success, warning, and error.",
       },
     },
   },

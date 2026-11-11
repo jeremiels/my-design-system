@@ -1,5 +1,5 @@
 import { defineConfig } from "vite";
-import { resolve } from "path";
+import { resolve } from "node:path";
 import browserslistToEsbuild from "browserslist-to-esbuild";
 import { cssImportAttributes } from "./plugins/css-import-attributes.ts";
 
@@ -23,17 +23,17 @@ export default defineConfig({
       // the rest. Shared code (base classes, mixins, tokens) is split into
       // common chunks automatically by Rollup.
       entry: {
-        index: resolve(__dirname, "src/index.ts"),
+        index: resolve(import.meta.dirname, "src/index.ts"),
         // Side effect: registers the catalog under the default `u-` prefix.
-        define: resolve(__dirname, "src/define.ts"),
+        define: resolve(import.meta.dirname, "src/define.ts"),
         // Tokens + utilities: everything the components need, nothing that
         // styles the host page. The reset is a separate, opt-in sheet.
-        styles: resolve(__dirname, "src/styles/main.css"),
-        reset: resolve(__dirname, "src/styles/reset.css"),
-        button: resolve(__dirname, "src/components/button/button.ts"),
-        "button-link": resolve(__dirname, "src/components/button/button-link.ts"),
-        alert: resolve(__dirname, "src/components/alert/alert.ts"),
-        modal: resolve(__dirname, "src/components/modal/modal.ts"),
+        styles: resolve(import.meta.dirname, "src/styles/main.css"),
+        reset: resolve(import.meta.dirname, "src/styles/reset.css"),
+        button: resolve(import.meta.dirname, "src/components/button/button.ts"),
+        "button-link": resolve(import.meta.dirname, "src/components/button/button-link.ts"),
+        alert: resolve(import.meta.dirname, "src/components/alert/alert.ts"),
+        modal: resolve(import.meta.dirname, "src/components/modal/modal.ts"),
       },
       formats: ["es"],
       fileName: (_format, entryName) => `${entryName}.js`,
@@ -52,7 +52,7 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      "@": resolve(__dirname, "src"), // so you can do `import X from "@/components/..."`
+      "@": resolve(import.meta.dirname, "src"), // so you can do `import X from "@/components/..."`
     },
   },
 });

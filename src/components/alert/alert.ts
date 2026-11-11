@@ -33,9 +33,7 @@ export class Alert extends DSBaseElement {
    * See https://www.w3.org/WAI/ARIA/apg/patterns/alert/.
    */
   private get alertRole(): "alert" | "status" {
-    return this.type === "danger" || this.type === "warning"
-      ? "alert"
-      : "status";
+    return this.type === "danger" || this.type === "warning" ? "alert" : "status";
   }
 
   render() {
