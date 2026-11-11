@@ -1,0 +1,68 @@
+# Everything that must hold before merging (see AGENTS.md, Workflows).
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Lint, types, API, tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      # Vitest runs the stories in all three engines.
+      - run: npx playwright install --with-deps chromium firefox webkit
+      # oxlint, oxfmt --check, tsc, api:check (committed manifest up to
+      # date), Vitest: unit, browser (registry, tokens) and stories with axe.
+      - run: npm run check
+      - name: Upload Vitest failure screenshots
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: vitest-attachments
+          path: .vitest/
+          if-no-files-found: ignore
+
+  package:
+    name: Package, brand example, browser support
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      # Chromium for the brand example's smoke test; Firefox's system
+      # libraries for Firefox ESR, plus dbus-glib, which ESR 115 links to.
+      - run: |
+          npx playwright install --with-deps chromium firefox
+          sudo apt-get install -y --no-install-recommends libdbus-glib-1-2
+      # Builds and packs the base, then installs, builds and tests ACME
+      # against the tarball, as a brand would consume it.
+      - run: npm run example
+      # es-check and doiuse against the browserslist matrix.
+      - run: npm run compat
+      - name: Cache Firefox ESR
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/firefox-esr
+          key: firefox-esr-${{ hashFiles('scripts/install-firefox-esr.sh') }}
+      # dist/ in a real Firefox ESR 115, the oldest Firefox supported.
+      - run: npm run test:legacy
