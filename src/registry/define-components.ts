@@ -47,8 +47,13 @@ function extendsOrIs(candidate: ComponentClass, base: ComponentClass): boolean {
  * on one page, and each subclass carries the tag names of its own
  * registration, which `tagFor()` uses to render dependencies (D2).
  *
- * Every tag is checked before any is defined, so a failing call registers
- * nothing. Call it once per prefix.
+ * Registering a prefix again doesn't break the page: a tag that a
+ * registration of the design system already defined — an earlier call, a
+ * module re-run by HMR, or another copy of the design system bundled by
+ * another app on the page (micro-frontends) — keeps its definition, with a
+ * console warning when it isn't (a subclass of) the class this call wanted.
+ * A tag defined by anything else is a conflict: the call throws, and since
+ * every tag is checked first, registers nothing.
  *
  * @returns component name → registered tag name
  *
@@ -115,17 +120,40 @@ export function defineComponents({
     Object.fromEntries([...resolved.keys()].map((name) => [name, `${prefix}-${name}`])),
   );
 
-  const taken = Object.values(tagNames).filter((tag) => customElements.get(tag));
-  if (taken.length > 0) {
+  const conflicts: string[] = [];
+  const kept: string[] = [];
+  const toDefine: [string, ComponentClass][] = [];
+  for (const [name, component] of resolved) {
+    const tag = tagNames[name];
+    const existing = customElements.get(tag) as ComponentClass | undefined;
+    if (!existing) {
+      toDefine.push([tag, component]);
+    } else if (existing.tagNames?.[name] !== tag) {
+      // Not registered by defineComponents() (any copy of it).
+      conflicts.push(`<${tag}>`);
+    } else if (!(existing.prototype instanceof component)) {
+      kept.push(`<${tag}>`);
+    }
+  }
+
+  if (conflicts.length > 0) {
     throw new Error(
-      `Already defined: ${taken.map((tag) => `<${tag}>`).join(", ")}. ` +
-        `Call defineComponents() once per prefix.`,
+      `Already defined outside defineComponents(): ${conflicts.join(", ")}. ` +
+        `Use another prefix.`,
+    );
+  }
+  if (kept.length > 0) {
+    // oxlint-disable-next-line no-console -- the page works, but not as asked
+    console.warn(
+      `defineComponents(): ${kept.join(", ")} already registered by another registration ` +
+        `(another copy or version of the design system?); keeping those definitions. ` +
+        `Apps sharing a page should share one copy of the design system.`,
     );
   }
 
-  for (const [name, component] of resolved) {
+  for (const [tag, component] of toDefine) {
     customElements.define(
-      tagNames[name],
+      tag,
       class extends component {
         static override tagNames = tagNames;
       },

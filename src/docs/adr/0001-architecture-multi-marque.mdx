@@ -95,7 +95,7 @@ Le composant ne crée pas lui-même ses sous-composants interactifs : l'intégra
 
 ### Deux versions d'une même marque sur une page : non couvert
 
-Ce cas est jugé peu probable et n'est pas traité. Pour qu'un passage ultérieur à B reste un changement localisé, deux règles s'appliquent dès maintenant :
+Ce cas est jugé peu probable et n'est pas traité ; depuis l'amendement du 11 novembre 2026, il ne fait toutefois plus échouer la page (voir les questions tranchées). Pour qu'un passage ultérieur à B reste un changement localisé, deux règles s'appliquent dès maintenant :
 
 1. **Toute dépendance entre composants est déclarée** (table de dépendances de C) : jamais de nom de balise en dur dans un template, jamais de `document.createElement` d'un composant du socle. Cette table deviendrait le registre scopé de chaque composant.
 2. **Le branchement au registre se fait en un seul endroit** : la classe de base (`DSBaseElement`), et non chaque composant.
@@ -249,5 +249,5 @@ Aucune.
 
 - **Préfixe des tokens :** `--u-`, neutre et identique pour toutes les marques (D4).
 - **Préfixe des balises du socle :** `u-` (`u-button`, `u-modal`…), aligné sur les tokens ; il ne sert qu'à l'enregistrement par défaut (Storybook, démo, usage sans marque). Les événements propres au socle suivent (`u-close`) ; le bouton, lui, émet le `click` natif de son contrôle, sans événement dupliqué (amendement du 11 novembre 2026).
-- **Deux versions d'une même marque sur une page :** non couvert, jugé peu probable ; les règles de D2 gardent la migration localisée.
+- **Deux versions d'une même marque sur une page :** non couvert, jugé peu probable ; les règles de D2 gardent la migration localisée. Amendement du 11 novembre 2026 : un second enregistrement du même préfixe (autre copie du design system chargée par un autre micro-frontend, rechargement à chaud) ne fait plus échouer la page. Les définitions existantes sont conservées, avec un avertissement si elles diffèrent : les deux applications utilisent alors la version chargée en premier. C'est un repli, pas une prise en charge.
 - **Publication :** registre privé interne (Artifactory), configuré hors de ce poste ; démo d'abord, via `npm pack`.

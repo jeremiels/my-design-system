@@ -1,6 +1,6 @@
 import { nothing } from "lit";
 import { html } from "lit/static-html.js";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { DSBaseElement } from "../components/base-element.js";
 import { Alert } from "../components/alert/alert.js";
 import { Button } from "../components/button/button.js";
@@ -22,6 +22,7 @@ async function render<T extends Element>(tag: string): Promise<T> {
 
 afterEach(() => {
   document.body.replaceChildren();
+  vi.restoreAllMocks();
 });
 
 describe("defineComponents", () => {
@@ -128,14 +129,49 @@ describe("defineComponents", () => {
     expect(() => defineComponents({ prefix, components: [Alert] })).toThrow("Invalid prefix");
   });
 
-  it("registers nothing when one of its tags is already taken", () => {
+  it("registers nothing when one of its tags is taken by another element", () => {
     const prefix = uniquePrefix();
     customElements.define(`${prefix}-alert`, class extends HTMLElement {});
 
     expect(() => defineComponents({ prefix, components: allComponents })).toThrow(
-      `Already defined: <${prefix}-alert>`,
+      `Already defined outside defineComponents(): <${prefix}-alert>`,
     );
     expect(customElements.get(`${prefix}-button`)).toBeUndefined();
+  });
+
+  it("silently keeps a registration of the same prefix and classes", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const prefix = uniquePrefix();
+    const tags = defineComponents({ prefix, components: allComponents });
+    const button = customElements.get(`${prefix}-button`);
+
+    expect(defineComponents({ prefix, components: allComponents })).toEqual(tags);
+    expect(customElements.get(`${prefix}-button`)).toBe(button);
+    expect(warn).not.toHaveBeenCalled();
+  });
+
+  it("keeps a different registration of the same prefix, with a warning", () => {
+    // E.g. another copy of the design system, bundled by another app.
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    class OtherButton extends Button {}
+    const prefix = uniquePrefix();
+    defineComponents({ prefix, components: [Button] });
+
+    expect(() =>
+      defineComponents({ prefix, components: [Button], overrides: { button: OtherButton } }),
+    ).not.toThrow();
+    expect(customElements.get(`${prefix}-button`)?.prototype).not.toBeInstanceOf(OtherButton);
+    expect(warn).toHaveBeenCalledOnce();
+    expect(warn.mock.calls[0][0]).toContain(`<${prefix}-button>`);
+  });
+
+  it("registers the missing components next to an existing registration", async () => {
+    const prefix = uniquePrefix();
+    defineComponents({ prefix, components: [Alert] });
+    defineComponents({ prefix, components: [Alert, Modal] });
+
+    const modal = await render<Modal>(`${prefix}-modal`);
+    expect(modal.shadowRoot!.querySelector(`${prefix}-button`)).toBeInstanceOf(Button);
   });
 });
 

@@ -138,6 +138,7 @@ export * from "./components/acme-card/acme-card.js";
 ```
 
 - `overrides` remplace un composant **partout** dans l'enregistrement : `acme-modal` et `acme-card` rendent `AcmeButton`.
+- Si deux applications d'une même page (micro-frontends) embarquent chacune le design system de marque, le second enregistrement ne casse rien : les balises déjà définies gardent leur définition, avec un avertissement en console si elle diffère (autre version). Les deux applications utilisent alors la version chargée en premier : mieux vaut partager une seule copie.
 - Le package déclare `"sideEffects": ["**/*.css", "./dist/define.js"]`, pour que les applications ne chargent que les composants qu'elles utilisent.
 
 ## 7. Documentation
