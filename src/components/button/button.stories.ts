@@ -16,14 +16,7 @@ const meta = preview.meta({
     },
     variant: {
       control: { type: "select" },
-      options: [
-        "primary",
-        "secondary",
-        "success",
-        "danger",
-        "warning",
-        "information",
-      ],
+      options: ["primary", "secondary", "success", "danger", "warning", "information"],
     },
     disabled: { control: "boolean" },
     slot: { control: "text" },
@@ -49,8 +42,7 @@ export const Default = meta.story({
   parameters: {
     docs: {
       description: {
-        story:
-          "The default button with customizable size, variant, and disabled state.",
+        story: "The default button with customizable size, variant, and disabled state.",
       },
     },
   },
@@ -62,6 +54,13 @@ export const Default = meta.story({
       >${args.slot}</u-button
     >
   `,
+  play: async ({ canvasElement }) => {
+    const button = canvasElement.querySelector<Button>("u-button")!;
+    await button.updateComplete;
+    // Focus is delegated to the native <button>: focus() and autofocus work on the host.
+    button.focus();
+    expect(button.shadowRoot!.activeElement).toBe(button.shadowRoot!.querySelector("button"));
+  },
 });
 
 export const Sizes = meta.story({
@@ -165,5 +164,35 @@ export const SubmitsForm = meta.story({
     canvasElement.querySelector("form")!.addEventListener("submit", onSubmit);
     await userEvent.click(button.shadowRoot!.querySelector(".button")!);
     expect(onSubmit).toHaveBeenCalledOnce();
+  },
+});
+
+export const InDisabledFieldset = meta.story({
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "Inside a `<fieldset disabled>`, the button is disabled like a native one: it neither clicks nor submits its form.",
+      },
+    },
+  },
+  render: () => html`
+    <form @submit=${(event: SubmitEvent) => event.preventDefault()}>
+      <fieldset disabled>
+        <legend>Disabled fieldset</legend>
+        <u-button type="submit">Submit</u-button>
+      </fieldset>
+    </form>
+  `,
+  play: async ({ canvasElement }) => {
+    const button = canvasElement.querySelector<Button>("u-button")!;
+    await button.updateComplete;
+    const onSubmit = fn();
+    canvasElement.querySelector("form")!.addEventListener("submit", onSubmit);
+    // Programmatic click: `pointer-events: none` would make userEvent refuse.
+    button.shadowRoot!.querySelector<HTMLButtonElement>("button")!.click();
+    expect(onSubmit).not.toHaveBeenCalled();
+    expect(button.matches(":disabled")).toBe(true);
+    expect(button.shadowRoot!.querySelector("button")!.disabled).toBe(true);
   },
 });

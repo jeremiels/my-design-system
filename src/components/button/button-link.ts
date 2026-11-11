@@ -7,8 +7,10 @@ import buttonLinkStyles from "./button-link.css" with { type: "css" };
 type LinkTarget = "_blank" | "_self" | "_parent" | "_top";
 
 /**
- * A link that looks like a button, for navigation. When disabled it drops its
- * `href`, so it leaves the tab order and can't navigate.
+ * A link that looks like a button, for navigation. It keeps the semantics of
+ * a link: announced as a link, followed with Enter. When disabled it drops
+ * its `href`, so it leaves the tab order and can't navigate, and stays
+ * announced as a disabled link.
  *
  * @element u-button-link
  * @summary A link styled as a button.
@@ -16,7 +18,7 @@ type LinkTarget = "_blank" | "_self" | "_parent" | "_top";
 export class ButtonLink extends ButtonBase {
   static override componentName = "button-link";
 
-  /** URL the link points to. */
+  /** URL the link points to. Required: without it, there is nothing to follow. */
   @property({ type: String })
   href?: string;
 
@@ -36,17 +38,18 @@ export class ButtonLink extends ButtonBase {
 
   render() {
     // A disabled <a> has no native equivalent to <button disabled>: dropping
-    // href is what removes it from the tab order and stops navigation, per
+    // href is what removes it from the tab order and stops navigation, and
+    // role="link" keeps the link role an <a> without href loses, per
     // https://www.w3.org/WAI/ARIA/apg/practices/disabled-controls/.
     return html`
       <a
         part="button"
         class="button button--${this.size} button--${this.variant}"
-        href=${ifDefined(this.disabled ? undefined : (this.href ?? "#"))}
+        href=${ifDefined(this.isDisabled ? undefined : this.href)}
         target=${ifDefined(this.target)}
         rel=${ifDefined(this.relAttribute)}
-        role="button"
-        aria-disabled=${ifDefined(this.disabled ? "true" : undefined)}
+        role=${ifDefined(this.isDisabled ? "link" : undefined)}
+        aria-disabled=${ifDefined(this.isDisabled ? "true" : undefined)}
         @click=${this.handleClick}
         ><slot></slot
       ></a>

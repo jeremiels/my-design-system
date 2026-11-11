@@ -76,6 +76,23 @@ await check("type=submit button submits its form (ElementInternals)", () => {
   return [submitted, `submitted: ${submitted}`];
 });
 
+await check("a button in a disabled fieldset doesn't submit (formDisabledCallback)", () => {
+  let submitted = false;
+  $("#fieldset-form").addEventListener("submit", (event) => {
+    event.preventDefault();
+    submitted = true;
+  });
+  shadow("#in-fieldset", "button").click();
+  const disabled = shadow("#in-fieldset", "button").disabled;
+  return [!submitted && disabled, `submitted: ${submitted}, inner button disabled: ${disabled}`];
+});
+
+await check("focus() on the host reaches the native button (delegatesFocus)", () => {
+  $("#submit").focus();
+  const focused = $("#submit").shadowRoot.activeElement;
+  return [focused === shadow("#submit", "button"), `focused: ${focused && focused.localName}`];
+});
+
 await check("button-link renders an undecorated link", () => {
   const link = shadow("#link", "a");
   const decoration = style(link).textDecorationLine;
@@ -103,15 +120,23 @@ await check("alert roles and variant styles", () => {
 await check("modal opens with a visible backdrop, then closes", async () => {
   const modal = $("#modal");
   const dialog = modal.shadowRoot.querySelector("dialog");
+  let closeEvents = 0;
+  modal.addEventListener("u-close", () => closeEvents++);
   modal.open = true;
   await modal.updateComplete;
   const opened = dialog.open;
   const backdrop = style(dialog, "::backdrop").backgroundColor;
+  const focusOnClose = modal.shadowRoot
+    .querySelector('[part~="close-button"]')
+    .matches(":focus-within");
   modal.closeModal();
   await modal.updateComplete;
+  // The native `close` event, hence `u-close`, is fired in a later task.
+  await new Promise((resolve) => setTimeout(resolve, 50));
   return [
-    opened && !dialog.open && backdrop !== TRANSPARENT,
-    `opened: ${opened}, backdrop: ${backdrop}, closed: ${!dialog.open}`,
+    opened && focusOnClose && !dialog.open && closeEvents === 1 && backdrop !== TRANSPARENT,
+    `opened: ${opened}, focus on close button: ${focusOnClose}, backdrop: ${backdrop}, ` +
+      `closed: ${!dialog.open}, u-close: ${closeEvents}`,
   ];
 });
 

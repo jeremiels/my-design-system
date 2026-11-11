@@ -1,22 +1,25 @@
 import type { PropertyValues } from "lit";
 import { property, query } from "lit/decorators.js";
+import { ifDefined } from "lit/directives/if-defined.js";
 import { html } from "lit/static-html.js";
+import { ModalCloseEvent } from "../../events/modal-close.js";
 import { DSBaseElement } from "../base-element.js";
 import { Button } from "../button/button.js";
 import modalStyles from "./modal.css" with { type: "css" };
 
 /**
- * A modal dialog opened by its own trigger button. Built on the native
- * `<dialog>`: the browser provides the backdrop, closes it on Escape and
- * makes the rest of the page inert while it's open.
+ * A modal dialog. Built on the native `<dialog>`: the browser provides the
+ * backdrop, closes it on Escape and makes the rest of the page inert while
+ * it's open. Open it with `open`, or with a trigger in the `trigger` slot.
  *
  * @element u-modal
- * @summary A modal dialog with a built-in trigger.
+ * @summary A modal dialog.
  * @slot - The dialog content.
- * @csspart trigger - The opening button: the `button` component of the same registration.
+ * @slot trigger - Optional: an element that opens the dialog when clicked, e.g. a `button`.
  * @csspart dialog - The native `<dialog>`.
  * @csspart content - The content wrapper inside the dialog.
- * @csspart close-button - The native button that closes the dialog.
+ * @csspart close-button - The button that closes the dialog: the `button` component of the same registration.
+ * @fires {ModalCloseEvent} u-close - When the dialog closes, whatever the cause: close button, Escape or `open = false`.
  * @cssprop [--u-modal-background-color=var(--u-color-surface-raised)] - Content background color.
  * @cssprop [--u-modal-border-radius=var(--u-radius-lg)] - Corner radius.
  * @cssprop [--u-modal-padding=var(--u-spacing-md)] - Content padding.
@@ -26,7 +29,7 @@ import modalStyles from "./modal.css" with { type: "css" };
 export class Modal extends DSBaseElement {
   static override componentName = "modal";
 
-  /** Renders the trigger with the `button` of its own registration (ADR 0001, D2). */
+  /** Renders its close button with the `button` of its own registration (ADR 0001, D2). */
   static override dependencies = [Button];
 
   /**
@@ -39,10 +42,17 @@ export class Modal extends DSBaseElement {
   @property({ type: Boolean, reflect: true }) open = false;
 
   /**
-   * Accessible label for the built-in close button.
-   * @default "Close"
+   * Accessible name of the dialog, announced when it opens. Required: a
+   * dialog without a name is announced as just "dialog".
    */
   @property({ type: String })
+  label?: string;
+
+  /**
+   * Accessible label of the built-in close button.
+   * @default "Close"
+   */
+  @property({ type: String, attribute: "close-label" })
   closeLabel = "Close";
 
   /** @internal */
@@ -52,13 +62,18 @@ export class Modal extends DSBaseElement {
 
   render() {
     const button = this.tagFor(Button);
+    // Clicks on the slotted trigger reach the <slot> through the composed path.
     return html`
-      <${button} part="trigger" @click=${this.openModal}>Open modal</${button}>
-      <dialog part="dialog" @close=${this.handleDialogClose}>
+      <slot name="trigger" @click=${this.openModal}></slot>
+      <dialog
+        part="dialog"
+        aria-label=${ifDefined(this.label || undefined)}
+        @close=${this.handleDialogClose}
+      >
         <div part="content" class="content">
-          <button part="close-button" autofocus @click=${this.closeModal}>
+          <${button} part="close-button" variant="secondary" autofocus @click=${this.closeModal}>
             ${this.closeLabel}
-          </button>
+          </${button}>
           <slot></slot>
         </div>
       </dialog>
@@ -79,11 +94,12 @@ export class Modal extends DSBaseElement {
 
   /**
    * Fires whenever the native <dialog> closes, regardless of cause
-   * (close button, Escape key, or a future close-on-backdrop-click) — the
-   * single place that keeps `open` truthful to the actual dialog state.
+   * (close button, Escape key, `open = false`) — the single place that keeps
+   * `open` truthful to the actual dialog state and announces the closing.
    */
   private handleDialogClose() {
     this.open = false;
+    this.dispatchEvent(new ModalCloseEvent());
   }
 
   openModal() {

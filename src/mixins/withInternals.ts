@@ -9,9 +9,12 @@ import type { AbstractConstructor, Constructor } from "../types/common.js";
  */
 const supportsCustomStates = typeof CSS !== "undefined" && CSS.supports("selector(:state(x))");
 
+// Protected: for the component and its subclasses (brands included), not for
+// the application — `internals` gives full control over the element's form
+// value, validity and ARIA.
 export declare class InternalsInterface {
-  internals?: ElementInternals;
-  customStates: {
+  protected internals?: ElementInternals;
+  protected customStates: {
     set: (name: string, active: boolean) => void;
     has: (name: string) => boolean;
   };
@@ -27,7 +30,7 @@ export declare class InternalsInterface {
  */
 export function withInternals<T extends AbstractConstructor<LitElement>>(Base: T) {
   abstract class InternalsElement extends Base {
-    internals?: ElementInternals;
+    protected internals?: ElementInternals;
 
     constructor(...args: any[]) {
       super(...args);
@@ -48,7 +51,7 @@ export function withInternals<T extends AbstractConstructor<LitElement>>(Base: T
      * `:state()` styling must stay an enhancement — reflect an attribute too
      * when the state is needed for the component to look right.
      */
-    customStates = {
+    protected customStates = {
       set: (name: string, active: boolean) => {
         if (!supportsCustomStates || !this.internals?.states) {
           return;
@@ -67,5 +70,6 @@ export function withInternals<T extends AbstractConstructor<LitElement>>(Base: T
       },
     };
   }
-  return InternalsElement as Constructor<InternalsInterface> & T;
+  // Through `unknown`: protected members make the interface nominal.
+  return InternalsElement as unknown as Constructor<InternalsInterface> & T;
 }

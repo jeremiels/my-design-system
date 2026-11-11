@@ -1,5 +1,4 @@
 import { LitElement, type CSSResultGroup } from "lit";
-import { property } from "lit/decorators.js";
 import { unsafeStatic, type StaticValue } from "lit/static-html.js";
 import baseStyles from "./base-element.css" with { type: "css" };
 
@@ -42,13 +41,6 @@ export class DSBaseElement extends LitElement {
    * @internal
    */
   static tagNames?: Readonly<Record<string, string>>;
-
-  /**
-   * Reflected so `:dir()`/`:lang()` and locale-aware formatting work from
-   * the host attribute without extra plumbing in every component.
-   */
-  @property() dir!: string;
-  @property() lang!: string;
 
   /**
    * The tag of a component declared in `static dependencies`, for templates

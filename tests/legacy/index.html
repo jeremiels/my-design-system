@@ -39,10 +39,18 @@
     <form id="form">
       <u-button id="submit" type="submit">Submit</u-button>
     </form>
+    <form id="fieldset-form">
+      <fieldset disabled>
+        <u-button id="in-fieldset" type="submit">In a disabled fieldset</u-button>
+      </fieldset>
+    </form>
     <u-button id="disabled" disabled>Disabled</u-button>
     <u-button-link id="link" href="#x">Link</u-button-link>
     <u-alert id="info">Information</u-alert>
     <u-alert id="danger" type="danger">Danger</u-alert>
-    <u-modal id="modal"><p>Content</p></u-modal>
+    <u-modal id="modal" label="Legacy">
+      <u-button slot="trigger">Open</u-button>
+      <p>Content</p>
+    </u-modal>
   </body>
 </html>

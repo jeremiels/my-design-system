@@ -76,6 +76,14 @@
           "name": "*",
           "declaration": {
             "name": "*",
+            "module": "src/events/modal-close.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "*",
+          "declaration": {
+            "name": "*",
             "module": "src/types/common.js"
           }
         },
@@ -151,23 +159,6 @@
               "description": "Components this one renders (ADR 0001, D2): `defineComponents()`\nregisters them too, and `tagFor()` resolves their tag. Never hard-code\nanother component's tag in a template, nor create one with\n`document.createElement` — a brand's override would be bypassed."
             },
             {
-              "kind": "field",
-              "name": "dir",
-              "type": {
-                "text": "string"
-              },
-              "description": "Reflected so `:dir()`/`:lang()` and locale-aware formatting work from\nthe host attribute without extra plumbing in every component.",
-              "attribute": "dir"
-            },
-            {
-              "kind": "field",
-              "name": "lang",
-              "type": {
-                "text": "string"
-              },
-              "attribute": "lang"
-            },
-            {
               "kind": "method",
               "name": "tagFor",
               "privacy": "protected",
@@ -185,23 +176,6 @@
                 }
               ],
               "description": "The tag of a component declared in `static dependencies`, for templates\nfrom `lit/static-html.js`: `` html`<${this.tagFor(Button)}>…</${…}>` ``.\nIt follows the registration of this element: `u-modal` renders\n`u-button`, `acme-modal` renders `acme-button` — the brand's override\nof `Button` if it has one."
-            }
-          ],
-          "attributes": [
-            {
-              "name": "dir",
-              "type": {
-                "text": "string"
-              },
-              "description": "Reflected so `:dir()`/`:lang()` and locale-aware formatting work from\nthe host attribute without extra plumbing in every component.",
-              "fieldName": "dir"
-            },
-            {
-              "name": "lang",
-              "type": {
-                "text": "string"
-              },
-              "fieldName": "lang"
             }
           ],
           "superclass": {
@@ -260,6 +234,31 @@
     },
     {
       "kind": "javascript-module",
+      "path": "src/events/modal-close.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "Fired by `modal` when its dialog closes, whatever the cause: its close\nbutton, Escape, or `open` set to `false`. The native `close` event of the\ninner `<dialog>` doesn't leave the shadow root.",
+          "name": "ModalCloseEvent",
+          "superclass": {
+            "name": "Event",
+            "module": "src/events/modal-close.ts"
+          }
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "ModalCloseEvent",
+          "declaration": {
+            "name": "ModalCloseEvent",
+            "module": "src/events/modal-close.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/mixins/withDisabled.ts",
       "declarations": [
         {
@@ -273,6 +272,16 @@
               "type": {
                 "text": "boolean"
               }
+            },
+            {
+              "kind": "field",
+              "name": "isDisabled",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "protected",
+              "description": "Whether the element is disabled: its own `disabled`, or, for a\nform-associated element, an ancestor `<fieldset disabled>`. Render and\nignore interactions from this, not from `disabled`.",
+              "readonly": true
             }
           ]
         },
@@ -294,12 +303,31 @@
             },
             {
               "kind": "field",
+              "name": "formDisabled",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "private",
+              "default": "false",
+              "description": "The browser's disabled state of a form-associated element."
+            },
+            {
+              "kind": "field",
               "name": "styles",
               "type": {
                 "text": "array"
               },
               "static": true,
               "default": "[(Base as unknown as typeof LitElement).styles ?? [], disabledStyles]"
+            },
+            {
+              "kind": "field",
+              "name": "isDisabled",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "protected",
+              "readonly": true
             }
           ],
           "attributes": [
@@ -356,14 +384,16 @@
               "name": "internals",
               "type": {
                 "text": "ElementInternals | undefined"
-              }
+              },
+              "privacy": "protected"
             },
             {
               "kind": "field",
               "name": "customStates",
               "type": {
                 "text": "{\n    set: (name: string, active: boolean) => void;\n    has: (name: string) => boolean;\n  }"
-              }
+              },
+              "privacy": "protected"
             }
           ]
         },
@@ -377,7 +407,8 @@
               "name": "internals",
               "type": {
                 "text": "ElementInternals | undefined"
-              }
+              },
+              "privacy": "protected"
             },
             {
               "kind": "field",
@@ -385,6 +416,7 @@
               "type": {
                 "text": "object"
               },
+              "privacy": "protected",
               "default": "{ set: (name: string, active: boolean) => { if (!supportsCustomStates || !this.internals?.states) { return; } if (active) { this.internals.states.add(name); } else { this.internals.states.delete(name); } }, has: (name: string): boolean => { if (!supportsCustomStates || !this.internals?.states) { return false; } return this.internals.states.has(name); }, }",
               "description": "Wraps `internals.states` so components can toggle `:state(x)` selectors\n(e.g. `:state(open)`) instead of reflecting extra boolean attributes.\nA no-op where `:state()` is unsupported (see `supportsCustomStates`), so\n`:state()` styling must stay an enhancement — reflect an attribute too\nwhen the state is needed for the component to look right."
             }
@@ -521,31 +553,6 @@
               }
             },
             {
-              "kind": "field",
-              "name": "dir",
-              "type": {
-                "text": "string"
-              },
-              "description": "Reflected so `:dir()`/`:lang()` and locale-aware formatting work from\nthe host attribute without extra plumbing in every component.",
-              "attribute": "dir",
-              "inheritedFrom": {
-                "name": "DSBaseElement",
-                "module": "src/components/base-element.ts"
-              }
-            },
-            {
-              "kind": "field",
-              "name": "lang",
-              "type": {
-                "text": "string"
-              },
-              "attribute": "lang",
-              "inheritedFrom": {
-                "name": "DSBaseElement",
-                "module": "src/components/base-element.ts"
-              }
-            },
-            {
               "kind": "method",
               "name": "tagFor",
               "privacy": "protected",
@@ -578,29 +585,6 @@
               "default": "\"information\"",
               "description": "Alert type: sets the colors and how assistive technologies announce it.",
               "fieldName": "type"
-            },
-            {
-              "name": "dir",
-              "type": {
-                "text": "string"
-              },
-              "description": "Reflected so `:dir()`/`:lang()` and locale-aware formatting work from\nthe host attribute without extra plumbing in every component.",
-              "fieldName": "dir",
-              "inheritedFrom": {
-                "name": "DSBaseElement",
-                "module": "src/components/base-element.ts"
-              }
-            },
-            {
-              "name": "lang",
-              "type": {
-                "text": "string"
-              },
-              "fieldName": "lang",
-              "inheritedFrom": {
-                "name": "DSBaseElement",
-                "module": "src/components/base-element.ts"
-              }
             }
           ],
           "superclass": {
@@ -635,7 +619,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "Shared base of `button` and `button-link`: size, variant, disabled state,\nclick handling and styles. Abstract: extend `Button` or `ButtonLink`.",
+          "description": "Shared base of `button` and `button-link`: size, variant, disabled state,\nclick handling and styles. Abstract: extend `Button` or `ButtonLink`.\nFocus is delegated to the native control, so `focus()` and `autofocus`\nwork on the host.",
           "name": "ButtonBase",
           "cssProperties": [
             {
@@ -748,6 +732,15 @@
               "attribute": "variant"
             },
             {
+              "kind": "field",
+              "name": "shadowRootOptions",
+              "type": {
+                "text": "ShadowRootInit"
+              },
+              "static": true,
+              "default": "{ ...super.shadowRootOptions, delegatesFocus: true }"
+            },
+            {
               "kind": "method",
               "name": "handleClick",
               "privacy": "protected",
@@ -777,12 +770,39 @@
             },
             {
               "kind": "field",
+              "name": "formDisabled",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "private",
+              "default": "false",
+              "description": "The browser's disabled state of a form-associated element.",
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "field",
               "name": "styles",
               "type": {
                 "text": "array"
               },
               "static": true,
               "default": "[(Base as unknown as typeof LitElement).styles ?? [], disabledStyles]",
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "isDisabled",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "protected",
+              "readonly": true,
               "inheritedFrom": {
                 "name": "withDisabled",
                 "module": "src/mixins/withDisabled.ts"
@@ -811,31 +831,6 @@
               "static": true,
               "default": "[]",
               "description": "Components this one renders (ADR 0001, D2): `defineComponents()`\nregisters them too, and `tagFor()` resolves their tag. Never hard-code\nanother component's tag in a template, nor create one with\n`document.createElement` — a brand's override would be bypassed.",
-              "inheritedFrom": {
-                "name": "DSBaseElement",
-                "module": "src/components/base-element.ts"
-              }
-            },
-            {
-              "kind": "field",
-              "name": "dir",
-              "type": {
-                "text": "string"
-              },
-              "description": "Reflected so `:dir()`/`:lang()` and locale-aware formatting work from\nthe host attribute without extra plumbing in every component.",
-              "attribute": "dir",
-              "inheritedFrom": {
-                "name": "DSBaseElement",
-                "module": "src/components/base-element.ts"
-              }
-            },
-            {
-              "kind": "field",
-              "name": "lang",
-              "type": {
-                "text": "string"
-              },
-              "attribute": "lang",
               "inheritedFrom": {
                 "name": "DSBaseElement",
                 "module": "src/components/base-element.ts"
@@ -905,29 +900,6 @@
                 "name": "withDisabled",
                 "module": "src/mixins/withDisabled.ts"
               }
-            },
-            {
-              "name": "dir",
-              "type": {
-                "text": "string"
-              },
-              "description": "Reflected so `:dir()`/`:lang()` and locale-aware formatting work from\nthe host attribute without extra plumbing in every component.",
-              "fieldName": "dir",
-              "inheritedFrom": {
-                "name": "DSBaseElement",
-                "module": "src/components/base-element.ts"
-              }
-            },
-            {
-              "name": "lang",
-              "type": {
-                "text": "string"
-              },
-              "fieldName": "lang",
-              "inheritedFrom": {
-                "name": "DSBaseElement",
-                "module": "src/components/base-element.ts"
-              }
             }
           ],
           "mixins": [
@@ -959,7 +931,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "A link that looks like a button, for navigation. When disabled it drops its\n`href`, so it leaves the tab order and can't navigate.",
+          "description": "A link that looks like a button, for navigation. It keeps the semantics of\na link: announced as a link, followed with Enter. When disabled it drops\nits `href`, so it leaves the tab order and can't navigate, and stays\nannounced as a disabled link.",
           "name": "ButtonLink",
           "members": [
             {
@@ -982,7 +954,7 @@
               "type": {
                 "text": "string | undefined"
               },
-              "description": "URL the link points to.",
+              "description": "URL the link points to. Required: without it, there is nothing to follow.",
               "attribute": "href"
             },
             {
@@ -1022,12 +994,39 @@
             },
             {
               "kind": "field",
+              "name": "formDisabled",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "private",
+              "default": "false",
+              "description": "The browser's disabled state of a form-associated element.",
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "field",
               "name": "styles",
               "type": {
                 "text": "array"
               },
               "static": true,
               "default": "[(Base as unknown as typeof LitElement).styles ?? [], disabledStyles]",
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "isDisabled",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "protected",
+              "readonly": true,
               "inheritedFrom": {
                 "name": "withDisabled",
                 "module": "src/mixins/withDisabled.ts"
@@ -1056,6 +1055,19 @@
               "default": "\"primary\"",
               "description": "Button variant: `primary`, `secondary` or a semantic variant.",
               "attribute": "variant",
+              "inheritedFrom": {
+                "name": "ButtonBase",
+                "module": "src/components/button/button-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "shadowRootOptions",
+              "type": {
+                "text": "ShadowRootInit"
+              },
+              "static": true,
+              "default": "{ ...super.shadowRootOptions, delegatesFocus: true }",
               "inheritedFrom": {
                 "name": "ButtonBase",
                 "module": "src/components/button/button-base.ts"
@@ -1093,31 +1105,6 @@
               }
             },
             {
-              "kind": "field",
-              "name": "dir",
-              "type": {
-                "text": "string"
-              },
-              "description": "Reflected so `:dir()`/`:lang()` and locale-aware formatting work from\nthe host attribute without extra plumbing in every component.",
-              "attribute": "dir",
-              "inheritedFrom": {
-                "name": "DSBaseElement",
-                "module": "src/components/base-element.ts"
-              }
-            },
-            {
-              "kind": "field",
-              "name": "lang",
-              "type": {
-                "text": "string"
-              },
-              "attribute": "lang",
-              "inheritedFrom": {
-                "name": "DSBaseElement",
-                "module": "src/components/base-element.ts"
-              }
-            },
-            {
               "kind": "method",
               "name": "tagFor",
               "privacy": "protected",
@@ -1147,7 +1134,7 @@
               "type": {
                 "text": "string | undefined"
               },
-              "description": "URL the link points to.",
+              "description": "URL the link points to. Required: without it, there is nothing to follow.",
               "fieldName": "href"
             },
             {
@@ -1196,29 +1183,6 @@
               "inheritedFrom": {
                 "name": "ButtonBase",
                 "module": "src/components/button/button-base.ts"
-              }
-            },
-            {
-              "name": "dir",
-              "type": {
-                "text": "string"
-              },
-              "description": "Reflected so `:dir()`/`:lang()` and locale-aware formatting work from\nthe host attribute without extra plumbing in every component.",
-              "fieldName": "dir",
-              "inheritedFrom": {
-                "name": "DSBaseElement",
-                "module": "src/components/base-element.ts"
-              }
-            },
-            {
-              "name": "lang",
-              "type": {
-                "text": "string"
-              },
-              "fieldName": "lang",
-              "inheritedFrom": {
-                "name": "DSBaseElement",
-                "module": "src/components/base-element.ts"
               }
             }
           ],
@@ -1478,6 +1442,7 @@
               "type": {
                 "text": "ElementInternals | undefined"
               },
+              "privacy": "protected",
               "inheritedFrom": {
                 "name": "withInternals",
                 "module": "src/mixins/withInternals.ts"
@@ -1489,6 +1454,7 @@
               "type": {
                 "text": "object"
               },
+              "privacy": "protected",
               "default": "{ set: (name: string, active: boolean) => { if (!supportsCustomStates || !this.internals?.states) { return; } if (active) { this.internals.states.add(name); } else { this.internals.states.delete(name); } }, has: (name: string): boolean => { if (!supportsCustomStates || !this.internals?.states) { return false; } return this.internals.states.has(name); }, }",
               "description": "Wraps `internals.states` so components can toggle `:state(x)` selectors\n(e.g. `:state(open)`) instead of reflecting extra boolean attributes.\nA no-op where `:state()` is unsupported (see `supportsCustomStates`), so\n`:state()` styling must stay an enhancement — reflect an attribute too\nwhen the state is needed for the component to look right.",
               "inheritedFrom": {
@@ -1513,12 +1479,39 @@
             },
             {
               "kind": "field",
+              "name": "formDisabled",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "private",
+              "default": "false",
+              "description": "The browser's disabled state of a form-associated element.",
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "field",
               "name": "styles",
               "type": {
                 "text": "array"
               },
               "static": true,
               "default": "[(Base as unknown as typeof LitElement).styles ?? [], disabledStyles]",
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "isDisabled",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "protected",
+              "readonly": true,
               "inheritedFrom": {
                 "name": "withDisabled",
                 "module": "src/mixins/withDisabled.ts"
@@ -1554,6 +1547,19 @@
             },
             {
               "kind": "field",
+              "name": "shadowRootOptions",
+              "type": {
+                "text": "ShadowRootInit"
+              },
+              "static": true,
+              "default": "{ ...super.shadowRootOptions, delegatesFocus: true }",
+              "inheritedFrom": {
+                "name": "ButtonBase",
+                "module": "src/components/button/button-base.ts"
+              }
+            },
+            {
+              "kind": "field",
               "name": "dependencies",
               "type": {
                 "text": "readonly (typeof DSBaseElement)[]"
@@ -1561,31 +1567,6 @@
               "static": true,
               "default": "[]",
               "description": "Components this one renders (ADR 0001, D2): `defineComponents()`\nregisters them too, and `tagFor()` resolves their tag. Never hard-code\nanother component's tag in a template, nor create one with\n`document.createElement` — a brand's override would be bypassed.",
-              "inheritedFrom": {
-                "name": "DSBaseElement",
-                "module": "src/components/base-element.ts"
-              }
-            },
-            {
-              "kind": "field",
-              "name": "dir",
-              "type": {
-                "text": "string"
-              },
-              "description": "Reflected so `:dir()`/`:lang()` and locale-aware formatting work from\nthe host attribute without extra plumbing in every component.",
-              "attribute": "dir",
-              "inheritedFrom": {
-                "name": "DSBaseElement",
-                "module": "src/components/base-element.ts"
-              }
-            },
-            {
-              "kind": "field",
-              "name": "lang",
-              "type": {
-                "text": "string"
-              },
-              "attribute": "lang",
               "inheritedFrom": {
                 "name": "DSBaseElement",
                 "module": "src/components/base-element.ts"
@@ -1662,29 +1643,6 @@
               "inheritedFrom": {
                 "name": "ButtonBase",
                 "module": "src/components/button/button-base.ts"
-              }
-            },
-            {
-              "name": "dir",
-              "type": {
-                "text": "string"
-              },
-              "description": "Reflected so `:dir()`/`:lang()` and locale-aware formatting work from\nthe host attribute without extra plumbing in every component.",
-              "fieldName": "dir",
-              "inheritedFrom": {
-                "name": "DSBaseElement",
-                "module": "src/components/base-element.ts"
-              }
-            },
-            {
-              "name": "lang",
-              "type": {
-                "text": "string"
-              },
-              "fieldName": "lang",
-              "inheritedFrom": {
-                "name": "DSBaseElement",
-                "module": "src/components/base-element.ts"
               }
             }
           ],
@@ -1896,7 +1854,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "A modal dialog opened by its own trigger button. Built on the native\n`<dialog>`: the browser provides the backdrop, closes it on Escape and\nmakes the rest of the page inert while it's open.",
+          "description": "A modal dialog. Built on the native `<dialog>`: the browser provides the\nbackdrop, closes it on Escape and makes the rest of the page inert while\nit's open. Open it with `open`, or with a trigger in the `trigger` slot.",
           "name": "Modal",
           "cssProperties": [
             {
@@ -1927,10 +1885,6 @@
           ],
           "cssParts": [
             {
-              "description": "The opening button: the `button` component of the same registration.",
-              "name": "trigger"
-            },
-            {
               "description": "The native `<dialog>`.",
               "name": "dialog"
             },
@@ -1939,7 +1893,7 @@
               "name": "content"
             },
             {
-              "description": "The native button that closes the dialog.",
+              "description": "The button that closes the dialog: the `button` component of the same registration.",
               "name": "close-button"
             }
           ],
@@ -1947,6 +1901,10 @@
             {
               "description": "The dialog content.",
               "name": ""
+            },
+            {
+              "description": "Optional: an element that opens the dialog when clicked, e.g. a `button`.",
+              "name": "trigger"
             }
           ],
           "members": [
@@ -1972,7 +1930,7 @@
               },
               "static": true,
               "default": "[Button]",
-              "description": "Renders the trigger with the `button` of its own registration (ADR 0001, D2).",
+              "description": "Renders its close button with the `button` of its own registration (ADR 0001, D2).",
               "inheritedFrom": {
                 "name": "DSBaseElement",
                 "module": "src/components/base-element.ts"
@@ -1991,19 +1949,28 @@
             },
             {
               "kind": "field",
+              "name": "label",
+              "type": {
+                "text": "string | undefined"
+              },
+              "description": "Accessible name of the dialog, announced when it opens. Required: a\ndialog without a name is announced as just \"dialog\".",
+              "attribute": "label"
+            },
+            {
+              "kind": "field",
               "name": "closeLabel",
               "type": {
                 "text": "string"
               },
               "default": "\"Close\"",
-              "description": "Accessible label for the built-in close button.",
-              "attribute": "closeLabel"
+              "description": "Accessible label of the built-in close button.",
+              "attribute": "close-label"
             },
             {
               "kind": "method",
               "name": "handleDialogClose",
               "privacy": "private",
-              "description": "Fires whenever the native <dialog> closes, regardless of cause\n(close button, Escape key, or a future close-on-backdrop-click) — the\nsingle place that keeps `open` truthful to the actual dialog state."
+              "description": "Fires whenever the native <dialog> closes, regardless of cause\n(close button, Escape key, `open = false`) — the single place that keeps\n`open` truthful to the actual dialog state and announces the closing."
             },
             {
               "kind": "method",
@@ -2012,31 +1979,6 @@
             {
               "kind": "method",
               "name": "closeModal"
-            },
-            {
-              "kind": "field",
-              "name": "dir",
-              "type": {
-                "text": "string"
-              },
-              "description": "Reflected so `:dir()`/`:lang()` and locale-aware formatting work from\nthe host attribute without extra plumbing in every component.",
-              "attribute": "dir",
-              "inheritedFrom": {
-                "name": "DSBaseElement",
-                "module": "src/components/base-element.ts"
-              }
-            },
-            {
-              "kind": "field",
-              "name": "lang",
-              "type": {
-                "text": "string"
-              },
-              "attribute": "lang",
-              "inheritedFrom": {
-                "name": "DSBaseElement",
-                "module": "src/components/base-element.ts"
-              }
             },
             {
               "kind": "method",
@@ -2062,6 +2004,15 @@
               }
             }
           ],
+          "events": [
+            {
+              "type": {
+                "text": "ModalCloseEvent"
+              },
+              "description": "When the dialog closes, whatever the cause: close button, Escape or `open = false`.",
+              "name": "u-close"
+            }
+          ],
           "attributes": [
             {
               "name": "open",
@@ -2073,36 +2024,21 @@
               "fieldName": "open"
             },
             {
-              "name": "closeLabel",
+              "name": "label",
+              "type": {
+                "text": "string | undefined"
+              },
+              "description": "Accessible name of the dialog, announced when it opens. Required: a\ndialog without a name is announced as just \"dialog\".",
+              "fieldName": "label"
+            },
+            {
+              "name": "close-label",
               "type": {
                 "text": "string"
               },
               "default": "\"Close\"",
-              "description": "Accessible label for the built-in close button.",
+              "description": "Accessible label of the built-in close button.",
               "fieldName": "closeLabel"
-            },
-            {
-              "name": "dir",
-              "type": {
-                "text": "string"
-              },
-              "description": "Reflected so `:dir()`/`:lang()` and locale-aware formatting work from\nthe host attribute without extra plumbing in every component.",
-              "fieldName": "dir",
-              "inheritedFrom": {
-                "name": "DSBaseElement",
-                "module": "src/components/base-element.ts"
-              }
-            },
-            {
-              "name": "lang",
-              "type": {
-                "text": "string"
-              },
-              "fieldName": "lang",
-              "inheritedFrom": {
-                "name": "DSBaseElement",
-                "module": "src/components/base-element.ts"
-              }
             }
           ],
           "superclass": {
@@ -2111,7 +2047,7 @@
           },
           "tagName": "u-modal",
           "customElement": true,
-          "summary": "A modal dialog with a built-in trigger."
+          "summary": "A modal dialog."
         }
       ],
       "exports": [

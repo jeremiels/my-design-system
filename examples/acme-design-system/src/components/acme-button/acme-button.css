@@ -3,7 +3,9 @@
   --u-button-border-radius: var(--u-radius-full);
 }
 
-.button {
+/* The base's parts are its public API (ADR 0001, D3), checked by its
+   contract test; its class names are internal and may change. */
+[part~="button"] {
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }

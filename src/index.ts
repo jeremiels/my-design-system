@@ -10,6 +10,7 @@ export * from "./components/modal/modal.js";
 export * from "./mixins/withDisabled.js";
 export * from "./mixins/withInternals.js";
 export * from "./events/button-click.js";
+export * from "./events/modal-close.js";
 export type * from "./types/common.js";
 export type * from "./components/button/button.type.js";
 export type * from "./components/alert/alert.type.js";

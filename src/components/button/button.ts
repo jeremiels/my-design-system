@@ -30,7 +30,7 @@ export class Button extends withInternals(ButtonBase) {
 
   protected override handleClick(e: MouseEvent) {
     super.handleClick(e);
-    if (this.disabled) {
+    if (this.isDisabled) {
       return;
     }
 
@@ -46,7 +46,7 @@ export class Button extends withInternals(ButtonBase) {
       <button
         part="button"
         class="button button--${this.size} button--${this.variant}"
-        ?disabled=${this.disabled}
+        ?disabled=${this.isDisabled}
         type=${this.type}
         @click=${this.handleClick}
       >

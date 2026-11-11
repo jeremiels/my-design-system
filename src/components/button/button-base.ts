@@ -8,6 +8,8 @@ import type { ButtonSize, ButtonVariant } from "./button.type.js";
 /**
  * Shared base of `button` and `button-link`: size, variant, disabled state,
  * click handling and styles. Abstract: extend `Button` or `ButtonLink`.
+ * Focus is delegated to the native control, so `focus()` and `autofocus`
+ * work on the host.
  *
  * @slot - The button label.
  * @csspart button - The native `<button>` (or `<a>` for `button-link`).
@@ -39,8 +41,10 @@ export abstract class ButtonBase extends withDisabled(DSBaseElement) {
 
   static styles = [super.styles ?? [], buttonBaseStyles];
 
+  static shadowRootOptions: ShadowRootInit = { ...super.shadowRootOptions, delegatesFocus: true };
+
   protected handleClick(e: MouseEvent) {
-    if (this.disabled) {
+    if (this.isDisabled) {
       e.preventDefault();
       e.stopPropagation();
       return;

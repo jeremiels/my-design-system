@@ -38,13 +38,13 @@ await check("acme-button is ACME's button, extending the base's", () => {
 });
 
 await check("ACME's theme reaches the base's components", () => {
-  const actual = style($("#button").shadowRoot.querySelector(".button")).backgroundColor;
+  const actual = style($("#button").shadowRoot.querySelector('[part~="button"]')).backgroundColor;
   const expected = resolveColor("hsl(268, 75%, 45%)");
   return [actual === expected, `background ${actual}, expected ${expected}`];
 });
 
 await check("ACME's button styles apply on top of the base's", () => {
-  const inner = style($("#button").shadowRoot.querySelector(".button"));
+  const inner = style($("#button").shadowRoot.querySelector('[part~="button"]'));
   const pill = inner.borderTopLeftRadius !== "0px";
   return [
     inner.textTransform === "uppercase" && pill,
@@ -52,9 +52,9 @@ await check("ACME's button styles apply on top of the base's", () => {
   ];
 });
 
-await check("the modal's trigger is ACME's button", () => {
-  const trigger = $("#modal").shadowRoot.querySelector('[part~="trigger"]');
-  return [trigger instanceof AcmeButton, `trigger <${trigger?.localName}>`];
+await check("the modal's close button is ACME's button", () => {
+  const close = $("#modal").shadowRoot.querySelector('[part~="close-button"]');
+  return [close instanceof AcmeButton, `close button <${close?.localName}>`];
 });
 
 await check("ACME's own card renders ACME's button", () => {

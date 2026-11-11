@@ -1,5 +1,7 @@
-:host([disabled]) {
+/* `:disabled` also matches a form-associated element disabled by an ancestor
+   <fieldset disabled>, which sets no attribute on it. */
+:host([disabled]),
+:host(:disabled) {
   pointer-events: none;
   opacity: var(--u-opacity-disabled);
-  cursor: not-allowed;
 }

@@ -1,6 +1,6 @@
 import preview from "#.storybook/preview";
 import { html } from "lit";
-import { expect, userEvent } from "storybook/test";
+import { expect, fn, userEvent, waitFor } from "storybook/test";
 import type { Modal } from "./modal";
 
 const meta = preview.meta({
@@ -9,17 +9,19 @@ const meta = preview.meta({
   tags: ["autodocs"],
   argTypes: {
     open: { control: "boolean" },
+    label: { control: "text" },
     slot: { control: "text" },
   },
   args: {
     open: false,
-    slot: "Contenu du modal",
+    label: "Example dialog",
+    slot: "Modal content",
   },
   parameters: {
     docs: {
       description: {
         component:
-          "The `u-modal` component displays content in a modal dialog. It manages open/closed states and provides user interaction through a dedicated button.",
+          "The `u-modal` component displays content in a modal dialog. Open it with the `open` property, or with an element in its `trigger` slot. `label` gives the dialog its accessible name.",
       },
       // `<dialog>` opened via showModal() renders in the browser's top
       // layer, which is shared by the whole Docs page under Storybook's
@@ -40,12 +42,15 @@ export const Default = meta.story({
   parameters: {
     docs: {
       description: {
-        story: "The default modal in closed state with an open button.",
+        story: "A closed modal, opened by the button in its `trigger` slot.",
       },
     },
   },
   render: (args) => html`
-    <u-modal ?open=${args.open}>${args.slot}</u-modal>
+    <u-modal ?open=${args.open} label=${args.label}>
+      <u-button slot="trigger">Open modal</u-button>
+      ${args.slot}
+    </u-modal>
   `,
   play: async ({ canvasElement }) => {
     const modal = canvasElement.querySelector("u-modal");
@@ -65,11 +70,14 @@ export const Opened = meta.story({
       },
     },
   },
-  render: (args) => html` <u-modal open>${args.slot}</u-modal> `,
+  render: (args) => html`<u-modal open label=${args.label}>${args.slot}</u-modal>`,
   play: async ({ canvasElement }) => {
-    const modal = canvasElement.querySelector("u-modal");
-    expect(modal).toBeTruthy();
-    expect(modal?.getAttribute("open")).toBe("");
+    const modal = canvasElement.querySelector<Modal>("u-modal")!;
+    await modal.updateComplete;
+    expect(modal.getAttribute("open")).toBe("");
+    const dialog = modal.shadowRoot!.querySelector("dialog")!;
+    expect(dialog.open).toBe(true);
+    expect(dialog.getAttribute("aria-label")).toBe("Example dialog");
   },
 });
 
@@ -80,25 +88,27 @@ export const OpeningModal = meta.story({
   parameters: {
     docs: {
       description: {
-        story: "Test opening the modal by clicking the open button.",
+        story: "Clicking the trigger opens the modal and moves focus to its close button.",
       },
     },
   },
   render: (args) => html`
-    <u-modal ?open=${args.open}>${args.slot}</u-modal>
+    <u-modal label=${args.label}>
+      <u-button slot="trigger">Open modal</u-button>
+      ${args.slot}
+    </u-modal>
   `,
   play: async ({ canvasElement }) => {
-    const modal = canvasElement.querySelector("u-modal") as Modal;
-    const shadow = modal?.shadowRoot;
-    const openButton = shadow?.querySelector("u-button");
+    const modal = canvasElement.querySelector<Modal>("u-modal")!;
+    const trigger = canvasElement.querySelector<HTMLElement>('[slot="trigger"]')!;
+    expect(modal.open).toBe(false);
 
-    expect(modal?.open).toBe(false);
-    expect(openButton).toBeTruthy();
+    await userEvent.click(trigger);
+    await modal.updateComplete;
 
-    await userEvent.click(openButton!);
-    await modal?.updateComplete;
-
-    expect(modal?.open).toBe(true);
+    expect(modal.open).toBe(true);
+    const closeButton = modal.shadowRoot!.querySelector('[part~="close-button"]')!;
+    expect(closeButton.matches(":focus-within")).toBe(true);
   },
 });
 
@@ -109,23 +119,29 @@ export const ClosingModal = meta.story({
   parameters: {
     docs: {
       description: {
-        story: "Test closing the modal by clicking the close button.",
+        story:
+          "The close button, the Escape key and `open = false` close the modal; each fires `u-close`.",
       },
     },
   },
-  render: () => html` <u-modal open>Modal content here</u-modal> `,
+  render: (args) => html`<u-modal open label=${args.label}>${args.slot}</u-modal>`,
   play: async ({ canvasElement }) => {
-    const modal = canvasElement.querySelector("u-modal") as Modal;
-    const shadow = modal?.shadowRoot;
-    const closeButton = shadow?.querySelector("dialog button");
+    const modal = canvasElement.querySelector<Modal>("u-modal")!;
+    await modal.updateComplete;
+    const onClose = fn();
+    modal.addEventListener("u-close", onClose);
 
-    expect(modal?.open).toBe(true);
-    expect(closeButton).toBeTruthy();
+    await userEvent.click(modal.shadowRoot!.querySelector('[part~="close-button"]')!);
+    await waitFor(() => expect(onClose).toHaveBeenCalledTimes(1));
+    expect(modal.open).toBe(false);
 
-    await userEvent.click(closeButton!);
-    await modal?.updateComplete;
-
-    expect(modal?.open).toBe(false);
+    // Escape closes the native <dialog> by itself, but userEvent's synthetic
+    // keys can't trigger it: close the dialog directly, as Escape would.
+    modal.open = true;
+    await modal.updateComplete;
+    modal.shadowRoot!.querySelector("dialog")!.close();
+    await waitFor(() => expect(onClose).toHaveBeenCalledTimes(2));
+    expect(modal.open).toBe(false);
   },
 });
 
@@ -141,7 +157,7 @@ export const WithCustomContent = meta.story({
     },
   },
   render: () => html`
-    <u-modal open>
+    <u-modal open label="Custom title">
       <h2>Custom Title</h2>
       <p>This is custom content in the modal.</p>
     </u-modal>
@@ -149,7 +165,7 @@ export const WithCustomContent = meta.story({
   play: async ({ canvasElement }) => {
     const modal = canvasElement.querySelector("u-modal");
     const shadow = modal?.shadowRoot;
-    const slot = shadow?.querySelector("slot");
+    const slot = shadow?.querySelector("slot:not([name])");
 
     expect(slot).toBeTruthy();
     expect(modal?.textContent).toContain("Custom Title");
