@@ -23,19 +23,13 @@ const components = (manifest.modules as { declarations?: Declaration[] }[])
   .flatMap((module) => module.declarations ?? [])
   .filter((declaration) => declaration.customElement && declaration.tagName);
 
-/**
- * Declared on `:host` but consumed nowhere, so deliberately undocumented.
- * Wire them into the component's CSS (then document them) or remove them.
- */
-const UNUSED_TOKENS = new Set(["--u-button-disabled-opacity"]);
-
 function tokensDeclaredOnHost(root: ShadowRoot): string[] {
   const tokens = new Set<string>();
   for (const sheet of root.adoptedStyleSheets) {
     for (const rule of Array.from(sheet.cssRules)) {
       if (rule instanceof CSSStyleRule && rule.selectorText === ":host") {
         for (const property of Array.from(rule.style)) {
-          if (property.startsWith("--u-") && !UNUSED_TOKENS.has(property)) {
+          if (property.startsWith("--u-")) {
             tokens.add(property);
           }
         }

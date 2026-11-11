@@ -7,6 +7,10 @@
     "custom-elements.json"
   ],
   "type": "module",
+  "sideEffects": [
+    "**/*.css",
+    "./dist/define.js"
+  ],
   "main": "./dist/index.js",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -30,6 +34,13 @@
     },
     "./styles.css": "./dist/styles.css",
     "./custom-elements.json": "./custom-elements.json",
+    "./vite-plugin": {
+      "types": "./dist/plugins/css-import-attributes.d.ts",
+      "import": "./dist/plugins/css-import-attributes.js"
+    },
+    "./css-modules": {
+      "types": "./dist/css-modules.d.ts"
+    },
     "./button": {
       "types": "./dist/components/button/button.d.ts",
       "import": "./dist/button.js"
@@ -49,7 +60,7 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "npm run analyze && rm -rf dist && vite build && tsc -p tsconfig.build.json",
+    "build": "npm run analyze && rm -rf dist && vite build && tsc -p tsconfig.build.json && tsc -p tsconfig.plugin.json && cp src/css-modules.d.ts dist/",
     "preview": "vite preview",
     "storybook": "npm run analyze && storybook dev -p 6006",
     "build-storybook": "npm run analyze && storybook build",
@@ -60,9 +71,6 @@
     "fmt:check": "oxfmt --check",
     "compat": "npm run build && es-check checkBrowser \"dist/**/*.js\" --module --checkFeatures && node scripts/check-css-compat.mjs",
     "test:legacy": "npm run build && node tests/legacy/run.mjs"
-  },
-  "dependencies": {
-    "lit": "^3.3.3"
   },
   "devDependencies": {
     "@chromatic-com/storybook": "^5.6.0",
@@ -80,6 +88,7 @@
     "browserslist-to-esbuild": "^2.1.1",
     "doiuse": "^6.0.6",
     "es-check": "^9.8.1",
+    "lit": "^3.3.3",
     "oxfmt": "^0.78.0",
     "oxlint": "^1.93.0",
     "playwright": "^1.65.0",
@@ -89,6 +98,15 @@
     "vite": "^8.3.8",
     "vitest": "^5.1.0",
     "webdriverio": "^10.1.0"
+  },
+  "peerDependencies": {
+    "lit": "^3.3.3",
+    "vite": "^8.3.0"
+  },
+  "peerDependenciesMeta": {
+    "vite": {
+      "optional": true
+    }
   },
   "browserslist": [
     "chrome >= 111",

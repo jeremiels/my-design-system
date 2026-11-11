@@ -1,0 +1,13 @@
+{
+  // Builds plugins/ (Node code, e.g. the CSS module scripts Vite plugin) into
+  // dist/plugins for brand design systems: `my-design-system/vite-plugin`.
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "declaration": true,
+    "rootDir": "plugins",
+    "outDir": "dist/plugins"
+  },
+  "include": ["plugins"],
+  "exclude": ["plugins/**/*.test.ts"]
+}

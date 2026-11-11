@@ -14,7 +14,6 @@
   --u-button-focus-ring-width: var(--u-focus-ring-width);
   --u-button-focus-ring-offset: var(--u-focus-ring-offset);
   --u-button-transition-duration: var(--u-motion-duration-fast);
-  --u-button-disabled-opacity: var(--u-opacity-disabled);
 }
 
 .button {

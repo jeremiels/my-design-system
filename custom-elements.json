@@ -49,6 +49,54 @@
         },
         {
           "kind": "js",
+          "name": "*",
+          "declaration": {
+            "name": "*",
+            "module": "src/mixins/withDisabled.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "*",
+          "declaration": {
+            "name": "*",
+            "module": "src/mixins/withInternals.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "*",
+          "declaration": {
+            "name": "*",
+            "module": "src/events/button-click.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "*",
+          "declaration": {
+            "name": "*",
+            "module": "src/types/common.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "*",
+          "declaration": {
+            "name": "*",
+            "module": "src/components/button/button.type.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "*",
+          "declaration": {
+            "name": "*",
+            "module": "src/components/alert/alert.type.js"
+          }
+        },
+        {
+          "kind": "js",
           "name": "allComponents",
           "declaration": {
             "name": "allComponents",
