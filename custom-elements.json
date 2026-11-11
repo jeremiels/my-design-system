@@ -288,6 +288,7 @@
                 "text": "boolean"
               },
               "default": "false",
+              "description": "Disables interaction; also sets `aria-disabled=\"true\"` on the host.",
               "attribute": "disabled",
               "reflects": true
             },
@@ -308,6 +309,7 @@
                 "text": "boolean"
               },
               "default": "false",
+              "description": "Disables interaction; also sets `aria-disabled=\"true\"` on the host.",
               "fieldName": "disabled"
             }
           ],
@@ -491,7 +493,7 @@
                 "text": "AlertType"
               },
               "default": "\"information\"",
-              "description": "Alert type.",
+              "description": "Alert type: sets the colors and how assistive technologies announce it.",
               "attribute": "type"
             },
             {
@@ -574,7 +576,7 @@
                 "text": "AlertType"
               },
               "default": "\"information\"",
-              "description": "Alert type.",
+              "description": "Alert type: sets the colors and how assistive technologies announce it.",
               "fieldName": "type"
             },
             {
@@ -765,6 +767,7 @@
                 "text": "boolean"
               },
               "default": "false",
+              "description": "Disables interaction; also sets `aria-disabled=\"true\"` on the host.",
               "attribute": "disabled",
               "reflects": true,
               "inheritedFrom": {
@@ -896,6 +899,7 @@
                 "text": "boolean"
               },
               "default": "false",
+              "description": "Disables interaction; also sets `aria-disabled=\"true\"` on the host.",
               "fieldName": "disabled",
               "inheritedFrom": {
                 "name": "withDisabled",
@@ -1008,6 +1012,7 @@
                 "text": "boolean"
               },
               "default": "false",
+              "description": "Disables interaction; also sets `aria-disabled=\"true\"` on the host.",
               "attribute": "disabled",
               "reflects": true,
               "inheritedFrom": {
@@ -1160,6 +1165,7 @@
                 "text": "boolean"
               },
               "default": "false",
+              "description": "Disables interaction; also sets `aria-disabled=\"true\"` on the host.",
               "fieldName": "disabled",
               "inheritedFrom": {
                 "name": "withDisabled",
@@ -1497,6 +1503,7 @@
                 "text": "boolean"
               },
               "default": "false",
+              "description": "Disables interaction; also sets `aria-disabled=\"true\"` on the host.",
               "attribute": "disabled",
               "reflects": true,
               "inheritedFrom": {
@@ -1624,6 +1631,7 @@
                 "text": "boolean"
               },
               "default": "false",
+              "description": "Disables interaction; also sets `aria-disabled=\"true\"` on the host.",
               "fieldName": "disabled",
               "inheritedFrom": {
                 "name": "withDisabled",

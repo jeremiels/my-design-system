@@ -12,6 +12,7 @@ export declare class DisabledInterface {
  */
 export function withDisabled<T extends Constructor<LitElement>>(Base: T) {
   class DisabledElement extends Base {
+    /** Disables interaction; also sets `aria-disabled="true"` on the host. */
     @property({ type: Boolean, reflect: true })
     disabled = false;
 

@@ -20,11 +20,7 @@ import type { AlertType } from "./alert.type.js";
 export class Alert extends DSBaseElement {
   static override componentName = "alert";
 
-  /**
-   * Alert type.
-   * @property {AlertType} type - The type of the alert.
-   * @default "information"
-   */
+  /** Alert type: sets the colors and how assistive technologies announce it. */
   @property({ type: String })
   type: AlertType = "information";
 
