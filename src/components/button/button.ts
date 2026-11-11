@@ -45,7 +45,7 @@ export class Button extends withInternals(ButtonBase) {
     return html`
       <button
         part="button"
-        class="button button--${this.size} button--${this.variant}"
+        class="button"
         ?disabled=${this.isDisabled}
         type=${this.type}
         @click=${this.handleClick}

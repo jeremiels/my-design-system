@@ -40,7 +40,7 @@ colors), `src/components/modal/modal.css` (parts, documented exception).
   background-color: var(--u-button-background-color);
 }
 
-.button--danger {
+:host([variant="danger"]) {
   --u-button-background-color: var(--u-color-danger-bg);
 }
 ```
@@ -50,8 +50,13 @@ colors), `src/components/modal/modal.css` (parts, documented exception).
   `componentName` (`button`, whatever the brand's tag); the CSS property in
   full (`background-color`, not `bg`). A brand's own components use the brand
   prefix (`--acme-card-padding`).
-- **Variants and sizes** override component tokens on modifier classes
-  (`.button--danger`, `.button--small`), they don't restyle properties.
+- **Variants and sizes** change component token defaults **on the host**,
+  from reflected attributes (`:host([variant="danger"])`,
+  `:host([size="small"])`, `reflect: true` on the property); they don't
+  restyle properties. Never redeclare a documented token on an inner element
+  (e.g. a `.button--danger` modifier class): it would override the value the
+  application sets on the host, while the application's styles beat any
+  `:host(…)` rule. `src/api-contract.test.ts` fails on both.
 - **No literal fallback** in `var()`: the token stylesheet is a dependency.
   Two documented exceptions only — `forced-colors` system keywords
   (`ButtonText`, `Highlight`, `CanvasText`), and `::backdrop`, which inherits
@@ -73,7 +78,7 @@ colors), `src/components/modal/modal.css` (parts, documented exception).
   `:host(:disabled)` for a form-associated element in a disabled fieldset).
   `:state()` is an enhancement only (unsupported on Chrome < 125,
   Firefox < 126, Safari < 17.4).
-- Class names: block / `block--modifier` (`.button`, `.button--large`). They
+- Class names: block / `block--modifier` (`.button`, `.alert--pending`). They
   are **internal**: a subclass's sheet (a brand's `AcmeButton`) targets the
   base's internals through their parts (`[part~="button"]`), never through
   its classes.

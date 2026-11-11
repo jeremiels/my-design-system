@@ -31,11 +31,11 @@ import type { ButtonSize, ButtonVariant } from "./button.type.js";
  */
 export abstract class ButtonBase extends withDisabled(DSBaseElement) {
   /** Button size. */
-  @property({ type: String })
+  @property({ type: String, reflect: true })
   size: ButtonSize = "medium";
 
   /** Button variant: `primary`, `secondary` or a semantic variant. */
-  @property({ type: String })
+  @property({ type: String, reflect: true })
   variant: ButtonVariant = "primary";
 
   static styles = [super.styles ?? [], buttonBaseStyles];

@@ -35,7 +35,7 @@ export class Alert extends DSBaseElement {
   static override componentName = "alert";
 
   /** Alert type: sets the colors and how assistive technologies announce it. */
-  @property({ type: String })
+  @property({ type: String, reflect: true })
   type: AlertType = "information";
 
   static styles = [DSBaseElement.styles ?? [], alertStyles];
@@ -62,9 +62,9 @@ export class Alert extends DSBaseElement {
   }
 
   render() {
-    const pending = this.revealed ? "" : "alert--pending";
+    const pending = this.revealed ? "" : " alert--pending";
     return html`
-      <div part="alert" class="alert alert--${this.type} ${pending}" role=${this.alertRole}>
+      <div part="alert" class="alert${pending}" role=${this.alertRole}>
         <slot></slot>
       </div>
     `;

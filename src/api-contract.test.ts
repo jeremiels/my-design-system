@@ -24,20 +24,55 @@ const components = (manifest.modules as { declarations?: Declaration[] }[])
   .flatMap((module) => module.declarations ?? [])
   .filter((declaration) => declaration.customElement && declaration.tagName);
 
+/** Every style rule of the shadow root's sheets, those in `@media` & co. included. */
+function styleRules(root: ShadowRoot): CSSStyleRule[] {
+  const rules: CSSStyleRule[] = [];
+  const collect = (list: CSSRuleList) => {
+    for (const rule of Array.from(list)) {
+      if (rule instanceof CSSStyleRule) {
+        rules.push(rule);
+      }
+      if ("cssRules" in rule) {
+        collect((rule as CSSGroupingRule).cssRules);
+      }
+    }
+  };
+  for (const sheet of root.adoptedStyleSheets) {
+    collect(sheet.cssRules);
+  }
+  return rules;
+}
+
 function tokensDeclaredOnHost(root: ShadowRoot): string[] {
   const tokens = new Set<string>();
-  for (const sheet of root.adoptedStyleSheets) {
-    for (const rule of Array.from(sheet.cssRules)) {
-      if (rule instanceof CSSStyleRule && rule.selectorText === ":host") {
-        for (const property of Array.from(rule.style)) {
-          if (property.startsWith("--u-")) {
-            tokens.add(property);
-          }
+  for (const rule of styleRules(root)) {
+    if (rule.selectorText === ":host") {
+      for (const property of Array.from(rule.style)) {
+        if (property.startsWith("--u-")) {
+          tokens.add(property);
         }
       }
     }
   }
   return [...tokens].sort();
+}
+
+/** `:host` or `:host(…)`, alone: a rule that only matches the host itself. */
+const HOST_ONLY = /^:host(?:\((?:[^()]|\([^()]*\))*\))?$/;
+const isHostOnly = (selectorText: string) =>
+  selectorText.split(/,\s*(?![^()]*\))/).every((selector) => HOST_ONLY.test(selector));
+
+/** The host attribute states the sheets style, e.g. `["variant", "secondary"]`. */
+function hostAttributeStates(root: ShadowRoot): [string, string][] {
+  const states = new Map<string, [string, string]>();
+  for (const rule of styleRules(root)) {
+    for (const [, name, value = ""] of rule.selectorText.matchAll(
+      /:host\(\[([\w-]+)(?:="([^"]*)")?\]\)/g,
+    )) {
+      states.set(`${name}=${value}`, [name, value]);
+    }
+  }
+  return [...states.values()];
 }
 
 async function render(tag: string): Promise<DSBaseElement> {
@@ -76,6 +111,51 @@ describe.each(components)("<$tagName> matches the manifest", (declaration) => {
     const root = (await render(tag)).shadowRoot!;
     const documented = (declaration.cssProperties ?? []).map(({ name }) => name).sort();
     expect(documented).toEqual(tokensDeclaredOnHost(root));
+  });
+
+  // A documented token is a default the application overrides from outside
+  // the shadow root. Redeclared on an inner element (e.g. a variant's
+  // modifier class), it would override the application's value instead;
+  // on `:host(…)`, the application's styles still win.
+  it("declares its documented tokens on the host only", async () => {
+    const root = (await render(tag)).shadowRoot!;
+    const documented = new Set((declaration.cssProperties ?? []).map(({ name }) => name));
+    const offending = styleRules(root)
+      .filter((rule) => !isHostOnly(rule.selectorText))
+      .flatMap((rule) =>
+        Array.from(rule.style)
+          .filter((property) => documented.has(property))
+          .map((property) => `${rule.selectorText} { ${property} }`),
+      );
+    expect(offending).toEqual([]);
+  });
+
+  it("applies the application's value of every documented token, in every host state", async () => {
+    const tokens = (declaration.cssProperties ?? []).map(({ name }) => name);
+    const probe = await render(tag);
+    const states = hostAttributeStates(probe.shadowRoot!);
+    probe.remove();
+
+    for (const [name, value] of [["", ""], ...states]) {
+      const element = document.createElement(tag) as DSBaseElement;
+      if (name) {
+        element.setAttribute(name, value);
+      }
+      for (const token of tokens) {
+        element.style.setProperty(token, "app-value");
+      }
+      document.body.append(element);
+      await element.updateComplete;
+      for (const inner of Array.from(element.shadowRoot!.querySelectorAll("*"))) {
+        for (const token of tokens) {
+          expect(
+            getComputedStyle(inner).getPropertyValue(token).trim(),
+            `${token} on <${inner.localName}>${name ? ` with [${name}="${value}"]` : ""}`,
+          ).toBe("app-value");
+        }
+      }
+      element.remove();
+    }
   });
 
   it("observes every documented attribute", () => {

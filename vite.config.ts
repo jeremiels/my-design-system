@@ -34,6 +34,8 @@ export default defineConfig({
         "button-link": resolve(import.meta.dirname, "src/components/button/button-link.ts"),
         alert: resolve(import.meta.dirname, "src/components/alert/alert.ts"),
         modal: resolve(import.meta.dirname, "src/components/modal/modal.ts"),
+        // Tools for brands' tests (a theme's WCAG contrast), not for apps.
+        testing: resolve(import.meta.dirname, "src/testing/contrast.ts"),
       },
       formats: ["es"],
       fileName: (_format, entryName) => `${entryName}.js`,

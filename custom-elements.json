@@ -408,6 +408,65 @@
     },
     {
       "kind": "javascript-module",
+      "path": "src/testing/contrast.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "contrastPairs",
+          "type": {
+            "text": "readonly ContrastPair[]"
+          },
+          "default": "[ ...INTENTS.flatMap((intent) => STATES.map((state) => ({ foreground: `var(--u-color-${intent}-text)`, background: `var(--u-color-${intent}-bg${state})`, minimum: 4.5, })), ), ...SURFACES.map((background) => ({ foreground: \"var(--u-color-text-default)\", background, minimum: 4.5, })), ...SURFACES.map((background) => ({ foreground: \"var(--u-color-focus-ring)\", background, minimum: 3, })), ]",
+          "description": "The semantic color pairs the base's components draw, with the contrast each needs."
+        },
+        {
+          "kind": "function",
+          "name": "contrastFailures",
+          "return": {
+            "type": {
+              "text": "ContrastFailure[]"
+            }
+          },
+          "parameters": [
+            {
+              "name": "element",
+              "default": "document.body",
+              "type": {
+                "text": "Element"
+              }
+            },
+            {
+              "name": "pairs",
+              "default": "contrastPairs",
+              "type": {
+                "text": "readonly ContrastPair[]"
+              }
+            }
+          ],
+          "description": "The pairs below their minimum, with the colors computed inside `element`\n(a `[data-brand]` container, for a theme scoped to one) in the current\ntheme: an empty array when the theme is accessible. A brand's own\ncomponents add their pairs: `contrastFailures(element, [...contrastPairs, …])`."
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "contrastPairs",
+          "declaration": {
+            "name": "contrastPairs",
+            "module": "src/testing/contrast.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "contrastFailures",
+          "declaration": {
+            "name": "contrastFailures",
+            "module": "src/testing/contrast.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/types/common.ts",
       "declarations": [],
       "exports": []
@@ -482,7 +541,8 @@
               },
               "default": "\"information\"",
               "description": "Alert type: sets the colors and how assistive technologies announce it.",
-              "attribute": "type"
+              "attribute": "type",
+              "reflects": true
             },
             {
               "kind": "field",
@@ -685,7 +745,8 @@
               },
               "default": "\"medium\"",
               "description": "Button size.",
-              "attribute": "size"
+              "attribute": "size",
+              "reflects": true
             },
             {
               "kind": "field",
@@ -695,7 +756,8 @@
               },
               "default": "\"primary\"",
               "description": "Button variant: `primary`, `secondary` or a semantic variant.",
-              "attribute": "variant"
+              "attribute": "variant",
+              "reflects": true
             },
             {
               "kind": "field",
@@ -1005,6 +1067,7 @@
               "default": "\"medium\"",
               "description": "Button size.",
               "attribute": "size",
+              "reflects": true,
               "inheritedFrom": {
                 "name": "ButtonBase",
                 "module": "src/components/button/button-base.ts"
@@ -1019,6 +1082,7 @@
               "default": "\"primary\"",
               "description": "Button variant: `primary`, `secondary` or a semantic variant.",
               "attribute": "variant",
+              "reflects": true,
               "inheritedFrom": {
                 "name": "ButtonBase",
                 "module": "src/components/button/button-base.ts"
@@ -1489,6 +1553,7 @@
               "default": "\"medium\"",
               "description": "Button size.",
               "attribute": "size",
+              "reflects": true,
               "inheritedFrom": {
                 "name": "ButtonBase",
                 "module": "src/components/button/button-base.ts"
@@ -1503,6 +1568,7 @@
               "default": "\"primary\"",
               "description": "Button variant: `primary`, `secondary` or a semantic variant.",
               "attribute": "variant",
+              "reflects": true,
               "inheritedFrom": {
                 "name": "ButtonBase",
                 "module": "src/components/button/button-base.ts"
@@ -1927,6 +1993,16 @@
               "attribute": "close-label"
             },
             {
+              "kind": "field",
+              "name": "reopening",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "private",
+              "default": "false",
+              "description": "The next `close` event of the dialog is a reopening, not a closing."
+            },
+            {
               "kind": "method",
               "name": "handleDialogClose",
               "privacy": "private",
@@ -1934,11 +2010,13 @@
             },
             {
               "kind": "method",
-              "name": "openModal"
+              "name": "openModal",
+              "privacy": "private"
             },
             {
               "kind": "method",
-              "name": "closeModal"
+              "name": "closeModal",
+              "privacy": "private"
             },
             {
               "kind": "method",

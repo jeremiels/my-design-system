@@ -67,10 +67,22 @@ Une marque change les **valeurs** des tokens, jamais leurs noms. Ses valeurs viv
 @import "./theme.css";
 ```
 
-L'ordre des imports compte : un sous-layer déclaré avant ceux du socle passerait **sous** eux. Les valeurs du mode sombre se redéfinissent aux deux mêmes endroits que dans le socle (voir l'exemple). La production des tokens depuis Figma fera l'objet d'un ADR dédié.
+L'ordre des imports compte : un sous-layer déclaré avant ceux du socle passerait **sous** eux. Les valeurs du mode sombre se redéfinissent aux deux mêmes endroits que dans le socle (voir l'exemple). **Toute primitive que la marque redéfinit doit avoir sa valeur sombre :** le layer de la marque l'emporte aussi sur les valeurs sombres du socle, si bien que sa valeur claire resterait en mode sombre, à côté du texte sombre du socle. La production des tokens depuis Figma fera l'objet d'un ADR dédié.
 
 - **Plusieurs marques sur une page :** le thème s'applique à un conteneur plutôt qu'à `:root` (`[data-brand="acme"] { --u-color-primary: … }`). L'attribut `data-brand` est nécessaire : c'est sur lui que le socle redéclare ses tokens sémantiques, pour qu'ils suivent les primitives du conteneur.
-- **Contraste :** les valeurs par défaut du socle respectent WCAG AA (vérifié par `src/styles/tokens.test.ts`). Une marque qui change les couleurs doit garder un contraste de 4,5:1 entre chaque fond et son texte.
+- **Contraste :** les valeurs par défaut du socle respectent WCAG AA. Une marque qui change les couleurs doit garder, dans les deux thèmes, un contraste de 4,5:1 entre chaque fond et son texte, et de 3:1 pour l'anneau de focus. `contrastFailures()` les mesure dans le navigateur, sur les couleurs calculées, et renvoie les paires sous leur minimum. Le socle l'utilise pour ses propres tokens, et l'exemple pour ceux d'ACME :
+
+  ```ts
+  import { contrastFailures } from "my-design-system/testing";
+
+  for (const theme of ["light", "dark"]) {
+    document.documentElement.dataset.theme = theme;
+    expect(contrastFailures()).toEqual([]);
+  }
+  ```
+
+  Pour un thème appliqué à un conteneur : `contrastFailures(conteneur)`. Pour les composants propres à la marque : `contrastFailures(document.body, [...contrastPairs, { foreground, background, minimum }])`.
+
 - **Reset :** `my-design-system/reset.css` est optionnel. Pour que les applications ne dépendent que de la marque, elle le republie (`src/reset.css` : `@import "my-design-system/reset.css";`).
 
 ## 4. Étendre un composant du socle
@@ -84,7 +96,7 @@ export class AcmeButton extends Button {
 }
 ```
 
-La feuille de la marque s'ajoute à celle du socle. Elle peut changer la valeur par défaut d'un token de composant sur `:host` (`--u-button-border-radius: var(--u-radius-full)`), ou styler les éléments internes **par leurs parts** :
+La feuille de la marque s'ajoute à celle du socle. Elle peut changer la valeur par défaut d'un token de composant sur `:host` (`--u-button-border-radius: var(--u-radius-full)`), ou celle d'une variante sur `:host([variant="secondary"])`, comme le socle, ou styler les éléments internes **par leurs parts** :
 
 ```css
 /* acme-button.css */
@@ -162,6 +174,10 @@ Le manifest de la marque inclut celui du socle (`dependencies: true` dans `custo
     <tr>
       <td>Le fond de `acme-button` a la couleur d'ACME</td>
       <td>Le thème atteint les composants du socle</td>
+    </tr>
+    <tr>
+      <td>Les couleurs d'ACME gardent un contraste AA, en thème clair comme sombre</td>
+      <td>Le thème de la marque reste accessible</td>
     </tr>
     <tr>
       <td>`acme-button` est en majuscules, aux coins arrondis</td>

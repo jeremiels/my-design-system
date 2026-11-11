@@ -55,48 +55,52 @@
   }
 }
 
-.button--secondary {
+/* Variants and sizes change the defaults on the host, from the reflected
+   attributes: the application's own values, set on the host from outside
+   the shadow root, still win. Declared on the inner element instead, they
+   would override them. */
+:host([variant="secondary"]) {
   --u-button-background-color: var(--u-color-secondary-bg);
   --u-button-background-color-hover: var(--u-color-secondary-bg-hover);
   --u-button-background-color-active: var(--u-color-secondary-bg-active);
   --u-button-text-color: var(--u-color-secondary-text);
 }
 
-.button--success {
+:host([variant="success"]) {
   --u-button-background-color: var(--u-color-success-bg);
   --u-button-background-color-hover: var(--u-color-success-bg-hover);
   --u-button-background-color-active: var(--u-color-success-bg-active);
   --u-button-text-color: var(--u-color-success-text);
 }
 
-.button--danger {
+:host([variant="danger"]) {
   --u-button-background-color: var(--u-color-danger-bg);
   --u-button-background-color-hover: var(--u-color-danger-bg-hover);
   --u-button-background-color-active: var(--u-color-danger-bg-active);
   --u-button-text-color: var(--u-color-danger-text);
 }
 
-.button--warning {
+:host([variant="warning"]) {
   --u-button-background-color: var(--u-color-warning-bg);
   --u-button-background-color-hover: var(--u-color-warning-bg-hover);
   --u-button-background-color-active: var(--u-color-warning-bg-active);
   --u-button-text-color: var(--u-color-warning-text);
 }
 
-.button--information {
+:host([variant="information"]) {
   --u-button-background-color: var(--u-color-information-bg);
   --u-button-background-color-hover: var(--u-color-information-bg-hover);
   --u-button-background-color-active: var(--u-color-information-bg-active);
   --u-button-text-color: var(--u-color-information-text);
 }
 
-.button--small {
+:host([size="small"]) {
   --u-button-font-size: var(--u-font-size-sm);
   --u-button-padding-inline: var(--u-spacing-sm);
   --u-button-padding-block: var(--u-spacing-2xs);
 }
 
-.button--large {
+:host([size="large"]) {
   --u-button-font-size: var(--u-font-size-lg);
   --u-button-padding-inline: var(--u-spacing-lg);
   --u-button-padding-block: var(--u-spacing-md);

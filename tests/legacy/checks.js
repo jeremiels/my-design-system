@@ -130,7 +130,7 @@ await check("alert reveals its message in an existing live region", async () => 
   return [before === "hidden" && after === "visible", `visibility: ${before} → ${after}`];
 });
 
-await check("modal opens with a visible backdrop, then closes", async () => {
+await check("modal opens with a visible backdrop, then its close button closes it", async () => {
   const modal = $("#modal");
   const dialog = modal.shadowRoot.querySelector("dialog");
   let closeEvents = 0;
@@ -142,7 +142,7 @@ await check("modal opens with a visible backdrop, then closes", async () => {
   const focusOnClose = modal.shadowRoot
     .querySelector('[part~="close-button"]')
     .matches(":focus-within");
-  modal.closeModal();
+  modal.shadowRoot.querySelector('[part~="close-button"]').click();
   await modal.updateComplete;
   // The native `close` event, hence `u-close`, is fired in a later task.
   await new Promise((resolve) => setTimeout(resolve, 50));
@@ -151,6 +151,39 @@ await check("modal opens with a visible backdrop, then closes", async () => {
     `opened: ${opened}, focus on close button: ${focusOnClose}, backdrop: ${backdrop}, ` +
       `closed: ${!dialog.open}, u-close: ${closeEvents}`,
   ];
+});
+
+await check("an open modal moved in the DOM stays modal", async () => {
+  const modal = $("#modal");
+  const dialog = modal.shadowRoot.querySelector("dialog");
+  let closeEvents = 0;
+  const onClose = () => closeEvents++;
+  modal.addEventListener("u-close", onClose);
+  modal.open = true;
+  await modal.updateComplete;
+  const container = document.createElement("div");
+  document.body.append(container);
+  container.append(modal);
+  const stillModal = dialog.matches(":modal");
+  // The reopening's native `close` event is fired in a later task.
+  await new Promise((resolve) => setTimeout(resolve, 50));
+  const stillOpen = modal.open && dialog.open;
+  modal.open = false;
+  await modal.updateComplete;
+  await new Promise((resolve) => setTimeout(resolve, 50));
+  modal.removeEventListener("u-close", onClose);
+  return [
+    stillModal && stillOpen && closeEvents === 1,
+    `modal after the move: ${stillModal}, still open: ${stillOpen}, u-close: ${closeEvents}`,
+  ];
+});
+
+await check("an application's component token applies to every variant", () => {
+  const alert = $("#danger");
+  alert.style.setProperty("--u-alert-background-color", "rgb(1, 2, 3)");
+  const background = style(shadow("#danger", '[part~="alert"]')).backgroundColor;
+  alert.style.removeProperty("--u-alert-background-color");
+  return [background === "rgb(1, 2, 3)", `danger alert background: ${background}`];
 });
 
 await check("custom states never throw", () => {

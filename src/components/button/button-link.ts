@@ -44,7 +44,7 @@ export class ButtonLink extends ButtonBase {
     return html`
       <a
         part="button"
-        class="button button--${this.size} button--${this.variant}"
+        class="button"
         href=${ifDefined(this.isDisabled ? undefined : this.href)}
         target=${ifDefined(this.target)}
         rel=${ifDefined(this.relAttribute)}

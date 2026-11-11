@@ -58,7 +58,23 @@ export class Modal extends DSBaseElement {
   /** @internal */
   @query("dialog") dialog!: HTMLDialogElement;
 
+  /** The next `close` event of the dialog is a reopening, not a closing. */
+  private reopening = false;
+
   static styles = [DSBaseElement.styles ?? [], modalStyles];
+
+  connectedCallback() {
+    super.connectedCallback();
+    // Moved in the DOM while open (a portal, a reordered list…): removing
+    // the dialog took it out of the top layer but left it open, as a
+    // non-modal dialog — no backdrop, the page isn't inert, Escape doesn't
+    // close it. Reopen it as a modal; its `close` event isn't a closing.
+    if (this.hasUpdated && this.dialog.open && !this.dialog.matches(":modal")) {
+      this.reopening = true;
+      this.dialog.close();
+      this.dialog.showModal();
+    }
+  }
 
   render() {
     const button = this.tagFor(Button);
@@ -98,15 +114,19 @@ export class Modal extends DSBaseElement {
    * `open` truthful to the actual dialog state and announces the closing.
    */
   private handleDialogClose() {
+    if (this.reopening) {
+      this.reopening = false;
+      return;
+    }
     this.open = false;
     this.dispatchEvent(new ModalCloseEvent());
   }
 
-  openModal() {
+  private openModal() {
     this.open = true;
   }
 
-  closeModal() {
+  private closeModal() {
     this.open = false;
   }
 }

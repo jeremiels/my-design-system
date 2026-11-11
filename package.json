@@ -57,6 +57,10 @@
     "./modal": {
       "types": "./dist/components/modal/modal.d.ts",
       "import": "./dist/modal.js"
+    },
+    "./testing": {
+      "types": "./dist/testing/contrast.d.ts",
+      "import": "./dist/testing.js"
     }
   },
   "scripts": {
@@ -122,8 +126,8 @@
     "Firefox ESR"
   ],
   "engines": {
-    "node": ">=26.13.1",
-    "npm": ">=11.20.0"
+    "node": ">=26.0.0",
+    "npm": ">=11.12.1"
   },
   "customElements": "custom-elements.json"
 }

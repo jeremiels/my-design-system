@@ -2,6 +2,7 @@
 // does it, and publishes its results on `window.__results`.
 import "/dist/define.js";
 import { AcmeButton, AcmeCard, Button } from "/dist/index.js";
+import { contrastFailures } from "my-design-system/testing";
 
 const results = [];
 async function check(name, run) {
@@ -41,6 +42,18 @@ await check("ACME's theme reaches the base's components", () => {
   const actual = style($("#button").shadowRoot.querySelector('[part~="button"]')).backgroundColor;
   const expected = resolveColor("hsl(268, 75%, 45%)");
   return [actual === expected, `background ${actual}, expected ${expected}`];
+});
+
+await check("ACME's colors keep WCAG AA contrast in both themes", () => {
+  const failures = ["light", "dark"].flatMap((theme) => {
+    document.documentElement.dataset.theme = theme;
+    return contrastFailures().map(
+      ({ foreground, background, ratio, minimum }) =>
+        `${theme}: ${foreground} on ${background} ${ratio.toFixed(2)}:1 < ${minimum}:1`,
+    );
+  });
+  delete document.documentElement.dataset.theme;
+  return [failures.length === 0, failures.join(" | ") || "every pair passes"];
 });
 
 await check("ACME's button styles apply on top of the base's", () => {

@@ -102,6 +102,8 @@ Pour que le système soit réellement themable, une seule source de vérité doi
    }
    ```
 
+**Variantes et tailles :** elles changent la valeur par défaut des tokens de composant **sur l'hôte**, à partir de l'attribut reflété (`:host([variant="danger"]) { --u-button-background-color: var(--u-color-danger-bg); }`), et jamais sur un élément interne. Une valeur posée par l'application sur l'hôte, depuis l'extérieur du shadow root, l'emporte sur toute règle `:host(…)` ; redéclaré sur un élément interne (une classe `.button--danger`), le token écraserait au contraire la valeur de l'application, pour cette variante seulement. `src/api-contract.test.ts` refuse les deux cas.
+
 **Pourquoi ce niveau intermédiaire est indispensable :** sans lui, changer `--u-color-primary` ne se propage à aucun composant, et le dark mode devrait être ré-implémenté dans chaque fichier de composant au lieu d'être remappé une seule fois au niveau primitif.
 
 **Dark mode :** `tokens/color.css` remappe les primitives à deux endroits, jamais ailleurs — un composant ne doit donc jamais contenir sa propre logique de thème :
@@ -111,7 +113,7 @@ Pour que le système soit réellement themable, une seule source de vérité doi
 
 **Thème limité à un conteneur :** un `var()` est résolu sur l'élément qui déclare la custom property, puis hérité tel quel. Déclarés sur `:root` seulement, les tokens sémantiques garderaient les primitives de `:root`, même dans un conteneur qui les redéfinit. Ils sont donc déclarés sur `:root, [data-brand]` : un thème de marque appliqué à `[data-brand="acme"]` (plusieurs marques sur une page, ADR 0001, D4) atteint les composants de ce conteneur.
 
-**Accessibilité :** `src/styles/tokens.test.ts` vérifie, dans les deux thèmes, que chaque intention (au repos, survol, pression) offre un contraste de 4,5:1 avec son texte (WCAG AA), et l'anneau de focus 3:1 avec la surface.
+**Accessibilité :** `src/styles/tokens.test.ts` vérifie, dans les deux thèmes, que chaque intention (au repos, survol, pression) offre un contraste de 4,5:1 avec son texte (WCAG AA), le texte 4,5:1 avec les surfaces et l'anneau de focus 3:1. Les paires et la mesure sont exportées (`contrastFailures()`, `my-design-system/testing`) : une marque vérifie son thème avec les mêmes.
 
 **Préfixe :** tous les tokens, des trois niveaux, portent le préfixe `--u-` ([ADR 0001](?path=/docs/documentation-adr-0001-architecture-multi-marque--docs), D4). Il évite les collisions avec les variables de l'application hôte ou d'autres librairies, et il est identique pour toutes les marques : une marque change les valeurs, jamais les noms.
 

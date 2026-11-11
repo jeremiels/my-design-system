@@ -29,13 +29,13 @@ export class Alert extends DSBaseElement {
   static override componentName = "alert";
 
   /** Alert type: sets the colors and how assistive technologies announce it. */
-  @property({ type: String })
+  @property({ type: String, reflect: true })
   type: AlertType = "information";
 
   static styles = [DSBaseElement.styles ?? [], alertStyles];
 
   render() {
-    return html`<div part="alert" class="alert alert--${this.type}">…</div>`;
+    return html`<div part="alert" class="alert">…</div>`;
   }
 }
 ```
@@ -57,7 +57,8 @@ export class Alert extends DSBaseElement {
 
 - `@property({ type: … })` with a one-line JSDoc description; the default is
   the initializer. Use `reflect: true` only when CSS or ARIA needs the
-  attribute. Multi-word attributes: `attribute: "action-label"`.
+  attribute — variants and sizes do: their styles are `:host([variant="…"])`
+  rules (component-styling). Multi-word attributes: `attribute: "action-label"`.
 - Internal state: `private`/`#private` fields or `@state()`. Members that must
   stay public for TypeScript but aren't API get `/** @internal */`.
 

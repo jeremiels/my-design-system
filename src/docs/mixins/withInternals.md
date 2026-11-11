@@ -35,10 +35,10 @@ A purely decorative or display-only component (an alert message, a badge) gets n
 
 Both are `protected`: available to the component and its subclasses (brands included), not to the application — `internals` gives full control over the element's form value, validity and ARIA.
 
-| Name           | Type                            | Description                                                                                         |
-| -------------- | ------------------------------- | --------------------------------------------------------------------------------------------------- |
-| `internals`    | `ElementInternals \| undefined` | Set once in the constructor. `undefined` if `attachInternals()` isn't supported in the environment. |
-| `customStates` | `{ set, has }`                  | Wraps `internals.states` to toggle/check `:state(x)` selectors.                                     |
+| Name           | Type                            | Description                                                                                   |
+| -------------- | ------------------------------- | --------------------------------------------------------------------------------------------- |
+| `internals`    | `ElementInternals \| undefined` | Set once in the constructor. `undefined` only in a DOM emulation without `attachInternals()`. |
+| `customStates` | `{ set, has }`                  | Wraps `internals.states` to toggle/check `:state(x)` selectors.                               |
 
 ## Browser support
 
@@ -46,4 +46,4 @@ Both are `protected`: available to the component and its subclasses (brands incl
 
 ## Gotcha
 
-Never call `this.attachInternals()` yourself in a component that applies this mixin (or extends one that does) — the browser throws `NotSupportedError: ElementInternals for the specified element was already attached`. Always read `this.internals` instead.
+Never call `this.attachInternals()` yourself in a component that applies this mixin (or extends one that does), and never apply the mixin to a class that already has it (`Button`): the browser throws `NotSupportedError: ElementInternals for the specified element was already attached`, and the element can't be created. The mixin lets that error propagate rather than leave the element without its internals. Always read `this.internals` instead.

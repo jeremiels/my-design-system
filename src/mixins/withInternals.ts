@@ -35,12 +35,11 @@ export function withInternals<T extends AbstractConstructor<LitElement>>(Base: T
     constructor(...args: any[]) {
       super(...args);
 
-      try {
+      // Every supported browser has `attachInternals()`: only a DOM emulation
+      // may lack it. Its errors are bugs and propagate — "already attached"
+      // means a class in the chain called it itself, or applied this mixin twice.
+      if (typeof this.attachInternals === "function") {
         this.internals = this.attachInternals();
-      } catch {
-        console.error(
-          "ElementInternals is not supported in this environment; custom states will be unavailable.",
-        );
       }
     }
 

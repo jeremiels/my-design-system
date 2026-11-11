@@ -146,6 +146,47 @@ export const ClosingModal = meta.story({
 });
 
 /**
+ * Interaction test: moving an open modal in the DOM
+ */
+export const MovedWhileOpen = meta.story({
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "Moved in the DOM while open (a portal, a reordered list…), the modal stays modal: backdrop, inert page, Escape. It neither closes nor fires `u-close`.",
+      },
+    },
+  },
+  render: (args) => html`<u-modal open label=${args.label}>${args.slot}</u-modal>`,
+  play: async ({ canvasElement }) => {
+    const modal = canvasElement.querySelector<Modal>("u-modal")!;
+    await modal.updateComplete;
+    const dialog = modal.shadowRoot!.querySelector("dialog")!;
+    const onClose = fn();
+    modal.addEventListener("u-close", onClose);
+    const reopened = new Promise((resolve) =>
+      dialog.addEventListener("close", resolve, { once: true }),
+    );
+
+    const container = document.createElement("div");
+    canvasElement.append(container);
+    container.append(modal);
+    expect(dialog.matches(":modal")).toBe(true);
+
+    // The close() that reopens it isn't a closing…
+    await reopened;
+    expect(onClose).not.toHaveBeenCalled();
+    expect(modal.open).toBe(true);
+    expect(dialog.open).toBe(true);
+
+    // …and the next closing still is one.
+    modal.open = false;
+    await waitFor(() => expect(onClose).toHaveBeenCalledOnce());
+    expect(dialog.open).toBe(false);
+  },
+});
+
+/**
  * Content slot test
  */
 export const WithCustomContent = meta.story({

@@ -30,15 +30,16 @@
   }
 }
 
-.alert--success {
+/* On the host, so the application's values still win (see button-base.css). */
+:host([type="success"]) {
   --u-alert-background-color: var(--u-color-success-bg);
   --u-alert-text-color: var(--u-color-success-text);
 }
-.alert--warning {
+:host([type="warning"]) {
   --u-alert-background-color: var(--u-color-warning-bg);
   --u-alert-text-color: var(--u-color-warning-text);
 }
-.alert--danger {
+:host([type="danger"]) {
   --u-alert-background-color: var(--u-color-danger-bg);
   --u-alert-text-color: var(--u-color-danger-text);
 }
