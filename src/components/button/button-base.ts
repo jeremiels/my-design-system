@@ -1,5 +1,6 @@
 import { css } from "lit";
 import { property } from "lit/decorators.js";
+import { MyClickEvent } from "../../events/button-click.js";
 import { withDisabled } from "../../mixins/withDisabled.js";
 import { DSBaseElement } from "../MyDSBaseElement.js";
 import type { MyButtonSize, MyButtonVariant } from "./button.type.js";
@@ -90,8 +91,7 @@ export abstract class ButtonBase extends DisabledDSBaseElement {
       }
 
       .button:focus-visible {
-        outline: var(--my-button-focus-ring-width) solid
-          var(--my-button-focus-ring-color);
+        outline: var(--my-button-focus-ring-width) solid var(--my-button-focus-ring-color);
         outline-offset: var(--my-button-focus-ring-offset);
       }
 
@@ -160,13 +160,7 @@ export abstract class ButtonBase extends DisabledDSBaseElement {
       return;
     }
 
-    this.dispatchEvent(
-      new CustomEvent("my-click", {
-        bubbles: true,
-        composed: true,
-        detail: { originalEvent: e },
-      }),
-    );
+    this.dispatchEvent(new MyClickEvent({ originalEvent: e }));
   }
 
   protected abstract render(): unknown;

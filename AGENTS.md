@@ -13,11 +13,13 @@
 - `src/index.ts` — Main entry point; exports all public components (ES modules only).
 - `src/components/` — Web components live here; each component gets its own folder (e.g., `button/`, `modal/`). Each component folder includes:
   - `component-name.ts` — The main component class
+  - `component-name.type.ts` — Types local to that component
   - `component-name.stories.ts` — Storybook stories and visual tests
   - Variant files (e.g., `button-link.ts`) for extended behaviors
-- `src/mixins/` — Reusable behavior mixins (e.g., `withDisabled.ts`) that compose with components.
+- `src/mixins/` — Reusable behavior mixins (e.g., `withDisabled.ts`, `withInternals.ts`) that compose with components.
+- `src/events/` — Custom event classes for the whole design system, one file per event, named `{owner}-{event}.ts` (e.g., `button-click.ts` → `MyClickEvent`). Centralized regardless of how many components currently dispatch a given event — an event's name/shape is public API the moment it exists (it augments the global `GlobalEventHandlersEventMap`), unlike a private type, so this is the one place to scan "what does this design system emit" as it grows.
 - `src/types/` — Shared types like `ComponentSize`, `SemanticVariant`, `ButtonVariant` (from `common.ts`).
-- `src/components/MyDSBaseElement.ts` — Minimal base class with shadow DOM defaults (`box-sizing`, `[hidden]`).
+- `src/components/MyDSBaseElement.ts` — Minimal base class with shadow DOM defaults (`box-sizing`, `[hidden]`) and `dir`/`lang` reactive properties.
 - `src/styles/` — CSS organized by layer:
   - `main.css` — Entry point; imports and declares layer order
   - `layers/reset.css` — CSS reset for baseline consistency
@@ -42,6 +44,23 @@
   - `ButtonVariant = "primary" | "secondary" | SemanticVariant` — Button-specific variants extending semantic variants
 - **Custom Elements:** Register with `@customElement('my-component-name')` and declare in `HTMLElementTagNameMap` interface.
 - **Accessibility:** Mixins like `withDisabled` manage aria attributes (e.g., `aria-disabled`). Use shadow DOM `:host` selectors for focus/hidden states.
+- **ElementInternals:** `attachInternals()` can only be called once per element. Components that need form participation, custom states (`:state()`), or `ElementInternals`-based ARIA must apply `withInternals()` and read `this.internals` — never call `this.attachInternals()` directly (see `src/docs/mixins/withInternals.md`). Most display-only components don't need it.
+- **Custom Events:** Dispatch events as typed `Event` subclasses from `src/events/`, not a generic string-keyed `emit()` helper. One file per event, named `{owner}-{event}.ts` (e.g. `button-click.ts`) so names stay collision-free as more components add events. Each class hardcodes its own `bubbles`/`cancelable`/`composed` and augments `GlobalEventHandlersEventMap` so listeners get a typed `event.detail` for free:
+  ```ts
+  export class MyClickEvent extends Event {
+    readonly detail: { originalEvent: MouseEvent };
+    constructor(detail: { originalEvent: MouseEvent }) {
+      super("my-click", { bubbles: true, cancelable: false, composed: true });
+      this.detail = detail;
+    }
+  }
+  declare global {
+    interface GlobalEventHandlersEventMap {
+      "my-click": MyClickEvent;
+    }
+  }
+  ```
+  Dispatch with `this.dispatchEvent(new MyClickEvent({ originalEvent: e }))`.
 
 ## Workflows
 
@@ -113,6 +132,7 @@
 
 - [CSS Architecture Documentation](src/docs/architecture/css-architecture.mdx) — Detailed CSS layer organization and patterns
 - [Withes Documentation](src/docs/mixins/withDisabled.md) — Mixin patterns and composition
+- [withInternals Documentation](src/docs/mixins/withInternals.md) — `ElementInternals` sharing across mixins/components
 - `.oxlintrc.json` — Linting rules
 - `vite.config.ts` — Build configuration and external dependencies
 - `vitest.config.ts` — Test runner and browser configuration

@@ -1,18 +1,19 @@
 import { html } from "lit";
 import { customElement, property } from "lit/decorators.js";
+import { withInternals } from "../../mixins/withInternals.js";
 import { ButtonBase } from "./button-base.js";
 import type { MyButtonType } from "./button.type.js";
 
+const InternalsButtonBase = withInternals(ButtonBase);
+
 @customElement("my-button")
-export class Button extends ButtonBase {
+export class Button extends InternalsButtonBase {
   /**
    * Required for ElementInternals.form to resolve an ancestor <form> — a
    * shadow-rendered <button type="submit"> has no light-DOM form owner
    * otherwise, so type="submit"/"reset" would silently do nothing.
    */
   static formAssociated = true;
-
-  #internals: ElementInternals = this.attachInternals();
 
   /**
    * Button type.
@@ -29,9 +30,9 @@ export class Button extends ButtonBase {
     }
 
     if (this.type === "submit") {
-      this.#internals.form?.requestSubmit();
+      this.internals?.form?.requestSubmit();
     } else if (this.type === "reset") {
-      this.#internals.form?.reset();
+      this.internals?.form?.reset();
     }
   }
 

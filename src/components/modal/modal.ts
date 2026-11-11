@@ -1,9 +1,10 @@
-import { LitElement, html, css, type PropertyValues } from "lit";
+import { html, css, type PropertyValues } from "lit";
 import { customElement, property, query } from "lit/decorators.js";
+import { DSBaseElement } from "../MyDSBaseElement.js";
 import "../button/button.js";
 
 @customElement("my-modal")
-export class Modal extends LitElement {
+export class Modal extends DSBaseElement {
   /**
    * Whether the modal is open. Reflects to the `open` attribute, so it can
    * be set declaratively (`<my-modal open>`) or bound reactively
@@ -33,30 +34,33 @@ export class Modal extends LitElement {
    *
    * @see src/docs/architecture/css-architecture.mdx for token conventions.
    */
-  static styles = css`
-    :host {
-      --my-modal-background-color: var(--color-surface-raised);
-      --my-modal-border-radius: var(--radius-lg);
-      --my-modal-padding: var(--spacing-md);
-      --my-modal-backdrop-color: var(--shadow-backdrop);
-      --my-modal-shadow: var(--shadow-elevation-lg);
-    }
+  static styles = [
+    DSBaseElement.styles ?? [],
+    css`
+      :host {
+        --my-modal-background-color: var(--color-surface-raised);
+        --my-modal-border-radius: var(--radius-lg);
+        --my-modal-padding: var(--spacing-md);
+        --my-modal-backdrop-color: var(--shadow-backdrop);
+        --my-modal-shadow: var(--shadow-elevation-lg);
+      }
 
-    dialog {
-      border: none;
-      border-radius: var(--my-modal-border-radius);
-      padding: 0;
-      box-shadow: var(--my-modal-shadow);
-    }
-    dialog::backdrop {
-      background-color: var(--my-modal-backdrop-color);
-    }
-    .content {
-      background-color: var(--my-modal-background-color);
-      border-radius: inherit;
-      padding: var(--my-modal-padding);
-    }
-  `;
+      dialog {
+        border: none;
+        border-radius: var(--my-modal-border-radius);
+        padding: 0;
+        box-shadow: var(--my-modal-shadow);
+      }
+      dialog::backdrop {
+        background-color: var(--my-modal-backdrop-color);
+      }
+      .content {
+        background-color: var(--my-modal-background-color);
+        border-radius: inherit;
+        padding: var(--my-modal-padding);
+      }
+    `,
+  ];
 
   render() {
     return html`

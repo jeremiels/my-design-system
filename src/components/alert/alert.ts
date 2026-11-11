@@ -1,9 +1,10 @@
-import { LitElement, html, css } from "lit";
+import { html, css } from "lit";
 import { customElement, property } from "lit/decorators.js";
+import { DSBaseElement } from "../MyDSBaseElement.js";
 import type { MyAlertType } from "./alert.type.js";
 
 @customElement("my-alert")
-export class Alert extends LitElement {
+export class Alert extends DSBaseElement {
   /**
    * Alert type.
    * @property {MyAlertType} type - The type of the alert.
@@ -23,42 +24,45 @@ export class Alert extends LitElement {
    *
    * @see src/docs/architecture/css-architecture.mdx for token conventions.
    */
-  static styles = css`
-    :host {
-      --my-alert-background-color: var(--color-information-bg);
-      --my-alert-text-color: var(--color-information-text);
-      --my-alert-padding: var(--spacing-md);
-      --my-alert-border-radius: var(--radius-md);
-      --my-alert-font-family: var(--font-family-base);
-    }
-
-    .alert {
-      padding: var(--my-alert-padding);
-      border-radius: var(--my-alert-border-radius);
-      font-family: var(--my-alert-font-family);
-      color: var(--my-alert-text-color);
-      background-color: var(--my-alert-background-color);
-    }
-
-    @media (forced-colors: active) {
-      .alert {
-        border: 1px solid CanvasText;
+  static styles = [
+    DSBaseElement.styles ?? [],
+    css`
+      :host {
+        --my-alert-background-color: var(--color-information-bg);
+        --my-alert-text-color: var(--color-information-text);
+        --my-alert-padding: var(--spacing-md);
+        --my-alert-border-radius: var(--radius-md);
+        --my-alert-font-family: var(--font-family-base);
       }
-    }
 
-    .alert--success {
-      --my-alert-background-color: var(--color-success-bg);
-      --my-alert-text-color: var(--color-success-text);
-    }
-    .alert--warning {
-      --my-alert-background-color: var(--color-warning-bg);
-      --my-alert-text-color: var(--color-warning-text);
-    }
-    .alert--danger {
-      --my-alert-background-color: var(--color-danger-bg);
-      --my-alert-text-color: var(--color-danger-text);
-    }
-  `;
+      .alert {
+        padding: var(--my-alert-padding);
+        border-radius: var(--my-alert-border-radius);
+        font-family: var(--my-alert-font-family);
+        color: var(--my-alert-text-color);
+        background-color: var(--my-alert-background-color);
+      }
+
+      @media (forced-colors: active) {
+        .alert {
+          border: 1px solid CanvasText;
+        }
+      }
+
+      .alert--success {
+        --my-alert-background-color: var(--color-success-bg);
+        --my-alert-text-color: var(--color-success-text);
+      }
+      .alert--warning {
+        --my-alert-background-color: var(--color-warning-bg);
+        --my-alert-text-color: var(--color-warning-text);
+      }
+      .alert--danger {
+        --my-alert-background-color: var(--color-danger-bg);
+        --my-alert-text-color: var(--color-danger-text);
+      }
+    `,
+  ];
 
   /**
    * `danger`/`warning` interrupt immediately (role="alert", implicit
