@@ -4,24 +4,29 @@ import { Meta } from "@storybook/addon-docs/blocks";
 
 # Créer un design system de marque
 
-Le socle (`my-design-system`) fournit des composants génériques, leurs tokens `--u-*` et l'outillage pour les étendre. Un design system de marque **dépend** du socle, l'**étend** (thème, composants modifiés, composants propres) et **republie** le tout sous son propre package, que les applications de la marque consomment. Le modèle est décrit dans l'[ADR 0001](?path=/docs/documentation-adr-0001-architecture-multi-marque--docs).
+Ce guide crée un design system de marque : un package qui dépend du socle, l'étend et le republie sous son propre préfixe. Les applications de la marque ne dépendent que de lui. Le modèle est décrit dans l'[ADR 0001](?path=/docs/documentation-adr-0001-architecture-multi-marque--docs).
 
-Un exemple complet et testé se trouve dans `examples/acme-design-system`. `npm run example` construit le socle, l'empaquette avec `npm pack` comme pour une publication, puis installe, construit et teste ACME contre cette archive.
+L'exemple complet est `examples/acme-design-system`. Les extraits de ce guide en sont tirés, simplifiés.
 
-## 1. Dépendances
+## Prérequis
+
+- Node 26 et npm 11.12, ou une version plus récente.
+- L'archive du socle. Le socle n'est pas publié : à la racine du dépôt, lancez `npm run build`, puis `npm pack`.
+
+## 1. Déclarez les dépendances
 
 ```json
 {
-  "dependencies": { "my-design-system": "^0.1.0" },
+  "dependencies": { "my-design-system": "file:../my-design-system-0.0.0.tgz" },
   "peerDependencies": { "lit": "^3.3.3" }
 }
 ```
 
-Lit est une **peer dependency** du socle comme de la marque : l'application en fournit une seule copie.
+- Lit est une peer dependency : l'application en fournit une seule copie.
+- Dans `tsconfig.json`, activez `experimentalDecorators` et désactivez `useDefineForClassFields`, pour les décorateurs de Lit.
+- Dans un fichier `.d.ts`, ajoutez les types des imports CSS : `/// <reference types="my-design-system/css-modules" />`.
 
-## 2. Build
-
-Le socle compile les imports `with { type: "css" }` avec un plugin Vite qu'il exporte. La marque l'utilise, et laisse Lit et le socle en dépendances au lieu de les embarquer :
+## 2. Configurez le build
 
 ```ts
 // vite.config.ts
@@ -30,6 +35,7 @@ import { cssImportAttributes } from "my-design-system/vite-plugin";
 export default defineConfig({
   plugins: [cssImportAttributes()],
   build: {
+    cssCodeSplit: true,
     lib: {
       entry: {
         index: "src/index.ts",
@@ -44,48 +50,70 @@ export default defineConfig({
 });
 ```
 
-- Types des imports CSS : `/// <reference types="my-design-system/css-modules" />` dans un fichier `.d.ts`.
-- `tsconfig.json` : `experimentalDecorators: true` et `useDefineForClassFields: false`, comme dans le socle (décorateurs de Lit).
+- `cssImportAttributes()` compile les imports `with { type: "css" }`.
+- `external` garde Lit et le socle en dépendances : le build de la marque ne les copie pas.
 
-## 3. Thème
+## 3. Définissez le thème
 
-Une marque change les **valeurs** des tokens, jamais leurs noms. Ses valeurs vivent dans un sous-layer `u.tokens.brand`, déclaré après ceux du socle :
+1. Écrivez les valeurs de la marque dans la sous-couche `u.tokens.brand`. Changez les valeurs des tokens, jamais leurs noms.
+2. Donnez une valeur sombre à chaque primitive redéfinie, dans les deux sélecteurs sombres.
 
-```css
-/* src/theme.css */
-@layer u.tokens.brand {
-  :root {
-    --u-color-primary: hsl(268, 75%, 45%);
-    --u-font-family-base: Georgia, serif;
-  }
-}
-```
+   ```css
+   /* src/theme.css */
+   @layer u.tokens.brand {
+     :root {
+       --u-color-primary: hsl(268, 75%, 45%);
+       --u-color-secondary: hsl(330, 80%, 45%);
+     }
 
-```css
-/* src/styles.css : la feuille que chargent les applications */
-@import "my-design-system/styles.css";
-@import "./theme.css";
-```
+     @media (prefers-color-scheme: dark) {
+       :root:not([data-theme="light"]) {
+         --u-color-primary: hsl(268, 80%, 72%);
+         --u-color-secondary: hsl(330, 80%, 70%);
+       }
+     }
 
-L'ordre des imports compte : un sous-layer déclaré avant ceux du socle passerait **sous** eux. Les valeurs du mode sombre se redéfinissent aux deux mêmes endroits que dans le socle (voir l'exemple). **Toute primitive que la marque redéfinit doit avoir sa valeur sombre :** le layer de la marque l'emporte aussi sur les valeurs sombres du socle, si bien que sa valeur claire resterait en mode sombre, à côté du texte sombre du socle. La production des tokens depuis Figma fera l'objet d'un ADR dédié.
+     :root[data-theme="dark"] {
+       --u-color-primary: hsl(268, 80%, 72%);
+       --u-color-secondary: hsl(330, 80%, 70%);
+     }
+   }
+   ```
 
-- **Plusieurs marques sur une page :** le thème s'applique à un conteneur plutôt qu'à `:root` (`[data-brand="acme"] { --u-color-primary: … }`). L'attribut `data-brand` est nécessaire : c'est sur lui que le socle redéclare ses tokens sémantiques, pour qu'ils suivent les primitives du conteneur.
-- **Contraste :** les valeurs par défaut du socle respectent WCAG AA. Une marque qui change les couleurs doit garder, dans les deux thèmes, un contraste de 4,5:1 entre chaque fond et son texte, et de 3:1 pour l'anneau de focus. `contrastFailures()` les mesure dans le navigateur, sur les couleurs calculées, et renvoie les paires sous leur minimum. Le socle l'utilise pour ses propres tokens, et l'exemple pour ceux d'ACME :
+   La couche de la marque l'emporte sur les valeurs sombres du socle. Sans valeur sombre, la valeur claire de la marque reste en thème sombre.
 
-  ```ts
-  import { contrastFailures } from "my-design-system/testing";
+3. Importez le thème après la feuille du socle. Une sous-couche déclarée avant celles du socle passe sous elles.
 
-  for (const theme of ["light", "dark"]) {
-    document.documentElement.dataset.theme = theme;
-    expect(contrastFailures()).toEqual([]);
-  }
-  ```
+   ```css
+   /* src/styles.css : la feuille que chargent les applications */
+   @import "my-design-system/styles.css";
+   @import "./theme.css";
+   ```
 
-  Pour un thème appliqué à un conteneur : `contrastFailures(conteneur)`. Pour les composants propres à la marque : `contrastFailures(document.body, [...contrastPairs, { foreground, background, minimum }])`.
+4. Republiez le reset optionnel, pour que les applications ne dépendent que de la marque :
 
-- **Reset :** `my-design-system/reset.css` est optionnel. Pour que les applications ne dépendent que de la marque, elle le republie (`src/reset.css` : `@import "my-design-system/reset.css";`).
+   ```css
+   /* src/reset.css */
+   @import "my-design-system/reset.css";
+   ```
 
-## 4. Étendre un composant du socle
+5. Vérifiez le contraste du thème dans les deux thèmes, avec `contrastFailures()` :
+
+   ```ts
+   import { contrastFailures } from "my-design-system/testing";
+
+   for (const theme of ["light", "dark"]) {
+     document.documentElement.dataset.theme = theme;
+     expect(contrastFailures()).toEqual([]);
+   }
+   ```
+
+   Les paires mesurées et leurs minimums sont dans [Tokens et couches CSS](?path=/docs/documentation-référence-tokens-et-couches-css--docs).
+
+- **Plusieurs marques sur une page :** écrivez le thème sur `[data-brand="acme"]` au lieu de `:root`. Vérifiez-le avec `contrastFailures(conteneur)`.
+- **Composants propres à la marque :** ajoutez leurs paires à celles du socle : `contrastFailures(document.body, [...contrastPairs, { foreground, background, minimum }])`.
+
+## 4. Étendez un composant du socle
 
 ```ts
 import { Button } from "my-design-system";
@@ -96,18 +124,23 @@ export class AcmeButton extends Button {
 }
 ```
 
-La feuille de la marque s'ajoute à celle du socle. Elle peut changer la valeur par défaut d'un token de composant sur `:host` (`--u-button-border-radius: var(--u-radius-full)`), ou celle d'une variante sur `:host([variant="secondary"])`, comme le socle, ou styler les éléments internes **par leurs parts** :
-
 ```css
 /* acme-button.css */
+:host {
+  --u-button-border-radius: var(--u-radius-full);
+}
+
 [part~="button"] {
   text-transform: uppercase;
 }
 ```
 
-Seule l'API documentée du socle est stable : tokens, parts, slots et membres `protected` documentés. Les parts sont vérifiées par le test de contrat du socle ; ses classes CSS (`.button`) sont internes et peuvent changer sans préavis.
+- La feuille de la marque s'ajoute à celle du socle.
+- Changez la valeur par défaut d'un token de composant sur `:host`, ou sur `:host([variant="secondary"])` pour une variante.
+- Stylez les éléments internes par leurs parts. Les classes internes du socle (`.button`) ne sont pas une API.
+- Les tokens, parts, slots, événements et membres `protected` documentés sont l'API publique du socle. Le test de contrat du socle vérifie les parts.
 
-## 5. Ajouter un composant de marque
+## 5. Ajoutez un composant de marque
 
 ```ts
 import { Button, DSBaseElement } from "my-design-system";
@@ -125,11 +158,13 @@ export class AcmeCard extends DSBaseElement {
 ```
 
 - `componentName` donne la balise : `acme-card`.
-- Un composant qui en rend un autre le déclare dans `dependencies` et passe par `tagFor()` : la carte rend ainsi le bouton **de la marque**. Jamais de balise écrite en dur, ni de `document.createElement`.
-- Ses tokens prennent le préfixe de la marque (`--acme-card-padding`), et sa JSDoc suit les mêmes conventions que le socle (`@element`, `@csspart`, `@cssprop`…).
-- **Nom de composant :** si le socle ajoute plus tard un composant du même nom (`card`), `defineComponents()` lèvera une erreur à l'enregistrement, puisque `AcmeCard` ne l'étend pas. Vérifier les nouveautés du catalogue à chaque montée de version du socle ; un nom propre à la marque évite la question.
+- Déclarez dans `dependencies` chaque composant rendu, et obtenez sa balise avec `tagFor()`. La carte rend ainsi le bouton de la marque.
+- N'écrivez jamais une balise en dur, et n'appelez pas `document.createElement` pour un composant.
+- Préfixez ses tokens avec le nom de la marque : `--acme-card-padding`.
+- Documentez-le avec les mêmes balises JSDoc que le socle : `@element`, `@csspart`, `@cssprop`.
+- Choisissez un nom absent du catalogue du socle. Si le catalogue contient un composant de même nom que `AcmeCard` ne l'étend pas, `defineComponents()` lève une erreur. Vérifiez le catalogue à chaque mise à jour du socle.
 
-## 6. Enregistrer et republier
+## 6. Enregistrez et republiez
 
 ```ts
 // src/define.ts : les applications l'importent une fois
@@ -143,59 +178,39 @@ defineComponents({
 ```
 
 ```ts
-// src/index.ts : le socle republié avec les composants de la marque
+// src/index.ts : le socle, republié avec les composants de la marque
 export * from "my-design-system";
 export * from "./components/acme-button/acme-button.js";
 export * from "./components/acme-card/acme-card.js";
 ```
 
-- `overrides` remplace un composant **partout** dans l'enregistrement : `acme-modal` et `acme-card` rendent `AcmeButton`.
-- Si deux applications d'une même page (micro-frontends) embarquent chacune le design system de marque, le second enregistrement ne casse rien : les balises déjà définies gardent leur définition, avec un avertissement en console si elle diffère (autre version). Les deux applications utilisent alors la version chargée en premier : mieux vaut partager une seule copie.
-- Le package déclare `"sideEffects": ["**/*.css", "./dist/define.js"]`, pour que les applications ne chargent que les composants qu'elles utilisent.
+- `overrides` remplace un composant dans tout l'enregistrement : `acme-modal` et `acme-card` rendent `AcmeButton`.
+- Déclarez `"sideEffects": ["**/*.css", "./dist/define.js"]` dans `package.json`. Les applications chargent alors seulement les composants qu'elles utilisent.
+- Partagez une seule copie de la marque entre les applications d'une page. Un second enregistrement garde les balises déjà définies, avec un avertissement si la définition diffère.
 
-## 7. Documentation
+## 7. Générez le manifest
 
-Le manifest de la marque inclut celui du socle (`dependencies: true` dans `custom-elements-manifest.config.mjs`) : les composants qui étendent le socle sont documentés avec ce dont ils héritent (attributs, tokens, parts).
+```js
+// custom-elements-manifest.config.mjs
+export default {
+  globs: ["src/**/*.ts"],
+  exclude: ["src/define.ts", "src/**/*.d.ts"],
+  outdir: ".",
+  litelement: true,
+  dependencies: true,
+};
+```
 
-## Ce que vérifie l'exemple
+- `dependencies: true` inclut le manifest du socle. Un composant qui étend le socle est documenté avec ce qu'il hérite : attributs, tokens, parts.
+- L'analyseur affiche `Cannot resolve './x.js'` pour les sources TypeScript. Ce message est sans effet.
 
-<table>
-  <thead>
-    <tr>
-      <th>Vérification</th>
-      <th>Ce qu'elle garantit</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>Le `dist/` d'ACME importe `my-design-system`</td>
-      <td>La marque republie sans embarquer de copie du socle</td>
-    </tr>
-    <tr>
-      <td>Le fond de `acme-button` a la couleur d'ACME</td>
-      <td>Le thème atteint les composants du socle</td>
-    </tr>
-    <tr>
-      <td>Les couleurs d'ACME gardent un contraste AA, en thème clair comme sombre</td>
-      <td>Le thème de la marque reste accessible</td>
-    </tr>
-    <tr>
-      <td>`acme-button` est en majuscules, aux coins arrondis</td>
-      <td>Les styles de la marque s'ajoutent à ceux du socle</td>
-    </tr>
-    <tr>
-      <td>
-        Le bouton de fermeture de `acme-modal` et l'action de `acme-card` sont des `AcmeButton`
-      </td>
-      <td>Une surcharge s'applique partout, y compris dans les composants de la marque</td>
-    </tr>
-    <tr>
-      <td>Aucune balise `u-` n'est enregistrée</td>
-      <td>La marque n'enregistre que son propre préfixe</td>
-    </tr>
-    <tr>
-      <td>Le manifest documente ce qu'`AcmeButton` hérite</td>
-      <td>La documentation du socle suit la marque</td>
-    </tr>
-  </tbody>
-</table>
+## 8. Vérifiez
+
+À la racine du dépôt du socle, lancez `npm run example`. La commande empaquette le socle, puis installe, construit et teste ACME. Le test vérifie que :
+
+- le `dist/` d'ACME importe `my-design-system` au lieu de le copier ;
+- le thème d'ACME atteint les composants du socle, et garde un contraste AA dans les deux thèmes ;
+- les styles d'`AcmeButton` s'ajoutent à ceux du socle ;
+- la modale et la carte d'ACME rendent `AcmeButton` ;
+- aucune balise `u-` n'est enregistrée ;
+- le manifest d'ACME documente ce qu'`AcmeButton` hérite du socle.

@@ -1,35 +1,28 @@
 ---
 name: component-styling
-description: Write or change the CSS of a component or mixin in this design system (the .css file next to its .ts), or of a brand design system's components — component tokens, variants, parts, states, theming rules, browser support. Use for any shadow-DOM styling; global styles and token values live in src/styles and follow the CSS architecture doc instead.
+description: Écrire ou modifier le CSS d'un composant ou d'un mixin (la feuille .css voisine de son .ts), ou des composants d'une marque — tokens de composant, variantes, tailles, parts, états. À charger pour tout style de shadow DOM. Le CSS de la page et les valeurs des tokens (src/styles) suivent la référence « Tokens et couches CSS ».
 ---
 
-# Component styling
+# Styles d'un composant
 
-Full rationale: `src/docs/architecture/css-architecture.mdx`. Reference:
-`src/components/button/button-base.css` (tokens, variants, sizes, forced
-colors), `src/components/modal/modal.css` (parts, documented exception).
+Les règles des tokens sont dans `src/docs/reference/tokens-et-couches.mdx`. Lisez cette page avant d'écrire une feuille. Leurs raisons sont dans `src/docs/explication/architecture-css.mdx`.
 
-## The file
+Exemples : `src/components/button/button-base.css` (tokens, variantes, tailles, `forced-colors`) et `src/components/modal/modal.css` (parts, exception `::backdrop`).
 
-- Styles live in a sibling `.css` file, imported as a CSS module script and
-  appended after the inherited sheets:
+## 1. Créez la feuille
 
-  ```ts
-  import alertStyles from "./alert.css" with { type: "css" };
-  static styles = [DSBaseElement.styles ?? [], alertStyles];
-  ```
+Écrivez les styles dans une feuille `.css` voisine. Importez-la comme CSS module script, après les feuilles héritées :
 
-- Never Lit `css` tagged templates. Never import `src/styles/**` this way:
-  those are document-level styles (`my-design-system/styles.css`).
-- Mixins do the same (`withDisabled.css`). Brand components too, with the
-  base's Vite plugin (`my-design-system/vite-plugin`).
+```ts
+import alertStyles from "./alert.css" with { type: "css" };
+static styles = [DSBaseElement.styles ?? [], alertStyles];
+```
 
-## Tokens: three tiers, one source of truth
+- N'utilisez jamais le gabarit `css` de Lit.
+- N'importez jamais une feuille de `src/styles/` ainsi : ce sont les feuilles de la page.
+- Un mixin suit la même règle (`withDisabled.css`). Une marque aussi, avec le plugin `my-design-system/vite-plugin`.
 
-1. **Primitive** (`src/styles/tokens/*.css`): raw values.
-2. **Semantic** (`tokens/semantic.css`): intent aliases (`--u-color-action-bg`).
-3. **Component**: declared on `:host`, defaulting to a **semantic** token,
-   never a primitive nor a literal — and the rules only consume them:
+## 2. Déclarez les tokens du composant
 
 ```css
 :host {
@@ -39,67 +32,44 @@ colors), `src/components/modal/modal.css` (parts, documented exception).
 .button {
   background-color: var(--u-button-background-color);
 }
+```
 
+- Déclarez chaque token sur `:host`. Sa valeur par défaut est un token sémantique.
+- Nommez-le `--u-<composant>-<propriété-css>[-<état>]`. Un composant de marque prend le préfixe de la marque : `--acme-card-padding`.
+- Faites lire les tokens par les règles internes. Une règle interne ne redéclare jamais un token.
+- N'écrivez pas de valeur de repli littérale dans `var()`. Les deux exceptions sont dans la référence.
+- Documentez chaque token avec `@cssprop` (skill `component-api-docs`). Ne déclarez pas de token que rien ne lit.
+
+## 3. Ajoutez les variantes et les tailles
+
+```css
 :host([variant="danger"]) {
   --u-button-background-color: var(--u-color-danger-bg);
 }
 ```
 
-- **Names:** every token starts with `--u-` (ADR 0001, D4). Component tokens:
-  `--u-<component>-<css-property>[-<state>]`, `<component>` being the
-  `componentName` (`button`, whatever the brand's tag); the CSS property in
-  full (`background-color`, not `bg`). A brand's own components use the brand
-  prefix (`--acme-card-padding`).
-- **Variants and sizes** change component token defaults **on the host**,
-  from reflected attributes (`:host([variant="danger"])`,
-  `:host([size="small"])`, `reflect: true` on the property); they don't
-  restyle properties. Never redeclare a documented token on an inner element
-  (e.g. a `.button--danger` modifier class): it would override the value the
-  application sets on the host, while the application's styles beat any
-  `:host(…)` rule. `src/api-contract.test.ts` fails on both.
-- **No literal fallback** in `var()`: the token stylesheet is a dependency.
-  Two documented exceptions only — `forced-colors` system keywords
-  (`ButtonText`, `Highlight`, `CanvasText`), and `::backdrop`, which inherits
-  nothing before Chrome 122 / Firefox 120 / Safari 17.4 (see `modal.css`).
-- **Every token declared on `:host` is public API:** document it with
-  `@cssprop` (component-api-docs). `src/api-contract.test.ts` fails if declared
-  and documented tokens differ — don't declare tokens nothing consumes.
-- **No theme logic in components:** dark mode and brand themes only change
-  token values (`tokens/color.css`, a brand's `u.tokens.brand` layer). Default
-  colors keep WCAG AA contrast in both themes (`src/styles/tokens.test.ts`).
-- **Motion:** durations come from `--u-motion-duration-*`; reduced motion is
-  handled once in `tokens/motion.css`.
+- Changez les valeurs par défaut des tokens sur l'hôte, à partir de l'attribut : `:host([variant="…"])`, `:host([size="…"])`.
+- Reflétez la propriété en attribut : `@property({ type: String, reflect: true })`.
+- Ne changez pas les propriétés CSS dans une variante : changez les tokens.
 
-## Parts and states
+`src/api-contract.test.ts` échoue si un token documenté est redéclaré hors de `:host`.
 
-- Put `part="…"` on internal elements brands may need to style, and document
-  each one with `@csspart`; the contract test checks it's rendered.
-- Style host states from attributes (`:host([disabled])`, plus
-  `:host(:disabled)` for a form-associated element in a disabled fieldset).
-  `:state()` is an enhancement only (unsupported on Chrome < 125,
-  Firefox < 126, Safari < 17.4).
-- Class names: block / `block--modifier` (`.button`, `.alert--pending`). They
-  are **internal**: a subclass's sheet (a brand's `AcmeButton`) targets the
-  base's internals through their parts (`[part~="button"]`), never through
-  its classes.
+## 4. Exposez les parts et les états
 
-## Browser support
+- Ajoutez `part="…"` aux éléments internes qu'une marque peut styler. Documentez chaque part avec `@csspart`.
+- Stylez les états de l'hôte par ses attributs : `:host([disabled])`. Ajoutez `:host(:disabled)` pour un composant associé à un formulaire.
+- Nommez les classes internes `.bloc` et `.bloc--modificateur` (`.alert--pending`). Elles ne sont pas une API : une marque vise les parts (`[part~="button"]`).
+- Un composant ne contient aucune logique de thème. Les thèmes changent les primitives.
+- Lisez les durées dans `--u-motion-duration-*`. Le mouvement réduit est déjà traité dans `tokens/motion.css`.
 
-Matrix: Chrome/Edge 111, Firefox 115 ESR, Safari 16.4
-(`src/docs/architecture/browser-support.mdx`).
+## 5. Vérifiez le support navigateurs
 
-- Fine: nesting (Lightning CSS flattens it at build time), `color-mix()`,
-  `@layer`, `:host`/`::part`.
-- Enhancement only: `text-wrap`, `interpolate-size` (under `@supports`),
-  `:state()`.
-- Anything newer: check MDN/caniuse first. `npm run compat` runs doiuse, which
-  misses `color-mix()`, `text-wrap`, `::backdrop` inheritance, `:state()` and
-  nested at-rules.
+Vérifiez toute fonctionnalité CSS récente contre `src/docs/reference/support-navigateurs.mdx`. `:state()`, `text-wrap` et `interpolate-size` sont des améliorations progressives.
 
-## Verify
+## 6. Vérifiez
 
 ```sh
-npm run analyze && npx vitest run   # contract test (tokens, parts), stories ×3 engines
-npm run compat                      # syntax + caniuse features vs the matrix
-npm run test:legacy                 # computed styles in real Firefox 115
+npm run analyze && npx vitest run   # test de contrat (tokens, parts), stories dans 3 moteurs
+npm run compat                      # syntaxe et fonctionnalités caniuse contre la matrice
+npm run test:legacy                 # styles calculés dans Firefox 115
 ```

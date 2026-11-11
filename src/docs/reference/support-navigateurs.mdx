@@ -1,0 +1,134 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Documentation/Référence/Support navigateurs" />
+
+# Support navigateurs
+
+Le socle supporte les canaux étendus des entreprises (Firefox ESR, Chrome et Edge Extended Stable). Il supporte aussi les Safari d'appareils qui ne reçoivent plus de mises à jour.
+
+## Matrice
+
+<table>
+  <thead>
+    <tr>
+      <th>Navigateur</th>
+      <th>Version minimale</th>
+      <th>Fonctionnalité qui fixe ce plancher</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Chrome / Edge</td>
+      <td>111</td>
+      <td>`color-mix()` (tokens sémantiques de survol et d'appui)</td>
+    </tr>
+    <tr>
+      <td>Firefox</td>
+      <td>115</td>
+      <td>ESR 115, maintenue pour Windows 7 et 8.1 jusqu'en mars 2027</td>
+    </tr>
+    <tr>
+      <td>Safari / iOS</td>
+      <td>16.4</td>
+      <td>
+        `CSSStyleSheet` constructibles adoptées, `ElementInternals`, blocs `static {}` (ES2022)
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+- **Source de vérité :** le champ `"browserslist"` de `package.json`. Il alimente `build.target` (JS), `build.cssTarget` (CSS, abaissé par Lightning CSS) et `npm run compat`.
+- **Versions figées :** la matrice nomme des versions, pas une requête glissante comme `baseline widely available`. Elle change seulement par une décision.
+- **Révision :** à la fin d'ESR 115, en mars 2027.
+
+## Fonctionnalités à surveiller
+
+<table>
+  <thead>
+    <tr>
+      <th>Fonctionnalité</th>
+      <th>Règle</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Nesting CSS</td>
+      <td>
+        Autorisé dans les sources : Lightning CSS l'aplatit au build. Le serveur de développement ne
+        l'abaisse pas.
+      </td>
+    </tr>
+    <tr>
+      <td>CSS module scripts</td>
+      <td>
+        Jamais livrés : le plugin `plugins/css-import-attributes.ts` les compile. Le build échoue
+        s'il reste un import `.css` dans le JS produit.
+      </td>
+    </tr>
+    <tr>
+      <td>`:state()`</td>
+      <td>
+        Amélioration progressive : `customStates` est sans effet sur Chrome 90–124, Firefox avant
+        126 et Safari avant 17.4. Un état nécessaire au rendu se reflète aussi en attribut.
+      </td>
+    </tr>
+    <tr>
+      <td>`::backdrop`</td>
+      <td>
+        N'hérite de rien avant Chrome 122, Firefox 120 et Safari 17.4. Une valeur de repli littérale
+        y est tolérée.
+      </td>
+    </tr>
+    <tr>
+      <td>`text-wrap`, `interpolate-size`</td>
+      <td>Amélioration progressive, `interpolate-size` sous `@supports`</td>
+    </tr>
+    <tr>
+      <td>`color-mix(in oklch, …)`</td>
+      <td>
+        Écart accepté : Chrome 113 et Firefox 115 décalent un peu les couleurs de survol vers le
+        violet
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+Toute autre fonctionnalité récente se vérifie contre la matrice (MDN, caniuse) avant usage.
+
+## Vérifications
+
+<table>
+  <thead>
+    <tr>
+      <th>Commande</th>
+      <th>Ce qu'elle vérifie</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>`npm run compat`</td>
+      <td>
+        Syntaxe JS de `dist/` (`es-check`) et fonctionnalités CSS des sources (`doiuse`), contre la
+        matrice
+      </td>
+    </tr>
+    <tr>
+      <td>`npx vitest run`</td>
+      <td>
+        Stories et tests, dans les versions récentes de Chromium, Firefox et WebKit (Playwright)
+      </td>
+    </tr>
+    <tr>
+      <td>`npm run test:legacy`</td>
+      <td>
+        Le `dist/` livré, dans un vrai Firefox ESR 115 (voir [Tester sur Firefox ESR
+        115](?path=/docs/documentation-guides-tester-sur-firefox-esr-115--docs))
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+- `doiuse` ne connaît que les données de caniuse. Il ne détecte ni `color-mix()`, ni `text-wrap`, ni l'héritage de `::backdrop`, ni `:state()`, ni les at-rules imbriquées.
+- Les constats de `doiuse` acceptés sont listés avec leur raison dans `IGNORED` (`scripts/check-css-compat.mjs`).
+- Aucun test automatique ne couvre les anciens Safari et iOS : le WebKit de Playwright est récent.
+- Aucun test automatique ne couvre Chrome 111 et 112 : Chrome for Testing commence à la version 113.

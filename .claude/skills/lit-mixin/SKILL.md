@@ -1,24 +1,21 @@
 ---
 name: lit-mixin
-description: Create or modify a behavior mixin in this design system (src/mixins/withX.ts) — when a mixin is the right tool, its signature, style merging, public interface, lifecycle, composition with withInternals, documentation and export. Use when a behavior is shared by several components or brands need to add it to their own components.
+description: Créer ou modifier un mixin de comportement du socle (src/mixins/withX.ts) — quand choisir un mixin, sa signature, la fusion des styles, son interface publique, son cycle de vie, sa composition avec withInternals, sa documentation et son export. À charger quand plusieurs composants partagent un comportement, ou quand les marques doivent l'ajouter à leurs composants.
 ---
 
-# Behavior mixins
+# Mixins de comportement
 
-References: `src/mixins/withDisabled.ts` (property, styles, ARIA in a
-lifecycle), `src/mixins/withInternals.ts` (accepts abstract bases, one-time
-browser API). Mixins are public API: brands apply them to their own
-components (they're exported from `src/index.ts`).
+Exemples : `src/mixins/withDisabled.ts` (propriété, styles, ARIA dans le cycle de vie) et `src/mixins/withInternals.ts` (bases abstraites, API du navigateur à usage unique).
 
-## When to write one
+Un mixin est une API publique : les marques l'appliquent à leurs composants, et `src/index.ts` l'exporte. La référence des mixins existants est `src/docs/reference/mixins.mdx`.
 
-- A behavior several components need, independent of their template
-  (disabled state, form association, focus delegation…): a mixin.
-- Universal to every component: `DSBaseElement` — and it stays thin.
-- Specific to a family (button, button-link): an abstract base class
-  (`ButtonBase`).
+## Quand en écrire un
 
-## Shape
+- Un comportement utile à plusieurs composants, indépendant de leur template (désactivation, formulaire, délégation du focus) : un mixin.
+- Un comportement commun à tous les composants : `DSBaseElement`, qui reste mince.
+- Un comportement propre à une famille (`button`, `button-link`) : une classe de base abstraite (`ButtonBase`).
+
+## Forme
 
 ```ts
 import { LitElement, type PropertyValues } from "lit";
@@ -48,46 +45,29 @@ export function withDisabled<T extends Constructor<LitElement>>(Base: T) {
 }
 ```
 
-- **Name** `withX`, file `src/mixins/withX.ts`, styles in `withX.css`.
-- **Signature:** `Constructor<LitElement>`; use `AbstractConstructor` (and an
-  `abstract class` inside) when it must accept abstract bases like
-  `ButtonBase`, as `withInternals` does.
-- **Public members** go in an exported `declare class XInterface`, and the
-  return is cast to `Constructor<XInterface> & T`, so TypeScript sees them on
-  the component.
-- **Styles** extend the base's: `[(Base as unknown as typeof LitElement).styles
-  ?? [], xStyles]`. Same rules as component styles (component-styling): values
-  come from tokens, never literals (`withDisabled.css` uses
-  `var(--u-opacity-disabled)`).
-- **Lifecycles** always call `super` (`updated`, `connectedCallback`,
-  `disconnectedCallback`, `firstUpdated`), and constructors take and forward
-  `...args`: mixins stack in any order.
-- **Once-per-element browser APIs:** never call `attachInternals()` in another
-  mixin; require `withInternals()` and read `this.internals`.
-- **Browser support:** guard APIs missing from the matrix and degrade to a
-  no-op (`withInternals`' `customStates`).
+- **Nom :** `withX`, dans `src/mixins/withX.ts`, avec ses styles dans `withX.css`.
+- **Signature :** `Constructor<LitElement>`. Prenez `AbstractConstructor`, avec une `abstract class` à l'intérieur, pour accepter une base abstraite comme `ButtonBase` (voir `withInternals`).
+- **Membres publics :** déclarez-les dans une classe `declare class XInterface` exportée. Convertissez le retour en `Constructor<XInterface> & T` : TypeScript voit alors les membres sur le composant.
+- **Styles :** ajoutez-les à ceux de la base : `[(Base as unknown as typeof LitElement).styles ?? [], xStyles]`. Les règles du skill `component-styling` s'appliquent : des tokens, jamais de valeur littérale.
+- **Cycle de vie :** appelez toujours `super` (`updated`, `connectedCallback`, `disconnectedCallback`, `firstUpdated`). Le constructeur reçoit et transmet `...args`. Les mixins s'empilent ainsi dans n'importe quel ordre.
+- **API à usage unique :** n'appelez jamais `attachInternals()` dans un autre mixin. Exigez `withInternals()` et lisez `this.internals`.
+- **Support navigateurs :** protégez une API absente de la matrice, et réduisez-la à une opération sans effet (`customStates` de `withInternals`).
 
-## Using it
+## Appliquez-le
 
-- Inline in `extends` — `class ButtonBase extends withDisabled(DSBaseElement)`
-  — never through a constant, or the manifest analyzer loses the inherited
-  members.
-- Mixins stack through the hierarchy: `Button extends withInternals(ButtonBase)`,
-  where `ButtonBase extends withDisabled(DSBaseElement)`.
+- Écrivez-le dans `extends` : `class ButtonBase extends withDisabled(DSBaseElement)`. Jamais par une constante : l'analyseur du manifest perdrait les membres hérités.
+- Les mixins s'empilent dans la hiérarchie : `Button extends withInternals(ButtonBase)`, et `ButtonBase extends withDisabled(DSBaseElement)`.
 
-## Document and export
+## Documentez et exportez
 
-- JSDoc each public member (it shows on every component using the mixin —
-  see component-api-docs).
-- A page `src/docs/mixins/withX.md` (Markdown, read on GitHub/in the editor,
-  not in Storybook): purpose, usage, API table, browser-support notes, gotchas
-  — like `withInternals.md`.
-- Export it from `src/index.ts` with its interface.
+1. Documentez chaque membre public en JSDoc. La description apparaît sur chaque composant qui applique le mixin (skill `component-api-docs`).
+2. Ajoutez une section au mixin dans `src/docs/reference/mixins.mdx` : rôle, membres, comportement, support navigateurs, pièges (skill `storybook-documentation`).
+3. Exportez le mixin et son interface depuis `src/index.ts`.
 
-## Verify
+## Vérifiez
 
 ```sh
 npx tsc -p tsconfig.json --noEmit
-npm run analyze   # members appear on the components using the mixin
+npm run analyze   # les membres apparaissent sur les composants qui appliquent le mixin
 npx vitest run && npm run test:legacy
 ```

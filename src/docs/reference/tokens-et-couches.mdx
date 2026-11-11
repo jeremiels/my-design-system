@@ -1,0 +1,233 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Documentation/Référence/Tokens et couches CSS" />
+
+# Tokens et couches CSS
+
+Les raisons de ces règles sont dans [Architecture CSS](?path=/docs/documentation-explication-architecture-css--docs).
+
+## Feuilles de l'application
+
+<table>
+  <thead>
+    <tr>
+      <th>Import</th>
+      <th>Source</th>
+      <th>Contenu</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>`my-design-system/styles.css`</td>
+      <td>`src/styles/main.css`</td>
+      <td>
+        Les tokens et la classe utilitaire `.visually-hidden`. Ne style aucun élément de la page.
+      </td>
+    </tr>
+    <tr>
+      <td>`my-design-system/reset.css`</td>
+      <td>`src/styles/reset.css`</td>
+      <td>
+        Optionnelle : le reset et les styles de base (`body`, titres, médias, champs). Utilise les
+        tokens de `styles.css`.
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+`src/index.ts` n'importe aucune feuille : l'application charge `styles.css` une fois.
+
+## Couches
+
+`src/styles/layers/order.css` déclare l'ordre des couches. Les deux feuilles l'importent en premier.
+
+```css
+@layer u.reset, u.tokens, u.base, u.components, u.utilities, u.shame;
+```
+
+<table>
+  <thead>
+    <tr>
+      <th>Couche</th>
+      <th>Contenu</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>`u.reset`</td>
+      <td>Le reset (`reset.css`)</td>
+    </tr>
+    <tr>
+      <td>`u.tokens`</td>
+      <td>Les tokens, une sous-couche par fichier de `src/styles/tokens/`</td>
+    </tr>
+    <tr>
+      <td>`u.base`</td>
+      <td>Les styles des éléments HTML (`reset.css`)</td>
+    </tr>
+    <tr>
+      <td>`u.components`</td>
+      <td>Les styles de la page qui visent les composants, comme l'espacement entre eux</td>
+    </tr>
+    <tr>
+      <td>`u.utilities`</td>
+      <td>Les classes utilitaires</td>
+    </tr>
+    <tr>
+      <td>`u.shame`</td>
+      <td>
+        Les surcharges d'urgence en `!important`, chacune documentée avec sa raison et son ticket
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+- Les styles de l'application hors couche l'emportent sur toutes les couches du socle.
+- Les styles internes des composants vivent dans leur shadow DOM. Les couches de la page ne les atteignent pas.
+- `src/styles/layers/tokens.css` importe un fichier par sous-couche, puis déclare leur ordre : `u.tokens.color`, `u.tokens.semantic`, `u.tokens.spacing`, `u.tokens.typography`, `u.tokens.radius`, `u.tokens.motion`, `u.tokens.elevation`.
+- Une marque ajoute ses valeurs dans la sous-couche `u.tokens.brand`, importée après celles du socle.
+
+## Niveaux de tokens
+
+<table>
+  <thead>
+    <tr>
+      <th>Niveau</th>
+      <th>Fichier</th>
+      <th>Valeur</th>
+      <th>Exemple</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Primitive</td>
+      <td>`src/styles/tokens/*.css`, sauf `semantic.css`</td>
+      <td>Une valeur brute</td>
+      <td>`--u-color-primary: hsl(210, 100%, 44%)`</td>
+    </tr>
+    <tr>
+      <td>Token sémantique</td>
+      <td>`src/styles/tokens/semantic.css`</td>
+      <td>Une primitive, nommée par intention</td>
+      <td>`--u-color-action-bg: var(--u-color-primary)`</td>
+    </tr>
+    <tr>
+      <td>Token de composant</td>
+      <td>La feuille du composant, sur `:host`</td>
+      <td>Un token sémantique</td>
+      <td>`--u-button-background-color: var(--u-color-action-bg)`</td>
+    </tr>
+  </tbody>
+</table>
+
+- Chaque niveau référence le niveau précédent. Seules les primitives contiennent des valeurs littérales.
+- Les états de survol et d'appui (`-hover`, `-active`) mélangent la couleur de l'intention avec `--u-color-text`, par `color-mix()`.
+- Les tokens sémantiques sont déclarés sur `:root` et sur `[data-brand]`.
+
+## Tokens de composant
+
+- Chaque token de composant est déclaré sur `:host`. Sa valeur par défaut est un token sémantique, jamais une primitive ni une valeur littérale.
+- Nom : `--u-<composant>-<propriété-css>[-<état>]`, par exemple `--u-button-background-color-hover`.
+  - `<composant>` est le nom du composant sans préfixe : `button`, pour `u-button` comme pour `acme-button`.
+  - `<propriété-css>` est le nom complet de la propriété : `background-color`, pas `bg`.
+- Chaque token déclaré sur `:host` est documenté dans la JSDoc de la classe : `@cssprop [--u-button-padding-inline=var(--u-spacing-md)] - description`.
+- Une variante ou une taille change les valeurs par défaut sur l'hôte, à partir de l'attribut reflété : `:host([variant="danger"])`, `:host([size="small"])`.
+- Aucune règle d'un élément interne ne redéclare un token documenté.
+- Les règles internes lisent les tokens : `background-color: var(--u-button-background-color)`.
+
+`src/api-contract.test.ts` vérifie ces règles. Les tokens documentés sont exactement ceux déclarés sur `:host`. Aucun n'est redéclaré ailleurs. Un token posé sur l'hôte s'applique dans chaque état `:host([…])`.
+
+## Valeurs de repli
+
+Un `var()` n'a pas de valeur de repli littérale : la feuille de tokens est une dépendance des composants. Deux exceptions :
+
+- Les mots-clés système de `forced-colors` (`ButtonText`, `Highlight`, `CanvasText`) dans les media queries d'accessibilité.
+- `::backdrop` dans `modal.css` : avant Chrome 122, Firefox 120 et Safari 17.4, il n'hérite d'aucune custom property.
+
+## Thèmes
+
+<table>
+  <thead>
+    <tr>
+      <th>Thème</th>
+      <th>Déclencheur</th>
+      <th>Règle</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Sombre, selon la préférence du système</td>
+      <td>Aucun attribut</td>
+      <td>`@media (prefers-color-scheme: dark)` sur `:root:not([data-theme="light"])`</td>
+    </tr>
+    <tr>
+      <td>Sombre, choisi par l'application</td>
+      <td>`data-theme="dark"` sur `<html>`</td>
+      <td>`:root[data-theme="dark"]`</td>
+    </tr>
+    <tr>
+      <td>Clair, choisi par l'application</td>
+      <td>`data-theme="light"` sur `<html>`</td>
+      <td>Exclu de la media query sombre</td>
+    </tr>
+    <tr>
+      <td>Marque limitée à un conteneur</td>
+      <td>`data-brand` sur le conteneur</td>
+      <td>`[data-brand="acme"]`, qui redéfinit les primitives</td>
+    </tr>
+  </tbody>
+</table>
+
+- Les thèmes changent les primitives dans `src/styles/tokens/color.css`. Un composant ne contient aucune logique de thème.
+- Une marque redéfinit ses primitives dans les deux sélecteurs sombres, en plus de `:root`.
+
+## Mouvement réduit
+
+`src/styles/tokens/motion.css` met `--u-motion-duration-*` à `0ms` sous `@media (prefers-reduced-motion: reduce)`. Les composants lisent ces tokens et n'ont pas leur propre media query.
+
+## Contraste
+
+`contrastFailures()` (`my-design-system/testing`, source `src/testing/contrast.ts`) mesure ces paires dans le thème courant :
+
+<table>
+  <thead>
+    <tr>
+      <th>Premier plan</th>
+      <th>Fond</th>
+      <th>Minimum</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>`--u-color-<intention>-text`</td>
+      <td>`--u-color-<intention>-bg`, `-bg-hover`, `-bg-active`</td>
+      <td>4,5:1</td>
+    </tr>
+    <tr>
+      <td>`--u-color-text-default`</td>
+      <td>`--u-color-surface`, `--u-color-surface-raised`</td>
+      <td>4,5:1</td>
+    </tr>
+    <tr>
+      <td>`--u-color-focus-ring`</td>
+      <td>`--u-color-surface`, `--u-color-surface-raised`</td>
+      <td>3:1</td>
+    </tr>
+  </tbody>
+</table>
+
+Les intentions sont `action`, `secondary`, `success`, `warning`, `danger` et `information`. `src/styles/tokens.test.ts` vérifie les tokens du socle dans les deux thèmes.
+
+## Feuille d'un composant
+
+Les styles d'un composant ou d'un mixin vivent dans un fichier `.css` voisin, importé comme CSS module script :
+
+```ts
+import alertStyles from "./alert.css" with { type: "css" };
+
+static styles = [DSBaseElement.styles ?? [], alertStyles];
+```
+
+- L'import donne un `CSSStyleSheet` constructible, que Lit adopte.
+- Le plugin `plugins/css-import-attributes.ts` compile cet import pour Vite, Storybook, Vitest et le build.
+- Les classes internes (`.button`) ne sont pas une API. Une marque style les éléments internes par leurs parts : `[part~="button"]`.

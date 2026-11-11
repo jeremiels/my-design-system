@@ -1,0 +1,96 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Documentation/Référence/Mixins" />
+
+# Mixins
+
+Un mixin ajoute un comportement à une classe de composant. Le socle exporte deux mixins, `withDisabled` et `withInternals`. Les marques les appliquent à leurs propres composants.
+
+```ts
+import { DSBaseElement, withDisabled, withInternals } from "my-design-system";
+
+export class AcmeField extends withInternals(withDisabled(DSBaseElement)) {
+  static formAssociated = true;
+}
+```
+
+- Appliquez un mixin directement dans `extends`, jamais par une constante : l'analyseur du manifest ne suit que l'héritage écrit en ligne.
+- Un mixin garde les propriétés, les méthodes et les styles de la classe de base.
+
+## withDisabled
+
+Désactive un composant.
+
+<table>
+  <thead>
+    <tr>
+      <th>Membre</th>
+      <th>Accès</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>`disabled`</td>
+      <td>public, attribut reflété</td>
+      <td>Désactive le composant. Valeur par défaut : `false`.</td>
+    </tr>
+    <tr>
+      <td>`isDisabled`</td>
+      <td>`protected`, lecture seule</td>
+      <td>
+        `true` si `disabled` est vrai, ou si un `<fieldset disabled>` ancêtre désactive un composant
+        associé à un formulaire
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+- L'hôte d'un composant désactivé porte `aria-disabled="true"`.
+- `:host([disabled])` et `:host(:disabled)` reçoivent `pointer-events: none` et `opacity: var(--u-opacity-disabled)`.
+- Le composant rend son template et ignore les interactions à partir de `isDisabled`, pas de `disabled`.
+- Un composant associé à un formulaire (`static formAssociated = true`) est désactivé par un `<fieldset disabled>` ancêtre, sans attribut. Le navigateur appelle alors `formDisabledCallback()`, que le mixin implémente.
+
+## withInternals
+
+Attache les `ElementInternals` du composant.
+
+<table>
+  <thead>
+    <tr>
+      <th>Membre</th>
+      <th>Accès</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>`internals`</td>
+      <td>`protected`</td>
+      <td>
+        Les `ElementInternals` du composant, attachés dans le constructeur. `undefined` seulement
+        dans une émulation du DOM sans `attachInternals()`.
+      </td>
+    </tr>
+    <tr>
+      <td>`customStates`</td>
+      <td>`protected`</td>
+      <td>
+        `set(nom, actif)` et `has(nom)` : activent et lisent les états `:state(nom)` du composant
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+- Appliquez `withInternals` seulement à un composant qui en a besoin :
+  - il participe à un formulaire (`internals.form`, `setFormValue()`, validité) ;
+  - il expose des états `:state()` ;
+  - il définit son rôle ARIA par `internals.role`.
+- `attachInternals()` fonctionne une fois par élément. N'appelez jamais `this.attachInternals()` dans une classe qui a ce mixin.
+- N'appliquez pas le mixin à une classe qui l'a déjà, comme `Button`.
+- Une seconde attache lève l'erreur `NotSupportedError` du navigateur, et le composant ne se construit pas. Le mixin laisse passer cette erreur.
+- `internals` et `customStates` sont `protected` : ils donnent le contrôle complet de la valeur de formulaire, de la validité et de l'ARIA. Ils restent réservés au composant et à ses sous-classes.
+
+### Support navigateurs
+
+`customStates` est sans effet là où `:state()` standard n'existe pas : Chrome 90–124, Firefox avant 126 et Safari avant 17.4. Ces versions sont dans la [matrice](?path=/docs/documentation-référence-support-navigateurs--docs). Un état nécessaire au rendu se reflète donc aussi en attribut.

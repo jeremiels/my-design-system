@@ -16,6 +16,16 @@ setCustomElementsManifest(manifest);
 
 export default definePreview({
   parameters: {
+    options: {
+      // Diátaxis order (src/docs/reference/charte-de-redaction.mdx).
+      storySort: {
+        order: [
+          "Documentation",
+          ["Premiers pas", "Guides", "Référence", "Explication", "ADR"],
+          "Components",
+        ],
+      },
+    },
     controls: {
       matchers: {
         color: /(background|color)$/i,

@@ -1,0 +1,55 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Documentation/Explication/Architecture CSS" />
+
+# Architecture CSS
+
+Cette page explique pourquoi les styles du socle sont organisés ainsi. Les règles elles-mêmes sont dans [Tokens et couches CSS](?path=/docs/documentation-référence-tokens-et-couches-css--docs).
+
+## Des couches, toutes sous `u`
+
+Les couches de cascade rendent la priorité explicite. Un style de la couche `u.utilities` l'emporte sur un style de `u.base`, quelle que soit sa spécificité.
+
+Les noms de couches sont globaux au document. Des noms nus fusionneraient avec les couches de l'application. Tailwind CSS v4, par exemple, déclare `theme, base, components, utilities`. Le préfixe `u` évite cette collision, comme le préfixe `--u-` des tokens ([ADR 0001](?path=/docs/documentation-adr-0001-architecture-multi-marque--docs), D4).
+
+L'application garde la main : ses styles hors couche l'emportent sur toutes les couches du socle.
+
+## Trois niveaux de tokens
+
+Un thème doit changer une valeur à un seul endroit.
+
+- **Les primitives** portent les valeurs brutes. Un thème, clair, sombre ou de marque, change seulement elles.
+- **Les tokens sémantiques** nomment une intention : `action`, `danger`. Sans eux, chaque composant lirait une primitive, et le thème sombre se répéterait dans chaque composant.
+- **Les tokens de composant** donnent à l'application et aux marques un réglage par composant, sans toucher aux autres.
+
+Les états de survol et d'appui sont calculés avec `color-mix()`. Une intention n'a donc qu'une couleur à maintenir. Le mélange tire vers `--u-color-text`, à l'opposé du texte que porte la couleur. Le contraste avec ce texte ne peut donc qu'augmenter.
+
+## Les variantes changent les tokens sur l'hôte
+
+Une déclaration posée sur l'hôte depuis la page l'emporte sur une règle `:host(…)` de la feuille du composant. Une variante qui change ses tokens dans `:host([variant="danger"])` laisse donc gagner la valeur de l'application.
+
+Un token redéclaré sur un élément interne écraserait au contraire la valeur héritée de l'hôte. L'application perdrait son réglage, pour cette variante seulement.
+
+## Pas de valeur de repli littérale
+
+Une valeur de repli (`var(--u-color-action-bg, #007bff)`) recopie une valeur qui existe déjà dans les primitives. Avec deux composants, deux copies divergent sans bruit.
+
+La feuille de tokens est donc une dépendance des composants, chargée une fois par l'application. Spectrum, Web Awesome, Material Web et Carbon suivent la même convention.
+
+`::backdrop` est l'exception : avant Chrome 122, Firefox 120 et Safari 17.4, aucun token ne l'atteint.
+
+## Les tokens sémantiques sont aussi déclarés sur `[data-brand]`
+
+Un `var()` est résolu sur l'élément qui déclare la custom property. L'élément enfant hérite de la valeur résolue.
+
+Déclarés sur `:root` seulement, les tokens sémantiques garderaient les primitives de `:root`. Un conteneur qui redéfinit les primitives n'aurait aucun effet sur les composants. Déclarés aussi sur `[data-brand]`, ils suivent les primitives de ce conteneur. Plusieurs marques peuvent ainsi cohabiter sur une page (ADR 0001, D4).
+
+## Une feuille CSS par composant
+
+Un fichier `.css` voisin reste du CSS : `doiuse` l'analyse, et il se lit sans connaître Lit. Importé comme CSS module script, il donne une feuille constructible que Lit adopte directement.
+
+Les navigateurs de la matrice ne savent pas tous importer un CSS module script. Le plugin `plugins/css-import-attributes.ts` compile donc l'import dans le JS livré. L'application et les marques n'ont rien à configurer.
+
+## Un seul point de contrôle pour le mouvement
+
+Les composants lisent leurs durées dans `--u-motion-duration-*`. `motion.css` met ces durées à zéro quand l'utilisateur demande moins de mouvement. Aucun composant n'a besoin de sa propre media query.

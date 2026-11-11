@@ -4,7 +4,7 @@ import browserslistToEsbuild from "browserslist-to-esbuild";
 import { cssImportAttributes } from "./plugins/css-import-attributes.ts";
 
 // Supported browsers live in package.json "browserslist" (see
-// src/docs/architecture/browser-support.mdx); JS and CSS are lowered to them.
+// src/docs/reference/support-navigateurs.mdx); JS and CSS are lowered to them.
 const browserTargets = browserslistToEsbuild();
 
 export default defineConfig({

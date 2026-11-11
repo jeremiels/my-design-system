@@ -4,7 +4,7 @@
 #
 # Playwright only drives its own patched Firefox, so testing the oldest
 # supported Firefox (see package.json "browserslist" and
-# src/docs/architecture/browser-support.mdx) needs a real Mozilla build. It is
+# src/docs/reference/support-navigateurs.mdx) needs a real Mozilla build. It is
 # checksum-verified against Mozilla's SHA256SUMS and installed outside the
 # repo, in ~/.cache/firefox-esr/<version>. Re-running is a no-op.
 #

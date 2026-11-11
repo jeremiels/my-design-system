@@ -1,0 +1,132 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Documentation/Premiers pas" />
+
+# Premiers pas
+
+Dans ce tutoriel, vous affichez des composants du socle dans une application Vite. Vous changez ensuite un token, puis le thème. Comptez dix minutes.
+
+Le socle n'est pas publié. L'application l'installe depuis l'archive que produit `npm pack`, comme le ferait un registre.
+
+## Prérequis
+
+- Node 26 et npm 11.12, ou une version plus récente.
+- Ce dépôt, avec ses dépendances installées (`npm install`).
+
+## 1. Empaquetez le socle
+
+À la racine du dépôt, lancez :
+
+```sh
+npm run build
+npm pack
+```
+
+`npm pack` crée l'archive `my-design-system-0.0.0.tgz`.
+
+## 2. Créez l'application
+
+À côté du dépôt, créez un dossier et installez Vite, Lit et le socle :
+
+```sh
+mkdir mon-app && cd mon-app
+npm init -y
+npm pkg set type=module
+npm install vite lit ../my-design-system/my-design-system-0.0.0.tgz
+```
+
+Lit est une peer dependency du socle : l'application l'installe une seule fois.
+
+## 3. Chargez les styles et enregistrez les composants
+
+Créez `main.js` :
+
+```js
+import "my-design-system/styles.css";
+import "my-design-system/define";
+```
+
+- `styles.css` contient les tokens. Sans cette feuille, les composants s'affichent sans couleurs ni espacements.
+- `define` enregistre tout le catalogue avec le préfixe `u` : `u-button`, `u-modal`…
+
+## 4. Affichez des composants
+
+Créez `index.html` :
+
+```html
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Mon app</title>
+    <script type="module" src="./main.js"></script>
+  </head>
+  <body>
+    <u-button>Enregistrer</u-button>
+    <u-button variant="danger">Supprimer</u-button>
+
+    <u-modal label="Confirmation">
+      <u-button slot="trigger">Ouvrir la modale</u-button>
+      <p>Voulez-vous continuer ?</p>
+    </u-modal>
+  </body>
+</html>
+```
+
+Lancez le serveur de développement :
+
+```sh
+npx vite
+```
+
+Ouvrez l'adresse affichée (`http://localhost:5173`). Vous voyez deux boutons, bleu et rouge, et un troisième bouton qui ouvre la modale.
+
+- L'attribut `variant` choisit la couleur du bouton.
+- Le slot `trigger` contient l'élément qui ouvre la modale.
+- L'attribut `label` donne son nom accessible à la modale.
+
+## 5. Réagissez à la fermeture de la modale
+
+Ajoutez à `main.js` :
+
+```js
+document.querySelector("u-modal").addEventListener("u-close", () => {
+  console.log("Modale fermée");
+});
+```
+
+Ouvrez la modale, puis fermez-la avec Échap ou avec son bouton de fermeture. La console affiche « Modale fermée ».
+
+## 6. Changez un token
+
+Créez `style.css` :
+
+```css
+u-button {
+  --u-button-border-radius: 0;
+}
+```
+
+Importez-la à la fin de `main.js` :
+
+```js
+import "./style.css";
+```
+
+Les boutons perdent leurs coins arrondis. Un token posé sur l'hôte s'applique à toutes les variantes du composant.
+
+## 7. Passez en thème sombre
+
+Ajoutez `data-theme="dark"` à la balise `<html>` :
+
+```html
+<html lang="fr" data-theme="dark"></html>
+```
+
+Les couleurs des boutons s'éclaircissent. Sans cet attribut, le thème suit la préférence du système.
+
+## Et ensuite
+
+- Les attributs, slots, parts, tokens et événements de chaque composant sont dans sa page, sous **Components**.
+- Les tokens et leurs niveaux sont décrits dans [Tokens et couches CSS](?path=/docs/documentation-référence-tokens-et-couches-css--docs).
+- Pour créer votre propre design system à partir du socle, suivez [Créer un design system de marque](?path=/docs/documentation-guides-créer-un-design-system-de-marque--docs).

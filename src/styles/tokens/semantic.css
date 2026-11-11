@@ -1,5 +1,5 @@
 /* Intent-based aliases over tokens/color.css primitives.
-   See src/docs/architecture/css-architecture.mdx (Trois Niveaux de Tokens).
+   See src/docs/reference/tokens-et-couches.mdx (Niveaux de tokens).
 
    Declared on :root *and* on [data-brand] containers: a custom property's
    var() references are resolved on the element that declares it, then

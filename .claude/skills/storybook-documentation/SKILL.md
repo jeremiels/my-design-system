@@ -1,37 +1,44 @@
 ---
 name: storybook-documentation
-description: Write or edit this design system's Storybook MDX documentation (src/docs/**/*.mdx, .storybook/*.mdx). Use when adding a docs page, a table, links between pages, or any MDX content — tables must be written in HTML because Storybook's MDX has no GitHub-flavored Markdown.
+description: Écrire, réécrire ou relire la documentation du socle — pages MDX de Storybook (src/docs/**), AGENTS.md, skills (.claude/skills/) — selon la charte de rédaction (un type par page, phrases courtes, présent). À charger pour toute page, tout tableau, tout lien entre pages et toute modification d'un skill ou d'AGENTS.md.
 ---
 
-# Storybook documentation (MDX)
+# Documentation
 
-Storybook loads `src/**/*.mdx` (see `.storybook/main.ts`) and compiles it with
-MDX **without `remark-gfm`**: CommonMark works, GitHub-flavored extras don't.
-`.md` files (e.g. `src/docs/mixins/*.md`) are not loaded by Storybook — they
-are read on GitHub or in the editor, where GFM tables are fine.
+## 1. Préparez
 
-## Page skeleton
+1. Lisez la charte : `src/docs/reference/charte-de-redaction.mdx`. Elle fixe les règles et le glossaire.
+2. Choisissez le type de la page : tutoriel, guide, référence, explication ou ADR. Un contenu de deux types va dans deux pages liées.
+3. Cherchez si le fait existe déjà : `grep -rn "<terme>" src/docs .claude/skills AGENTS.md`. S'il existe, mettez un lien vers lui.
+
+## 2. Écrivez une page MDX
+
+Storybook charge `src/**/*.mdx` (`.storybook/main.ts`). Il compile le MDX sans `remark-gfm` : le CommonMark fonctionne, les extensions GitHub non.
 
 ```mdx
 import { Meta } from "@storybook/addon-docs/blocks";
 
-<Meta title="Documentation/Support navigateurs" />
+<Meta title="Documentation/Référence/Support navigateurs" />
 
 # Support navigateurs
 ```
 
-- Put pages under `Documentation/…`. Architecture docs (`src/docs/architecture/`)
-  are written in French, like the existing pages.
-- Link to another page with its docs id:
-  `[Architecture CSS](?path=/docs/documentation-architecture-css--docs)`.
-  The id is the kebab-cased title + `--docs`; check it in the Storybook URL
-  rather than guessing when the title has accents or punctuation.
+| Type        | Titre                              | Dossier                     |
+| ----------- | ---------------------------------- | --------------------------- |
+| Tutoriel    | `Documentation/Premiers pas`       | `src/docs/premiers-pas.mdx` |
+| Guide       | `Documentation/Guides/<Nom>`       | `src/docs/guides/`          |
+| Référence   | `Documentation/Référence/<Nom>`    | `src/docs/reference/`       |
+| Explication | `Documentation/Explication/<Nom>`  | `src/docs/explication/`     |
+| Décision    | `Documentation/ADR/<numéro> <Nom>` | `src/docs/adr/`             |
 
-## Tables: HTML, never pipe tables
+- `storySort` (`.storybook/preview.ts`) fixe l'ordre de ces dossiers.
+- Un lien vers une page utilise son id : `[Support navigateurs](?path=/docs/documentation-référence-support-navigateurs--docs)`.
+- L'id est le titre en minuscules, chaque espace ou `/` remplacé par `-`, suivi de `--docs`. Les accents restent. Vérifiez l'id dans l'URL de Storybook.
+- `AGENTS.md` et les skills mettent un lien vers le fichier : `src/docs/reference/support-navigateurs.mdx`.
 
-A GFM pipe table renders as raw text full of `|` (the page ends up with zero
-`<table>` elements). Write HTML instead — Storybook's docs theme styles a bare
-`<table>` (borders, padding, zebra rows), no extra CSS needed:
+### Tableaux : en HTML
+
+Un tableau Markdown à barres verticales s'affiche en texte brut. Écrivez le tableau en HTML. Le thème de Storybook le met en forme sans CSS.
 
 ```mdx
 <table>
@@ -50,36 +57,42 @@ A GFM pipe table renders as raw text full of `|` (the page ends up with zero
 </table>
 ```
 
-- One `<th>`/`<td>` per line. Inline Markdown works inside a cell:
-  `` `code` ``, `**bold**`, `[link](…)`.
-- `oxfmt` reflows long cells onto several lines. MDX then wraps the cell
-  content in a `<p>`, which Storybook renders with no margin — it looks the
-  same, so keep the formatter's output. Never put blank lines or block
-  Markdown (lists, headings) inside a cell.
-- The tags are JSX: `className` (not `class`), `style={{ … }}` objects, every
-  tag closed.
+- Écrivez un `<th>` ou un `<td>` par ligne. Le Markdown en ligne fonctionne dans une cellule : `` `code` ``, `**gras**`, `[lien](…)`.
+- `oxfmt` répartit les cellules longues sur plusieurs lignes. Gardez sa sortie : le rendu est identique.
+- N'écrivez ni ligne vide ni bloc Markdown (liste, titre) dans une cellule.
+- Les balises sont du JSX : `className`, `style={{ … }}`, chaque balise fermée.
 
-## Other MDX pitfalls
+### Pièges du MDX
 
-- No GFM: no strikethrough (`~~x~~`), task lists, footnotes or bare-URL
-  autolinks. MDX also drops CommonMark `<https://…>` autolinks — always write
-  `[text](url)`.
-- `{` / `}` in prose open a JavaScript expression: keep them in code
-  (`` `static {}` ``) or escape them (`\{`).
-- `<` directly followed by a letter or `/` opens a JSX tag: write
-  `Firefox < 126` (with a space), or use code / `&lt;`.
-- HTML comments (`<!-- -->`) are invalid; use `{/* comment */}`.
+- Pas d'extension GitHub : ni texte barré, ni liste de tâches, ni note de bas de page, ni URL nue.
+- Écrivez chaque lien sous la forme `[texte](url)`. Le MDX ignore les liens `<https://…>`.
+- `{` et `}` ouvrent une expression JavaScript. Mettez-les dans du code (`` `static {}` ``) ou échappez-les (`\{`).
+- `<` suivi d'une lettre ou de `/` ouvre une balise JSX. Écrivez `Firefox avant 126`, ou mettez le texte dans du code.
+- Un commentaire s'écrit `{/* commentaire */}`, jamais `<!-- -->`.
 
-## Verify the rendering
+## 3. Écrivez un skill ou AGENTS.md
 
-A broken MDX file fails `storybook build`, but a pipe table compiles fine and
-still renders wrong — so look at the page, not just the build:
+- Un skill est un guide pour les agents. Il contient la procédure et les conventions qui n'existent dans aucune page.
+- Pour une règle déjà documentée dans une page, mettez un lien vers la page.
+- La `description` d'un skill dit quand le charger, en une ou deux phrases.
+- `AGENTS.md` est un index : une ligne par sujet, avec un lien.
 
-1. `npm run storybook` and open the page; or build into a temporary directory
-   (`npx storybook build -o <tmp-dir> --quiet`) and serve it.
-2. Scripted check: open
-   `iframe.html?viewMode=docs&id=<docs-id>` (e.g.
-   `documentation-support-navigateurs--docs`) with Playwright — each table
-   must exist as `#storybook-docs table` and no raw `| ---` text may remain in
-   `#storybook-docs`.
-3. `npx oxfmt --check <file>`: formatting is part of the repo's checks.
+## 4. Relisez
+
+- La page a un seul type.
+- Chaque phrase porte une idée, en 25 mots au plus. Une étape de procédure fait 20 mots au plus.
+- Chaque étape porte une action, à l'impératif.
+- Tout est au présent. Aucun « désormais », « nouveau », « ne… plus », ni futur.
+- Chaque terme est celui du glossaire.
+- Aucun remplissage : ni « Avantages », ni « Conclusion », ni adjectif promotionnel.
+- Un fait documenté ailleurs est un lien, pas une copie.
+
+## 5. Vérifiez
+
+1. Formatez : `npx oxfmt <fichiers>`.
+2. Construisez Storybook dans un dossier temporaire : `npx storybook build -o <dossier> --quiet`. Un MDX invalide fait échouer le build.
+3. Servez ce dossier et ouvrez `iframe.html?viewMode=docs&id=<id>` avec Playwright.
+4. Contrôlez le rendu : chaque tableau existe dans `#storybook-docs table`, et aucun texte `| ---` ne reste.
+5. Contrôlez les liens : chaque id `?path=` correspond à une page.
+
+Un bloc de code s'affiche après le chargement de la page. Attendez que chaque `pre` ait un contenu avant de le lire.

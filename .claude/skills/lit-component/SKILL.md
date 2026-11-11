@@ -1,21 +1,15 @@
 ---
 name: lit-component
-description: Write or modify the class of a Lit web component in this design system (src/components/**/*.ts) or in a brand design system built on it — properties, rendering, events, rendering other components, ElementInternals, accessibility, extensibility for brands. Use for any change to a component's TypeScript; pair with component-styling for its CSS and component-api-docs for its JSDoc.
+description: Écrire ou modifier la classe d'un composant Lit du socle (src/components/**/*.ts) ou d'une marque — propriétés, rendu, événements, rendu d'autres composants, ElementInternals, accessibilité, extension par les marques. À charger pour tout changement du TypeScript d'un composant, avec component-styling pour son CSS et component-api-docs pour sa JSDoc.
 ---
 
-# Lit component classes
+# Classe d'un composant Lit
 
-This library is a white-label base (ADR 0001, `src/docs/adr/0001-architecture-multi-marque.mdx`):
-brands extend its classes and register them under their own prefix. Every
-rule below exists so that a brand's extension keeps working.
+Les marques étendent les classes du socle et les enregistrent sous leur préfixe (ADR 0001, `src/docs/adr/0001-architecture-multi-marque.mdx`). Chaque règle de ce skill garde ces extensions fonctionnelles.
 
-Reference implementations: `src/components/alert/alert.ts` (simple),
-`src/components/button/button-base.ts` + `button.ts` (shared base, mixins,
-form participation), `src/components/modal/modal.ts` (renders another
-component), `examples/acme-design-system/src/components/acme-card/acme-card.ts`
-(brand component).
+Exemples : `src/components/alert/alert.ts` (simple), `src/components/button/button-base.ts` et `button.ts` (base partagée, mixins, formulaire), `src/components/modal/modal.ts` (rend un autre composant), `examples/acme-design-system/src/components/acme-card/acme-card.ts` (composant de marque).
 
-## Anatomy
+## Anatomie
 
 ```ts
 import { property } from "lit/decorators.js";
@@ -24,7 +18,7 @@ import { DSBaseElement } from "../base-element.js";
 import alertStyles from "./alert.css" with { type: "css" };
 import type { AlertType } from "./alert.type.js";
 
-/** …class JSDoc: see component-api-docs… */
+/** …JSDoc de la classe : voir component-api-docs… */
 export class Alert extends DSBaseElement {
   static override componentName = "alert";
 
@@ -40,29 +34,20 @@ export class Alert extends DSBaseElement {
 }
 ```
 
-- **Base class:** extend `DSBaseElement`, or another component class. Apply
-  mixins **inline**: `extends withDisabled(DSBaseElement)`, never through a
-  constant — the manifest analyzer only follows inline heritage.
-- **`static componentName`:** the tag without prefix (`"button-link"`). Set it
-  on every concrete component, never on an abstract base (`ButtonBase`).
-- **Never register:** no `@customElement`, no `customElements.define`.
-  `defineComponents()` registers (see create-component).
-- **Styles:** `static styles = [super.styles ?? [], sheet]` (or
-  `[Parent.styles ?? [], sheet]`), sheet from a sibling `.css` file — see
-  component-styling.
-- **Types:** union types in `<name>.type.ts`, shared ones in
-  `src/types/common.ts` (`ComponentSize`, `SemanticVariant`). No `My` prefix.
+- **Classe de base :** étendez `DSBaseElement` ou un autre composant. Appliquez les mixins dans `extends` (`extends withDisabled(DSBaseElement)`), jamais par une constante : l'analyseur du manifest ne suit que l'héritage écrit en ligne.
+- **`static componentName` :** la balise sans préfixe (`"button-link"`). Déclarez-le sur chaque composant concret, jamais sur une base abstraite (`ButtonBase`).
+- **Enregistrement :** pas de `@customElement`, pas de `customElements.define`. `defineComponents()` enregistre (skill `create-component`).
+- **Styles :** `static styles = [super.styles ?? [], feuille]`, avec une feuille `.css` voisine (skill `component-styling`).
+- **Types :** les unions dans `<nom>.type.ts`, les types partagés dans `src/types/common.ts` (`ComponentSize`, `SemanticVariant`). Pas de préfixe `My`.
 
-## Properties
+## Propriétés
 
-- `@property({ type: … })` with a one-line JSDoc description; the default is
-  the initializer. Use `reflect: true` only when CSS or ARIA needs the
-  attribute — variants and sizes do: their styles are `:host([variant="…"])`
-  rules (component-styling). Multi-word attributes: `attribute: "action-label"`.
-- Internal state: `private`/`#private` fields or `@state()`. Members that must
-  stay public for TypeScript but aren't API get `/** @internal */`.
+- Déclarez chaque propriété avec `@property({ type: … })` et une description JSDoc d'une ligne. L'initialiseur donne la valeur par défaut.
+- Ajoutez `reflect: true` seulement quand le CSS ou l'ARIA lit l'attribut. Les variantes et les tailles le lisent : leurs styles sont des règles `:host([variant="…"])`.
+- Nommez un attribut de plusieurs mots explicitement : `attribute: "action-label"`.
+- État interne : champs `private` ou `#private`, ou `@state()`. Un membre public pour TypeScript mais hors API reçoit `/** @internal */`.
 
-## Rendering other components (ADR 0001, D2)
+## Rendre un autre composant
 
 ```ts
 import { html } from "lit/static-html.js";
@@ -76,82 +61,55 @@ render() {
 }
 ```
 
-- `tagFor()` returns the tag **of this element's registration**: `u-modal`
-  renders `u-button`, `acme-modal` renders the brand's override.
-- Never hard-code another component's tag, never `document.createElement` one:
-  the brand override would be bypassed, and a later move to scoped registries
-  would no longer be localized.
-- When the sub-element is an integration choice rather than a need, prefer a
-  slot: the modal's close button is rendered (`tagFor(Button)`), its trigger
-  is slotted (`slot="trigger"`).
-- Any new `lit/...` import must be added to `optimizeDeps.include` in
-  `vite.config.ts` (otherwise Vitest/Storybook re-optimize mid-run and fail).
+- `tagFor()` donne la balise de l'enregistrement de cet élément : `u-modal` rend `u-button`, `acme-modal` rend la surcharge de la marque.
+- N'écrivez jamais la balise d'un autre composant en dur, et n'appelez jamais `document.createElement` pour lui. La surcharge de la marque serait ignorée.
+- Quand le sous-élément est un choix d'intégration, préférez un slot. La modale rend son bouton de fermeture (`tagFor(Button)`) et reçoit son déclencheur par le slot `trigger`.
+- Ajoutez tout nouvel import `lit/...` à `optimizeDeps.include` dans `vite.config.ts`. Sinon, Vitest et Storybook ré-optimisent en cours de test et échouent.
 
-## Events
+## Événements
 
-One typed `Event` subclass per event in `src/events/{owner}-{event}.ts`, named
-`u-<event>` (the base's prefix, whatever the brand), with its own
-`bubbles`/`composed`, augmenting `GlobalEventHandlersEventMap` — copy
-`src/events/modal-close.ts`. Dispatch with
-`this.dispatchEvent(new ModalCloseEvent())`, document it with `@fires`, and
-export it from `src/index.ts`.
+- Créez une sous-classe d'`Event` typée par événement, dans `src/events/<composant>-<événement>.ts`, sur le modèle de `src/events/modal-close.ts`.
+- Nommez l'événement `u-<événement>`, quel que soit le préfixe de la marque. Fixez ses `bubbles` et `composed`, et complétez `GlobalEventHandlersEventMap`.
+- Émettez-le avec `this.dispatchEvent(new ModalCloseEvent())`, documentez-le avec `@fires` et exportez-le depuis `src/index.ts`.
+- Créez un événement seulement s'il n'existe pas d'événement natif. Un `click` qui sort du shadow root depuis un `<button>` est l'événement du composant : documentez-le avec `@fires click`.
+- Un composant désactivé ne laisse sortir aucun événement natif (`ButtonBase.handleClick`).
 
-Only for what has no native event. A native event the inner control already
-composes out of the shadow root (`click` from a `<button>`) is the
-component's event: don't wrap it in a custom one (two events per action),
-document it with `@fires click`, and make sure it never escapes while the
-component is disabled (`ButtonBase.handleClick`).
+## ElementInternals, formulaires, états
 
-## ElementInternals, forms, states
+- Passez par `withInternals()` (`this.internals`). N'appelez jamais `attachInternals()` vous-même : le second appel lève une erreur.
+- Composant associé à un formulaire : `static formAssociated = true` (voir `button.ts`).
+- Avec `withDisabled`, rendez et gérez les interactions à partir de `this.isDisabled`, pas de `this.disabled`.
+- `this.internals` et `this.customStates` sont `protected` : jamais exposés à l'application.
+- Les détails des deux mixins sont dans `src/docs/reference/mixins.mdx`.
 
-- Only through `withInternals()` (`this.internals`); never call
-  `attachInternals()` yourself — it throws the second time.
-- Form-associated components: `static formAssociated = true` (see `button.ts`).
-- With `withDisabled`, render and handle interactions from `this.isDisabled`,
-  not `this.disabled`: it also covers a form-associated component inside a
-  `<fieldset disabled>` (`formDisabledCallback`).
-- `this.internals` and `this.customStates` are `protected`: for the component
-  and its subclasses, never exposed to the application.
-- `customStates` is a no-op on Chrome < 125, Firefox < 126 and Safari < 17.4:
-  `:state()` styling is an enhancement only — reflect an attribute too when
-  the state matters for rendering.
+## Extension par les marques
 
-## Extensibility for brands (ADR 0001, D3)
+L'API publique est ce que la JSDoc documente : propriétés, attributs, slots, parts, tokens, événements et membres `protected` documentés.
 
-Public API = what's documented: properties, attributes, slots, parts, tokens,
-events and **documented `protected` members**. So:
+- Gardez `protected` et documentés les helpers qu'une marque peut surcharger (`ButtonBase.handleClick`). Le reste est `private` ou `#private`.
+- Découpez `render()` en parties `protected` documentées quand une marque doit changer une région.
+- Renommer ou retirer un élément public est une rupture pour les marques.
 
-- Keep helpers brands may want to override `protected` and documented (e.g.
-  `ButtonBase.handleClick`); everything else `private`/`#private`.
-- Prefer splitting `render()` into documented `protected` parts over a
-  monolithic template when brands will need to change one region.
-- Renaming or removing anything public is a breaking change for brands.
+## Accessibilité
 
-## Accessibility
+- Utilisez d'abord les éléments natifs : `<button>`, `<a>`, `<dialog>`.
+- Ajoutez rôles et ARIA là où la sémantique native ne suffit pas. `alert.ts` associe chaque type à `role="alert"` ou `"status"`.
+- Ne donnez jamais à un élément le rôle d'un autre : un lien reste un lien.
+- Un composant qui enveloppe un contrôle natif lui délègue le focus : `static shadowRootOptions = { ...super.shadowRootOptions, delegatesFocus: true }` (voir `button-base.ts`).
+- Une boîte de dialogue a un nom accessible (`label` de la modale).
+- Une région live existe avant son contenu : `alert` révèle son message 100 ms après son premier rendu.
+- N'écrivez aucun texte visible en dur dans un template : une propriété avec une valeur par défaut (`closeLabel`) ou un slot.
+- Les stories lancent l'addon a11y : une violation fait échouer le test.
 
-Native elements first (`<button>`, `<a>`, `<dialog>`); roles and ARIA where
-native semantics don't cover it (`alert.ts` maps types to `role="alert"` or
-`"status"`; `withDisabled` sets `aria-disabled`; a disabled `button-link`
-drops its `href` but keeps `role="link"`). Never give an element the role of
-another (a link stays a link). A component wrapping a native control delegates
-focus to it (`static shadowRootOptions = { ...super.shadowRootOptions,
-delegatesFocus: true }`, see `button-base.ts`), so `focus()` and `autofocus`
-work on the host. A dialog needs an accessible name (`modal`'s `label`). A live region must exist before its content: `alert` reveals its message 100 ms after its first render, or a region inserted with its message may stay silent. No
-user-facing text hard-coded in a template: a property with a default
-(`closeLabel`) or a slot. Stories run the a11y addon, and any violation fails
-the test.
+## Support navigateurs
 
-## Browser support
+Vérifiez toute API récente contre `src/docs/reference/support-navigateurs.mdx` avant de l'utiliser.
 
-Check every recent API against the matrix in
-`src/docs/architecture/browser-support.mdx` (Chrome/Edge 111, Firefox 115 ESR,
-Safari 16.4) before using it.
-
-## Verify
+## Vérifiez
 
 ```sh
 npx tsc -p tsconfig.json --noEmit && npm run lint
-npm run analyze && npx vitest run   # manifest + contract test, registry, stories ×3 engines
-npm run test:legacy                 # when touching runtime APIs: real Firefox 115 on dist/
-npm run example                     # when touching what brands extend
+npm run analyze && npx vitest run   # manifest, test de contrat, registre, stories dans 3 moteurs
+npm run test:legacy                 # si vous touchez une API du navigateur : Firefox 115 sur dist/
+npm run example                     # si vous touchez ce que les marques étendent
 ```

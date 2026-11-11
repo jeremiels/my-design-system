@@ -1,0 +1,195 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Documentation/Référence/Charte de rédaction" />
+
+# Charte de rédaction
+
+Cette charte s'applique à toute la documentation du socle : les pages de Storybook (`src/docs/`), `AGENTS.md` et les skills (`.claude/skills/`). Un humain lit la documentation vite. Un agent la charge sans être surchargé. Aucune information périmée ne reste cachée dans une page.
+
+## Trois règles
+
+1. **Un type par page** (Diátaxis).
+2. **Des phrases courtes, avec un seul sens** (principes d'ASD-STE100).
+3. **Le présent seulement.**
+
+## Un type par page
+
+<table>
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Question du lecteur</th>
+      <th>Forme</th>
+      <th>Emplacement</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Tutoriel</td>
+      <td>Comment est-ce que je commence ?</td>
+      <td>Un parcours guidé, qui marche du début à la fin</td>
+      <td>`src/docs/premiers-pas.mdx`</td>
+    </tr>
+    <tr>
+      <td>Guide</td>
+      <td>Comment est-ce que je fais X ?</td>
+      <td>Des étapes numérotées, à l'impératif</td>
+      <td>`src/docs/guides/`, skills</td>
+    </tr>
+    <tr>
+      <td>Référence</td>
+      <td>Qu'est-ce que c'est, exactement ?</td>
+      <td>Des faits et des règles, en listes et en tableaux</td>
+      <td>`src/docs/reference/`, JSDoc des composants</td>
+    </tr>
+    <tr>
+      <td>Explication</td>
+      <td>Pourquoi est-ce comme ça ?</td>
+      <td>Des raisons et des compromis, sans procédure</td>
+      <td>`src/docs/explication/`</td>
+    </tr>
+    <tr>
+      <td>Décision (ADR)</td>
+      <td>Qu'a-t-on décidé, et pourquoi ?</td>
+      <td>Contexte, options, décision</td>
+      <td>`src/docs/adr/`</td>
+    </tr>
+  </tbody>
+</table>
+
+- Une page qui mélange deux types devient deux pages liées.
+- Un skill est un guide pour les agents. Il contient la procédure et les conventions qui n'existent nulle part ailleurs.
+- `AGENTS.md` est un index. Il renvoie vers les skills et les pages.
+
+## Des phrases courtes, avec un seul sens
+
+Ces règles reprennent les principes de la langue contrôlée ASD-STE100, appliqués au français.
+
+- Écrivez une idée par phrase.
+- Limitez une phrase à 25 mots, et une étape de procédure à 20 mots.
+- Écrivez une action par étape, à l'impératif, avec « vous » : « Lancez `npm run example`. »
+- Écrivez à la voix active : « Le plugin compile l'import. »
+- Utilisez un mot pour un sens, celui du glossaire. N'utilisez pas de synonyme pour varier le style.
+- Supprimez le remplissage : pas de section « Avantages » ni « Conclusion », pas d'adjectif promotionnel (« puissant », « moderne »).
+- Présentez des faits parallèles en liste ou en tableau.
+
+## Le présent seulement
+
+La documentation décrit le système tel qu'il est.
+
+- N'utilisez ni le futur ni le passé. Évitez « sera », « désormais », « nouveau », « ne… plus ».
+- L'historique et les plans vont dans les ADR et dans l'historique git.
+- Une échéance fixée est un fait du présent : « La matrice est révisée en mars 2027. »
+- N'écrivez pas de fait qui vieillit seul, comme la dernière version d'un navigateur.
+
+## Une source par fait
+
+- Chaque règle vit dans une seule page. Les autres pages et les skills mettent un lien vers elle.
+- La JSDoc est la source de l'API des composants. Storybook l'affiche, et les pages ne la recopient pas.
+- Un fait exact dans le code (un fichier, une commande) se cite par son chemin.
+
+## Langue
+
+- Les pages, `AGENTS.md` et les skills sont en français.
+- Le code, ses commentaires, la JSDoc et les messages de commit sont en anglais.
+- Les noms d'API restent tels quels : `part`, `slot`, `:host`, `defineComponents()`.
+
+## Glossaire
+
+<table>
+  <thead>
+    <tr>
+      <th>Terme</th>
+      <th>Sens</th>
+      <th>À ne pas utiliser</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>socle</td>
+      <td>Ce package, `my-design-system`</td>
+      <td>librairie, bibliothèque</td>
+    </tr>
+    <tr>
+      <td>marque</td>
+      <td>
+        Un design system de marque : un package qui dépend du socle, l'étend et le republie (exemple
+        : ACME)
+      </td>
+      <td>client, thème (pour le package)</td>
+    </tr>
+    <tr>
+      <td>application</td>
+      <td>Le site ou l'app qui utilise le socle ou une marque</td>
+      <td>consommateur, page hôte</td>
+    </tr>
+    <tr>
+      <td>composant</td>
+      <td>Un custom element du catalogue (`button`, `modal`)</td>
+      <td>widget</td>
+    </tr>
+    <tr>
+      <td>catalogue</td>
+      <td>La liste des composants du socle (`allComponents`)</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>hôte</td>
+      <td>L'élément d'un composant dans le DOM, `:host` dans sa feuille</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>préfixe</td>
+      <td>Le début des balises d'un enregistrement : `u`, `acme`</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>enregistrer</td>
+      <td>Définir les balises du catalogue avec `defineComponents()`</td>
+      <td>déclarer, installer</td>
+    </tr>
+    <tr>
+      <td>token</td>
+      <td>Une custom property `--u-*` du socle</td>
+      <td>jeton, variable</td>
+    </tr>
+    <tr>
+      <td>primitive, token sémantique, token de composant</td>
+      <td>
+        Les trois niveaux de tokens (voir [Tokens et couches
+        CSS](?path=/docs/documentation-référence-tokens-et-couches-css--docs))
+      </td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>thème</td>
+      <td>Un jeu de valeurs des primitives : clair, sombre, celui d'une marque</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>couche</td>
+      <td>Une couche de cascade CSS (`@layer`)</td>
+      <td>layer, sous-layer</td>
+    </tr>
+    <tr>
+      <td>feuille</td>
+      <td>Une feuille de styles : `styles.css`, `alert.css`</td>
+      <td>stylesheet</td>
+    </tr>
+    <tr>
+      <td>matrice</td>
+      <td>
+        Les versions minimales de navigateurs supportées (voir [Support
+        navigateurs](?path=/docs/documentation-référence-support-navigateurs--docs))
+      </td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>API publique</td>
+      <td>
+        Ce que la JSDoc documente : attributs, slots, parts, tokens, événements, membres `protected`
+      </td>
+      <td></td>
+    </tr>
+  </tbody>
+</table>

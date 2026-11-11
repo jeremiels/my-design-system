@@ -1,95 +1,75 @@
 ---
 name: create-component
-description: Create a new component in this design system, end to end — files, class, styles, API docs, registration, package exports, stories, contract and legacy tests, verification — or a brand-specific component in a brand design system built on it. Use when asked to add, scaffold or create a component; it orchestrates lit-component, component-styling, component-api-docs and storybook-documentation.
+description: Créer un composant du socle de bout en bout — fichiers, classe, styles, JSDoc, enregistrement, exports du package, stories, tests de contrat et legacy, vérifications — ou un composant propre à une marque. À charger pour ajouter ou créer un composant. Ce skill enchaîne lit-component, component-styling, component-api-docs et storybook-documentation.
 ---
 
-# Create a component
+# Créer un composant
 
-A new component touches a dozen places; most of them fail silently when
-forgotten (a component that works in Storybook but isn't published, or isn't
-in a brand's registration). Follow every step.
+Un composant touche une douzaine d'endroits. Un oubli échoue souvent sans bruit : le composant marche dans Storybook, mais n'est pas publié ou pas enregistré par les marques. Suivez chaque étape.
 
-## 0. Base or brand?
+## 0. Socle ou marque ?
 
-- **Generic, useful to every brand** → this repository (`src/components/`).
-- **Specific to one brand** → that brand's design system (see
-  "Brand component" below and `examples/acme-design-system`).
-- Pick the **component name**, without prefix: `card`, `button-link`. The tag
-  will be `u-<name>` by default, `acme-<name>` for ACME.
+- Un composant utile à toutes les marques va dans le socle (`src/components/`).
+- Un composant propre à une marque va dans son design system (voir « Composant de marque » plus bas).
+- Choisissez le nom du composant, sans préfixe : `card`, `button-link`. Sa balise est `u-<nom>` par défaut, `acme-<nom>` pour ACME.
 
-## 1. Files — `src/components/<name>/`
+## 1. Créez les fichiers dans `src/components/<nom>/`
 
-- `<name>.ts` — the class (lit-component): extends `DSBaseElement` (mixins
-  inline), `static override componentName = "<name>"`, declares
-  `static dependencies` and uses `tagFor()` if it renders other components.
-- `<name>.css` — its styles (component-styling): tokens
-  `--u-<name>-<css-property>` on `:host`, defaulting to semantic tokens;
-  `part="…"` on stylable internals.
-- `<name>.type.ts` — its union types, if any.
-- `<name>.stories.ts` — see step 4.
-- Class JSDoc with `@element u-<name>`, `@summary`, slots, parts, every `:host`
-  token, events (component-api-docs). A new event gets its class in
-  `src/events/<name>-<event>.ts`, named `u-<event>`.
+- `<nom>.ts` : la classe (skill `lit-component`). Elle étend `DSBaseElement`, déclare `static override componentName = "<nom>"` et, si elle rend d'autres composants, `static dependencies` avec `tagFor()`.
+- `<nom>.css` : sa feuille (skill `component-styling`). Tokens `--u-<nom>-<propriété-css>` sur `:host`, et `part="…"` sur les éléments que les marques peuvent styler.
+- `<nom>.type.ts` : ses types union, s'il en a.
+- `<nom>.stories.ts` : voir l'étape 4.
+- La JSDoc de la classe : `@element u-<nom>`, `@summary`, slots, parts, tokens de `:host`, événements (skill `component-api-docs`).
+- Un nouvel événement : sa classe dans `src/events/<nom>-<événement>.ts`, nommée `u-<événement>`.
 
-## 2. Register and publish
+## 2. Enregistrez et publiez
 
-- `src/registry/catalog.ts`: add the class to `allComponents` — brands get it
-  through `defineComponents({ components: [...allComponents, …] })`.
-- `src/define.ts`: add `"u-<name>": <Class>` to `HTMLElementTagNameMap`.
-- `src/index.ts`: export the class (and its event/types).
-- `vite.config.ts`: add a `lib.entry` (`"<name>": resolve(import.meta.dirname,
-  "src/components/<name>/<name>.ts")`).
-- `package.json` `exports`: add `"./<name>"` with `types`
-  (`./dist/components/<name>/<name>.d.ts`) and `import` (`./dist/<name>.js`).
-- Any new `lit/...` import → `optimizeDeps.include` in `vite.config.ts`.
+1. Ajoutez la classe à `allComponents` dans `src/registry/catalog.ts`. Les marques la reçoivent par `defineComponents({ components: [...allComponents, …] })`.
+2. Ajoutez `"u-<nom>": <Classe>` à `HTMLElementTagNameMap` dans `src/define.ts`.
+3. Exportez la classe, ses événements et ses types depuis `src/index.ts`.
+4. Ajoutez une entrée `lib.entry` dans `vite.config.ts` : `"<nom>": resolve(import.meta.dirname, "src/components/<nom>/<nom>.ts")`.
+5. Ajoutez `"./<nom>"` aux `exports` de `package.json`, avec `types` (`./dist/components/<nom>/<nom>.d.ts`) et `import` (`./dist/<nom>.js`).
+6. Ajoutez tout nouvel import `lit/...` à `optimizeDeps.include` dans `vite.config.ts`.
 
-## 3. API manifest
+## 3. Générez le manifest
 
-`npm run analyze`, then review the `custom-elements.json` diff. Nothing to add
-to the tests: `src/api-contract.test.ts` checks that the manifest documents
-exactly the catalog's components (a missing `@element` or `allComponents` entry
-fails), then the new component's parts, slots, attributes and tokens; the
-registry and legacy tests also derive their lists from `allComponents`.
+Lancez `npm run analyze`, puis relisez le diff de `custom-elements.json`. Les tests n'ont rien à ajouter : `src/api-contract.test.ts`, le test du registre et le test legacy déduisent leurs listes de `allComponents`.
 
-## 4. Stories
+## 4. Écrivez les stories
 
-`<name>.stories.ts` next to the class, like `button.stories.ts`:
-`component: "u-<name>"` (autodocs and controls come from the manifest), one
-story per meaningful state, and `play` functions asserting behavior and
-rendering (adopted styles, roles, events) — they run in Chromium, Firefox and
-WebKit. The preview already registers the catalog (`src/define.ts`). MDX pages,
-if any: storybook-documentation.
+Écrivez `<nom>.stories.ts` à côté de la classe, sur le modèle de `button.stories.ts` :
 
-## 5. Legacy browsers
+- `component: "u-<nom>"` : les autodocs et les controls viennent du manifest.
+- Une story par état utile.
+- Des fonctions `play` qui vérifient le comportement et le rendu : feuilles adoptées, rôles, événements. Elles tournent dans Chromium, Firefox et WebKit.
 
-Add the element to `tests/legacy/index.html` (the page `checks.js` waits for
-every catalog tag), plus a `check()` in `tests/legacy/checks.js` for anything
-relying on a recent browser feature. `checks.js` is not transpiled: Firefox
-115 syntax.
+La preview enregistre déjà le catalogue (`src/define.ts`). Une page MDX suit le skill `storybook-documentation`.
 
-## 6. Verify
+## 5. Couvrez les anciens navigateurs
+
+1. Ajoutez l'élément à `tests/legacy/index.html`. `checks.js` attend chaque balise du catalogue.
+2. Ajoutez un `check()` dans `tests/legacy/checks.js` pour tout ce qui dépend d'une fonctionnalité récente.
+3. Écrivez une syntaxe que Firefox 115 comprend : `checks.js` n'est pas transpilé.
+
+## 6. Vérifiez
 
 ```sh
-npm run analyze && git add custom-elements.json   # api:check compares with the staged manifest
-npm run check                         # lint, fmt, tsc, api:check, Vitest (stories ×3 engines)
-npm run compat && npm run test:legacy # matrix + real Firefox 115 on dist/
-npm run example                       # packed base → ACME build + smoke test
-npx publint && npx @arethetypeswrong/cli --pack . --profile esm-only   # if exports changed
+npm run analyze && git add custom-elements.json   # api:check compare avec le manifest indexé
+npm run check                         # lint, format, tsc, api:check, Vitest (stories dans 3 moteurs)
+npm run compat && npm run test:legacy # matrice, et Firefox 115 sur dist/
+npm run example                       # archive du socle → build et test d'ACME
+npx publint && npx @arethetypeswrong/cli --pack . --profile esm-only   # si les exports changent
 ```
 
-Then commit the manifest with the code.
+Commitez ensuite le manifest avec le code.
 
-## Brand component
+## Composant de marque
 
-In the brand design system (e.g. `examples/acme-design-system`):
+Dans le design system de la marque (par exemple `examples/acme-design-system`) :
 
-- Same class rules, importing from the base package: `import { DSBaseElement,
-  Button } from "my-design-system"`; dependencies on base components resolve
-  to the brand's overrides.
-- Tokens use the brand prefix (`--acme-card-padding`), defaulting to the
-  base's semantic tokens (`var(--u-spacing-lg)`).
-- Add it to the brand's `defineComponents({ components: [...allComponents,
-  AcmeCard] })`, its `HTMLElementTagNameMap` and its `src/index.ts`.
-- Extending a base component instead: subclass it (`class AcmeButton extends
-  Button`, `static styles = [Button.styles ?? [], acmeButtonStyles]`) and pass
-  it in `overrides: { button: AcmeButton }`.
+- Appliquez les mêmes règles de classe, avec les imports du package du socle : `import { DSBaseElement, Button } from "my-design-system"`. Les dépendances vers les composants du socle donnent les surcharges de la marque.
+- Préfixez les tokens avec le nom de la marque (`--acme-card-padding`). Leur valeur par défaut est un token du socle (`var(--u-spacing-lg)`).
+- Ajoutez le composant à `defineComponents({ components: [...allComponents, AcmeCard] })`, à `HTMLElementTagNameMap` et à `src/index.ts` de la marque.
+- Pour étendre un composant du socle, créez une sous-classe (`class AcmeButton extends Button`, `static styles = [Button.styles ?? [], acmeButtonStyles]`). Passez-la dans `overrides: { button: AcmeButton }`.
+
+Le guide complet est `src/docs/guides/design-system-de-marque.mdx`.
