@@ -8,11 +8,34 @@ Le design system vise les versions « LTS » des navigateurs : les canaux étend
 
 ## Matrice
 
-| Navigateur    | Version minimale | Pourquoi ce plancher                                                                    |
-| ------------- | ---------------- | --------------------------------------------------------------------------------------- |
-| Chrome / Edge | 111              | `color-mix()` (tokens sémantiques de survol/actif)                                      |
-| Firefox       | 115              | ESR 115, maintenue pour Windows 7/8.1 jusqu'en mars 2027 (l'ESR courante est la 153)    |
-| Safari / iOS  | 16.4             | `CSSStyleSheet` constructibles adoptées, `ElementInternals`, blocs `static {}` (ES2022) |
+<table>
+  <thead>
+    <tr>
+      <th>Navigateur</th>
+      <th>Version minimale</th>
+      <th>Pourquoi ce plancher</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Chrome / Edge</td>
+      <td>111</td>
+      <td>`color-mix()` (tokens sémantiques de survol/actif)</td>
+    </tr>
+    <tr>
+      <td>Firefox</td>
+      <td>115</td>
+      <td>ESR 115, maintenue pour Windows 7/8.1 jusqu'en mars 2027 (l'ESR courante est la 153)</td>
+    </tr>
+    <tr>
+      <td>Safari / iOS</td>
+      <td>16.4</td>
+      <td>
+        `CSSStyleSheet` constructibles adoptées, `ElementInternals`, blocs `static {}` (ES2022)
+      </td>
+    </tr>
+  </tbody>
+</table>
 
 **Source de vérité :** le champ `"browserslist"` de `package.json`. Il alimente `build.target` (JS) et `build.cssTarget` (CSS, abaissé par Lightning CSS) dans `vite.config.ts`, ainsi que `npm run compat`.
 
@@ -35,11 +58,34 @@ Le design system vise les versions « LTS » des navigateurs : les canaux étend
 
 ## Vérifications
 
-| Commande              | Ce qu'elle vérifie                                                                                    |
-| --------------------- | ----------------------------------------------------------------------------------------------------- |
-| `npm run compat`      | Syntaxe JS de `dist/` (`es-check`) et fonctionnalités CSS des sources (`doiuse`) contre la matrice    |
-| `npx vitest`          | Stories et tests du plugin, sur les versions **récentes** de Chromium, Firefox et WebKit (Playwright) |
-| `npm run test:legacy` | Le `dist/` livré, dans un **vrai Firefox ESR 115** (WebdriverIO + geckodriver)                        |
+<table>
+  <thead>
+    <tr>
+      <th>Commande</th>
+      <th>Ce qu'elle vérifie</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>`npm run compat`</td>
+      <td>
+        Syntaxe JS de `dist/` (`es-check`) et fonctionnalités CSS des sources (`doiuse`) contre la
+        matrice
+      </td>
+    </tr>
+    <tr>
+      <td>`npx vitest`</td>
+      <td>
+        Stories et tests du plugin, sur les versions **récentes** de Chromium, Firefox et WebKit
+        (Playwright)
+      </td>
+    </tr>
+    <tr>
+      <td>`npm run test:legacy`</td>
+      <td>Le `dist/` livré, dans un **vrai Firefox ESR 115** (WebdriverIO + geckodriver)</td>
+    </tr>
+  </tbody>
+</table>
 
 **Limites de `npm run compat` :** `doiuse` ne connaît que les fonctionnalités de caniuse. Il ne détecte ni `color-mix()`, ni `text-wrap`, ni l'héritage de `::backdrop`, ni `:state()`, ni les at-rules imbriquées. Les constats revus et acceptés sont listés, avec leur justification, dans `IGNORED` (`scripts/check-css-compat.mjs`).
 
