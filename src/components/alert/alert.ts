@@ -4,6 +4,13 @@ import { DSBaseElement } from "../MyDSBaseElement.js";
 import type { MyAlertType } from "./alert.type.js";
 
 @customElement("my-alert")
+/**
+ * An alert component that displays a message to the user.
+ *
+ * @element my-alert
+ * @slot - The content of the alert.
+ * @csspart alert - The alert element.
+ */
 export class Alert extends DSBaseElement {
   /**
    * Alert type.
@@ -71,7 +78,9 @@ export class Alert extends DSBaseElement {
    * See https://www.w3.org/WAI/ARIA/apg/patterns/alert/.
    */
   private get alertRole(): "alert" | "status" {
-    return this.type === "danger" || this.type === "warning" ? "alert" : "status";
+    return this.type === "danger" || this.type === "warning"
+      ? "alert"
+      : "status";
   }
 
   render() {

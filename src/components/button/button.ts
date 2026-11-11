@@ -7,6 +7,13 @@ import type { MyButtonType } from "./button.type.js";
 const InternalsButtonBase = withInternals(ButtonBase);
 
 @customElement("my-button")
+/**
+ * A button component that can be used to trigger actions.
+ *
+ * @element my-button
+ * @slot - The content of the button.
+ * @csspart button - The button element.
+ */
 export class Button extends InternalsButtonBase {
   /**
    * Required for ElementInternals.form to resolve an ancestor <form> — a
