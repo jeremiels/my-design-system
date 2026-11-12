@@ -3,8 +3,8 @@
 //
 // doiuse only knows caniuse features: it misses color-mix(), text-wrap,
 // ::backdrop inheritance, `:state()` and nested at-rules. Those are covered by
-// the manual checklist in src/docs/reference/support-navigateurs.mdx and by
-// `npm run test:legacy`. Nesting is lowered by Lightning CSS at build time.
+// the manual checklist in src/docs/reference/support-navigateurs.mdx. Nesting
+// is lowered by Lightning CSS at build time.
 //
 // Uses doiuse as a PostCSS plugin: its CLI streams files in chunks and fails
 // on nested blocks.

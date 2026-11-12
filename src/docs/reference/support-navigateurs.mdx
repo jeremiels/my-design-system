@@ -39,13 +39,13 @@ Le socle supporte les canaux étendus des entreprises (Firefox ESR, Chrome et Ed
     </tr>
     <tr>
       <td>Firefox</td>
-      <td>115</td>
-      <td>ESR 115, maintenue pour Windows 7 et 8.1 jusqu'en mars 2027</td>
+      <td>113</td>
+      <td>`color-mix()`</td>
     </tr>
     <tr>
       <td>Firefox Android</td>
-      <td>115</td>
-      <td>Moteur de Firefox 115</td>
+      <td>113</td>
+      <td>Moteur de Firefox 113</td>
     </tr>
     <tr>
       <td>Safari / iOS</td>
@@ -59,9 +59,10 @@ Le socle supporte les canaux étendus des entreprises (Firefox ESR, Chrome et Ed
 
 - **Source de vérité :** le champ `"browserslist"` de `package.json`. Il alimente `build.target` (JS), `build.cssTarget` (CSS, abaissé par Lightning CSS) et `npm run compat`.
 - **Noms Android :** dans `browserslist`, `chrome` et `firefox` désignent les versions de bureau. Android a ses propres noms : `and_chr`, `and_ff`, `samsung` et `op_mob`.
-- **Une version récente seulement :** les données de `browserslist` ne connaissent qu'une version récente de `and_chr`, `and_ff` et `op_mob`. Le plancher de leur moteur est vérifié par `chrome >= 111` et `firefox >= 115`.
+- **Une version récente seulement :** les données de `browserslist` ne connaissent qu'une version récente de `and_chr`, `and_ff` et `op_mob`. Le plancher de leur moteur est vérifié par `chrome >= 111` et `firefox >= 113`.
+- **Plancher :** pour chaque moteur, la première version qui a toutes les fonctionnalités du code. La dernière colonne nomme la fonctionnalité qui le fixe.
 - **Versions figées :** la matrice nomme des versions, pas une requête glissante comme `baseline widely available`. Elle change seulement par une décision.
-- **Révision :** à la fin d'ESR 115, en mars 2027.
+- **Windows 7 et 8.1 :** la matrice ne les vise pas. Chrome 109, leur dernier Chrome, est sous le plancher.
 
 ## Fonctionnalités à surveiller
 
@@ -141,17 +142,13 @@ Toute autre fonctionnalité récente se vérifie contre la matrice (MDN, caniuse
       </td>
     </tr>
     <tr>
-      <td>`npm run test:legacy`</td>
-      <td>
-        Le `dist/` livré, dans un vrai Firefox ESR 115 (voir [Tester sur Firefox ESR
-        115](?path=/docs/documentation-guides-tester-sur-firefox-esr-115--docs))
-      </td>
+      <td>`npm run example`</td>
+      <td>Le `dist/` livré, consommé par la marque ACME, dans une version récente de Chromium</td>
     </tr>
   </tbody>
 </table>
 
 - `doiuse` ne connaît que les données de caniuse. Il ne détecte ni `color-mix()`, ni `text-wrap`, ni l'héritage de `::backdrop`, ni `:state()`, ni les at-rules imbriquées.
 - Les constats de `doiuse` acceptés sont listés avec leur raison dans `IGNORED` (`scripts/check-css-compat.mjs`).
-- Aucun test automatique ne couvre les anciens Safari et iOS : le WebKit de Playwright est récent.
-- Aucun test automatique ne couvre Chrome 111 et 112 : Chrome for Testing commence à la version 113.
+- Aucun test automatique ne couvre les versions minimales : Vitest et `npm run example` utilisent les navigateurs récents de Playwright. Seul `npm run compat` vérifie la matrice.
 - Aucun test automatique ne tourne sur Android : Vitest teste Chromium et Firefox dans leurs versions de bureau. Samsung Internet n'est testé nulle part.

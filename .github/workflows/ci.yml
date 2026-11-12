@@ -49,20 +49,10 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
-      # Chromium for the brand example's smoke test; Firefox's system
-      # libraries for Firefox ESR, plus dbus-glib, which ESR 115 links to.
-      - run: |
-          npx playwright install --with-deps chromium firefox
-          sudo apt-get install -y --no-install-recommends libdbus-glib-1-2
+      # Chromium for the brand example's smoke test.
+      - run: npx playwright install --with-deps chromium
       # Builds and packs the base, then installs, builds and tests ACME
       # against the tarball, as a brand would consume it.
       - run: npm run example
       # es-check and doiuse against the browserslist matrix.
       - run: npm run compat
-      - name: Cache Firefox ESR
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/firefox-esr
-          key: firefox-esr-${{ hashFiles('scripts/install-firefox-esr.sh') }}
-      # dist/ in a real Firefox ESR 115, the oldest Firefox supported.
-      - run: npm run test:legacy

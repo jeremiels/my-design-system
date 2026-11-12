@@ -71,5 +71,4 @@ Vérifiez toute fonctionnalité CSS récente contre `src/docs/reference/support-
 ```sh
 npm run analyze && npx vitest run   # test de contrat (tokens, parts), stories dans 3 moteurs
 npm run compat                      # syntaxe et fonctionnalités caniuse contre la matrice
-npm run test:legacy                 # styles calculés dans Firefox 115
 ```

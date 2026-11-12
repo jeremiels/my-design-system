@@ -1,6 +1,6 @@
 ---
 name: create-component
-description: Créer un composant du socle de bout en bout — fichiers, classe, styles, JSDoc, enregistrement, exports du package, stories, tests de contrat et legacy, vérifications — ou un composant propre à une marque. À charger pour ajouter ou créer un composant. Ce skill enchaîne lit-component, component-styling, component-api-docs et storybook-documentation.
+description: Créer un composant du socle de bout en bout — fichiers, classe, styles, JSDoc, enregistrement, exports du package, stories, tests de contrat, vérifications — ou un composant propre à une marque. À charger pour ajouter ou créer un composant. Ce skill enchaîne lit-component, component-styling, component-api-docs et storybook-documentation.
 ---
 
 # Créer un composant
@@ -33,7 +33,7 @@ Un composant touche une douzaine d'endroits. Un oubli échoue souvent sans bruit
 
 ## 3. Générez le manifest
 
-Lancez `npm run analyze`, puis relisez le diff de `custom-elements.json`. Les tests n'ont rien à ajouter : `src/api-contract.test.ts`, le test du registre et le test legacy déduisent leurs listes de `allComponents`.
+Lancez `npm run analyze`, puis relisez le diff de `custom-elements.json`. Les tests n'ont rien à ajouter : `src/api-contract.test.ts` et le test du registre déduisent leurs listes de `allComponents`.
 
 ## 4. Écrivez les stories
 
@@ -45,18 +45,12 @@ Lancez `npm run analyze`, puis relisez le diff de `custom-elements.json`. Les te
 
 La preview enregistre déjà le catalogue (`src/define.ts`). Une page MDX suit le skill `storybook-documentation`.
 
-## 5. Couvrez les anciens navigateurs
-
-1. Ajoutez l'élément à `tests/legacy/index.html`. `checks.js` attend chaque balise du catalogue.
-2. Ajoutez un `check()` dans `tests/legacy/checks.js` pour tout ce qui dépend d'une fonctionnalité récente.
-3. Écrivez une syntaxe que Firefox 115 comprend : `checks.js` n'est pas transpilé.
-
-## 6. Vérifiez
+## 5. Vérifiez
 
 ```sh
 npm run analyze && git add custom-elements.json   # api:check compare avec le manifest indexé
 npm run check                         # lint, format, tsc, api:check, Vitest (stories dans 3 moteurs)
-npm run compat && npm run test:legacy # matrice, et Firefox 115 sur dist/
+npm run compat                        # syntaxe et fonctionnalités contre la matrice
 npm run example                       # archive du socle → build et test d'ACME
 npx publint && npx @arethetypeswrong/cli --pack . --profile esm-only   # si les exports changent
 ```

@@ -45,9 +45,6 @@ sections:
         checks:
           - href: ./button.stories.ts#SubmitsForm
             role: test
-          - href: ../../../tests/legacy/checks.js
-            role: test
-            note: Firefox ESR 115.
         checkedBy: automated
       - level: must
         statement: Désactivez le bouton avec `disabled`. Il n'émet alors aucun `click` et porte `aria-disabled`.

@@ -22,7 +22,7 @@ Ce fichier est un index. Les détails sont dans la documentation et dans les ski
 Les pages sont dans `src/docs/` et dans Storybook. Elles suivent la [charte de rédaction](src/docs/reference/charte-de-redaction.mdx).
 
 - Tutoriel : [Premiers pas](src/docs/premiers-pas.mdx).
-- Guides : [Créer un design system de marque](src/docs/guides/design-system-de-marque.mdx), [Tester sur Firefox ESR 115](src/docs/guides/tester-sur-firefox-esr.mdx).
+- Guide : [Créer un design system de marque](src/docs/guides/design-system-de-marque.mdx).
 - Référence : [Tokens et couches CSS](src/docs/reference/tokens-et-couches.mdx), [Support navigateurs](src/docs/reference/support-navigateurs.mdx), [Mixins](src/docs/reference/mixins.mdx), [Charte de rédaction](src/docs/reference/charte-de-redaction.mdx). La JSDoc des composants est leur référence.
 - Explication : [Architecture CSS](src/docs/explication/architecture-css.mdx).
 - Décisions : [ADR 0001](src/docs/adr/0001-architecture-multi-marque.mdx).
@@ -39,7 +39,6 @@ Les pages sont dans `src/docs/` et dans Storybook. Elles suivent la [charte de r
 - `design-system.dsds.yaml` et `src/components/*/*.dsds.yaml` : les règles d'usage des composants, au format [DSDS](https://designsystemdocspec.org) (pilote sur `button` et `button-link`).
 - `plugins/css-import-attributes.ts` : le plugin Vite des imports `with { type: "css" }`.
 - `examples/acme-design-system/` : une marque d'exemple, construite et testée contre l'archive du socle.
-- `tests/legacy/` : le test du `dist/` dans Firefox ESR 115.
 - `.github/workflows/ci.yml` : la CI.
 
 ## Règles pour chaque changement
@@ -61,10 +60,9 @@ npx vitest run --project browser # un projet Vitest : unit (Node), browser (Chro
 npm run example                  # archive du socle → installation, build et test d'ACME
 npm run dsds                     # valide et vérifie le format des documents DSDS
 npm run compat                   # es-check et doiuse contre la matrice
-npm run test:legacy              # dist/ dans Firefox ESR 115
 npm run lint | fmt               # corrections automatiques
 ```
 
 `api:check` compare le manifest régénéré avec celui de l'index git. Indexez `custom-elements.json` (`git add`) avant de lancer `check`.
 
-La CI tourne sur chaque push vers `master` et sur chaque pull request. Elle lance `check`, puis `example`, `compat` et `test:legacy`.
+La CI tourne sur chaque push vers `master` et sur chaque pull request. Elle lance `check`, puis `example` et `compat`.

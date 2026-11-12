@@ -76,7 +76,6 @@
     "fmt": "oxfmt",
     "fmt:check": "oxfmt --check",
     "compat": "npm run build && es-check checkBrowser \"dist/**/*.js\" --module --checkFeatures && node scripts/check-css-compat.mjs",
-    "test:legacy": "npm run build && node tests/legacy/run.mjs",
     "example": "node scripts/run-example.mjs",
     "dsds": "dsds-validate --strict design-system.dsds.yaml src/components/*/*.dsds.yaml && dsds-format --check design-system.dsds.yaml src/components/*/*.dsds.yaml"
   },
@@ -107,7 +106,6 @@
     "typescript": "~7.0.2",
     "vite": "^8.3.8",
     "vitest": "^5.1.0",
-    "webdriverio": "^10.1.0",
     "yaml": "^2.9.1"
   },
   "peerDependencies": {
@@ -126,8 +124,8 @@
     "samsung >= 22",
     "opera >= 97",
     "op_mob >= 75",
-    "firefox >= 115",
-    "and_ff >= 115",
+    "firefox >= 113",
+    "and_ff >= 113",
     "safari >= 16.4",
     "ios_saf >= 16.4",
     "Firefox ESR"

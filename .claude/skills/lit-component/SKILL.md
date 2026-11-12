@@ -110,6 +110,5 @@ Vérifiez toute API récente contre `src/docs/reference/support-navigateurs.mdx`
 ```sh
 npx tsc -p tsconfig.json --noEmit && npm run lint
 npm run analyze && npx vitest run   # manifest, test de contrat, registre, stories dans 3 moteurs
-npm run test:legacy                 # si vous touchez une API du navigateur : Firefox 115 sur dist/
 npm run example                     # si vous touchez ce que les marques étendent
 ```

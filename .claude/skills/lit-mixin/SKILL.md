@@ -69,5 +69,5 @@ export function withDisabled<T extends Constructor<LitElement>>(Base: T) {
 ```sh
 npx tsc -p tsconfig.json --noEmit
 npm run analyze   # les membres apparaissent sur les composants qui appliquent le mixin
-npx vitest run && npm run test:legacy
+npx vitest run
 ```
