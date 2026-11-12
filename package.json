@@ -10,7 +10,8 @@
   "type": "module",
   "sideEffects": [
     "**/*.css",
-    "./dist/define.js"
+    "./dist/define.js",
+    "./src/define.ts"
   ],
   "main": "./dist/index.js",
   "module": "./dist/index.js",
