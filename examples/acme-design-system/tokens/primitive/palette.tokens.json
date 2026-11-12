@@ -1,0 +1,138 @@
+{
+  "palette": {
+    "$type": "color",
+    "$description": "ACME's palettes, lightness steps from 100 (lightest) to 900. Same steps as the base's, so the base's semantic tokens keep their contrast in both themes.",
+    "brand": {
+      "$description": "ACME purple: actions.",
+      "100": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.9589, 0.9322, 1],
+          "hex": "#f5eeff"
+        }
+      },
+      "200": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.8928, 0.8382, 1],
+          "hex": "#e4d6ff"
+        }
+      },
+      "300": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.807, 0.7123, 0.9873],
+          "hex": "#ceb6fc"
+        }
+      },
+      "400": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.6997, 0.5601, 0.9363],
+          "hex": "#b28fef"
+        }
+      },
+      "500": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.5882, 0.422, 0.8427],
+          "hex": "#966cd7"
+        }
+      },
+      "600": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.4771, 0.2917, 0.7303],
+          "hex": "#7a4aba"
+        }
+      },
+      "700": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.3904, 0.2311, 0.6055],
+          "hex": "#643b9a"
+        }
+      },
+      "800": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.3027, 0.1836, 0.4685],
+          "hex": "#4d2f77"
+        }
+      },
+      "900": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.2094, 0.127, 0.3271],
+          "hex": "#352053"
+        }
+      }
+    },
+    "accent": {
+      "$description": "ACME pink: secondary actions.",
+      "100": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [1, 0.9179, 0.9591],
+          "hex": "#ffeaf5"
+        }
+      },
+      "200": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.9968, 0.8096, 0.8924],
+          "hex": "#fecee4"
+        }
+      },
+      "300": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.9649, 0.6646, 0.8047],
+          "hex": "#f6a9cd"
+        }
+      },
+      "400": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.8968, 0.492, 0.6935],
+          "hex": "#e57db1"
+        }
+      },
+      "500": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.7918, 0.3415, 0.5787],
+          "hex": "#ca5794"
+        }
+      },
+      "600": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.6714, 0.1977, 0.4645],
+          "hex": "#ab3276"
+        }
+      },
+      "700": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.5548, 0.1496, 0.3794],
+          "hex": "#8d2661"
+        }
+      },
+      "800": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.4308, 0.124, 0.2948],
+          "hex": "#6e204b"
+        }
+      },
+      "900": {
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.3012, 0.0863, 0.2041],
+          "hex": "#4d1634"
+        }
+      }
+    }
+  }
+}

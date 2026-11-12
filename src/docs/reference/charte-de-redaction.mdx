@@ -151,7 +151,10 @@ La documentation décrit le système tel qu'il est.
     </tr>
     <tr>
       <td>token</td>
-      <td>Une custom property `--u-*` du socle</td>
+      <td>
+        Une valeur de design nommée : sa source DTCG (`palette.brand.600`) et sa custom property
+        (`--u-palette-brand-600`)
+      </td>
       <td>jeton, variable</td>
     </tr>
     <tr>
@@ -163,9 +166,37 @@ La documentation décrit le système tel qu'il est.
       <td></td>
     </tr>
     <tr>
+      <td>palette</td>
+      <td>Une échelle de primitives de couleur par rôle, en pas de clarté : `palette.brand`</td>
+      <td>nuancier, gamme</td>
+    </tr>
+    <tr>
       <td>thème</td>
-      <td>Un jeu de valeurs des primitives : clair, sombre, celui d'une marque</td>
+      <td>
+        Clair ou sombre : un contexte du modifier `theme`, qui change les tokens sémantiques de
+        couleur
+      </td>
+      <td>mode (pour clair ou sombre)</td>
+    </tr>
+    <tr>
+      <td>source DTCG</td>
+      <td>
+        Un fichier `*.tokens.json` de `tokens/`, au format DTCG, d'où le CSS des tokens est généré
+      </td>
       <td></td>
+    </tr>
+    <tr>
+      <td>resolver</td>
+      <td>Le fichier `*.resolver.json` qui assemble les sources DTCG en sets et en modifiers</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>modifier, contexte</td>
+      <td>
+        Un modifier du resolver (`theme`, `button-variant`) a des contextes (`dark`, `danger`) :
+        chacun change certains tokens
+      </td>
+      <td>variante (pour le modifier)</td>
     </tr>
     <tr>
       <td>couche</td>

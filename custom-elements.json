@@ -416,7 +416,7 @@
           "type": {
             "text": "readonly ContrastPair[]"
           },
-          "default": "[ ...INTENTS.flatMap((intent) => STATES.map((state) => ({ foreground: `var(--u-color-${intent}-text)`, background: `var(--u-color-${intent}-bg${state})`, minimum: 4.5, })), ), ...SURFACES.map((background) => ({ foreground: \"var(--u-color-text-default)\", background, minimum: 4.5, })), ...SURFACES.map((background) => ({ foreground: \"var(--u-color-focus-ring)\", background, minimum: 3, })), ]",
+          "default": "[ ...INTENTS.flatMap((intent) => STATES.map((state) => ({ foreground: `var(--u-color-${intent}-text)`, background: `var(--u-color-${intent}-background${state})`, minimum: 4.5, })), ), ...SURFACES.map((background) => ({ foreground: \"var(--u-color-text-default)\", background, minimum: 4.5, })), ...SURFACES.map((background) => ({ foreground: \"var(--u-color-focus-ring)\", background, minimum: 3, })), ]",
           "description": "The semantic color pairs the base's components draw, with the contrast each needs."
         },
         {
@@ -483,7 +483,7 @@
             {
               "description": "Background color (types change the default).",
               "name": "--u-alert-background-color",
-              "default": "var(--u-color-information-bg)"
+              "default": "var(--u-color-information-background)"
             },
             {
               "description": "Text color (types change the default).",
@@ -503,7 +503,7 @@
             {
               "description": "Font family.",
               "name": "--u-alert-font-family",
-              "default": "var(--u-font-family-base)"
+              "default": "var(--u-font-family-body)"
             }
           ],
           "cssParts": [
@@ -651,27 +651,22 @@
             {
               "description": "Background color (variants change the default).",
               "name": "--u-button-background-color",
-              "default": "var(--u-color-action-bg)"
+              "default": "var(--u-color-action-background)"
             },
             {
               "description": "Background color on hover.",
               "name": "--u-button-background-color-hover",
-              "default": "var(--u-color-action-bg-hover)"
+              "default": "var(--u-color-action-background-hover)"
             },
             {
               "description": "Background color while pressed.",
               "name": "--u-button-background-color-active",
-              "default": "var(--u-color-action-bg-active)"
+              "default": "var(--u-color-action-background-active)"
             },
             {
               "description": "Text color.",
               "name": "--u-button-text-color",
               "default": "var(--u-color-action-text)"
-            },
-            {
-              "description": "Border shorthand.",
-              "name": "--u-button-border",
-              "default": "none"
             },
             {
               "description": "Corner radius.",
@@ -681,12 +676,12 @@
             {
               "description": "Font family.",
               "name": "--u-button-font-family",
-              "default": "var(--u-font-family-base)"
+              "default": "var(--u-font-family-body)"
             },
             {
               "description": "Font size (sizes change the default).",
               "name": "--u-button-font-size",
-              "default": "var(--u-font-size-base)"
+              "default": "var(--u-font-size-md)"
             },
             {
               "description": "Font weight.",
@@ -722,6 +717,11 @@
               "description": "Background color transition duration.",
               "name": "--u-button-transition-duration",
               "default": "var(--u-motion-duration-fast)"
+            },
+            {
+              "description": "Background color transition easing.",
+              "name": "--u-button-transition-timing-function",
+              "default": "var(--u-motion-easing-standard)"
             }
           ],
           "cssParts": [
@@ -1246,7 +1246,7 @@
             {
               "description": "Background color (variants change the default).",
               "name": "--u-button-background-color",
-              "default": "var(--u-color-action-bg)",
+              "default": "var(--u-color-action-background)",
               "inheritedFrom": {
                 "name": "ButtonBase",
                 "module": "src/components/button/button-base.ts"
@@ -1255,7 +1255,7 @@
             {
               "description": "Background color on hover.",
               "name": "--u-button-background-color-hover",
-              "default": "var(--u-color-action-bg-hover)",
+              "default": "var(--u-color-action-background-hover)",
               "inheritedFrom": {
                 "name": "ButtonBase",
                 "module": "src/components/button/button-base.ts"
@@ -1264,7 +1264,7 @@
             {
               "description": "Background color while pressed.",
               "name": "--u-button-background-color-active",
-              "default": "var(--u-color-action-bg-active)",
+              "default": "var(--u-color-action-background-active)",
               "inheritedFrom": {
                 "name": "ButtonBase",
                 "module": "src/components/button/button-base.ts"
@@ -1274,15 +1274,6 @@
               "description": "Text color.",
               "name": "--u-button-text-color",
               "default": "var(--u-color-action-text)",
-              "inheritedFrom": {
-                "name": "ButtonBase",
-                "module": "src/components/button/button-base.ts"
-              }
-            },
-            {
-              "description": "Border shorthand.",
-              "name": "--u-button-border",
-              "default": "none",
               "inheritedFrom": {
                 "name": "ButtonBase",
                 "module": "src/components/button/button-base.ts"
@@ -1300,7 +1291,7 @@
             {
               "description": "Font family.",
               "name": "--u-button-font-family",
-              "default": "var(--u-font-family-base)",
+              "default": "var(--u-font-family-body)",
               "inheritedFrom": {
                 "name": "ButtonBase",
                 "module": "src/components/button/button-base.ts"
@@ -1309,7 +1300,7 @@
             {
               "description": "Font size (sizes change the default).",
               "name": "--u-button-font-size",
-              "default": "var(--u-font-size-base)",
+              "default": "var(--u-font-size-md)",
               "inheritedFrom": {
                 "name": "ButtonBase",
                 "module": "src/components/button/button-base.ts"
@@ -1373,6 +1364,15 @@
               "description": "Background color transition duration.",
               "name": "--u-button-transition-duration",
               "default": "var(--u-motion-duration-fast)",
+              "inheritedFrom": {
+                "name": "ButtonBase",
+                "module": "src/components/button/button-base.ts"
+              }
+            },
+            {
+              "description": "Background color transition easing.",
+              "name": "--u-button-transition-timing-function",
+              "default": "var(--u-motion-easing-standard)",
               "inheritedFrom": {
                 "name": "ButtonBase",
                 "module": "src/components/button/button-base.ts"
@@ -1712,7 +1712,7 @@
             {
               "description": "Background color (variants change the default).",
               "name": "--u-button-background-color",
-              "default": "var(--u-color-action-bg)",
+              "default": "var(--u-color-action-background)",
               "inheritedFrom": {
                 "name": "ButtonBase",
                 "module": "src/components/button/button-base.ts"
@@ -1721,7 +1721,7 @@
             {
               "description": "Background color on hover.",
               "name": "--u-button-background-color-hover",
-              "default": "var(--u-color-action-bg-hover)",
+              "default": "var(--u-color-action-background-hover)",
               "inheritedFrom": {
                 "name": "ButtonBase",
                 "module": "src/components/button/button-base.ts"
@@ -1730,7 +1730,7 @@
             {
               "description": "Background color while pressed.",
               "name": "--u-button-background-color-active",
-              "default": "var(--u-color-action-bg-active)",
+              "default": "var(--u-color-action-background-active)",
               "inheritedFrom": {
                 "name": "ButtonBase",
                 "module": "src/components/button/button-base.ts"
@@ -1740,15 +1740,6 @@
               "description": "Text color.",
               "name": "--u-button-text-color",
               "default": "var(--u-color-action-text)",
-              "inheritedFrom": {
-                "name": "ButtonBase",
-                "module": "src/components/button/button-base.ts"
-              }
-            },
-            {
-              "description": "Border shorthand.",
-              "name": "--u-button-border",
-              "default": "none",
               "inheritedFrom": {
                 "name": "ButtonBase",
                 "module": "src/components/button/button-base.ts"
@@ -1766,7 +1757,7 @@
             {
               "description": "Font family.",
               "name": "--u-button-font-family",
-              "default": "var(--u-font-family-base)",
+              "default": "var(--u-font-family-body)",
               "inheritedFrom": {
                 "name": "ButtonBase",
                 "module": "src/components/button/button-base.ts"
@@ -1775,7 +1766,7 @@
             {
               "description": "Font size (sizes change the default).",
               "name": "--u-button-font-size",
-              "default": "var(--u-font-size-base)",
+              "default": "var(--u-font-size-md)",
               "inheritedFrom": {
                 "name": "ButtonBase",
                 "module": "src/components/button/button-base.ts"
@@ -1843,6 +1834,15 @@
                 "name": "ButtonBase",
                 "module": "src/components/button/button-base.ts"
               }
+            },
+            {
+              "description": "Background color transition easing.",
+              "name": "--u-button-transition-timing-function",
+              "default": "var(--u-motion-easing-standard)",
+              "inheritedFrom": {
+                "name": "ButtonBase",
+                "module": "src/components/button/button-base.ts"
+              }
             }
           ],
           "events": [
@@ -1901,12 +1901,12 @@
             {
               "description": "Backdrop color.",
               "name": "--u-modal-backdrop-color",
-              "default": "var(--u-shadow-backdrop)"
+              "default": "var(--u-color-backdrop)"
             },
             {
               "description": "Dialog shadow.",
               "name": "--u-modal-shadow",
-              "default": "var(--u-shadow-elevation-lg)"
+              "default": "var(--u-shadow-overlay)"
             }
           ],
           "cssParts": [

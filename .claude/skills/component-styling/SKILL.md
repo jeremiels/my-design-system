@@ -1,13 +1,13 @@
 ---
 name: component-styling
-description: Écrire ou modifier le CSS d'un composant ou d'un mixin (la feuille .css voisine de son .ts), ou des composants d'une marque — tokens de composant, variantes, tailles, parts, états. À charger pour tout style de shadow DOM. Le CSS de la page et les valeurs des tokens (src/styles) suivent la référence « Tokens et couches CSS ».
+description: Écrire ou modifier le CSS d'un composant ou d'un mixin (la feuille .css voisine de son .ts), ou des composants d'une marque — lecture des tokens, parts, états, forced-colors. À charger pour tout style de shadow DOM. Les tokens eux-mêmes (sources DTCG, variantes) relèvent du skill design-tokens.
 ---
 
 # Styles d'un composant
 
 Les règles des tokens sont dans `src/docs/reference/tokens-et-couches.mdx`. Lisez cette page avant d'écrire une feuille. Leurs raisons sont dans `src/docs/explication/architecture-css.mdx`.
 
-Exemples : `src/components/button/button-base.css` (tokens, variantes, tailles, `forced-colors`) et `src/components/modal/modal.css` (parts, exception `::backdrop`).
+Exemples : `src/components/button/button-base.css` (lecture des tokens, `forced-colors`) et `src/components/modal/modal.css` (parts, exception `::backdrop`).
 
 ## 1. Créez la feuille
 
@@ -22,33 +22,26 @@ static styles = [DSBaseElement.styles ?? [], alertStyles];
 - N'importez jamais une feuille de `src/styles/` ainsi : ce sont les feuilles de la page.
 - Un mixin suit la même règle (`withDisabled.css`). Une marque aussi, avec le plugin `my-design-system/vite-plugin`.
 
-## 2. Déclarez les tokens du composant
+## 2. Lisez les tokens du composant
+
+Les tokens d'un composant sont des sources DTCG, dans `tokens/component/<composant>/` (skill `design-tokens`). `npm run tokens` les génère sur `:host`, dans `<composant>.tokens.css`. La feuille du composant les lit seulement :
 
 ```css
-:host {
-  --u-button-background-color: var(--u-color-action-bg);
-}
-
 .button {
   background-color: var(--u-button-background-color);
 }
 ```
 
-- Déclarez chaque token sur `:host`. Sa valeur par défaut est un token sémantique.
-- Nommez-le `--u-<composant>-<propriété-css>[-<état>]`. Un composant de marque prend le préfixe de la marque : `--acme-card-padding`.
-- Faites lire les tokens par les règles internes. Une règle interne ne redéclare jamais un token.
+- Adoptez la feuille générée avant la feuille du composant : `static styles = [DSBaseElement.styles ?? [], buttonTokens, buttonStyles]`.
+- Ne déclarez aucun token dans la feuille du composant. Une règle interne ne redéclare jamais un token.
+- Faites lire aux règles internes les tokens du composant, pas les tokens sémantiques. Un besoin nouveau est un token nouveau.
 - N'écrivez pas de valeur de repli littérale dans `var()`. Les deux exceptions sont dans la référence.
-- Documentez chaque token avec `@cssprop` (skill `component-api-docs`). Ne déclarez pas de token que rien ne lit.
+- Ne déclarez pas de token que rien ne lit.
 
 ## 3. Ajoutez les variantes et les tailles
 
-```css
-:host([variant="danger"]) {
-  --u-button-background-color: var(--u-color-danger-bg);
-}
-```
+Une variante est un contexte de modifier dans les sources DTCG (skill `design-tokens`, étape 3). Le plugin la génère en règle `:host([variant="danger"])`, avec les tokens qu'elle change.
 
-- Changez les valeurs par défaut des tokens sur l'hôte, à partir de l'attribut : `:host([variant="…"])`, `:host([size="…"])`.
 - Reflétez la propriété en attribut : `@property({ type: String, reflect: true })`.
 - Ne changez pas les propriétés CSS dans une variante : changez les tokens.
 
@@ -59,8 +52,8 @@ static styles = [DSBaseElement.styles ?? [], alertStyles];
 - Ajoutez `part="…"` aux éléments internes qu'une marque peut styler. Documentez chaque part avec `@csspart`.
 - Stylez les états de l'hôte par ses attributs : `:host([disabled])`. Ajoutez `:host(:disabled)` pour un composant associé à un formulaire.
 - Nommez les classes internes `.bloc` et `.bloc--modificateur` (`.alert--pending`). Elles ne sont pas une API : une marque vise les parts (`[part~="button"]`).
-- Un composant ne contient aucune logique de thème. Les thèmes changent les primitives.
-- Lisez les durées dans `--u-motion-duration-*`. Le mouvement réduit est déjà traité dans `tokens/motion.css`.
+- Un composant ne contient aucune logique de thème. Les thèmes changent les tokens sémantiques.
+- Faites pointer les durées vers `motion.duration.*`. Le contexte `motion: reduced` traite déjà le mouvement réduit.
 
 ## 5. Vérifiez le support navigateurs
 

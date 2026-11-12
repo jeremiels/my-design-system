@@ -1,9 +1,0 @@
-@import "../tokens/color.css";
-@import "../tokens/semantic.css";
-@import "../tokens/spacing.css";
-@import "../tokens/typography.css";
-@import "../tokens/radius.css";
-@import "../tokens/motion.css";
-@import "../tokens/elevation.css";
-
-@layer u.tokens.color, u.tokens.semantic, u.tokens.spacing, u.tokens.typography, u.tokens.radius, u.tokens.motion, u.tokens.elevation;

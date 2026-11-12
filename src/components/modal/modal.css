@@ -1,11 +1,5 @@
-:host {
-  --u-modal-background-color: var(--u-color-surface-raised);
-  --u-modal-border-radius: var(--u-radius-lg);
-  --u-modal-padding: var(--u-spacing-md);
-  --u-modal-backdrop-color: var(--u-shadow-backdrop);
-  --u-modal-shadow: var(--u-shadow-elevation-lg);
-}
-
+/* The tokens are in modal.tokens.css, generated from tokens/component/modal/
+   (ADR 0002). These rules only read them. */
 dialog {
   border: none;
   border-radius: var(--u-modal-border-radius);
@@ -16,7 +10,7 @@ dialog::backdrop {
   /* Documented exception to "no literal fallback": before Chrome 122,
      Firefox 120 and Safari 17.4, ::backdrop inherits nothing, so no token can
      reach it and the backdrop would be transparent. Keep in sync with
-     --u-shadow-backdrop (light theme) in tokens/elevation.css. */
+     color.backdrop (light theme) in tokens/semantic/theme.light.tokens.json. */
   background-color: var(--u-modal-backdrop-color, hsl(0deg 0% 0% / 50%));
 }
 .content {

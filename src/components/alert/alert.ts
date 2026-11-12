@@ -2,6 +2,7 @@ import { html, type PropertyValues } from "lit";
 import { property, state } from "lit/decorators.js";
 import { DSBaseElement } from "../base-element.js";
 import alertStyles from "./alert.css" with { type: "css" };
+import alertTokens from "./alert.tokens.css" with { type: "css" };
 import type { AlertType } from "./alert.type.js";
 
 /**
@@ -25,11 +26,7 @@ const REVEAL_DELAY_MS = 100;
  * @summary Displays a message, announced to assistive technologies.
  * @slot - The content of the alert.
  * @csspart alert - The alert container.
- * @cssprop [--u-alert-background-color=var(--u-color-information-bg)] - Background color (types change the default).
- * @cssprop [--u-alert-text-color=var(--u-color-information-text)] - Text color (types change the default).
- * @cssprop [--u-alert-padding=var(--u-spacing-md)] - Internal padding.
- * @cssprop [--u-alert-border-radius=var(--u-radius-md)] - Corner radius.
- * @cssprop [--u-alert-font-family=var(--u-font-family-base)] - Font family.
+ * @tokens alert - Its tokens (`@cssprop`), from `tokens/component/alert/`: `npm run analyze` documents them.
  */
 export class Alert extends DSBaseElement {
   static override componentName = "alert";
@@ -38,7 +35,7 @@ export class Alert extends DSBaseElement {
   @property({ type: String, reflect: true })
   type: AlertType = "information";
 
-  static styles = [DSBaseElement.styles ?? [], alertStyles];
+  static styles = [DSBaseElement.styles ?? [], alertTokens, alertStyles];
 
   /** Whether the message has been revealed in the live region. */
   @state()

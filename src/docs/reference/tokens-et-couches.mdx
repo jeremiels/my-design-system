@@ -4,7 +4,7 @@ import { Meta } from "@storybook/addon-docs/blocks";
 
 # Tokens et couches CSS
 
-Les raisons de ces règles sont dans [Architecture CSS](?path=/docs/documentation-explication-architecture-css--docs).
+Les raisons de ces règles sont dans [Architecture CSS](?path=/docs/documentation-explication-architecture-css--docs). La décision du format est dans l'[ADR 0002](?path=/docs/documentation-adr-0002-tokens-au-format-dtcg--docs).
 
 ## Feuilles de l'application
 
@@ -58,8 +58,12 @@ Les raisons de ces règles sont dans [Architecture CSS](?path=/docs/documentatio
       <td>Le reset (`reset.css`)</td>
     </tr>
     <tr>
-      <td>`u.tokens`</td>
-      <td>Les tokens, une sous-couche par fichier de `src/styles/tokens/`</td>
+      <td>`u.tokens.base`</td>
+      <td>Les tokens du socle (`src/styles/tokens.css`, généré)</td>
+    </tr>
+    <tr>
+      <td>`u.tokens.brand`</td>
+      <td>Les tokens d'une marque, générés par la marque</td>
     </tr>
     <tr>
       <td>`u.base`</td>
@@ -84,8 +88,95 @@ Les raisons de ces règles sont dans [Architecture CSS](?path=/docs/documentatio
 
 - Les styles de l'application hors couche l'emportent sur toutes les couches du socle.
 - Les styles internes des composants vivent dans leur shadow DOM. Les couches de la page ne les atteignent pas.
-- `src/styles/layers/tokens.css` importe un fichier par sous-couche, puis déclare leur ordre : `u.tokens.color`, `u.tokens.semantic`, `u.tokens.spacing`, `u.tokens.typography`, `u.tokens.radius`, `u.tokens.motion`, `u.tokens.elevation`.
-- Une marque ajoute ses valeurs dans la sous-couche `u.tokens.brand`, importée après celles du socle.
+- L'ordre de `u.tokens.base` et `u.tokens.brand` est celui de leurs blocs. Une marque importe sa feuille après celle du socle.
+- `order.css` ne déclare pas ces deux sous-couches. La raison est dans [Architecture CSS](?path=/docs/documentation-explication-architecture-css--docs).
+
+## Sources DTCG
+
+Les tokens sont écrits au format [DTCG](https://www.designtokens.org/tr/2025.10/format/) 2025.10, dans `tokens/`. Le CSS des tokens est généré à partir de ces sources.
+
+<table>
+  <thead>
+    <tr>
+      <th>Fichier</th>
+      <th>Contenu</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>`tokens/u.resolver.json`</td>
+      <td>Le resolver : les sets, les modifiers et l'ordre de résolution</td>
+    </tr>
+    <tr>
+      <td>`tokens/primitive/*.tokens.json`</td>
+      <td>Les primitives : palettes, dimensions, typographie, mouvement, effets</td>
+    </tr>
+    <tr>
+      <td>`tokens/semantic/semantic.tokens.json`</td>
+      <td>Les tokens sémantiques communs aux deux thèmes : espacements, rayons, polices, ombres, mouvement</td>
+    </tr>
+    <tr>
+      <td>`tokens/semantic/theme.<thème>.tokens.json`</td>
+      <td>Les couleurs sémantiques d'un thème : `light`, `dark`</td>
+    </tr>
+    <tr>
+      <td>`tokens/semantic/motion.reduced.tokens.json`</td>
+      <td>Les durées en mouvement réduit</td>
+    </tr>
+    <tr>
+      <td>`tokens/component/<composant>/<composant>.tokens.json`</td>
+      <td>Les tokens d'un composant, avec leur valeur par défaut</td>
+    </tr>
+    <tr>
+      <td>`tokens/component/<composant>/<attribut>.<valeur>.tokens.json`</td>
+      <td>Les tokens qu'une valeur d'attribut change : `variant.danger`, `size.small`</td>
+    </tr>
+  </tbody>
+</table>
+
+Le resolver déclare trois sets et des modifiers. Chaque modifier a des contextes, dont un par défaut.
+
+<table>
+  <thead>
+    <tr>
+      <th>Modifier</th>
+      <th>Contextes (défaut en premier)</th>
+      <th>Change</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>`theme`</td>
+      <td>`light`, `dark`</td>
+      <td>Les couleurs sémantiques</td>
+    </tr>
+    <tr>
+      <td>`motion`</td>
+      <td>`full`, `reduced`</td>
+      <td>Les durées sémantiques</td>
+    </tr>
+    <tr>
+      <td>`button-variant`</td>
+      <td>`primary`, `secondary`, `success`, `warning`, `danger`, `information`</td>
+      <td>Les couleurs de `button` et `button-link`</td>
+    </tr>
+    <tr>
+      <td>`button-size`</td>
+      <td>`medium`, `small`, `large`</td>
+      <td>La police et les marges de `button` et `button-link`</td>
+    </tr>
+    <tr>
+      <td>`alert-type`</td>
+      <td>`information`, `success`, `warning`, `danger`</td>
+      <td>Les couleurs de `alert`</td>
+    </tr>
+  </tbody>
+</table>
+
+- Un token a un identifiant : son chemin dans les groupes, `color.action.background`.
+- Son nom CSS est `--u-` suivi de l'identifiant, avec des tirets à la place des points : `--u-color-action-background`.
+- Un alias s'écrit `{palette.brand.600}`. Il devient `var(--u-palette-brand-600)`.
+- Une couleur est un objet `srgb` avec `components` et `hex`, la forme qu'exporte Figma.
 
 ## Niveaux de tokens
 
@@ -93,7 +184,7 @@ Les raisons de ces règles sont dans [Architecture CSS](?path=/docs/documentatio
   <thead>
     <tr>
       <th>Niveau</th>
-      <th>Fichier</th>
+      <th>Set du resolver</th>
       <th>Valeur</th>
       <th>Exemple</th>
     </tr>
@@ -101,39 +192,135 @@ Les raisons de ces règles sont dans [Architecture CSS](?path=/docs/documentatio
   <tbody>
     <tr>
       <td>Primitive</td>
-      <td>`src/styles/tokens/*.css`, sauf `semantic.css`</td>
-      <td>Une valeur brute</td>
-      <td>`--u-color-primary: hsl(210, 100%, 44%)`</td>
+      <td>`primitive`</td>
+      <td>Une valeur littérale, la même dans les deux thèmes</td>
+      <td>`palette.brand.600` : `#1c65c8`</td>
     </tr>
     <tr>
       <td>Token sémantique</td>
-      <td>`src/styles/tokens/semantic.css`</td>
-      <td>Une primitive, nommée par intention</td>
-      <td>`--u-color-action-bg: var(--u-color-primary)`</td>
+      <td>`semantic`, modifiers `theme` et `motion`</td>
+      <td>Un alias de primitive, nommé par intention</td>
+      <td>`color.action.background` : `{palette.brand.600}`</td>
     </tr>
     <tr>
       <td>Token de composant</td>
-      <td>La feuille du composant, sur `:host`</td>
-      <td>Un token sémantique</td>
-      <td>`--u-button-background-color: var(--u-color-action-bg)`</td>
+      <td>`component`, modifiers des composants</td>
+      <td>Un alias de token sémantique</td>
+      <td>`button.background-color` : `{color.action.background}`</td>
     </tr>
   </tbody>
 </table>
 
-- Chaque niveau référence le niveau précédent. Seules les primitives contiennent des valeurs littérales.
-- Les états de survol et d'appui (`-hover`, `-active`) mélangent la couleur de l'intention avec `--u-color-text`, par `color-mix()`.
-- Les tokens sémantiques sont déclarés sur `:root` et sur `[data-brand]`.
+Le plugin de génération fait échouer le build quand une de ces règles n'est pas respectée :
+
+- Seules les primitives contiennent des valeurs littérales. Une primitive ne référence que des primitives.
+- Un token sémantique est un alias de primitive ou de token sémantique.
+- Un token de composant est un alias de token sémantique, avec une `$description`.
+- Un token reste à un seul niveau.
+- Un contexte change seulement des tokens qui ont une valeur par défaut.
+- Les thèmes `light` et `dark` déclarent les mêmes tokens.
+- Deux identifiants ne donnent jamais le même nom CSS.
+
+### Palettes
+
+Une palette est une échelle de primitives de couleur, par rôle : `brand`, `accent`, `neutral`, `success`, `warning`, `danger`, `information`. Ses pas suivent la clarté, de 100 (le plus clair) à 900. `neutral` ajoute 0 (blanc), 950 et 1000 (noir).
+
+<table>
+  <thead>
+    <tr>
+      <th>Token sémantique</th>
+      <th>Thème clair</th>
+      <th>Thème sombre</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>`color.<intention>.background`</td>
+      <td>600</td>
+      <td>300</td>
+    </tr>
+    <tr>
+      <td>`color.<intention>.background-hover`</td>
+      <td>700</td>
+      <td>200</td>
+    </tr>
+    <tr>
+      <td>`color.<intention>.background-active`</td>
+      <td>800</td>
+      <td>100</td>
+    </tr>
+    <tr>
+      <td>`color.<intention>.text`</td>
+      <td>`neutral.0`</td>
+      <td>`neutral.950`</td>
+    </tr>
+  </tbody>
+</table>
+
+Les intentions sont `action` (palette `brand`), `secondary` (`accent`), `success`, `warning`, `danger` et `information`.
+
+## Génération
+
+`npm run tokens` lance Terrazzo (`terrazzo.config.ts`) avec le plugin `plugins/terrazzo-plugin.ts`, exporté en `my-design-system/terrazzo-plugin`.
+
+<table>
+  <thead>
+    <tr>
+      <th>Sortie</th>
+      <th>Sélecteur</th>
+      <th>Tokens</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>`src/styles/tokens.css`</td>
+      <td>`:root`</td>
+      <td>Les primitives</td>
+    </tr>
+    <tr>
+      <td>`src/styles/tokens.css`</td>
+      <td>`:root, [data-brand]`</td>
+      <td>Les tokens sémantiques, dans le contexte par défaut</td>
+    </tr>
+    <tr>
+      <td>`src/styles/tokens.css`</td>
+      <td>Les sélecteurs sombres de la section Thèmes</td>
+      <td>Les tokens que change le contexte `theme: dark`</td>
+    </tr>
+    <tr>
+      <td>`src/styles/tokens.css`</td>
+      <td>`:root, [data-brand]` sous `@media (prefers-reduced-motion: reduce)`</td>
+      <td>Les tokens que change le contexte `motion: reduced`</td>
+    </tr>
+    <tr>
+      <td>`src/components/<composant>/<composant>.tokens.css`</td>
+      <td>`:host`</td>
+      <td>Les tokens du composant, dans le contexte par défaut</td>
+    </tr>
+    <tr>
+      <td>`src/components/<composant>/<composant>.tokens.css`</td>
+      <td>`:host([<attribut>="<contexte>"])`</td>
+      <td>Les tokens que change ce contexte</td>
+    </tr>
+  </tbody>
+</table>
+
+- `src/styles/tokens.css` est dans la couche `u.tokens.base`. Les feuilles des composants n'ont pas de couche.
+- Les fichiers générés sont commités. N'éditez pas un fichier généré : changez la source DTCG, puis lancez `npm run tokens`.
+- `npm run tokens:check` régénère les fichiers et échoue s'ils diffèrent de l'index git. `npm run check` le lance.
+- `npm run build`, `npm run storybook` et `npm run build-storybook` lancent `npm run tokens`.
 
 ## Tokens de composant
 
-- Chaque token de composant est déclaré sur `:host`. Sa valeur par défaut est un token sémantique, jamais une primitive ni une valeur littérale.
-- Nom : `--u-<composant>-<propriété-css>[-<état>]`, par exemple `--u-button-background-color-hover`.
-  - `<composant>` est le nom du composant sans préfixe : `button`, pour `u-button` comme pour `acme-button`.
+- Les tokens d'un composant forment le groupe DTCG qui porte son nom : `button`, pour `u-button` comme pour `acme-button`.
+- Nom : `<composant>.<propriété-css>[-<état>]`, par exemple `button.background-color-hover`.
   - `<propriété-css>` est le nom complet de la propriété : `background-color`, pas `bg`.
-- Chaque token déclaré sur `:host` est documenté dans la JSDoc de la classe : `@cssprop [--u-button-padding-inline=var(--u-spacing-md)] - description`.
-- Une variante ou une taille change les valeurs par défaut sur l'hôte, à partir de l'attribut reflété : `:host([variant="danger"])`, `:host([size="small"])`.
+- Chaque token a une `$description`. Elle documente le composant.
+- Un modifier par attribut reflété : `<composant>-<attribut>`, par exemple `button-variant`. Chaque contexte change les valeurs par défaut sur l'hôte : `:host([variant="danger"])`.
+- La classe nomme son groupe dans sa JSDoc : `@tokens button`. Le plugin `plugins/cem-plugin.ts`, exporté en `my-design-system/cem-plugin`, ajoute ses tokens au manifest, avec leur valeur par défaut et leur description.
+- La classe adopte la feuille générée avant sa propre feuille, comme dans la section Feuille d'un composant.
 - Aucune règle d'un élément interne ne redéclare un token documenté.
-- Les règles internes lisent les tokens : `background-color: var(--u-button-background-color)`.
+- Les règles internes lisent les tokens du composant : `background-color: var(--u-button-background-color)`.
 
 `src/api-contract.test.ts` vérifie ces règles. Les tokens documentés sont exactement ceux déclarés sur `:host`. Aucun n'est redéclaré ailleurs. Un token posé sur l'hôte s'applique dans chaque état `:host([…])`.
 
@@ -142,7 +329,7 @@ Les raisons de ces règles sont dans [Architecture CSS](?path=/docs/documentatio
 Un `var()` n'a pas de valeur de repli littérale : la feuille de tokens est une dépendance des composants. Deux exceptions :
 
 - Les mots-clés système de `forced-colors` (`ButtonText`, `Highlight`, `CanvasText`) dans les media queries d'accessibilité.
-- `::backdrop` dans `modal.css` : avant Chrome 122, Firefox 120 et Safari 17.4, il n'hérite d'aucune custom property.
+- `::backdrop` dans `modal.css` : avant Chrome 122, Firefox 120 et Safari 17.4, il n'hérite d'aucune custom property. Sa valeur de repli recopie `color.backdrop` du thème clair.
 
 ## Thèmes
 
@@ -158,12 +345,15 @@ Un `var()` n'a pas de valeur de repli littérale : la feuille de tokens est une 
     <tr>
       <td>Sombre, selon la préférence du système</td>
       <td>Aucun attribut</td>
-      <td>`@media (prefers-color-scheme: dark)` sur `:root:not([data-theme="light"])`</td>
+      <td>
+        `@media (prefers-color-scheme: dark)` sur `:root:not([data-theme="light"])` et ses
+        `[data-brand]`
+      </td>
     </tr>
     <tr>
       <td>Sombre, choisi par l'application</td>
       <td>`data-theme="dark"` sur `<html>`</td>
-      <td>`:root[data-theme="dark"]`</td>
+      <td>`:root[data-theme="dark"]` et ses `[data-brand]`</td>
     </tr>
     <tr>
       <td>Clair, choisi par l'application</td>
@@ -173,17 +363,18 @@ Un `var()` n'a pas de valeur de repli littérale : la feuille de tokens est une 
     <tr>
       <td>Marque limitée à un conteneur</td>
       <td>`data-brand` sur le conteneur</td>
-      <td>`[data-brand="acme"]`, qui redéfinit les primitives</td>
+      <td>`[data-brand="acme"]`, l'option `scope` du plugin de la marque</td>
     </tr>
   </tbody>
 </table>
 
-- Les thèmes changent les primitives dans `src/styles/tokens/color.css`. Un composant ne contient aucune logique de thème.
-- Une marque redéfinit ses primitives dans les deux sélecteurs sombres, en plus de `:root`.
+- Un thème change les tokens sémantiques de couleur. Les primitives sont les mêmes dans les deux thèmes.
+- Une marque change ses palettes et garde les deux thèmes du socle. Elle n'écrit aucune valeur sombre.
+- Un composant ne contient aucune logique de thème.
 
 ## Mouvement réduit
 
-`src/styles/tokens/motion.css` met `--u-motion-duration-*` à `0ms` sous `@media (prefers-reduced-motion: reduce)`. Les composants lisent ces tokens et n'ont pas leur propre media query.
+Le contexte `motion: reduced` met `motion.duration.*` à `{duration.0}` sous `@media (prefers-reduced-motion: reduce)`. Les composants lisent ces tokens et n'ont pas leur propre media query.
 
 ## Contraste
 
@@ -200,32 +391,35 @@ Un `var()` n'a pas de valeur de repli littérale : la feuille de tokens est une 
   <tbody>
     <tr>
       <td>`--u-color-<intention>-text`</td>
-      <td>`--u-color-<intention>-bg`, `-bg-hover`, `-bg-active`</td>
+      <td>
+        `--u-color-<intention>-background`, `-background-hover`, `-background-active`
+      </td>
       <td>4,5:1</td>
     </tr>
     <tr>
       <td>`--u-color-text-default`</td>
-      <td>`--u-color-surface`, `--u-color-surface-raised`</td>
+      <td>`--u-color-surface-default`, `--u-color-surface-raised`</td>
       <td>4,5:1</td>
     </tr>
     <tr>
       <td>`--u-color-focus-ring`</td>
-      <td>`--u-color-surface`, `--u-color-surface-raised`</td>
+      <td>`--u-color-surface-default`, `--u-color-surface-raised`</td>
       <td>3:1</td>
     </tr>
   </tbody>
 </table>
 
-Les intentions sont `action`, `secondary`, `success`, `warning`, `danger` et `information`. `src/styles/tokens.test.ts` vérifie les tokens du socle dans les deux thèmes.
+`src/styles/tokens.test.ts` vérifie les tokens du socle dans les deux thèmes.
 
 ## Feuille d'un composant
 
-Les styles d'un composant ou d'un mixin vivent dans un fichier `.css` voisin, importé comme CSS module script :
+Les styles d'un composant ou d'un mixin vivent dans un fichier `.css` voisin, importé comme CSS module script. Un composant adopte aussi la feuille de ses tokens :
 
 ```ts
 import alertStyles from "./alert.css" with { type: "css" };
+import alertTokens from "./alert.tokens.css" with { type: "css" };
 
-static styles = [DSBaseElement.styles ?? [], alertStyles];
+static styles = [DSBaseElement.styles ?? [], alertTokens, alertStyles];
 ```
 
 - L'import donne un `CSSStyleSheet` constructible, que Lit adopte.

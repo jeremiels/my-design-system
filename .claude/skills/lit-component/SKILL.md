@@ -26,7 +26,7 @@ export class Alert extends DSBaseElement {
   @property({ type: String, reflect: true })
   type: AlertType = "information";
 
-  static styles = [DSBaseElement.styles ?? [], alertStyles];
+  static styles = [DSBaseElement.styles ?? [], alertTokens, alertStyles];
 
   render() {
     return html`<div part="alert" class="alert">…</div>`;
@@ -37,13 +37,13 @@ export class Alert extends DSBaseElement {
 - **Classe de base :** étendez `DSBaseElement` ou un autre composant. Appliquez les mixins dans `extends` (`extends withDisabled(DSBaseElement)`), jamais par une constante : l'analyseur du manifest ne suit que l'héritage écrit en ligne.
 - **`static componentName` :** la balise sans préfixe (`"button-link"`). Déclarez-le sur chaque composant concret, jamais sur une base abstraite (`ButtonBase`).
 - **Enregistrement :** pas de `@customElement`, pas de `customElements.define`. `defineComponents()` enregistre (skill `create-component`).
-- **Styles :** `static styles = [super.styles ?? [], feuille]`, avec une feuille `.css` voisine (skill `component-styling`).
+- **Styles :** `static styles = [super.styles ?? [], tokens, feuille]`. `tokens` est la feuille générée `<nom>.tokens.css` (skill `design-tokens`), `feuille` la feuille `.css` voisine (skill `component-styling`).
 - **Types :** les unions dans `<nom>.type.ts`, les types partagés dans `src/types/common.ts` (`ComponentSize`, `SemanticVariant`). Pas de préfixe `My`.
 
 ## Propriétés
 
 - Déclarez chaque propriété avec `@property({ type: … })` et une description JSDoc d'une ligne. L'initialiseur donne la valeur par défaut.
-- Ajoutez `reflect: true` seulement quand le CSS ou l'ARIA lit l'attribut. Les variantes et les tailles le lisent : leurs styles sont des règles `:host([variant="…"])`.
+- Ajoutez `reflect: true` seulement quand le CSS ou l'ARIA lit l'attribut. Les variantes et les tailles le lisent : leurs tokens sont générés en règles `:host([variant="…"])`.
 - Nommez un attribut de plusieurs mots explicitement : `attribute: "action-label"`.
 - État interne : champs `private` ou `#private`, ou `@state()`. Un membre public pour TypeScript mais hors API reçoit `/** @internal */`.
 

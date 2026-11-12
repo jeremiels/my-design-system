@@ -1,0 +1,30 @@
+{
+  "modal": {
+    "$description": "Tokens of `modal`.",
+    "background-color": {
+      "$type": "color",
+      "$value": "{color.surface.raised}",
+      "$description": "Content background color."
+    },
+    "border-radius": {
+      "$type": "dimension",
+      "$value": "{radius.lg}",
+      "$description": "Corner radius."
+    },
+    "padding": {
+      "$type": "dimension",
+      "$value": "{spacing.md}",
+      "$description": "Content padding."
+    },
+    "backdrop-color": {
+      "$type": "color",
+      "$value": "{color.backdrop}",
+      "$description": "Backdrop color."
+    },
+    "shadow": {
+      "$type": "shadow",
+      "$value": "{shadow.overlay}",
+      "$description": "Dialog shadow."
+    }
+  }
+}

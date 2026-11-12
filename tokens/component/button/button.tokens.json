@@ -1,0 +1,80 @@
+{
+  "button": {
+    "$description": "Tokens of `button` and `button-link`. The defaults are those of the `primary` variant and the `medium` size.",
+    "background-color": {
+      "$type": "color",
+      "$value": "{color.action.background}",
+      "$description": "Background color (variants change the default)."
+    },
+    "background-color-hover": {
+      "$type": "color",
+      "$value": "{color.action.background-hover}",
+      "$description": "Background color on hover."
+    },
+    "background-color-active": {
+      "$type": "color",
+      "$value": "{color.action.background-active}",
+      "$description": "Background color while pressed."
+    },
+    "text-color": {
+      "$type": "color",
+      "$value": "{color.action.text}",
+      "$description": "Text color."
+    },
+    "border-radius": {
+      "$type": "dimension",
+      "$value": "{radius.md}",
+      "$description": "Corner radius."
+    },
+    "font-family": {
+      "$type": "fontFamily",
+      "$value": "{font.family.body}",
+      "$description": "Font family."
+    },
+    "font-size": {
+      "$type": "dimension",
+      "$value": "{font.size.md}",
+      "$description": "Font size (sizes change the default)."
+    },
+    "font-weight": {
+      "$type": "fontWeight",
+      "$value": "{font.weight.medium}",
+      "$description": "Font weight."
+    },
+    "padding-inline": {
+      "$type": "dimension",
+      "$value": "{spacing.md}",
+      "$description": "Horizontal padding (sizes change the default)."
+    },
+    "padding-block": {
+      "$type": "dimension",
+      "$value": "{spacing.sm}",
+      "$description": "Vertical padding (sizes change the default)."
+    },
+    "focus-ring-color": {
+      "$type": "color",
+      "$value": "{color.focus-ring}",
+      "$description": "Focus outline color."
+    },
+    "focus-ring-width": {
+      "$type": "dimension",
+      "$value": "{focus-ring.width}",
+      "$description": "Focus outline width."
+    },
+    "focus-ring-offset": {
+      "$type": "dimension",
+      "$value": "{focus-ring.offset}",
+      "$description": "Focus outline offset."
+    },
+    "transition-duration": {
+      "$type": "duration",
+      "$value": "{motion.duration.fast}",
+      "$description": "Background color transition duration."
+    },
+    "transition-timing-function": {
+      "$type": "cubicBezier",
+      "$value": "{motion.easing.standard}",
+      "$description": "Background color transition easing."
+    }
+  }
+}

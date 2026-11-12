@@ -1,0 +1,8 @@
+{
+  "button": {
+    "background-color": { "$value": "{color.secondary.background}" },
+    "background-color-hover": { "$value": "{color.secondary.background-hover}" },
+    "background-color-active": { "$value": "{color.secondary.background-active}" },
+    "text-color": { "$value": "{color.secondary.text}" }
+  }
+}

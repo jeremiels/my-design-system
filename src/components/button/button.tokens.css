@@ -1,0 +1,65 @@
+/* Generated from tokens/u.resolver.json by my-design-system/terrazzo-plugin (ADR 0002). Do not edit: change the tokens. */
+:host {
+  --u-button-background-color: var(--u-color-action-background);
+  --u-button-background-color-hover: var(--u-color-action-background-hover);
+  --u-button-background-color-active: var(--u-color-action-background-active);
+  --u-button-text-color: var(--u-color-action-text);
+  --u-button-border-radius: var(--u-radius-md);
+  --u-button-font-family: var(--u-font-family-body);
+  --u-button-font-size: var(--u-font-size-md);
+  --u-button-font-weight: var(--u-font-weight-medium);
+  --u-button-padding-inline: var(--u-spacing-md);
+  --u-button-padding-block: var(--u-spacing-sm);
+  --u-button-focus-ring-color: var(--u-color-focus-ring);
+  --u-button-focus-ring-width: var(--u-focus-ring-width);
+  --u-button-focus-ring-offset: var(--u-focus-ring-offset);
+  --u-button-transition-duration: var(--u-motion-duration-fast);
+  --u-button-transition-timing-function: var(--u-motion-easing-standard);
+}
+
+:host([variant="secondary"]) {
+  --u-button-background-color: var(--u-color-secondary-background);
+  --u-button-background-color-hover: var(--u-color-secondary-background-hover);
+  --u-button-background-color-active: var(--u-color-secondary-background-active);
+  --u-button-text-color: var(--u-color-secondary-text);
+}
+
+:host([variant="success"]) {
+  --u-button-background-color: var(--u-color-success-background);
+  --u-button-background-color-hover: var(--u-color-success-background-hover);
+  --u-button-background-color-active: var(--u-color-success-background-active);
+  --u-button-text-color: var(--u-color-success-text);
+}
+
+:host([variant="warning"]) {
+  --u-button-background-color: var(--u-color-warning-background);
+  --u-button-background-color-hover: var(--u-color-warning-background-hover);
+  --u-button-background-color-active: var(--u-color-warning-background-active);
+  --u-button-text-color: var(--u-color-warning-text);
+}
+
+:host([variant="danger"]) {
+  --u-button-background-color: var(--u-color-danger-background);
+  --u-button-background-color-hover: var(--u-color-danger-background-hover);
+  --u-button-background-color-active: var(--u-color-danger-background-active);
+  --u-button-text-color: var(--u-color-danger-text);
+}
+
+:host([variant="information"]) {
+  --u-button-background-color: var(--u-color-information-background);
+  --u-button-background-color-hover: var(--u-color-information-background-hover);
+  --u-button-background-color-active: var(--u-color-information-background-active);
+  --u-button-text-color: var(--u-color-information-text);
+}
+
+:host([size="small"]) {
+  --u-button-font-size: var(--u-font-size-sm);
+  --u-button-padding-inline: var(--u-spacing-sm);
+  --u-button-padding-block: var(--u-spacing-2xs);
+}
+
+:host([size="large"]) {
+  --u-button-font-size: var(--u-font-size-lg);
+  --u-button-padding-inline: var(--u-spacing-lg);
+  --u-button-padding-block: var(--u-spacing-md);
+}

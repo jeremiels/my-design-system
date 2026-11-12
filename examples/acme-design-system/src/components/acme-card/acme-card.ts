@@ -3,6 +3,7 @@ import { nothing } from "lit";
 import { property } from "lit/decorators.js";
 import { html } from "lit/static-html.js";
 import acmeCardStyles from "./acme-card.css" with { type: "css" };
+import acmeCardTokens from "./acme-card.tokens.css" with { type: "css" };
 
 /**
  * An ACME-only component: a card with a heading, content and an optional
@@ -14,15 +15,12 @@ import acmeCardStyles from "./acme-card.css" with { type: "css" };
  * @csspart card - The card container.
  * @csspart heading - The heading.
  * @csspart action - The action button.
- * @cssprop [--acme-card-padding=var(--u-spacing-lg)] - Internal padding.
- * @cssprop [--acme-card-background-color=var(--u-color-surface-raised)] - Background color.
- * @cssprop [--acme-card-border-radius=var(--u-radius-lg)] - Corner radius.
- * @cssprop [--acme-card-shadow=var(--u-shadow-elevation-md)] - Shadow.
+ * @tokens card - Its tokens, from tokens/component/card/: `--acme-card-*`.
  */
 export class AcmeCard extends DSBaseElement {
   static override componentName = "card";
   static override dependencies = [Button];
-  static styles = [DSBaseElement.styles ?? [], acmeCardStyles];
+  static styles = [DSBaseElement.styles ?? [], acmeCardTokens, acmeCardStyles];
 
   /** Card heading. */
   @property({ type: String })

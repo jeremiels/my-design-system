@@ -1,0 +1,7 @@
+{
+  "button": {
+    "font-size": { "$value": "{font.size.sm}" },
+    "padding-inline": { "$value": "{spacing.sm}" },
+    "padding-block": { "$value": "{spacing.2xs}" }
+  }
+}

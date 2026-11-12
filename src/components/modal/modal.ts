@@ -6,6 +6,7 @@ import { ModalCloseEvent } from "../../events/modal-close.js";
 import { DSBaseElement } from "../base-element.js";
 import { Button } from "../button/button.js";
 import modalStyles from "./modal.css" with { type: "css" };
+import modalTokens from "./modal.tokens.css" with { type: "css" };
 
 /**
  * A modal dialog. Built on the native `<dialog>`: the browser provides the
@@ -20,11 +21,7 @@ import modalStyles from "./modal.css" with { type: "css" };
  * @csspart content - The content wrapper inside the dialog.
  * @csspart close-button - The button that closes the dialog: the `button` component of the same registration.
  * @fires {ModalCloseEvent} u-close - When the dialog closes, whatever the cause: close button, Escape or `open = false`.
- * @cssprop [--u-modal-background-color=var(--u-color-surface-raised)] - Content background color.
- * @cssprop [--u-modal-border-radius=var(--u-radius-lg)] - Corner radius.
- * @cssprop [--u-modal-padding=var(--u-spacing-md)] - Content padding.
- * @cssprop [--u-modal-backdrop-color=var(--u-shadow-backdrop)] - Backdrop color.
- * @cssprop [--u-modal-shadow=var(--u-shadow-elevation-lg)] - Dialog shadow.
+ * @tokens modal - Its tokens (`@cssprop`), from `tokens/component/modal/`: `npm run analyze` documents them.
  */
 export class Modal extends DSBaseElement {
   static override componentName = "modal";
@@ -61,7 +58,7 @@ export class Modal extends DSBaseElement {
   /** The next `close` event of the dialog is a reopening, not a closing. */
   private reopening = false;
 
-  static styles = [DSBaseElement.styles ?? [], modalStyles];
+  static styles = [DSBaseElement.styles ?? [], modalTokens, modalStyles];
 
   connectedCallback() {
     super.connectedCallback();

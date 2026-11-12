@@ -1,21 +1,5 @@
-:host {
-  --u-button-background-color: var(--u-color-action-bg);
-  --u-button-background-color-hover: var(--u-color-action-bg-hover);
-  --u-button-background-color-active: var(--u-color-action-bg-active);
-  --u-button-text-color: var(--u-color-action-text);
-  --u-button-border: none;
-  --u-button-border-radius: var(--u-radius-md);
-  --u-button-font-family: var(--u-font-family-base);
-  --u-button-font-size: var(--u-font-size-base);
-  --u-button-font-weight: var(--u-font-weight-medium);
-  --u-button-padding-inline: var(--u-spacing-md);
-  --u-button-padding-block: var(--u-spacing-sm);
-  --u-button-focus-ring-color: var(--u-color-focus-ring);
-  --u-button-focus-ring-width: var(--u-focus-ring-width);
-  --u-button-focus-ring-offset: var(--u-focus-ring-offset);
-  --u-button-transition-duration: var(--u-motion-duration-fast);
-}
-
+/* The tokens, their variants and sizes are in button.tokens.css, generated
+   from tokens/component/button/ (ADR 0002). These rules only read them. */
 .button {
   display: inline-grid;
   place-content: center;
@@ -27,10 +11,11 @@
   padding-block: var(--u-button-padding-block);
   background-color: var(--u-button-background-color);
   color: var(--u-button-text-color);
-  border: var(--u-button-border);
+  border: none;
   border-radius: var(--u-button-border-radius);
   cursor: pointer;
-  transition: background-color var(--u-button-transition-duration) var(--u-motion-easing-standard);
+  transition: background-color var(--u-button-transition-duration)
+    var(--u-button-transition-timing-function);
 }
 
 .button:hover {
@@ -53,55 +38,4 @@
   .button:focus-visible {
     outline-color: Highlight;
   }
-}
-
-/* Variants and sizes change the defaults on the host, from the reflected
-   attributes: the application's own values, set on the host from outside
-   the shadow root, still win. Declared on the inner element instead, they
-   would override them. */
-:host([variant="secondary"]) {
-  --u-button-background-color: var(--u-color-secondary-bg);
-  --u-button-background-color-hover: var(--u-color-secondary-bg-hover);
-  --u-button-background-color-active: var(--u-color-secondary-bg-active);
-  --u-button-text-color: var(--u-color-secondary-text);
-}
-
-:host([variant="success"]) {
-  --u-button-background-color: var(--u-color-success-bg);
-  --u-button-background-color-hover: var(--u-color-success-bg-hover);
-  --u-button-background-color-active: var(--u-color-success-bg-active);
-  --u-button-text-color: var(--u-color-success-text);
-}
-
-:host([variant="danger"]) {
-  --u-button-background-color: var(--u-color-danger-bg);
-  --u-button-background-color-hover: var(--u-color-danger-bg-hover);
-  --u-button-background-color-active: var(--u-color-danger-bg-active);
-  --u-button-text-color: var(--u-color-danger-text);
-}
-
-:host([variant="warning"]) {
-  --u-button-background-color: var(--u-color-warning-bg);
-  --u-button-background-color-hover: var(--u-color-warning-bg-hover);
-  --u-button-background-color-active: var(--u-color-warning-bg-active);
-  --u-button-text-color: var(--u-color-warning-text);
-}
-
-:host([variant="information"]) {
-  --u-button-background-color: var(--u-color-information-bg);
-  --u-button-background-color-hover: var(--u-color-information-bg-hover);
-  --u-button-background-color-active: var(--u-color-information-bg-active);
-  --u-button-text-color: var(--u-color-information-text);
-}
-
-:host([size="small"]) {
-  --u-button-font-size: var(--u-font-size-sm);
-  --u-button-padding-inline: var(--u-spacing-sm);
-  --u-button-padding-block: var(--u-spacing-2xs);
-}
-
-:host([size="large"]) {
-  --u-button-font-size: var(--u-font-size-lg);
-  --u-button-padding-inline: var(--u-spacing-lg);
-  --u-button-padding-block: var(--u-spacing-md);
 }

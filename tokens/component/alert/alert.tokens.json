@@ -1,0 +1,30 @@
+{
+  "alert": {
+    "$description": "Tokens of `alert`. The defaults are those of the `information` type.",
+    "background-color": {
+      "$type": "color",
+      "$value": "{color.information.background}",
+      "$description": "Background color (types change the default)."
+    },
+    "text-color": {
+      "$type": "color",
+      "$value": "{color.information.text}",
+      "$description": "Text color (types change the default)."
+    },
+    "padding": {
+      "$type": "dimension",
+      "$value": "{spacing.md}",
+      "$description": "Internal padding."
+    },
+    "border-radius": {
+      "$type": "dimension",
+      "$value": "{radius.md}",
+      "$description": "Corner radius."
+    },
+    "font-family": {
+      "$type": "fontFamily",
+      "$value": "{font.family.body}",
+      "$description": "Font family."
+    }
+  }
+}

@@ -40,7 +40,8 @@ await check("acme-button is ACME's button, extending the base's", () => {
 
 await check("ACME's theme reaches the base's components", () => {
   const actual = style($("#button").shadowRoot.querySelector('[part~="button"]')).backgroundColor;
-  const expected = resolveColor("hsl(268, 75%, 45%)");
+  // ACME's palette.brand.600 (tokens/primitive/palette.tokens.json).
+  const expected = resolveColor("#7a4aba");
   return [actual === expected, `background ${actual}, expected ${expected}`];
 });
 
@@ -62,6 +63,16 @@ await check("ACME's button styles apply on top of the base's", () => {
   return [
     inner.textTransform === "uppercase" && pill,
     `text-transform ${inner.textTransform}, radius ${inner.borderTopLeftRadius}`,
+  ];
+});
+
+await check("ACME's card reads its own tokens, generated from its DTCG tokens", () => {
+  const card = $("#card");
+  const padding = style(card).getPropertyValue("--acme-card-padding").trim();
+  const inner = style(card.shadowRoot.querySelector('[part~="card"]'));
+  return [
+    padding === "1.5rem" && inner.paddingTop === "24px",
+    `--acme-card-padding: ${padding}, padding ${inner.paddingTop}`,
   ];
 });
 

@@ -1,0 +1,8 @@
+{
+  "motion": {
+    "duration": {
+      "fast": { "$value": "{duration.0}" },
+      "base": { "$value": "{duration.0}" }
+    }
+  }
+}

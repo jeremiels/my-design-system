@@ -2,6 +2,7 @@
    plus the utility classes. It styles no element of the page, so any
    application can load it. The reset is opt-in: my-design-system/reset.css. */
 @import "./layers/order.css";
-@import "./layers/tokens.css";
+/* Generated from tokens/ by `npm run tokens` (ADR 0002). */
+@import "./tokens.css";
 @import "./layers/utilities.css";
 @import "./layers/shame.css";

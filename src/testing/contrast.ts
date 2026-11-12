@@ -30,14 +30,14 @@ export interface ContrastFailure extends ContrastPair {
 
 const INTENTS = ["action", "secondary", "success", "warning", "danger", "information"];
 const STATES = ["", "-hover", "-active"];
-const SURFACES = ["var(--u-color-surface)", "var(--u-color-surface-raised)"];
+const SURFACES = ["var(--u-color-surface-default)", "var(--u-color-surface-raised)"];
 
 /** The semantic color pairs the base's components draw, with the contrast each needs. */
 export const contrastPairs: readonly ContrastPair[] = [
   ...INTENTS.flatMap((intent) =>
     STATES.map((state) => ({
       foreground: `var(--u-color-${intent}-text)`,
-      background: `var(--u-color-${intent}-bg${state})`,
+      background: `var(--u-color-${intent}-background${state})`,
       minimum: 4.5,
     })),
   ),
@@ -71,7 +71,7 @@ export function contrastFailures(
     .filter(({ ratio, minimum }) => ratio < minimum);
 }
 
-/** The color `value` (e.g. `var(--u-color-action-bg)`) computes to inside `element`. */
+/** The color `value` (e.g. `var(--u-color-action-background)`) computes to inside `element`. */
 function resolve(value: string, element: Element): string {
   const probe = document.createElement("div");
   probe.style.color = value;

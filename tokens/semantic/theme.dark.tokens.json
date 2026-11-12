@@ -1,0 +1,130 @@
+{
+  "color": {
+    "$type": "color",
+    "action": {
+      "$description": "Primary actions, like the default button.",
+      "background": {
+        "$value": "{palette.brand.300}"
+      },
+      "background-hover": {
+        "$value": "{palette.brand.200}"
+      },
+      "background-active": {
+        "$value": "{palette.brand.100}"
+      },
+      "text": {
+        "$value": "{palette.neutral.950}",
+        "$description": "Text on the three backgrounds."
+      }
+    },
+    "secondary": {
+      "$description": "Secondary actions.",
+      "background": {
+        "$value": "{palette.accent.300}"
+      },
+      "background-hover": {
+        "$value": "{palette.accent.200}"
+      },
+      "background-active": {
+        "$value": "{palette.accent.100}"
+      },
+      "text": {
+        "$value": "{palette.neutral.950}",
+        "$description": "Text on the three backgrounds."
+      }
+    },
+    "success": {
+      "$description": "A success status.",
+      "background": {
+        "$value": "{palette.success.300}"
+      },
+      "background-hover": {
+        "$value": "{palette.success.200}"
+      },
+      "background-active": {
+        "$value": "{palette.success.100}"
+      },
+      "text": {
+        "$value": "{palette.neutral.950}",
+        "$description": "Text on the three backgrounds."
+      }
+    },
+    "warning": {
+      "$description": "A warning status.",
+      "background": {
+        "$value": "{palette.warning.300}"
+      },
+      "background-hover": {
+        "$value": "{palette.warning.200}"
+      },
+      "background-active": {
+        "$value": "{palette.warning.100}"
+      },
+      "text": {
+        "$value": "{palette.neutral.950}",
+        "$description": "Text on the three backgrounds."
+      }
+    },
+    "danger": {
+      "$description": "A destructive action or an error.",
+      "background": {
+        "$value": "{palette.danger.300}"
+      },
+      "background-hover": {
+        "$value": "{palette.danger.200}"
+      },
+      "background-active": {
+        "$value": "{palette.danger.100}"
+      },
+      "text": {
+        "$value": "{palette.neutral.950}",
+        "$description": "Text on the three backgrounds."
+      }
+    },
+    "information": {
+      "$description": "A neutral status.",
+      "background": {
+        "$value": "{palette.information.300}"
+      },
+      "background-hover": {
+        "$value": "{palette.information.200}"
+      },
+      "background-active": {
+        "$value": "{palette.information.100}"
+      },
+      "text": {
+        "$value": "{palette.neutral.950}",
+        "$description": "Text on the three backgrounds."
+      }
+    },
+    "surface": {
+      "default": {
+        "$value": "{palette.neutral.950}",
+        "$description": "The page."
+      },
+      "raised": {
+        "$value": "{palette.neutral.900}",
+        "$description": "A surface above the page, like a modal."
+      }
+    },
+    "text": {
+      "default": {
+        "$value": "{palette.neutral.100}",
+        "$description": "Text on the surfaces."
+      }
+    },
+    "border": {
+      "default": {
+        "$value": "{palette.neutral.700}"
+      }
+    },
+    "focus-ring": {
+      "$value": "{palette.brand.300}",
+      "$description": "The focus indicator, on the surfaces."
+    },
+    "backdrop": {
+      "$value": "{palette.black-alpha.70}",
+      "$description": "Behind a modal."
+    }
+  }
+}

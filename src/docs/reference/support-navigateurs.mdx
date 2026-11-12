@@ -31,8 +31,8 @@ Le socle supporte les canaux étendus des entreprises (Firefox ESR, Chrome et Ed
       <td>111</td>
       <td>≈ 1,6 %</td>
       <td>
-        Exclusion décidée : descendre demande un repli pour les tokens `color-mix()` et `oklch()`.
-        Chrome et Edge 109 (Windows 7 et 8.1) pèsent ≈ 0,7 %.
+        Exclusion décidée. Le coût de descendre reste à mesurer : les tokens n'utilisent ni
+        `color-mix()` ni `oklch()` (ADR 0002). Chrome et Edge 109 (Windows 7 et 8.1) pèsent ≈ 0,7 %.
       </td>
     </tr>
     <tr>
@@ -123,13 +123,6 @@ Le socle supporte les canaux étendus des entreprises (Firefox ESR, Chrome et Ed
       <td>`text-wrap`, `interpolate-size`</td>
       <td>Amélioration progressive, `interpolate-size` sous `@supports`</td>
     </tr>
-    <tr>
-      <td>`color-mix(in oklch, …)`</td>
-      <td>
-        Écart accepté : Chrome 113 et Firefox 115 décalent un peu les couleurs de survol vers le
-        violet
-      </td>
-    </tr>
   </tbody>
 </table>
 
@@ -165,7 +158,7 @@ Toute autre fonctionnalité récente se vérifie contre la matrice (MDN, caniuse
   </tbody>
 </table>
 
-- `doiuse` ne connaît que les données de caniuse. Il ne détecte ni `color-mix()`, ni `text-wrap`, ni l'héritage de `::backdrop`, ni `:state()`, ni les at-rules imbriquées.
+- `doiuse` ne connaît que les données de caniuse. Il ne détecte ni `text-wrap`, ni l'héritage de `::backdrop`, ni `:state()`, ni les at-rules imbriquées.
 - Les constats de `doiuse` acceptés sont listés avec leur raison dans `IGNORED` (`scripts/check-css-compat.mjs`).
 - Aucun test automatique ne couvre les versions minimales : Vitest et `npm run example` utilisent les navigateurs récents de Playwright. Seul `npm run compat` vérifie la matrice.
 - Aucun test automatique ne tourne sur Android : Vitest teste Chromium et Firefox dans leurs versions de bureau. Samsung Internet n'est testé nulle part.

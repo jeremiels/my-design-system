@@ -1,0 +1,79 @@
+{
+  "spacing": {
+    "$type": "dimension",
+    "$description": "Space inside and between components.",
+    "2xs": { "$value": "{dimension.50}" },
+    "xs": { "$value": "{dimension.100}" },
+    "sm": { "$value": "{dimension.200}" },
+    "md": { "$value": "{dimension.400}" },
+    "lg": { "$value": "{dimension.600}" },
+    "xl": { "$value": "{dimension.800}" },
+    "2xl": { "$value": "{dimension.1200}" }
+  },
+  "radius": {
+    "$type": "dimension",
+    "$description": "Corner radii.",
+    "sm": { "$value": "{dimension.50}" },
+    "md": { "$value": "{dimension.100}" },
+    "lg": { "$value": "{dimension.200}" },
+    "full": { "$value": "{dimension.full}" }
+  },
+  "font": {
+    "family": {
+      "$type": "fontFamily",
+      "body": {
+        "$value": "{font-family.sans}",
+        "$description": "Text of the page and of the components."
+      }
+    },
+    "size": {
+      "$type": "dimension",
+      "sm": { "$value": "{font-size.100}" },
+      "md": { "$value": "{font-size.200}" },
+      "lg": { "$value": "{font-size.300}" }
+    },
+    "weight": {
+      "$type": "fontWeight",
+      "regular": { "$value": "{font-weight.400}" },
+      "medium": { "$value": "{font-weight.500}" },
+      "semibold": { "$value": "{font-weight.600}" }
+    },
+    "line-height": {
+      "$type": "number",
+      "body": { "$value": "{line-height.150}" }
+    }
+  },
+  "focus-ring": {
+    "$type": "dimension",
+    "$description": "The focus indicator, the same in every component.",
+    "width": { "$value": "{dimension.50}" },
+    "offset": { "$value": "{dimension.50}" }
+  },
+  "opacity": {
+    "$type": "number",
+    "disabled": { "$value": "{opacity.60}", "$description": "A disabled component." }
+  },
+  "shadow": {
+    "$type": "shadow",
+    "raised": {
+      "$value": "{shadow.200}",
+      "$description": "A surface above the page, like a card."
+    },
+    "overlay": {
+      "$value": "{shadow.300}",
+      "$description": "A surface above everything, like a modal."
+    }
+  },
+  "motion": {
+    "duration": {
+      "$type": "duration",
+      "$description": "Zero when the user asks for reduced motion (motion.reduced).",
+      "fast": { "$value": "{duration.150}" },
+      "base": { "$value": "{duration.250}" }
+    },
+    "easing": {
+      "$type": "cubicBezier",
+      "standard": { "$value": "{easing.ease}" }
+    }
+  }
+}

@@ -1,7 +1,5 @@
-:host {
-  /* Overrides the default of a base component token, still a token. */
-  --u-button-border-radius: var(--u-radius-full);
-}
+/* ACME's values of the base's button tokens are in acme-button.tokens.css,
+   generated from tokens/component/button/ (pill corners). */
 
 /* The base's parts are its public API (ADR 0001, D3), checked by its
    contract test; its class names are internal and may change. */

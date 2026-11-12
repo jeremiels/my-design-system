@@ -1,0 +1,6 @@
+{
+  "font-family": {
+    "$type": "fontFamily",
+    "serif": { "$value": ["Georgia", "Times New Roman", "serif"] }
+  }
+}

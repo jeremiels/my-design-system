@@ -1,0 +1,22 @@
+{
+  "font-family": {
+    "$type": "fontFamily",
+    "sans": { "$value": ["Helvetica Neue", "sans-serif"] }
+  },
+  "font-weight": {
+    "$type": "fontWeight",
+    "400": { "$value": 400 },
+    "500": { "$value": 500 },
+    "600": { "$value": 600 }
+  },
+  "font-size": {
+    "$type": "dimension",
+    "100": { "$value": { "value": 0.875, "unit": "rem" } },
+    "200": { "$value": { "value": 1, "unit": "rem" } },
+    "300": { "$value": { "value": 1.25, "unit": "rem" } }
+  },
+  "line-height": {
+    "$type": "number",
+    "150": { "$value": 1.5 }
+  }
+}

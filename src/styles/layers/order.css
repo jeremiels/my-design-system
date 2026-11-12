@@ -5,5 +5,12 @@
    (ADR 0001, D4): layer names are global to the document, and unprefixed
    ones (`base`, `utilities`…) would merge with the application's own layers
    — Tailwind CSS v4, for one, declares `theme, base, components, utilities`.
-   The application's unlayered styles still win over all of them. */
+   The application's unlayered styles still win over all of them.
+
+   The token sub-layers, `u.tokens.base` then a brand's `u.tokens.brand`
+   (ADR 0002), are ordered by their blocks: a brand imports its sheet after
+   the base's. Not by a statement here: minified, it would become a bare
+   `@layer u.tokens.brand;` after the base's block, which postcss-import (in
+   Vite) hoists to the top when a brand or an application bundles the sheet,
+   putting the brand's values under the base's. */
 @layer u.reset, u.tokens, u.base, u.components, u.utilities, u.shame;

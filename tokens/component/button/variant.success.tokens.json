@@ -1,0 +1,8 @@
+{
+  "button": {
+    "background-color": { "$value": "{color.success.background}" },
+    "background-color-hover": { "$value": "{color.success.background-hover}" },
+    "background-color-active": { "$value": "{color.success.background-active}" },
+    "text-color": { "$value": "{color.success.text}" }
+  }
+}

@@ -54,10 +54,10 @@
   /* The page follows the tokens, dark mode included (tokens from styles.css) */
   body {
     min-height: 100vh;
-    line-height: var(--u-line-height-base);
+    line-height: var(--u-font-line-height-body);
     text-rendering: optimizeSpeed;
-    font-family: var(--u-font-family-base);
-    background-color: var(--u-color-surface);
+    font-family: var(--u-font-family-body);
+    background-color: var(--u-color-surface-default);
     color: var(--u-color-text-default);
   }
 

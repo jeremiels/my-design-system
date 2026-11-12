@@ -10,6 +10,9 @@
     /* Bundler mode */
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
+    // Plugins import each other as .ts: Node runs them as-is (the manifest
+    // config), tsconfig.plugin.json rewrites the extensions when building.
+    "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": true,
     "moduleDetection": "force",
     "noEmit": true,

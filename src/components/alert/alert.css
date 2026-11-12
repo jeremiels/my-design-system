@@ -1,11 +1,5 @@
-:host {
-  --u-alert-background-color: var(--u-color-information-bg);
-  --u-alert-text-color: var(--u-color-information-text);
-  --u-alert-padding: var(--u-spacing-md);
-  --u-alert-border-radius: var(--u-radius-md);
-  --u-alert-font-family: var(--u-font-family-base);
-}
-
+/* The tokens and their types are in alert.tokens.css, generated from
+   tokens/component/alert/ (ADR 0002). These rules only read them. */
 .alert {
   padding: var(--u-alert-padding);
   border-radius: var(--u-alert-border-radius);
@@ -28,18 +22,4 @@
   .alert {
     border: 1px solid CanvasText;
   }
-}
-
-/* On the host, so the application's values still win (see button-base.css). */
-:host([type="success"]) {
-  --u-alert-background-color: var(--u-color-success-bg);
-  --u-alert-text-color: var(--u-color-success-text);
-}
-:host([type="warning"]) {
-  --u-alert-background-color: var(--u-color-warning-bg);
-  --u-alert-text-color: var(--u-color-warning-text);
-}
-:host([type="danger"]) {
-  --u-alert-background-color: var(--u-color-danger-bg);
-  --u-alert-text-color: var(--u-color-danger-text);
 }

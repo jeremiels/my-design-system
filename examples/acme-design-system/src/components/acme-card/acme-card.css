@@ -1,24 +1,21 @@
+/* The tokens are in acme-card.tokens.css, generated from
+   tokens/component/card/. These rules only read them. */
 :host {
-  --acme-card-padding: var(--u-spacing-lg);
-  --acme-card-background-color: var(--u-color-surface-raised);
-  --acme-card-border-radius: var(--u-radius-lg);
-  --acme-card-shadow: var(--u-shadow-elevation-md);
-
   display: block;
 }
 
 .card {
   display: grid;
-  gap: var(--u-spacing-sm);
+  gap: var(--acme-card-gap);
   justify-items: start;
   padding: var(--acme-card-padding);
   background-color: var(--acme-card-background-color);
   border-radius: var(--acme-card-border-radius);
   box-shadow: var(--acme-card-shadow);
-  font-family: var(--u-font-family-base);
+  font-family: var(--acme-card-font-family);
 }
 
 .heading {
   margin: 0;
-  font-size: var(--u-font-size-lg);
+  font-size: var(--acme-card-heading-font-size);
 }

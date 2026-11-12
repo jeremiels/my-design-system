@@ -111,8 +111,9 @@ export const Variants = meta.story({
     const buttons = [...canvasElement.querySelectorAll<Button>("u-button")];
     await Promise.all(buttons.map((button) => button.updateComplete));
     const backgrounds = buttons.map((button) => {
-      // Base, disabled-mixin and button sheets (CSS module scripts), all adopted.
-      expect(button.shadowRoot!.adoptedStyleSheets).toHaveLength(3);
+      // Base, disabled-mixin, generated tokens and button sheets (CSS module
+      // scripts), all adopted.
+      expect(button.shadowRoot!.adoptedStyleSheets).toHaveLength(4);
       const inner = button.shadowRoot!.querySelector(".button")!;
       expect(getComputedStyle(inner).display).toBe("inline-grid");
       return getComputedStyle(inner).backgroundColor;

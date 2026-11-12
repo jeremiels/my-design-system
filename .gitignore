@@ -29,7 +29,9 @@ storybook-static
 # Vitest browser mode attachments (failure screenshots)
 .vitest
 
-# Example brand design system: packed base, generated manifest
+# Example brand design system: packed base, generated manifest and token sheets
 examples/*/.base
 examples/*/custom-elements.json
+examples/*/src/theme.css
+examples/*/src/**/*.tokens.css
 *.tgz

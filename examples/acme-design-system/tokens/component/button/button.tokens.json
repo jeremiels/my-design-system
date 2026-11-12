@@ -1,0 +1,5 @@
+{
+  "button": {
+    "border-radius": { "$value": "{radius.full}" }
+  }
+}

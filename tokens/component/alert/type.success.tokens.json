@@ -1,0 +1,6 @@
+{
+  "alert": {
+    "background-color": { "$value": "{color.success.background}" },
+    "text-color": { "$value": "{color.success.text}" }
+  }
+}

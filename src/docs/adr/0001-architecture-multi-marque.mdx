@@ -120,6 +120,8 @@ Lion, référence du modèle marque blanche, va jusqu'au niveau 3. Spectrum s'en
 
 La production des tokens n'est **pas tranchée** et fera l'objet d'un ADR dédié : source Figma, format (DTCG ou autre), outillage, validation, nommage détaillé.
 
+**Amendement du 12 novembre 2026 :** l'[ADR 0002](?path=/docs/documentation-adr-0002-tokens-au-format-dtcg--docs) tranche le format (DTCG 2025.10), l'outil (Terrazzo) et le nommage. L'export depuis Figma reste ouvert.
+
 Cet ADR suppose seulement ce que les composants exigent déjà, quelle que soit la future chaîne de production :
 
 - les composants consomment des **custom properties CSS**, à travers leurs tokens de composant, qui pointent vers des tokens sémantiques (architecture à trois niveaux actuelle) ;
@@ -212,7 +214,7 @@ Le package sera publié sur un **registre privé interne (Artifactory)**, config
     </tr>
     <tr>
       <td>D4 — Tokens et thèmes</td>
-      <td>Production reportée à un ADR dédié ; préfixe `--u-` pour tous les tokens</td>
+      <td>Production tranchée par l'ADR 0002 ; préfixe `--u-` pour tous les tokens</td>
       <td>Les noms sont compilés dans les composants : à fixer avant la première marque</td>
     </tr>
     <tr>
@@ -251,3 +253,4 @@ Aucune.
 - **Préfixe des balises du socle :** `u-` (`u-button`, `u-modal`…), aligné sur les tokens ; il ne sert qu'à l'enregistrement par défaut (Storybook, démo, usage sans marque). Les événements propres au socle suivent (`u-close`) ; le bouton, lui, émet le `click` natif de son contrôle, sans événement dupliqué (amendement du 11 novembre 2026).
 - **Deux versions d'une même marque sur une page :** non couvert, jugé peu probable ; les règles de D2 gardent la migration localisée. Amendement du 11 novembre 2026 : un second enregistrement du même préfixe (autre copie du design system chargée par un autre micro-frontend, rechargement à chaud) ne fait plus échouer la page. Les définitions existantes sont conservées, avec un avertissement si elles diffèrent : les deux applications utilisent alors la version chargée en premier. C'est un repli, pas une prise en charge.
 - **Publication :** registre privé interne (Artifactory), configuré hors de ce poste ; démo d'abord, via `npm pack`.
+- **Production des tokens :** sources DTCG générées en CSS par Terrazzo, sur les trois niveaux (ADR 0002, 12 novembre 2026).

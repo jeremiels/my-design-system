@@ -1,0 +1,60 @@
+{
+  "name": "@acme/design-system",
+  "version": "2025.10",
+  "description": "The base's tokens, then ACME's: same names, ACME's values. Its files come after the base's in each set, so they win. `tz build` outputs ACME's tokens only; the base's sheets have the others.",
+  "sets": {
+    "primitive": {
+      "sources": [
+        { "$ref": "../node_modules/my-design-system/tokens/primitive/palette.tokens.json" },
+        { "$ref": "../node_modules/my-design-system/tokens/primitive/dimension.tokens.json" },
+        { "$ref": "../node_modules/my-design-system/tokens/primitive/typography.tokens.json" },
+        { "$ref": "../node_modules/my-design-system/tokens/primitive/motion.tokens.json" },
+        { "$ref": "../node_modules/my-design-system/tokens/primitive/effect.tokens.json" },
+        { "$ref": "primitive/palette.tokens.json" },
+        { "$ref": "primitive/typography.tokens.json" }
+      ]
+    },
+    "semantic": {
+      "sources": [
+        { "$ref": "../node_modules/my-design-system/tokens/semantic/semantic.tokens.json" },
+        { "$ref": "semantic/semantic.tokens.json" }
+      ]
+    },
+    "component": {
+      "sources": [
+        { "$ref": "../node_modules/my-design-system/tokens/component/button/button.tokens.json" },
+        { "$ref": "component/button/button.tokens.json" },
+        { "$ref": "component/card/card.tokens.json" }
+      ]
+    }
+  },
+  "modifiers": {
+    "theme": {
+      "default": "light",
+      "contexts": {
+        "light": [
+          { "$ref": "../node_modules/my-design-system/tokens/semantic/theme.light.tokens.json" }
+        ],
+        "dark": [
+          { "$ref": "../node_modules/my-design-system/tokens/semantic/theme.dark.tokens.json" }
+        ]
+      }
+    },
+    "motion": {
+      "default": "full",
+      "contexts": {
+        "full": [],
+        "reduced": [
+          { "$ref": "../node_modules/my-design-system/tokens/semantic/motion.reduced.tokens.json" }
+        ]
+      }
+    }
+  },
+  "resolutionOrder": [
+    { "$ref": "#/sets/primitive" },
+    { "$ref": "#/sets/semantic" },
+    { "$ref": "#/modifiers/theme" },
+    { "$ref": "#/modifiers/motion" },
+    { "$ref": "#/sets/component" }
+  ]
+}

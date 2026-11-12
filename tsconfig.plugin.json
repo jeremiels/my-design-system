@@ -1,9 +1,11 @@
 {
   // Builds plugins/ (Node code, e.g. the CSS module scripts Vite plugin) into
-  // dist/plugins for brand design systems: `my-design-system/vite-plugin`.
+  // dist/plugins for brand design systems: `my-design-system/vite-plugin`,
+  // `my-design-system/terrazzo-plugin` and `my-design-system/cem-plugin`.
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "noEmit": false,
+    "rewriteRelativeImportExtensions": true,
     "declaration": true,
     "rootDir": "plugins",
     "outDir": "dist/plugins"

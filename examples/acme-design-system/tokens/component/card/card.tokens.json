@@ -1,0 +1,40 @@
+{
+  "card": {
+    "$description": "Tokens of `acme-card`, ACME's own component: prefixed `--acme-`.",
+    "padding": {
+      "$type": "dimension",
+      "$value": "{spacing.lg}",
+      "$description": "Internal padding."
+    },
+    "background-color": {
+      "$type": "color",
+      "$value": "{color.surface.raised}",
+      "$description": "Background color."
+    },
+    "border-radius": {
+      "$type": "dimension",
+      "$value": "{radius.lg}",
+      "$description": "Corner radius."
+    },
+    "shadow": {
+      "$type": "shadow",
+      "$value": "{shadow.raised}",
+      "$description": "Shadow."
+    },
+    "gap": {
+      "$type": "dimension",
+      "$value": "{spacing.sm}",
+      "$description": "Space between the heading, the content and the action."
+    },
+    "font-family": {
+      "$type": "fontFamily",
+      "$value": "{font.family.body}",
+      "$description": "Font family."
+    },
+    "heading-font-size": {
+      "$type": "dimension",
+      "$value": "{font.size.lg}",
+      "$description": "Heading font size."
+    }
+  }
+}

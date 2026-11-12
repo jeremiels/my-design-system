@@ -4,7 +4,8 @@
   "private": true,
   "files": [
     "dist",
-    "custom-elements.json"
+    "custom-elements.json",
+    "tokens/**/*.json"
   ],
   "type": "module",
   "sideEffects": [
@@ -39,6 +40,15 @@
       "types": "./dist/plugins/css-import-attributes.d.ts",
       "import": "./dist/plugins/css-import-attributes.js"
     },
+    "./terrazzo-plugin": {
+      "types": "./dist/plugins/terrazzo-plugin.d.ts",
+      "import": "./dist/plugins/terrazzo-plugin.js"
+    },
+    "./cem-plugin": {
+      "types": "./dist/plugins/cem-plugin.d.ts",
+      "import": "./dist/plugins/cem-plugin.js"
+    },
+    "./tokens/*": "./tokens/*",
     "./css-modules": {
       "types": "./dist/css-modules.d.ts"
     },
@@ -65,13 +75,15 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "npm run analyze && vite build && tsc -p tsconfig.build.json && tsc -p tsconfig.plugin.json && cp src/css-modules.d.ts dist/",
+    "build": "npm run tokens && npm run analyze && vite build && tsc -p tsconfig.build.json && tsc -p tsconfig.plugin.json && cp src/css-modules.d.ts dist/",
     "preview": "vite preview",
-    "storybook": "npm run analyze && storybook dev -p 6006",
-    "build-storybook": "npm run analyze && storybook build",
+    "storybook": "npm run tokens && npm run analyze && storybook dev -p 6006",
+    "build-storybook": "npm run tokens && npm run analyze && storybook build",
     "analyze": "cem analyze",
+    "tokens": "tz build && oxfmt src/styles/tokens.css src/components/*/*.tokens.css",
+    "tokens:check": "npm run tokens && git diff --exit-code -- src/styles/tokens.css 'src/components/*/*.tokens.css'",
     "api:check": "cem analyze && git diff --exit-code -- custom-elements.json",
-    "check": "oxlint src && oxfmt --check && tsc -p tsconfig.json --noEmit && npm run api:check && npm run dsds && vitest run",
+    "check": "oxlint src && oxfmt --check && tsc -p tsconfig.json --noEmit && npm run tokens:check && npm run api:check && npm run dsds && vitest run",
     "lint": "oxlint src --fix",
     "fmt": "oxfmt",
     "fmt:check": "oxfmt --check",
@@ -87,6 +99,9 @@
     "@storybook/addon-vitest": "^10.6.7",
     "@storybook/web-components": "^10.6.7",
     "@storybook/web-components-vite": "^10.6.7",
+    "@terrazzo/cli": "^2.10.0",
+    "@terrazzo/parser": "^2.10.0",
+    "@terrazzo/token-tools": "^2.10.0",
     "@types/mdx": "^2.0.14",
     "@types/node": "^26.6.6",
     "@vitest/browser": "^5.1.0",
@@ -109,11 +124,19 @@
     "yaml": "^2.9.1"
   },
   "peerDependencies": {
+    "@terrazzo/cli": "^2.10.0",
+    "@terrazzo/token-tools": "^2.10.0",
     "lit": "^3.3.3",
     "vite": "^8.3.0"
   },
   "peerDependenciesMeta": {
     "vite": {
+      "optional": true
+    },
+    "@terrazzo/cli": {
+      "optional": true
+    },
+    "@terrazzo/token-tools": {
       "optional": true
     }
   },

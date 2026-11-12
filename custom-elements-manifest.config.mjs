@@ -1,6 +1,8 @@
 // Custom Elements Manifest (ADR 0001, D5): generated from the components'
 // JSDoc and TypeScript by `npm run analyze`, committed so API changes show up
 // in review, and published with the package (`customElements` field).
+import { tokensManifest } from "./plugins/cem-plugin.ts";
+
 export default {
   globs: ["src/**/*.ts"],
   exclude: [
@@ -15,6 +17,8 @@ export default {
   outdir: ".",
   litelement: true,
   plugins: [
+    // `@tokens button`: the component's tokens, from the DTCG tokens (ADR 0002).
+    tokensManifest({ resolver: "tokens/u.resolver.json", prefix: "u" }),
     {
       // `dispatchEvent(new ModalCloseEvent())` yields an unnamed event next to
       // the documented one (`@fires u-close`): keep documented events only.

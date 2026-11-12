@@ -14,15 +14,49 @@ Les noms de couches sont globaux au document. Des noms nus fusionneraient avec l
 
 L'application garde la main : ses styles hors couche l'emportent sur toutes les couches du socle.
 
+## Les sous-couches des tokens sont ordonnées par leurs blocs
+
+Les tokens d'une marque doivent l'emporter sur ceux du socle. Ils vivent dans `u.tokens.brand`, après `u.tokens.base`.
+
+Une déclaration `@layer u.tokens.base, u.tokens.brand;` fixerait cet ordre quel que soit l'ordre d'import. Elle ne survit pas aux outils de build :
+
+- Lightning CSS, le minifieur de Vite, la découpe. `u.tokens.brand` n'a pas de bloc dans le socle : il devient un `@layer u.tokens.brand;` isolé, après le bloc de `u.tokens.base`.
+- postcss-import, qui résout les `@import` dans Vite, remonte en tête de fichier les `@layer` sans bloc qui suivent d'autres at-rules.
+- Quand une marque ou une application bundle la feuille du socle, `u.tokens.brand` passe donc avant `u.tokens.base`, et la marque perd.
+
+Sans cette déclaration, l'ordre des sous-couches est celui de leurs blocs. La marque importe sa feuille après celle du socle, et aucun outil ne déplace un bloc.
+
 ## Trois niveaux de tokens
 
-Un thème doit changer une valeur à un seul endroit.
+Un changement de marque ou de thème doit toucher un seul niveau.
 
-- **Les primitives** portent les valeurs brutes. Un thème, clair, sombre ou de marque, change seulement elles.
-- **Les tokens sémantiques** nomment une intention : `action`, `danger`. Sans eux, chaque composant lirait une primitive, et le thème sombre se répéterait dans chaque composant.
+- **Les primitives** portent les valeurs brutes, les mêmes dans les deux thèmes. Une marque change surtout elles : ses palettes, ses polices.
+- **Les tokens sémantiques** nomment une intention : `action`, `danger`. Ils choisissent une primitive par thème. Sans eux, chaque composant lirait une primitive, et le thème sombre se répéterait dans chaque composant.
 - **Les tokens de composant** donnent à l'application et aux marques un réglage par composant, sans toucher aux autres.
 
-Les états de survol et d'appui sont calculés avec `color-mix()`. Une intention n'a donc qu'une couleur à maintenir. Le mélange tire vers `--u-color-text`, à l'opposé du texte que porte la couleur. Le contraste avec ce texte ne peut donc qu'augmenter.
+## Les thèmes vivent dans les tokens sémantiques
+
+Une palette est une échelle de clarté : le pas 600 est sombre, le pas 300 est clair, quelle que soit la teinte. Le thème clair met les fonds d'intention au pas 600 sous un texte blanc. Le thème sombre les met au pas 300 sous un texte presque noir.
+
+Une marque fournit donc ses palettes avec les mêmes pas. Elle hérite des deux thèmes du socle, sans écrire de valeur sombre. Son contraste reste celui du socle, à la teinte près. `contrastFailures()` le vérifie.
+
+Material 3 et Primer suivent ce modèle : des palettes de référence communes aux thèmes, et des rôles sémantiques qui changent avec le thème.
+
+## Le survol et l'appui sont des pas de palette
+
+Le survol prend le pas suivant, à l'opposé du texte : 700 en clair, 200 en sombre. L'appui prend le pas d'après. Le fond s'éloigne du texte, et le contraste ne peut qu'augmenter.
+
+Un mélange calculé (`color-mix()`) donnerait le même effet avec une seule couleur par intention. Mais ni le format DTCG ni les variables Figma ne savent l'exprimer. Les pas de palette s'écrivent dans les deux.
+
+## Les sources sont en DTCG, le CSS est généré
+
+Les tokens des marques viennent de Figma (ADR 0001). Le format DTCG est le format d'échange des outils de design : Figma, Tokens Studio, Terrazzo et Style Dictionary le lisent ou l'écrivent. Les sources du socle sont donc en DTCG, et le CSS en est généré.
+
+Le CSS généré est commité, comme `custom-elements.json`. Une revue voit chaque changement de valeur. `npm run tokens:check` garantit qu'il correspond aux sources.
+
+Les variantes d'un composant sont des modifiers du resolver, comme le thème. Figma les représente de la même façon : des modes d'une collection de variables.
+
+Le plugin vérifie les trois niveaux à chaque build. Une règle écrite dans une page seulement ne tiendrait pas face à un export Figma.
 
 ## Les variantes changent les tokens sur l'hôte
 
@@ -32,7 +66,7 @@ Un token redéclaré sur un élément interne écraserait au contraire la valeur
 
 ## Pas de valeur de repli littérale
 
-Une valeur de repli (`var(--u-color-action-bg, #007bff)`) recopie une valeur qui existe déjà dans les primitives. Avec deux composants, deux copies divergent sans bruit.
+Une valeur de repli (`var(--u-color-action-background, #1c65c8)`) recopie une valeur qui existe déjà dans les primitives. Avec deux composants, deux copies divergent sans bruit.
 
 La feuille de tokens est donc une dépendance des composants, chargée une fois par l'application. Spectrum, Web Awesome, Material Web et Carbon suivent la même convention.
 
@@ -52,4 +86,4 @@ Les navigateurs de la matrice ne savent pas tous importer un CSS module script. 
 
 ## Un seul point de contrôle pour le mouvement
 
-Les composants lisent leurs durées dans `--u-motion-duration-*`. `motion.css` met ces durées à zéro quand l'utilisateur demande moins de mouvement. Aucun composant n'a besoin de sa propre media query.
+Les composants lisent leurs durées dans des tokens, qui pointent vers `motion.duration.*`. Le contexte `motion: reduced` met ces durées à zéro quand l'utilisateur demande moins de mouvement. Aucun composant n'a besoin de sa propre media query.

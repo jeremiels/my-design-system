@@ -1,0 +1,88 @@
+{
+  "name": "my-design-system",
+  "version": "2025.10",
+  "description": "The base's tokens on three levels: the sets give each level's tokens, the modifiers the values that change with a context (theme, reduced motion, component variant). `npm run tokens` builds the CSS.",
+  "sets": {
+    "primitive": {
+      "description": "Raw values, no theme: what a brand changes first.",
+      "sources": [
+        { "$ref": "primitive/palette.tokens.json" },
+        { "$ref": "primitive/dimension.tokens.json" },
+        { "$ref": "primitive/typography.tokens.json" },
+        { "$ref": "primitive/motion.tokens.json" },
+        { "$ref": "primitive/effect.tokens.json" }
+      ]
+    },
+    "semantic": {
+      "description": "Intents, aliases of primitives. The colors are in the theme modifier.",
+      "sources": [{ "$ref": "semantic/semantic.tokens.json" }]
+    },
+    "component": {
+      "description": "Each component's tokens, aliases of semantic tokens. Their defaults; the variants are modifiers.",
+      "sources": [
+        { "$ref": "component/button/button.tokens.json" },
+        { "$ref": "component/alert/alert.tokens.json" },
+        { "$ref": "component/modal/modal.tokens.json" }
+      ]
+    }
+  },
+  "modifiers": {
+    "theme": {
+      "description": "Light or dark: the semantic colors.",
+      "default": "light",
+      "contexts": {
+        "light": [{ "$ref": "semantic/theme.light.tokens.json" }],
+        "dark": [{ "$ref": "semantic/theme.dark.tokens.json" }]
+      }
+    },
+    "motion": {
+      "description": "Reduced motion: no duration.",
+      "default": "full",
+      "contexts": {
+        "full": [],
+        "reduced": [{ "$ref": "semantic/motion.reduced.tokens.json" }]
+      }
+    },
+    "button-variant": {
+      "description": "The `variant` attribute of `button` and `button-link`.",
+      "default": "primary",
+      "contexts": {
+        "primary": [],
+        "secondary": [{ "$ref": "component/button/variant.secondary.tokens.json" }],
+        "success": [{ "$ref": "component/button/variant.success.tokens.json" }],
+        "warning": [{ "$ref": "component/button/variant.warning.tokens.json" }],
+        "danger": [{ "$ref": "component/button/variant.danger.tokens.json" }],
+        "information": [{ "$ref": "component/button/variant.information.tokens.json" }]
+      }
+    },
+    "button-size": {
+      "description": "The `size` attribute of `button` and `button-link`.",
+      "default": "medium",
+      "contexts": {
+        "small": [{ "$ref": "component/button/size.small.tokens.json" }],
+        "medium": [],
+        "large": [{ "$ref": "component/button/size.large.tokens.json" }]
+      }
+    },
+    "alert-type": {
+      "description": "The `type` attribute of `alert`.",
+      "default": "information",
+      "contexts": {
+        "information": [],
+        "success": [{ "$ref": "component/alert/type.success.tokens.json" }],
+        "warning": [{ "$ref": "component/alert/type.warning.tokens.json" }],
+        "danger": [{ "$ref": "component/alert/type.danger.tokens.json" }]
+      }
+    }
+  },
+  "resolutionOrder": [
+    { "$ref": "#/sets/primitive" },
+    { "$ref": "#/sets/semantic" },
+    { "$ref": "#/modifiers/theme" },
+    { "$ref": "#/modifiers/motion" },
+    { "$ref": "#/sets/component" },
+    { "$ref": "#/modifiers/button-variant" },
+    { "$ref": "#/modifiers/button-size" },
+    { "$ref": "#/modifiers/alert-type" }
+  ]
+}

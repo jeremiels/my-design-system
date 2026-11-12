@@ -26,7 +26,7 @@
     "./custom-elements.json": "./custom-elements.json"
   },
   "scripts": {
-    "build": "vite build && tsc -p tsconfig.build.json && cem analyze",
+    "build": "tz build && vite build && tsc -p tsconfig.build.json && cem analyze",
     "test": "node test/smoke.mjs"
   },
   "dependencies": {
