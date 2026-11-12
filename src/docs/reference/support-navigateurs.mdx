@@ -6,6 +6,14 @@ import { Meta } from "@storybook/addon-docs/blocks";
 
 Le socle supporte les canaux étendus des entreprises (Firefox ESR, Chrome et Edge Extended Stable). Il supporte aussi Android et iOS, y compris le Safari des iPhone bloqués sur iOS 16.
 
+## Règle
+
+- **Public :** le plancher d'un moteur est la plus ancienne version que le public utilise encore.
+- **Exclusion :** un plancher plus haut que le public est une décision. La matrice donne la part exclue et le coût de l'inclure.
+- **Architecture :** les composants associés aux formulaires demandent `ElementInternals` et les feuilles de style constructibles. Ce minimum ne descend pas sans changer d'architecture.
+- **Fonctionnalités :** une fonctionnalité suit le plancher et ne le fixe jamais. Absente du plancher, elle s'utilise en amélioration progressive ou avec une valeur de repli.
+- **Parts :** elles viennent de `caniuse-lite` (StatCounter), pour la France, en novembre 2026. Elles couvrent tous les sites, robots compris. Les statistiques de l'application grand public les remplacent quand elles existent.
+
 ## Matrice
 
 <table>
@@ -13,45 +21,56 @@ Le socle supporte les canaux étendus des entreprises (Firefox ESR, Chrome et Ed
     <tr>
       <th>Navigateur</th>
       <th>Version minimale</th>
-      <th>Fonctionnalité qui fixe ce plancher</th>
+      <th>Public exclu en France</th>
+      <th>Raison du plancher</th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <td>Chrome / Edge / Chrome Android</td>
       <td>111</td>
-      <td>`color-mix()` (tokens sémantiques de survol et d'appui)</td>
+      <td>≈ 1,6 %</td>
+      <td>
+        Exclusion décidée : descendre demande un repli pour les tokens `color-mix()` et `oklch()`.
+        Chrome et Edge 109 (Windows 7 et 8.1) pèsent ≈ 0,7 %.
+      </td>
     </tr>
     <tr>
       <td>Samsung Internet</td>
       <td>22</td>
-      <td>Première version qui atteint Chromium 111</td>
+      <td>≈ 0,05 %</td>
+      <td>Aligné sur Chromium 111</td>
     </tr>
     <tr>
       <td>Opera</td>
       <td>97</td>
-      <td>Première version qui atteint Chromium 111</td>
+      <td>≈ 0,05 %</td>
+      <td>Aligné sur Chromium 111</td>
     </tr>
     <tr>
       <td>Opera Android</td>
       <td>75</td>
-      <td>Première version qui atteint Chromium 111</td>
+      <td>Non mesuré</td>
+      <td>Aligné sur Chromium 111</td>
     </tr>
     <tr>
       <td>Firefox</td>
-      <td>113</td>
-      <td>`color-mix()`</td>
+      <td>115</td>
+      <td>≈ 0,07 %</td>
+      <td>Plus ancienne version utilisée : Firefox ESR 115 (≈ 0,3 %)</td>
     </tr>
     <tr>
       <td>Firefox Android</td>
-      <td>113</td>
-      <td>Moteur de Firefox 113</td>
+      <td>115</td>
+      <td>Non mesuré</td>
+      <td>Aligné sur Firefox 115</td>
     </tr>
     <tr>
       <td>Safari / iOS</td>
       <td>16.4</td>
+      <td>≈ 0,7 %</td>
       <td>
-        `CSSStyleSheet` constructibles adoptées, `ElementInternals`, blocs `static {}` (ES2022)
+        Minimum de l'architecture : feuilles de style constructibles adoptées, `ElementInternals`
       </td>
     </tr>
   </tbody>
@@ -59,10 +78,8 @@ Le socle supporte les canaux étendus des entreprises (Firefox ESR, Chrome et Ed
 
 - **Source de vérité :** le champ `"browserslist"` de `package.json`. Il alimente `build.target` (JS), `build.cssTarget` (CSS, abaissé par Lightning CSS) et `npm run compat`.
 - **Noms Android :** dans `browserslist`, `chrome` et `firefox` désignent les versions de bureau. Android a ses propres noms : `and_chr`, `and_ff`, `samsung` et `op_mob`.
-- **Une version récente seulement :** les données de `browserslist` ne connaissent qu'une version récente de `and_chr`, `and_ff` et `op_mob`. Le plancher de leur moteur est vérifié par `chrome >= 111` et `firefox >= 113`.
-- **Plancher :** pour chaque moteur, la première version qui a toutes les fonctionnalités du code. La dernière colonne nomme la fonctionnalité qui le fixe.
+- **Une version récente seulement :** les données de `browserslist` ne connaissent qu'une version récente de `and_chr`, `and_ff` et `op_mob`. caniuse ne mesure donc pas leur public exclu. Le plancher de leur moteur est vérifié par `chrome >= 111` et `firefox >= 115`.
 - **Versions figées :** la matrice nomme des versions, pas une requête glissante comme `baseline widely available`. Elle change seulement par une décision.
-- **Windows 7 et 8.1 :** la matrice ne les vise pas. Chrome 109, leur dernier Chrome, est sous le plancher.
 
 ## Fonctionnalités à surveiller
 
