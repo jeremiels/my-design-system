@@ -42,6 +42,12 @@ export default mergeConfig(
             // See options at: https://storybook.js.org/docs/next/writing-tests/integrations/vitest-addon#storybooktest
             storybookTest({ configDir: path.join(import.meta.dirname, ".storybook") }),
           ],
+          optimizeDeps: {
+            // Imported by .storybook/actions.ts. The plugin pre-bundles
+            // storybook/preview-api and storybook/test, not this one: Vite
+            // discovers it mid-run on a stale cache and reloads the iframes.
+            include: ["storybook/actions"],
+          },
           test: {
             name: "storybook",
             browser: {

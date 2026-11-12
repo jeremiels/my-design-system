@@ -7,7 +7,7 @@ description: Documenter ou changer l'API publique d'un composant ou d'un mixin d
 
 L'API publique est déclarée une fois, dans la JSDoc. `npm run analyze` la transforme en `custom-elements.json` (Custom Elements Manifest, ADR 0001, D3 et D5). Ce qui n'est pas documenté est interne.
 
-Le manifest est commité et publié avec le package. Storybook l'affiche (autodocs, controls). Le manifest d'une marque l'inclut. `src/api-contract.test.ts` le compare aux composants rendus.
+Le manifest est commité et publié avec le package. Storybook l'affiche (autodocs, controls, panneau Actions). Le manifest d'une marque l'inclut. `src/api-contract.test.ts` le compare aux composants rendus.
 
 ## JSDoc de la classe
 

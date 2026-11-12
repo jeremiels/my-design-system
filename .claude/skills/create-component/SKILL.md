@@ -41,6 +41,7 @@ Lancez `npm run tokens`, puis `npm run analyze`. Relisez le diff de `custom-elem
 Écrivez `<nom>.stories.ts` à côté de la classe, sur le modèle de `button.stories.ts` :
 
 - `component: "u-<nom>"` : les autodocs et les controls viennent du manifest.
+- Le panneau Actions affiche les événements `@fires` du composant de la story (`.storybook/actions.ts`). N'écrivez aucun écouteur pour lui.
 - Une story par état utile.
 - Des fonctions `play` qui vérifient le comportement et le rendu : feuilles adoptées, rôles, événements. Elles tournent dans Chromium, Firefox et WebKit.
 
