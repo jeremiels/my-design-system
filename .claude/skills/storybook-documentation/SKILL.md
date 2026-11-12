@@ -70,14 +70,27 @@ Un tableau Markdown à barres verticales s'affiche en texte brut. Écrivez le ta
 - `<` suivi d'une lettre ou de `/` ouvre une balise JSX. Écrivez `Firefox avant 126`, ou mettez le texte dans du code.
 - Un commentaire s'écrit `{/* commentaire */}`, jamais `<!-- -->`.
 
-## 3. Écrivez un skill ou AGENTS.md
+## 3. Écrivez les règles d'usage d'un composant (DSDS, pilote)
+
+Les règles d'usage de `button` et `button-link` vivent dans leur document DSDS : `src/components/button/<nom>.dsds.yaml`. `design-system.dsds.yaml` liste ces documents. La spec est sur [designsystemdocspec.org](https://designsystemdocspec.org), en version 0.23.1.
+
+1. Écrivez chaque règle comme un élément de `guidelines` : un `level` (`must`, `should`, `may`, `should-not`, `must-not`) et un `statement` au présent, à l'impératif.
+2. Donnez un `checkedBy` à chaque règle. Une règle `automated` cite dans `checks` le test qui la vérifie : `./button.stories.ts#Disabled`.
+3. Réservez aux agents ce qui ne sert qu'à eux : une section `for: agent`. Storybook ne l'affiche pas.
+4. Ne recopiez jamais l'API : attributs, slots, parts et tokens restent dans `custom-elements.json`. Les `traits` donnent seulement le sens de chaque valeur.
+5. Mettez les champs dans l'ordre de la spec : `npx dsds-format <fichier>`.
+6. Lancez `npm run dsds`, puis `npx vitest run --project browser src/dsds.test.ts`. Le test compare les traits au composant et vérifie chaque lien vers un fichier ou une story.
+
+`.storybook/dsds.ts` lit les documents, et `.storybook/DocumentationTemplate.mdx` affiche les règles dans la page du composant.
+
+## 4. Écrivez un skill ou AGENTS.md
 
 - Un skill est un guide pour les agents. Il contient la procédure et les conventions qui n'existent dans aucune page.
 - Pour une règle déjà documentée dans une page, mettez un lien vers la page.
 - La `description` d'un skill dit quand le charger, en une ou deux phrases.
 - `AGENTS.md` est un index : une ligne par sujet, avec un lien.
 
-## 4. Relisez
+## 5. Relisez
 
 - La page a un seul type.
 - Chaque phrase porte une idée, en 25 mots au plus. Une étape de procédure fait 20 mots au plus.
@@ -87,7 +100,7 @@ Un tableau Markdown à barres verticales s'affiche en texte brut. Écrivez le ta
 - Aucun remplissage : ni « Avantages », ni « Conclusion », ni adjectif promotionnel.
 - Un fait documenté ailleurs est un lien, pas une copie.
 
-## 5. Vérifiez
+## 6. Vérifiez
 
 1. Formatez : `npx oxfmt <fichiers>`.
 2. Construisez Storybook dans un dossier temporaire : `npx storybook build -o <dossier> --quiet`. Un MDX invalide fait échouer le build.

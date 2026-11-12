@@ -40,7 +40,7 @@ Cette charte s'applique à toute la documentation du socle : les pages de Storyb
       <td>Référence</td>
       <td>Qu'est-ce que c'est, exactement ?</td>
       <td>Des faits et des règles, en listes et en tableaux</td>
-      <td>`src/docs/reference/`, JSDoc des composants</td>
+      <td>`src/docs/reference/`, JSDoc et documents DSDS des composants</td>
     </tr>
     <tr>
       <td>Explication</td>
@@ -86,6 +86,7 @@ La documentation décrit le système tel qu'il est.
 
 - Chaque règle vit dans une seule page. Les autres pages et les skills mettent un lien vers elle.
 - La JSDoc est la source de l'API des composants. Storybook l'affiche, et les pages ne la recopient pas.
+- Le document DSDS d'un composant (`<nom>.dsds.yaml`) est la source de ses règles d'usage. Storybook les affiche dans la page du composant. Ce format est un pilote, limité à `button` et `button-link`.
 - Un fait exact dans le code (un fichier, une commande) se cite par son chemin.
 
 ## Langue

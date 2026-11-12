@@ -1,0 +1,23 @@
+# Documentation DSDS du socle (pilote) : https://designsystemdocspec.org.
+# Ce document racine liste les documents des composants. L'API des
+# composants vit dans custom-elements.json : DSDS n'en recopie rien.
+schemaVersion: "0.23.1"
+$schema: https://designsystemdocspec.org/v0.23.1/dsds.bundled.yaml
+name: My Design System
+entries:
+  - kind: system
+    id: my-design-system
+    name: My Design System
+    description: >-
+      Un socle marque blanche pour design systems : des composants Lit, des
+      tokens `--u-` et l'outillage pour les étendre.
+    metadata:
+      origin:
+        method: authored
+        author: assisted
+      platforms: [web-component]
+refs:
+  - href: ./src/components/button/button.dsds.yaml
+    rel: file
+  - href: ./src/components/button/button-link.dsds.yaml
+    rel: file

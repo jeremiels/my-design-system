@@ -36,6 +36,7 @@ Les pages sont dans `src/docs/` et dans Storybook. Elles suivent la [charte de r
 - `src/testing/` : `contrastFailures()` (`my-design-system/testing`), le contraste d'un thème.
 - `src/styles/` : le CSS de la page. `main.css` devient `styles.css`, `reset.css` devient le `reset.css` optionnel.
 - `custom-elements.json` : l'API publique, générée par `npm run analyze` et commitée.
+- `design-system.dsds.yaml` et `src/components/*/*.dsds.yaml` : les règles d'usage des composants, au format [DSDS](https://designsystemdocspec.org) (pilote sur `button` et `button-link`).
 - `plugins/css-import-attributes.ts` : le plugin Vite des imports `with { type: "css" }`.
 - `examples/acme-design-system/` : une marque d'exemple, construite et testée contre l'archive du socle.
 - `tests/legacy/` : le test du `dist/` dans Firefox ESR 115.
@@ -58,6 +59,7 @@ npm run build                    # manifest, modules ES, .d.ts, plugin → dist/
 npm run check                    # oxlint, oxfmt --check, tsc, api:check, Vitest : ce que la CI exige
 npx vitest run --project browser # un projet Vitest : unit (Node), browser (Chromium), storybook (3 moteurs)
 npm run example                  # archive du socle → installation, build et test d'ACME
+npm run dsds                     # valide et vérifie le format des documents DSDS
 npm run compat                   # es-check et doiuse contre la matrice
 npm run test:legacy              # dist/ dans Firefox ESR 115
 npm run lint | fmt               # corrections automatiques

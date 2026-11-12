@@ -71,13 +71,14 @@
     "build-storybook": "npm run analyze && storybook build",
     "analyze": "cem analyze",
     "api:check": "cem analyze && git diff --exit-code -- custom-elements.json",
-    "check": "oxlint src && oxfmt --check && tsc -p tsconfig.json --noEmit && npm run api:check && vitest run",
+    "check": "oxlint src && oxfmt --check && tsc -p tsconfig.json --noEmit && npm run api:check && npm run dsds && vitest run",
     "lint": "oxlint src --fix",
     "fmt": "oxfmt",
     "fmt:check": "oxfmt --check",
     "compat": "npm run build && es-check checkBrowser \"dist/**/*.js\" --module --checkFeatures && node scripts/check-css-compat.mjs",
     "test:legacy": "npm run build && node tests/legacy/run.mjs",
-    "example": "node scripts/run-example.mjs"
+    "example": "node scripts/run-example.mjs",
+    "dsds": "dsds-validate --strict design-system.dsds.yaml src/components/*/*.dsds.yaml && dsds-format --check design-system.dsds.yaml src/components/*/*.dsds.yaml"
   },
   "devDependencies": {
     "@chromatic-com/storybook": "^5.6.0",
@@ -87,12 +88,14 @@
     "@storybook/addon-vitest": "^10.6.7",
     "@storybook/web-components": "^10.6.7",
     "@storybook/web-components-vite": "^10.6.7",
+    "@types/mdx": "^2.0.14",
     "@types/node": "^26.6.6",
     "@vitest/browser": "^5.1.0",
     "@vitest/browser-playwright": "^5.1.0",
     "@vitest/coverage-v8": "^5.1.0",
     "browserslist": "^4.29.5",
     "browserslist-to-esbuild": "^2.1.1",
+    "design-system-documentation-schema": "github:somerandomdude/design-system-documentation-schema#v0.23.1",
     "doiuse": "^6.0.6",
     "es-check": "^9.8.1",
     "lit": "^3.3.3",
@@ -104,7 +107,8 @@
     "typescript": "~7.0.2",
     "vite": "^8.3.8",
     "vitest": "^5.1.0",
-    "webdriverio": "^10.1.0"
+    "webdriverio": "^10.1.0",
+    "yaml": "^2.9.1"
   },
   "peerDependencies": {
     "lit": "^3.3.3",

@@ -3,10 +3,21 @@ import {
   Title,
   Subtitle,
   Description,
+  Markdown,
   Primary,
   Controls,
   Stories,
+  useOf,
 } from "@storybook/addon-docs/blocks";
+import { guidelinesMarkdown } from "./dsds";
+
+{/* The page of every component (preview.ts, docs.page). */}
+
+export const Guidelines = () => {
+  const { preparedMeta } = useOf("meta");
+  const markdown = guidelinesMarkdown(preparedMeta.component);
+  return markdown ? <Markdown>{markdown}</Markdown> : null;
+};
 
 <Meta isTemplate />
 
@@ -17,6 +28,10 @@ import {
 <Primary />
 
 <Controls />
+
+{/* Usage guidelines, from the component's DSDS document (dsds.ts). */}
+
+<Guidelines />
 
 {/* Lists all stories EXCEPT the primary one */}
 
