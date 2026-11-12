@@ -4,7 +4,7 @@ import { Meta } from "@storybook/addon-docs/blocks";
 
 # Support navigateurs
 
-Le socle supporte les canaux étendus des entreprises (Firefox ESR, Chrome et Edge Extended Stable). Il supporte aussi les Safari d'appareils qui ne reçoivent plus de mises à jour.
+Le socle supporte les canaux étendus des entreprises (Firefox ESR, Chrome et Edge Extended Stable). Il supporte aussi Android et iOS, y compris le Safari des iPhone bloqués sur iOS 16.
 
 ## Matrice
 
@@ -18,14 +18,34 @@ Le socle supporte les canaux étendus des entreprises (Firefox ESR, Chrome et Ed
   </thead>
   <tbody>
     <tr>
-      <td>Chrome / Edge</td>
+      <td>Chrome / Edge / Chrome Android</td>
       <td>111</td>
       <td>`color-mix()` (tokens sémantiques de survol et d'appui)</td>
+    </tr>
+    <tr>
+      <td>Samsung Internet</td>
+      <td>22</td>
+      <td>Première version qui atteint Chromium 111</td>
+    </tr>
+    <tr>
+      <td>Opera</td>
+      <td>97</td>
+      <td>Première version qui atteint Chromium 111</td>
+    </tr>
+    <tr>
+      <td>Opera Android</td>
+      <td>75</td>
+      <td>Première version qui atteint Chromium 111</td>
     </tr>
     <tr>
       <td>Firefox</td>
       <td>115</td>
       <td>ESR 115, maintenue pour Windows 7 et 8.1 jusqu'en mars 2027</td>
+    </tr>
+    <tr>
+      <td>Firefox Android</td>
+      <td>115</td>
+      <td>Moteur de Firefox 115</td>
     </tr>
     <tr>
       <td>Safari / iOS</td>
@@ -38,6 +58,8 @@ Le socle supporte les canaux étendus des entreprises (Firefox ESR, Chrome et Ed
 </table>
 
 - **Source de vérité :** le champ `"browserslist"` de `package.json`. Il alimente `build.target` (JS), `build.cssTarget` (CSS, abaissé par Lightning CSS) et `npm run compat`.
+- **Noms Android :** dans `browserslist`, `chrome` et `firefox` désignent les versions de bureau. Android a ses propres noms : `and_chr`, `and_ff`, `samsung` et `op_mob`.
+- **Une version récente seulement :** les données de `browserslist` ne connaissent qu'une version récente de `and_chr`, `and_ff` et `op_mob`. Le plancher de leur moteur est vérifié par `chrome >= 111` et `firefox >= 115`.
 - **Versions figées :** la matrice nomme des versions, pas une requête glissante comme `baseline widely available`. Elle change seulement par une décision.
 - **Révision :** à la fin d'ESR 115, en mars 2027.
 
@@ -132,3 +154,4 @@ Toute autre fonctionnalité récente se vérifie contre la matrice (MDN, caniuse
 - Les constats de `doiuse` acceptés sont listés avec leur raison dans `IGNORED` (`scripts/check-css-compat.mjs`).
 - Aucun test automatique ne couvre les anciens Safari et iOS : le WebKit de Playwright est récent.
 - Aucun test automatique ne couvre Chrome 111 et 112 : Chrome for Testing commence à la version 113.
+- Aucun test automatique ne tourne sur Android : Vitest teste Chromium et Firefox dans leurs versions de bureau. Samsung Internet n'est testé nulle part.
