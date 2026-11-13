@@ -132,6 +132,8 @@ Cet ADR suppose seulement ce que les composants exigent déjà, quelle que soit 
 - L'API REST des variables Figma est réservée au plan Enterprise ; sans elle, l'export passe par des plugins (Tokens Studio, Tokens Bruecke…). Un export natif au format DTCG est annoncé par certaines sources, sans confirmation officielle.
 - Le format DTCG est stable depuis sa version 2025.10, et son module « Resolver » couvre thèmes et modes. Style Dictionary (v5) et Terrazzo le prennent en charge.
 
+**Amendement du 13 novembre 2026 :** l'aide de Figma documente un import DTCG natif et un export des modes en JSON. L'[ADR 0004](?path=/docs/documentation-adr-0004-plateformes-natives-et-figma--docs) fixe le rôle de Figma.
+
 ### Préfixe des tokens
 
 C'est la seule question de tokens qui ne peut pas attendre : les noms des tokens sont **compilés dans le CSS des composants du socle**. Les changer plus tard est une rupture pour chaque thème de marque, à coordonner avec une version majeure.

@@ -1,0 +1,149 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1020 810" width="1020" height="810" role="img" aria-labelledby="titre description" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif">
+  <title id="titre">Flux des tokens du socle, de Figma aux applications web, Android et iOS</title>
+  <desc id="description">Figma propose des valeurs par PR et reçoit les tokens après le merge. Les sources DTCG de packages/tokens/src/ génèrent du CSS, du Kotlin et du Swift. Au tag de version, GitHub Actions publie la même version sur npm, Maven et le registre Swift d'Artifactory. Les composants web, Android et iOS en dépendent, puis les applications.</desc>
+  <defs>
+    <marker id="fleche" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#57606a"/>
+    </marker>
+    <style>
+      .titre { font-size: 13px; font-weight: 600; fill: #1f2328; }
+      .texte { font-size: 12px; fill: #57606a; }
+      .code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12.5px; font-weight: 600; fill: #1f2328; }
+      .rangee { font-size: 11px; font-weight: 600; fill: #1f2328; letter-spacing: 0.06em; }
+      .lien { stroke: #57606a; stroke-width: 1.5; fill: none; }
+      .fleche { stroke: #57606a; stroke-width: 1.5; fill: none; marker-end: url(#fleche); }
+      .zone { fill: #f6f8fa; stroke: #d0d7de; }
+      .figma { fill: #f3e8ff; stroke: #8250df; }
+      .source { fill: #fff4d6; stroke: #bf8700; stroke-width: 1.5; }
+      .web { fill: #ddf4ff; stroke: #0969da; }
+      .android { fill: #dafbe1; stroke: #1a7f37; }
+      .ios { fill: #fff1e5; stroke: #bc4c00; }
+    </style>
+  </defs>
+
+  <rect width="1020" height="810" fill="#ffffff"/>
+
+  <!-- Zones -->
+  <rect class="zone" x="190" y="112" width="820" height="273" rx="12"/>
+  <rect class="zone" x="190" y="405" width="820" height="90" rx="12"/>
+  <rect class="zone" x="190" y="515" width="820" height="100" rx="12"/>
+
+  <!-- Libellés des rangées -->
+  <text class="rangee" x="20" y="56">DESIGN</text>
+
+  <text class="rangee" x="20" y="232">SOURCE</text>
+  <text class="texte" x="20" y="250">ce dépôt,</text>
+  <text class="texte" x="20" y="266">workspaces npm</text>
+
+  <text class="rangee" x="20" y="440">PUBLICATION</text>
+  <text class="texte" x="20" y="458">GitHub Actions,</text>
+  <text class="texte" x="20" y="474">au tag de version</text>
+
+  <text class="rangee" x="20" y="560">REGISTRE</text>
+  <text class="texte" x="20" y="578">Artifactory</text>
+
+  <text class="rangee" x="20" y="676">COMPOSANTS</text>
+
+  <text class="rangee" x="20" y="766">APPLICATIONS</text>
+
+  <!-- Design -->
+  <rect class="figma" x="375" y="24" width="450" height="56" rx="8"/>
+  <text class="titre" x="600" y="47" text-anchor="middle">Figma : fichier du socle</text>
+  <text class="texte" x="600" y="67" text-anchor="middle">variables et modes Figma</text>
+  <text class="texte" x="517" y="101" text-anchor="end">valeur proposée, par PR</text>
+  <text class="texte" x="683" y="101">tokens envoyés après le merge</text>
+
+  <!-- Source -->
+  <rect class="source" x="405" y="145" width="390" height="60" rx="8"/>
+  <text class="code" x="600" y="170" text-anchor="middle">packages/tokens/src/</text>
+  <text class="texte" x="600" y="191" text-anchor="middle">sources DTCG et resolver : la seule source</text>
+  <text class="texte" x="608" y="228">npm run tokens : sorties commitées, vérifiées par tokens:check</text>
+
+  <rect class="web" x="200" y="260" width="250" height="50" rx="8"/>
+  <text class="code" x="325" y="281" text-anchor="middle">tokensCss</text>
+  <text class="texte" x="325" y="300" text-anchor="middle">css/tokens.css</text>
+
+  <rect class="android" x="475" y="260" width="250" height="50" rx="8"/>
+  <text class="code" x="600" y="281" text-anchor="middle">tokensKotlin</text>
+  <text class="texte" x="600" y="300" text-anchor="middle">Kotlin et module Gradle</text>
+
+  <rect class="ios" x="750" y="260" width="250" height="50" rx="8"/>
+  <text class="code" x="875" y="281" text-anchor="middle">tokensSwift</text>
+  <text class="texte" x="875" y="300" text-anchor="middle">Swift et Package.swift</text>
+
+  <rect class="web" x="200" y="325" width="250" height="50" rx="8"/>
+  <text class="code" x="325" y="346" text-anchor="middle">packages/components</text>
+  <text class="texte" x="325" y="365" text-anchor="middle">composants Lit et liaison web</text>
+
+  <!-- Publication -->
+  <rect class="web" x="200" y="425" width="250" height="50" rx="8"/>
+  <text class="code" x="325" y="454" text-anchor="middle">npm publish</text>
+
+  <rect class="android" x="475" y="425" width="250" height="50" rx="8"/>
+  <text class="code" x="600" y="454" text-anchor="middle">gradle publish</text>
+
+  <rect class="ios" x="750" y="425" width="250" height="50" rx="8"/>
+  <text class="code" x="875" y="454" text-anchor="middle">swift package-registry publish</text>
+
+  <!-- Registre -->
+  <rect class="web" x="200" y="530" width="250" height="70" rx="8"/>
+  <text class="titre" x="325" y="551" text-anchor="middle">npm</text>
+  <text class="code" x="325" y="570" text-anchor="middle">@unicorne/tokens</text>
+  <text class="code" x="325" y="588" text-anchor="middle">@unicorne/components</text>
+
+  <rect class="android" x="475" y="530" width="250" height="70" rx="8"/>
+  <text class="titre" x="600" y="551" text-anchor="middle">Maven</text>
+  <text class="code" x="600" y="570" text-anchor="middle">&lt;groupId&gt;:tokens</text>
+  <text class="texte" x="600" y="588" text-anchor="middle">artefact Android</text>
+
+  <rect class="ios" x="750" y="530" width="250" height="70" rx="8"/>
+  <text class="titre" x="875" y="551" text-anchor="middle">Registre Swift (SE-0292)</text>
+  <text class="code" x="875" y="570" text-anchor="middle">unicorne.tokens</text>
+  <text class="texte" x="875" y="588" text-anchor="middle">repli : dépôt git miroir</text>
+
+  <!-- Composants -->
+  <rect class="web" x="200" y="645" width="250" height="55" rx="8"/>
+  <text class="code" x="325" y="668" text-anchor="middle">@unicorne/components</text>
+  <text class="texte" x="325" y="687" text-anchor="middle">Lit, publié depuis ce dépôt</text>
+
+  <rect class="android" x="475" y="645" width="250" height="55" rx="8"/>
+  <text class="titre" x="600" y="668" text-anchor="middle">Dépôt des composants Android</text>
+  <text class="texte" x="600" y="687" text-anchor="middle">Jetpack Compose · Gradle</text>
+
+  <rect class="ios" x="750" y="645" width="250" height="55" rx="8"/>
+  <text class="titre" x="875" y="668" text-anchor="middle">Dépôt des composants iOS</text>
+  <text class="texte" x="875" y="687" text-anchor="middle">SwiftUI · Xcode</text>
+
+  <!-- Applications -->
+  <rect class="web" x="200" y="735" width="250" height="55" rx="8"/>
+  <text class="titre" x="325" y="758" text-anchor="middle">Applications web</text>
+  <text class="texte" x="325" y="777" text-anchor="middle">tokens.css du socle ou d'une marque</text>
+
+  <rect class="android" x="475" y="735" width="250" height="55" rx="8"/>
+  <text class="titre" x="600" y="758" text-anchor="middle">Applications Android</text>
+  <text class="texte" x="600" y="777" text-anchor="middle">tokens injectés : CompositionLocal</text>
+
+  <rect class="ios" x="750" y="735" width="250" height="55" rx="8"/>
+  <text class="titre" x="875" y="758" text-anchor="middle">Applications iOS</text>
+  <text class="texte" x="875" y="777" text-anchor="middle">tokens injectés : EnvironmentValues</text>
+
+  <!-- Flèches, au-dessus des zones -->
+  <path class="fleche" d="M525,80 V143"/>
+  <path class="fleche" d="M675,143 V82"/>
+  <path class="lien" d="M600,205 V238 M325,238 H875"/>
+  <path class="fleche" d="M325,238 V258"/>
+  <path class="fleche" d="M600,238 V258"/>
+  <path class="fleche" d="M875,238 V258"/>
+  <path class="fleche" d="M325,375 V423"/>
+  <path class="fleche" d="M600,310 V423"/>
+  <path class="fleche" d="M875,310 V423"/>
+  <path class="fleche" d="M325,475 V528"/>
+  <path class="fleche" d="M600,475 V528"/>
+  <path class="fleche" d="M875,475 V528"/>
+  <path class="fleche" d="M325,600 V643"/>
+  <path class="fleche" d="M600,600 V643"/>
+  <path class="fleche" d="M875,600 V643"/>
+  <path class="fleche" d="M325,700 V733"/>
+  <path class="fleche" d="M600,700 V733"/>
+  <path class="fleche" d="M875,700 V733"/>
+</svg>

@@ -1,0 +1,270 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+import schema from "./0004-plateformes-natives-et-figma.svg";
+
+<Meta title="Documentation/ADR/0004 Plateformes natives et Figma" />
+
+# ADR 0004 — Plateformes natives et Figma
+
+**Statut :** accepté · **Date :** 13 novembre 2026
+
+## Contexte
+
+L'[ADR 0003](?path=/docs/documentation-adr-0003-packages-tokens-et-composants--docs) fait de `@unicorne/tokens` la source des thèmes du web, d'iOS et d'Android. Il laisse ouvertes les sorties natives, leur distribution et les unités des sources. L'[ADR 0002](?path=/docs/documentation-adr-0002-tokens-au-format-dtcg--docs) laisse ouvert l'export depuis Figma.
+
+Les équipes iOS et Android implémentent les composants en SwiftUI et en Jetpack Compose. Elles n'utilisent ni Node ni npm. Ce dépôt est un dépôt npm. Sa CI tourne sur GitHub Actions, et le socle se publie sur Artifactory ([ADR 0001](?path=/docs/documentation-adr-0001-architecture-multi-marque--docs)).
+
+Faits vérifiés le 13 novembre 2026, avec leurs sources en fin de page :
+
+- **Variables Figma :** six types. Aux couleurs, nombres, textes et booléens, Figma Motion ajoute Timing, une durée en `ms`, et Easing, une courbe de Bézier ou un ressort.
+- **Ombres et typographie dans Figma :** aucune variable ne les porte. Une ombre est un style d'effet, une typographie un style de texte.
+- **Import DTCG natif de Figma :** il accepte les dimensions en `px` et les durées en `s`, sans autre unité. Il lit une durée comme un nombre, et n'importe ni `cubicBezier` ni `shadow`.
+- **Export natif de Figma :** les modes d'une collection, en JSON.
+- **Tokens Studio :** ce plugin lit et écrit les variables Timing et Easing comme des tokens `duration` et `cubicBezier`. Il ignore les ressorts, sans équivalent DTCG.
+- **API REST des variables Figma :** réservée au plan Enterprise, en lecture comme en écriture.
+- **Collections étendues de Figma :** une marque y décline les variables d'un fichier partagé. Elles sont réservées au plan Enterprise.
+- **Générateurs :** `@terrazzo/plugin-swift` produit un catalogue d'assets Xcode, et il est expérimental. Aucun plugin Terrazzo pour Compose n'est documenté. Style Dictionary 5 produit du Swift et du Compose, sans support confirmé des modifiers du resolver.
+- **iOS :** Swift Package Manager lit un package dans un dépôt git, avec son `Package.swift` à la racine, ou dans un registre (SE-0292). Artifactory est un registre Swift depuis sa version 7.41.4. Le support des registres par Xcode varie selon sa version.
+- **Android :** Gradle construit un artefact Maven. Artifactory héberge les dépôts Maven.
+- **Valeurs transmises aux vues natives :** Compose transmet les valeurs de `MaterialTheme` par `CompositionLocal`. SwiftUI transmet des valeurs à ses vues par `EnvironmentValues`.
+
+### Critères de décision
+
+1. Le web, iOS, Android et Figma lisent une seule source.
+2. Un token de composant et sa liaison web changent dans une seule PR (ADR 0003, D5).
+3. Les équipes natives n'installent ni Node ni npm.
+4. Une marque change les valeurs sur iOS et Android sans forker les composants natifs (ADR 0001, critère 1).
+5. Les règles des niveaux et le contraste s'appliquent à chaque valeur, même quand elle vient de Figma.
+
+## Vue d'ensemble
+
+<img
+  src={schema}
+  alt="Figma propose des valeurs par PR et reçoit les tokens après le merge. Les sources DTCG génèrent du CSS, du Kotlin et du Swift. Au tag de version, GitHub Actions publie sur npm, Maven et le registre Swift d'Artifactory. Les composants web, Android et iOS en dépendent, puis les applications."
+  style={{ width: "100%", height: "auto" }}
+/>
+
+- Les sources DTCG de `packages/tokens/src/` sont la seule source. Figma propose des valeurs par PR et reçoit les tokens après le merge (D1, D2).
+- `npm run tokens` génère une sortie par plateforme : CSS, Kotlin et Swift (D4).
+- Un tag `@unicorne/tokens@x.y.z` lance une GitHub Action. Elle publie la même version sur npm, Maven et le registre Swift d'Artifactory (D6).
+- Les dépôts des composants Android et iOS dépendent de l'artefact de leur plateforme. Ils ne lisent pas ce dépôt (D7).
+- Une application native injecte les tokens d'une marque dans ses vues (D5). Une application web charge la feuille d'une marque.
+
+## D1 — Où vivent les sources
+
+- **Option A — Un dépôt dédié aux sources DTCG, relié à Figma.** Un token de composant demande deux PR, et une publication des tokens entre les deux.
+- **Option B — Ce dépôt, dans `packages/tokens/src/`**, comme le décide l'ADR 0003 (D5). Figma et les plateformes natives reçoivent des sorties générées.
+
+**Décision : B.** Un fichier `CODEOWNERS` donne aux designers la relecture de `packages/tokens/src/`. Séparer le package plus tard garde son historique (`git subtree split`).
+
+## D2 — Rôle de Figma
+
+- **Option A — Figma est la source, et git reçoit ses exports.** Figma n'a pas de variable pour `shadow`. Il ne vérifie ni les niveaux ni le contraste. Il exporte ses modes en JSON, sans resolver.
+- **Option B — Git est la source, et Figma reçoit les tokens.** Un designer propose une valeur depuis Figma. Elle arrive dans git par une PR.
+
+**Décision : B.**
+
+- Créer, renommer ou retirer un token se fait dans git. Changer son niveau ou un modifier aussi. Le nom d'un token est l'API de trois plateformes (ADR 0003, D4).
+- Une valeur peut venir de Figma. Le designer exporte le mode Figma, puis un développeur ou un script reporte la valeur dans la source.
+- La valeur arrive par une PR, que la CI vérifie : niveaux, contraste et `tokens:check`. Un designer et un développeur la relisent.
+- Le build écrit les fichiers qu'importe Figma : un fichier DTCG par mode Figma.
+- Après le merge, Figma reçoit les tokens. Avec le plan Enterprise, la CI les écrit par l'API REST. Sans lui, une personne lance l'import natif ou un plugin.
+- Les tokens `duration` et `cubicBezier` deviennent des variables Timing et Easing. L'import natif ne crée pas ces variables : un plugin, comme Tokens Studio, les crée.
+- Une courbe Easing reliée à un token est une courbe de Bézier. Un ressort de Figma n'a pas d'équivalent DTCG.
+- Les tokens `shadow` restent dans git seulement : Figma n'a pas de variable d'ombre.
+- Une marque suit le même flux dans son dépôt. Son fichier Figma décline celui du socle, par une collection étendue ou par une copie.
+
+## D3 — Unités des sources
+
+- **Option A — `rem` (statu quo).** L'import natif de Figma refuse cette unité. Chaque sortie native convertit `rem`.
+- **Option B — `px`, l'unité qu'importe Figma.** Chaque sortie convertit vers les unités de sa plateforme.
+
+**Décision : B.**
+
+- `tokensCss` écrit en `rem` les tokens qui sont en `rem` aujourd'hui : les espacements de `dimension` et les tailles de `font-size` (1 rem = 16 px).
+- Le CSS généré reste identique.
+- iOS lit `px` en points, Android en `dp`.
+- Les durées restent en `ms`, l'unité des variables Timing. iOS les lit en secondes (`TimeInterval`), Android en millisecondes.
+- Une taille de police suit la taille de texte choisie par l'utilisateur : `rem` sur le web, `sp` sur Android, Dynamic Type sur iOS.
+
+## D4 — Générateurs natifs
+
+- **Option A — `@terrazzo/plugin-swift` et Style Dictionary.** Deux outils de plus, chacun avec sa lecture du resolver. Le premier est expérimental, le second ne confirme pas les modifiers.
+- **Option B — Deux plugins Terrazzo du socle, dans `packages/tokens/plugins/`.** Ils lisent le resolver comme `tokensCss`, avec les mêmes contrôles des niveaux.
+- **Option C — Chaque équipe native génère ses sorties depuis le package npm.** Elle installe Node, et trois chaînes divergent. L'ADR 0003 (D6) écarte cette option.
+
+**Décision : B.** `tokensKotlin` écrit du Kotlin pour Compose, et `tokensSwift` du Swift pour SwiftUI. Leurs sorties sont commitées, comme `tokens.css`. `tokens:check` les compare aux sources.
+
+Chaque plateforme traduit les modifiers du resolver :
+
+<table>
+  <thead>
+    <tr>
+      <th>Modifier</th>
+      <th>Web</th>
+      <th>iOS</th>
+      <th>Android</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>`theme` (`light`, `dark`)</td>
+      <td>`[data-theme]`, `prefers-color-scheme`</td>
+      <td>Apparence du système, `colorScheme`</td>
+      <td>`isSystemInDarkTheme()`</td>
+    </tr>
+    <tr>
+      <td>`motion` (`full`, `reduced`)</td>
+      <td>`prefers-reduced-motion`</td>
+      <td>`accessibilityReduceMotion`</td>
+      <td>Réglage « Supprimer les animations »</td>
+    </tr>
+    <tr>
+      <td>`button-variant`, `button-size`, `alert-type`</td>
+      <td>Attribut de l'hôte (`variant`)</td>
+      <td>`enum ButtonVariant`</td>
+      <td>`enum class ButtonVariant`</td>
+    </tr>
+  </tbody>
+</table>
+
+## D5 — Tokens dans les composants natifs
+
+- **Option A — Des constantes globales** (`UnicorneTokens.buttonBackgroundColor`). Une marque recompile alors les composants natifs avec ses valeurs : elle les forke.
+- **Option B — Un objet de tokens, injecté dans l'arbre des vues.** Compose le transmet par `CompositionLocal`, SwiftUI par `EnvironmentValues`. `MaterialTheme` transmet ainsi ses valeurs en Compose.
+
+**Décision : B.** C'est l'équivalent natif de la cascade.
+
+- `tokensKotlin` et `tokensSwift` écrivent un type, et l'instance qui porte les valeurs du socle.
+- Une marque génère sa propre instance de ce type.
+- L'application injecte l'instance de sa marque à la racine de ses vues.
+- L'instance porte les valeurs des deux thèmes. Le composant lit celles du thème courant.
+
+## D6 — Distribution
+
+- **Option A — npm pour toutes les plateformes.** Gradle et Xcode ne lisent pas npm : les équipes natives installent Node.
+- **Option B — Le format de chaque plateforme, publié par la CI de ce dépôt :** npm pour le web, Maven pour Android, un package Swift pour iOS.
+
+**Décision : B.**
+
+- Un tag `@unicorne/tokens@x.y.z` lance un workflow GitHub Actions. Il publie la même version sur les trois registres d'Artifactory.
+- **Android :** un module Gradle, `packages/tokens/android/`, compile le Kotlin généré et publie un artefact Maven. La CI le compile à chaque PR. Le développement du socle n'utilise pas Gradle.
+- **iOS :** la CI publie le Swift généré dans le registre Swift d'Artifactory, avec `swift package-registry publish` (SE-0391).
+- **Repli pour iOS :** si Xcode ne lit pas ce registre, la CI pousse le package dans un dépôt git miroir. Personne n'édite ce miroir.
+- Une marque publie ses trois sorties de la même façon, sous son nom.
+
+## D7 — Dépôts des composants natifs
+
+- **Option A — Dans ce dépôt.** La CI demande Node, Gradle et Xcode. Les équipes natives travaillent dans un dépôt npm.
+- **Option B — Un dépôt par plateforme.** Chacun dépend de l'artefact de tokens de sa plateforme, sur une plage majeure.
+- **Option C — Un dépôt Compose Multiplatform pour les deux.** Il est stable sur iOS depuis sa version 1.8.0 (mai 2025). Une seule implémentation, mais les composants iOS ne sont pas en SwiftUI.
+
+**Décision : B**, sauf si les équipes natives choisissent C. Avec C, iOS lit l'artefact Maven, sans package Swift.
+
+Les dépôts natifs suivent les règles de `@unicorne/components`. Un composant lit ses tokens de composant, jamais une valeur. Il associe chaque modifier à son API, comme l'attribut `variant` sur le web.
+
+## Récapitulatif
+
+<table>
+  <thead>
+    <tr>
+      <th>Décision</th>
+      <th>Choix</th>
+      <th>Pourquoi</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>D1 — Sources</td>
+      <td>Dans `packages/tokens/src/`, avec `CODEOWNERS`</td>
+      <td>Un token de composant et sa liaison web dans une PR</td>
+    </tr>
+    <tr>
+      <td>D2 — Figma</td>
+      <td>Propose des valeurs par PR ; reçoit les tokens après le merge</td>
+      <td>Les règles des niveaux et le contraste vérifient chaque valeur</td>
+    </tr>
+    <tr>
+      <td>D3 — Unités</td>
+      <td>`px` dans les sources ; `rem` dans le CSS</td>
+      <td>L'unité qu'importe Figma, sans conversion</td>
+    </tr>
+    <tr>
+      <td>D4 — Générateurs</td>
+      <td>`tokensKotlin` et `tokensSwift`, plugins Terrazzo du socle</td>
+      <td>Une lecture du resolver, les mêmes contrôles</td>
+    </tr>
+    <tr>
+      <td>D5 — Tokens natifs</td>
+      <td>Un objet de tokens injecté dans les vues</td>
+      <td>Une marque change les valeurs sans forker</td>
+    </tr>
+    <tr>
+      <td>D6 — Distribution</td>
+      <td>npm, Maven et registre Swift d'Artifactory, à chaque tag</td>
+      <td>Chaque plateforme lit son format, sans Node</td>
+    </tr>
+    <tr>
+      <td>D7 — Composants natifs</td>
+      <td>Un dépôt par plateforme</td>
+      <td>Chaque équipe garde ses outils</td>
+    </tr>
+  </tbody>
+</table>
+
+## Conséquences
+
+Cet ADR ne change aucun fichier de code. Les pages de référence décrivent le système tel qu'il est : elles changent avec le code.
+
+- **Sources :** dimensions en `px`. `tokensCss` convertit, et `tokens:check` prouve que le CSS ne change pas.
+- **Plugins :** `tokensKotlin` et `tokensSwift`, dans `packages/tokens/plugins/`, exportés pour les marques. Une sortie pour l'import de Figma.
+- **Android :** le module Gradle `packages/tokens/android/`.
+- **CI :** un workflow de publication, lancé par le tag `@unicorne/tokens@x.y.z`.
+- **Dépôt :** un fichier `CODEOWNERS` pour `packages/tokens/src/`.
+- **Figma :** un fichier Figma du socle, qui reçoit ses variables depuis git.
+- **Documentation :** amendements de l'ADR 0001, de l'ADR 0002 (export Figma) et de l'ADR 0003 (questions ouvertes), et `AGENTS.md`.
+
+## Questions ouvertes
+
+- **Plan et outil Figma :** le plan Enterprise décide de l'écriture par la CI et des collections étendues pour les marques. L'outil, import natif ou Tokens Studio, décide des variables Timing et Easing.
+- **Forme des sorties natives :** catalogue d'assets ou code, `ColorScheme` de Material 3 ou type du socle. Le choix se fait avec les équipes iOS et Android.
+- **Registre Swift :** à tester avec la version d'Xcode de l'équipe iOS, avant le repli sur un dépôt miroir.
+- **SwiftUI ou Compose Multiplatform** pour iOS (D7).
+- **Identifiants :** le `groupId` Maven et le scope du registre Swift.
+- **Polices :** une famille DTCG est une liste (`Helvetica Neue`, `sans-serif`). Figma n'importe qu'un nom, et `sans-serif` n'existe que sur le web.
+- **Anneau de focus :** `focus-ring` est propre au web. iOS et Android dessinent leur propre focus.
+- **Contraste :** `contrastFailures()` mesure le CSS dans un navigateur. Un contrôle des valeurs résolues couvrirait toutes les plateformes.
+
+## Sources
+
+Consultées le 13 novembre 2026.
+
+**Figma**
+
+- [Overview of variables, collections, and modes](https://help.figma.com/hc/en-us/articles/14506821864087-Overview-of-variables-collections-and-modes) (aide de Figma) : six types de variables, dont Timing et Easing ; aucune variable d'ombre ni de typographie.
+- [Modes for variables](https://help.figma.com/hc/en-us/articles/15343816063383-Modes-for-variables) (aide de Figma) : import DTCG, types acceptés, unités `px` et `s`, export des modes en JSON.
+- [Variables endpoints](https://developers.figma.com/docs/rest-api/variables-endpoints) (documentation développeur de Figma) : API REST des variables, plan Enterprise.
+- [Extended collections](https://help.figma.com/hc/en-us/articles/35794667554839) (aide de Figma) : collections étendues, plan Enterprise.
+- [Native variable export feature](https://forum.figma.com/ask-the-community-7/native-variable-export-feature-47831) (forum de Figma) : déploiement de l'export des modes, de novembre à décembre 2025.
+
+**Générateurs**
+
+- [Import TIMING and EASING variables as duration and cubicBezier](https://github.com/tokens-studio/figma-plugin/pull/4003) (Tokens Studio, octobre 2026) : correspondance des types, ressorts ignorés.
+- [Import from Figma](https://terrazzo.app/docs/guides/import-from-figma/) (Terrazzo) : `tz import`, variables lues avec le plan Enterprise.
+- [Swift](https://terrazzo.app/docs/integrations/swift/) (Terrazzo) : `@terrazzo/plugin-swift`, expérimental.
+- [Support de DTCG 2025.10 par Style Dictionary](https://lists.w3.org/Archives/Public/public-design-tokens-log/2025Nov/0006.html) (W3C, novembre 2025).
+- [Sorties de Style Dictionary 5](https://help.zeroheight.com/hc/en-us/articles/48049028236187) (zeroheight) : Swift et Compose.
+
+**iOS**
+
+- [Allow Package.swift to not be at the root of the repository](https://forums.swift.org/t/allow-package-swift-to-not-be-at-the-root-of-the-repository/60431) (Swift Forums) : un package versionné a son `Package.swift` à la racine du dépôt.
+- [SE-0292 : Package Registry Service](https://forums.swift.org/t/accepted-with-modifications-se-0292-package-registry-service/49849) (Swift Forums).
+- [SE-0391 : Package Registry Publish](https://github.com/swiftlang/swift-evolution/blob/main/proposals/0391-package-registry-publish.md) (Swift Evolution) : `swift package-registry publish`, depuis Swift 5.9.
+- [Swift Repositories](https://jfrog.com/help/r/jfrog-artifactory-documentation/swift-repositories) (JFrog) : registre Swift d'Artifactory, depuis la version 7.41.4.
+- [Package registry support in Xcode](https://forums.swift.org/t/package-registry-support-in-xcode/73626) (Swift Forums) : support variable selon la version d'Xcode.
+- [EnvironmentValues](https://developer.apple.com/documentation/swiftui/environmentvalues) (Apple) : valeurs transmises aux vues SwiftUI.
+
+**Android**
+
+- [Custom design systems in Compose](https://developer.android.com/develop/ui/compose/designsystems/custom) (Android) : design system propre, sur le modèle de Material.
+- [Locally scoped data with CompositionLocal](https://developer.android.com/develop/ui/compose/compositionlocal) (Android) : transmission du thème.
+- [Compose Multiplatform 1.8.0](https://blog.jetbrains.com/kotlin/2025/05/compose-multiplatform-1-8-0-released-compose-multiplatform-for-ios-is-stable-and-production-ready/) (JetBrains) : iOS stable, mai 2025.

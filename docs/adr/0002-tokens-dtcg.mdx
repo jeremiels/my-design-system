@@ -147,4 +147,5 @@ Une déclaration `@layer u.tokens.base, u.tokens.brand;` dans le socle rendrait 
 ## Questions ouvertes
 
 - **Export Figma :** API REST des variables (plan Enterprise) ou plugin (Tokens Studio, export natif). Le resolver doit garder ses sets et modifiers, ou l'export doit les produire.
+  **Amendement du 13 novembre 2026 :** l'[ADR 0004](?path=/docs/documentation-adr-0004-plateformes-natives-et-figma--docs) (D2) tranche cette question. Git est la source, et Figma reçoit les tokens. Une valeur venue de Figma arrive par une PR.
 - **Bug de postcss-import :** il remonte les `@layer` sans bloc qui suivent un bloc `@layer`. Corrigé en amont, il permettrait de déclarer les sous-couches dans `order.css`. Le même bug inverse `u.utilities` et `u.shame`, vide, dans le bundle d'une marque.
