@@ -47,15 +47,18 @@
     -webkit-text-size-adjust: 100%; /* prevent iOS font inflation */
   }
 
-  html:focus-within {
-    scroll-behavior: smooth;
+  /* Smooth in-page scrolling, only for users who haven't asked for less motion */
+  @media (prefers-reduced-motion: no-preference) {
+    html:focus-within {
+      scroll-behavior: smooth;
+    }
   }
 
   /* The page follows the tokens, dark mode included (tokens from styles.css) */
   body {
-    min-height: 100vh;
+    /* dvh follows the toolbar of mobile browsers; 100vh overflows the screen there */
+    min-height: 100dvh;
     line-height: var(--u-font-line-height-body);
-    text-rendering: optimizeSpeed;
     font-family: var(--u-font-family-body);
     background-color: var(--u-color-surface-default);
     color: var(--u-color-text-default);
@@ -107,18 +110,9 @@
     text-wrap: balance;
   }
 
-  /* Remove animation for users with motion reduction preference */
-  @media (prefers-reduced-motion: reduce) {
-    html:focus-within {
-      scroll-behavior: auto;
-    }
-    *,
-    *::before,
-    *::after {
-      animation-duration: 0.01ms !important;
-      animation-iteration-count: 1 !important;
-      transition-duration: 0.01ms !important;
-      scroll-behavior: auto !important;
-    }
-  }
+  /* Reduced motion has no global switch here. The components read their
+     durations from motion.duration.* tokens, which the motion: reduced
+     context sets to zero, and the page's selectors don't reach their shadow
+     DOM anyway. The application handles its own animations rule by rule:
+     a global 0.01ms duration makes some of them more jarring, not less. */
 }

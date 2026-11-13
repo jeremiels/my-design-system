@@ -1,12 +1,16 @@
 @layer u.utilities {
-  .visually-hidden {
+  /* Hidden on screen, kept in the accessibility tree. clip-path replaces the
+     deprecated clip. Content that takes focus (a skip link) shows while it
+     has it: a focused element nobody sees fails WCAG 2.4.7. :where() keeps
+     the specificity of the class alone. */
+  .visually-hidden:where(:not(:focus-within, :active)) {
     position: absolute !important;
     width: 1px !important;
     height: 1px !important;
     padding: 0 !important;
     margin: -1px !important;
     overflow: hidden !important;
-    clip: rect(0, 0, 0, 0) !important;
+    clip-path: inset(50%) !important;
     white-space: nowrap !important;
     border: 0 !important;
   }

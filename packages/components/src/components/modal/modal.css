@@ -6,12 +6,23 @@ dialog {
   padding: 0;
   box-shadow: var(--u-modal-shadow);
 }
+/* Scrolling over the dialog or its backdrop doesn't scroll the page behind.
+   The modal dialog is a scroll container (overflow: auto, from the user
+   agent); overflow: hidden makes the backdrop one too, or it would ignore
+   overscroll-behavior. Progressive enhancement: before Chrome 144 and
+   Firefox 150, and in Safari, it only holds while the dialog's content
+   overflows. Never lock the page with overflow on html or body instead. */
+dialog:modal {
+  overscroll-behavior: contain;
+}
 dialog::backdrop {
   /* Documented exception to "no literal fallback": before Chrome 122,
      Firefox 120 and Safari 17.4, ::backdrop inherits nothing, so no token can
      reach it and the backdrop would be transparent. Keep in sync with
      color.backdrop (light theme) in tokens/semantic/theme.light.tokens.json. */
   background-color: var(--u-modal-backdrop-color, hsl(0deg 0% 0% / 50%));
+  overflow: hidden;
+  overscroll-behavior: contain;
 }
 .content {
   background-color: var(--u-modal-background-color);

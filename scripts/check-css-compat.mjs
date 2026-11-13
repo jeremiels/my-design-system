@@ -16,6 +16,12 @@ import postcss from "postcss";
 
 /** Reviewed findings, with why they're fine across the supported matrix. */
 const IGNORED = {
+  "css-clip-path":
+    "Partial means no shapes from external SVG files; `clip-path: inset()` " +
+    "(.visually-hidden) is a basic shape, supported matrix-wide.",
+  "css-masks":
+    "Flagged for `clip-path` (.visually-hidden); partial support only lacks " +
+    "`mask-*` longhands, which no sheet uses.",
   "css-nesting": "Lowered to flat rules by Lightning CSS at build time (build.cssTarget).",
   "css3-cursors": "`cursor` values do nothing on touch-only iOS Safari — harmless there.",
   "intrinsic-width": "Firefox only lacks the `stretch` keyword; `fit-content` works since 94.",
