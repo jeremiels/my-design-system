@@ -1,0 +1,19 @@
+{
+  // Builds plugins/ (Node code: `@unicorne/tokens/terrazzo-plugin` and
+  // `@unicorne/tokens/dtcg-sources`) and testing/ (`@unicorne/tokens/testing`,
+  // browser code) into dist/, with their types.
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "rewriteRelativeImportExtensions": true,
+    "declaration": true,
+    // Types come from the built packages, not from their sources.
+    "customConditions": [],
+    // The plugins run in Node; nothing else here imports its types.
+    "types": ["node"],
+    "rootDir": ".",
+    "outDir": "dist"
+  },
+  "include": ["plugins", "testing"],
+  "exclude": ["**/*.test.ts"]
+}

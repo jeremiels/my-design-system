@@ -1,7 +1,7 @@
 import { resolve } from "node:path";
 import { defineConfig } from "vite";
 // The base ships the plugin that compiles `with { type: "css" }` imports.
-import { cssImportAttributes } from "my-design-system/vite-plugin";
+import { cssImportAttributes } from "@unicorne/components/vite-plugin";
 
 const root = import.meta.dirname;
 
@@ -22,7 +22,7 @@ export default defineConfig({
     rolldownOptions: {
       // Republish, don't bundle: Lit and the base stay dependencies, so the
       // app gets a single copy of each.
-      external: [/^lit/, /^my-design-system/],
+      external: [/^lit/, /^@unicorne\//],
     },
   },
 });

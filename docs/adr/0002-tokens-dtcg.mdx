@@ -1,0 +1,150 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Documentation/ADR/0002 Tokens au format DTCG" />
+
+# ADR 0002 — Tokens au format DTCG
+
+**Statut :** accepté · **Date :** 12 novembre 2026
+
+## Contexte
+
+L'[ADR 0001](?path=/docs/documentation-adr-0001-architecture-multi-marque--docs) (D4) reporte la production des tokens à un ADR dédié. Il fixe seulement deux contraintes :
+
+- les composants lisent des custom properties `--u-*`, sur trois niveaux : primitives, tokens sémantiques, tokens de composant ;
+- un thème de marque est une feuille CSS chargée après celle du socle, sans recompiler les composants.
+
+Avant cet ADR, les tokens sont du CSS écrit à la main. Les tokens de composant vivent dans la feuille de chaque composant. Le thème sombre redéfinit les primitives. Le survol et l'appui sont calculés par `color-mix()`.
+
+Les tokens des marques viennent de Figma. L'export depuis Figma reste hors du périmètre de cet ADR. Cet ADR fixe la forme des sources et leur usage dans le socle et chez une marque. Rien n'est publié : les noms des tokens peuvent changer.
+
+### Critères de décision
+
+1. Un format qu'un outil de design exporte, sans transformation maison.
+2. Les trois niveaux de l'ADR 0001, vérifiés à chaque build.
+3. Une marque change ses valeurs, jamais les noms, et ne recompile pas les composants.
+4. Une marque n'écrit que ce qu'elle change.
+5. Le CSS produit reste celui que les composants lisent : des `var()` en cascade.
+
+## D1 — Format des sources
+
+- **Option A — CSS écrit à la main (statu quo).** Aucun outil de design ne l'exporte. Les règles des niveaux ne sont vérifiées par rien.
+- **Option B — JSON propre au socle.** Il faut un convertisseur pour chaque outil.
+- **Option C — DTCG 2025.10, avec son module Resolver.** Le format est stable depuis octobre 2025. Le resolver décrit les sets et les modifiers : thèmes, modes, variantes. Figma, Tokens Studio, Terrazzo et Style Dictionary le lisent ou l'écrivent.
+
+**Décision : C.** Les sources vivent dans `tokens/`, publiées avec le package. Une couleur est un objet `srgb` avec `components` et `hex`, la forme qu'exporte Figma.
+
+## D2 — Outil de génération
+
+- **Option A — Style Dictionary 5.** C'est l'outil le plus répandu. Sa prise en charge du resolver 2025.10 n'est pas confirmée à la date de cette décision.
+- **Option B — Terrazzo 2.** Il prend en charge tout le DTCG 2025.10, resolver compris. Son API de plugin donne les tokens résolus pour chaque combinaison de contextes, et sa transformation CSS sort les alias en `var()`.
+- **Option C — Script maison.** Il faudrait réécrire la validation du format et la résolution des alias.
+
+**Décision : B**, avec un plugin du socle (`plugins/terrazzo-plugin.ts`, exporté en `my-design-system/terrazzo-plugin`). Le plugin choisit les sélecteurs et les fichiers. Terrazzo lit le format et calcule les valeurs.
+
+Le plugin lit lui-même le resolver et ses fichiers, pour savoir quel fichier déclare quel token. Terrazzo 2.10 donne le resolver comme source de chaque token, pas son fichier.
+
+**Amendement du 13 novembre 2026 :** les sources et le plugin vivent dans `@unicorne/tokens`, exporté en `@unicorne/tokens/terrazzo-plugin` ([ADR 0003](?path=/docs/documentation-adr-0003-packages-tokens-et-composants--docs)). `@unicorne/tokens` génère la feuille de page. `@unicorne/components` génère les feuilles des composants, depuis le même resolver.
+
+## D3 — Les trois niveaux en DTCG
+
+- **Option A — Primitives et sémantiques en DTCG, tokens de composant dans le CSS du composant.** Aucun outillage de plus. Mais les tokens de composant échappent à Figma et au contrôle des niveaux.
+- **Option B — Les trois niveaux en DTCG.** Chaque composant a son groupe DTCG. Le plugin génère sa feuille `:host`. Un plugin de l'analyseur génère sa documentation (`@cssprop`) depuis les `$description`.
+
+**Décision : B.** Les tokens de composant peuvent venir de Figma, comme les autres. Le niveau d'un token est le set du resolver qui le déclare : `primitive`, `semantic` ou `component`. Le plugin fait échouer le build quand un token enfreint la règle de son niveau.
+
+La JSDoc d'une classe nomme son groupe : `@tokens button`. Le plugin `plugins/cem-plugin.ts` (exporté en `my-design-system/cem-plugin`) remplit les `cssProperties` du manifest.
+
+## D4 — Où vivent les thèmes, le survol et l'appui
+
+- **Option A — Dans les primitives (statu quo).** Le thème sombre redéfinit les primitives. Une marque écrit chaque couleur deux fois, dans deux sélecteurs. Le survol reste en `color-mix()`, que ni le DTCG ni Figma n'expriment.
+- **Option B — Dans les sémantiques.** Les primitives sont des palettes par rôle, en pas de clarté, communes aux deux thèmes. Les tokens sémantiques choisissent un pas par thème, survol et appui compris. C'est le modèle de Material 3 et de Primer.
+
+**Décision : B.** Une marque fournit ses palettes avec les mêmes pas, et hérite des deux thèmes. Le survol et l'appui sont des pas plus éloignés du texte : le contraste ne peut qu'augmenter. `contrastFailures()` vérifie chaque marque dans les deux thèmes.
+
+## D5 — Variantes des composants
+
+- **Option A — Tokens nommés par variante** (`button.danger.background-color`). La correspondance avec l'attribut se code dans le nom.
+- **Option B — Un modifier par attribut** (`button-variant`), un contexte par valeur (`danger`). Figma représente les variantes ainsi : des modes d'une collection de variables.
+
+**Décision : B.** Chaque contexte devient une règle `:host([variant="danger"])`, avec les seuls tokens qu'il change. La configuration du plugin associe chaque modifier à son attribut.
+
+## D6 — Sortie générée
+
+- **Option A — Générée au build, non commitée.** Vitest et Storybook dépendraient d'une étape de plus. Une revue ne verrait pas les valeurs changer.
+- **Option B — Générée et commitée**, comme `custom-elements.json`. `npm run tokens:check` échoue si elle diffère des sources.
+
+**Décision : B** pour le socle. ACME génère sa sortie à son build et ne la commite pas : seules ses sources servent d'exemple.
+
+## D7 — Parcours d'une marque
+
+Une marque écrit son propre resolver. Il référence les fichiers du socle (`node_modules/my-design-system/tokens/…`), puis les siens, dans les mêmes sets. Ses fichiers viennent après ceux du socle : ses valeurs gagnent.
+
+- Le plugin de la marque ne sort que les tokens de ses fichiers (option `emit`). Les feuilles du socle portent les autres.
+- Un token que la marque change dans un contexte sort aussi dans les autres contextes qui le changent. Sinon, sa valeur unique, dans la couche de la marque, l'emporterait sur la valeur sombre du socle.
+- Les tokens de la marque vont dans `u.tokens.brand`. La marque importe sa feuille après celle du socle.
+- Un composant propre à la marque prend le préfixe de la marque : `--acme-card-padding`.
+
+**Amendement du 13 novembre 2026 :** les fichiers du socle sont dans `node_modules/@unicorne/tokens/src/…`. La marque importe sa feuille après `@unicorne/tokens/tokens.css`.
+
+Une déclaration `@layer u.tokens.base, u.tokens.brand;` dans le socle rendrait l'ordre d'import indifférent. Elle a été retirée : Lightning CSS la découpe à la minification, puis postcss-import en remonte une partie quand une marque bundle la feuille. La marque perdait alors contre le socle (voir [Architecture CSS](?path=/docs/documentation-explication-architecture-css--docs)).
+
+## Récapitulatif
+
+<table>
+  <thead>
+    <tr>
+      <th>Décision</th>
+      <th>Choix</th>
+      <th>Pourquoi</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>D1 — Format</td>
+      <td>DTCG 2025.10 et son resolver</td>
+      <td>Le format d'échange des outils de design, Figma compris</td>
+    </tr>
+    <tr>
+      <td>D2 — Outil</td>
+      <td>Terrazzo, avec un plugin du socle</td>
+      <td>Prise en charge complète du resolver ; le socle garde la main sur le CSS</td>
+    </tr>
+    <tr>
+      <td>D3 — Niveaux</td>
+      <td>Les trois en DTCG, vérifiés au build</td>
+      <td>Une source pour tous les tokens ; la règle des niveaux tient face à un export</td>
+    </tr>
+    <tr>
+      <td>D4 — Thèmes</td>
+      <td>Palettes communes aux deux thèmes, thèmes dans les sémantiques</td>
+      <td>Une marque n'écrit pas de valeur sombre ; aucun `color-mix()`</td>
+    </tr>
+    <tr>
+      <td>D5 — Variantes</td>
+      <td>Un modifier par attribut</td>
+      <td>La forme des modes de Figma</td>
+    </tr>
+    <tr>
+      <td>D6 — Sortie</td>
+      <td>CSS généré et commité</td>
+      <td>Changements visibles en revue ; aucune étape de plus pour les tests</td>
+    </tr>
+    <tr>
+      <td>D7 — Marque</td>
+      <td>Resolver de la marque sur les fichiers du socle ; sortie limitée aux siens</td>
+      <td>La marque n'écrit et ne publie que ce qu'elle change</td>
+    </tr>
+  </tbody>
+</table>
+
+## Conséquences
+
+- **Noms :** les tokens sémantiques changent de nom (`--u-color-action-bg` devient `--u-color-action-background`). `--u-button-border` disparaît. `--u-button-transition-timing-function` et les tokens `--acme-card-*` de mise en page apparaissent.
+- **Navigateurs :** le socle n'utilise plus `color-mix()`.
+- **Outillage :** Terrazzo en devDependency, et en peer dependency optionnelle pour les marques. Deux exports de plus : `terrazzo-plugin` et `cem-plugin`.
+- **Documentation :** [Tokens et couches CSS](?path=/docs/documentation-référence-tokens-et-couches-css--docs), [Architecture CSS](?path=/docs/documentation-explication-architecture-css--docs), le guide de marque, et le skill `design-tokens`.
+
+## Questions ouvertes
+
+- **Export Figma :** API REST des variables (plan Enterprise) ou plugin (Tokens Studio, export natif). Le resolver doit garder ses sets et modifiers, ou l'export doit les produire.
+- **Bug de postcss-import :** il remonte les `@layer` sans bloc qui suivent un bloc `@layer`. Corrigé en amont, il permettrait de déclarer les sous-couches dans `order.css`. Le même bug inverse `u.utilities` et `u.shame`, vide, dans le bundle d'une marque.

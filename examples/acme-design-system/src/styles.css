@@ -1,6 +1,7 @@
-/* The stylesheet apps load: the base's layers and tokens, then ACME's values.
-   theme.css is generated from tokens/ by `tz build`, in the layer
-   u.tokens.brand: imported after the base's sheet, it comes after the base's
+/* The stylesheet apps load: the base's layers, the base's tokens, then ACME's
+   values. theme.css is generated from tokens/ by `tz build`, in the layer
+   u.tokens.brand: imported after the base's tokens, it comes after the base's
    u.tokens.base, and wins over it. */
-@import "my-design-system/styles.css";
+@import "@unicorne/components/styles.css";
+@import "@unicorne/tokens/tokens.css";
 @import "./theme.css";

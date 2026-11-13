@@ -3,8 +3,8 @@
  * with ACME's button everywhere a button is rendered, plus ACME's own
  * components. Apps import "@acme/design-system/define" once.
  */
-import { allComponents, defineComponents } from "my-design-system";
-import type { Alert, ButtonLink, Modal } from "my-design-system";
+import { allComponents, defineComponents } from "@unicorne/components";
+import type { Alert, ButtonLink, Modal } from "@unicorne/components";
 import { AcmeButton } from "./components/acme-button/acme-button.js";
 import { AcmeCard } from "./components/acme-card/acme-card.js";
 

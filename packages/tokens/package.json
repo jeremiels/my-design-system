@@ -1,0 +1,52 @@
+{
+  "name": "@unicorne/tokens",
+  "version": "0.0.0",
+  "private": true,
+  "description": "The design tokens of the base, for every platform: DTCG sources and their resolver, and the CSS custom properties of the web (ADR 0003).",
+  "files": [
+    "src",
+    "css",
+    "dist"
+  ],
+  "type": "module",
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "exports": {
+    "./tokens.css": "./css/tokens.css",
+    "./resolver.json": "./src/u.resolver.json",
+    "./src/*": "./src/*",
+    "./terrazzo-plugin": {
+      "@unicorne/source": "./plugins/terrazzo-plugin.ts",
+      "types": "./dist/plugins/terrazzo-plugin.d.ts",
+      "import": "./dist/plugins/terrazzo-plugin.js"
+    },
+    "./dtcg-sources": {
+      "@unicorne/source": "./plugins/dtcg-sources.ts",
+      "types": "./dist/plugins/dtcg-sources.d.ts",
+      "import": "./dist/plugins/dtcg-sources.js"
+    },
+    "./testing": {
+      "@unicorne/source": "./testing/contrast.ts",
+      "types": "./dist/testing/contrast.d.ts",
+      "import": "./dist/testing/contrast.js"
+    }
+  },
+  "scripts": {
+    "tokens": "tz build && oxfmt css/tokens.css",
+    "tokens:check": "npm run tokens && git diff --exit-code -- css/tokens.css",
+    "build": "npm run tokens && tsc -p tsconfig.build.json"
+  },
+  "peerDependencies": {
+    "@terrazzo/cli": "^2.10.0",
+    "@terrazzo/token-tools": "^2.10.0"
+  },
+  "peerDependenciesMeta": {
+    "@terrazzo/cli": {
+      "optional": true
+    },
+    "@terrazzo/token-tools": {
+      "optional": true
+    }
+  }
+}

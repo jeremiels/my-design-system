@@ -1,2 +1,2 @@
 /* Republishes the base's opt-in reset, so apps depend on ACME only. */
-@import "my-design-system/reset.css";
+@import "@unicorne/components/reset.css";

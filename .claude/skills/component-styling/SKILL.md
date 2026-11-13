@@ -5,9 +5,9 @@ description: Écrire ou modifier le CSS d'un composant ou d'un mixin (la feuille
 
 # Styles d'un composant
 
-Les règles des tokens sont dans `src/docs/reference/tokens-et-couches.mdx`. Lisez cette page avant d'écrire une feuille. Leurs raisons sont dans `src/docs/explication/architecture-css.mdx`.
+Les règles des tokens sont dans `docs/reference/tokens-et-couches.mdx`. Lisez cette page avant d'écrire une feuille. Leurs raisons sont dans `docs/explication/architecture-css.mdx`.
 
-Exemples : `src/components/button/button-base.css` (lecture des tokens, `forced-colors`) et `src/components/modal/modal.css` (parts, exception `::backdrop`).
+Exemples : `packages/components/src/components/button/button-base.css` (lecture des tokens, `forced-colors`) et `packages/components/src/components/modal/modal.css` (parts, exception `::backdrop`).
 
 ## 1. Créez la feuille
 
@@ -19,12 +19,12 @@ static styles = [DSBaseElement.styles ?? [], alertStyles];
 ```
 
 - N'utilisez jamais le gabarit `css` de Lit.
-- N'importez jamais une feuille de `src/styles/` ainsi : ce sont les feuilles de la page.
-- Un mixin suit la même règle (`withDisabled.css`). Une marque aussi, avec le plugin `my-design-system/vite-plugin`.
+- N'importez jamais une feuille de `packages/components/src/styles/` ainsi : ce sont les feuilles de la page.
+- Un mixin suit la même règle (`withDisabled.css`). Une marque aussi, avec le plugin `@unicorne/components/vite-plugin`.
 
 ## 2. Lisez les tokens du composant
 
-Les tokens d'un composant sont des sources DTCG, dans `tokens/component/<composant>/` (skill `design-tokens`). `npm run tokens` les génère sur `:host`, dans `<composant>.tokens.css`. La feuille du composant les lit seulement :
+Les tokens d'un composant sont des sources DTCG, dans `packages/tokens/src/component/<composant>/` (skill `design-tokens`). `npm run tokens` les génère sur `:host`, dans `<composant>.tokens.css`. La feuille du composant les lit seulement :
 
 ```css
 .button {
@@ -45,7 +45,7 @@ Une variante est un contexte de modifier dans les sources DTCG (skill `design-to
 - Reflétez la propriété en attribut : `@property({ type: String, reflect: true })`.
 - Ne changez pas les propriétés CSS dans une variante : changez les tokens.
 
-`src/api-contract.test.ts` échoue si un token documenté est redéclaré hors de `:host`.
+`packages/components/src/api-contract.test.ts` échoue si un token documenté est redéclaré hors de `:host`.
 
 ## 4. Exposez les parts et les états
 
@@ -57,7 +57,7 @@ Une variante est un contexte de modifier dans les sources DTCG (skill `design-to
 
 ## 5. Vérifiez le support navigateurs
 
-Vérifiez toute fonctionnalité CSS récente contre `src/docs/reference/support-navigateurs.mdx`. `:state()`, `text-wrap` et `interpolate-size` sont des améliorations progressives.
+Vérifiez toute fonctionnalité CSS récente contre `docs/reference/support-navigateurs.mdx`. `:state()`, `text-wrap` et `interpolate-size` sont des améliorations progressives.
 
 ## 6. Vérifiez
 

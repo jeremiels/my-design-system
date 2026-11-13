@@ -1,19 +1,19 @@
 ---
 name: storybook-documentation
-description: Écrire, réécrire ou relire la documentation du socle — pages MDX de Storybook (src/docs/**), AGENTS.md, skills (.claude/skills/) — selon la charte de rédaction (un type par page, phrases courtes, présent). À charger pour toute page, tout tableau, tout lien entre pages et toute modification d'un skill ou d'AGENTS.md.
+description: Écrire, réécrire ou relire la documentation du socle — pages MDX de Storybook (docs/**), AGENTS.md, skills (.claude/skills/) — selon la charte de rédaction (un type par page, phrases courtes, présent). À charger pour toute page, tout tableau, tout lien entre pages et toute modification d'un skill ou d'AGENTS.md.
 ---
 
 # Documentation
 
 ## 1. Préparez
 
-1. Lisez la charte : `src/docs/reference/charte-de-redaction.mdx`. Elle fixe les règles et le glossaire.
+1. Lisez la charte : `docs/reference/charte-de-redaction.mdx`. Elle fixe les règles et le glossaire.
 2. Choisissez le type de la page : tutoriel, guide, référence, explication ou ADR. Un contenu de deux types va dans deux pages liées.
-3. Cherchez si le fait existe déjà : `grep -rn "<terme>" src/docs .claude/skills AGENTS.md`. S'il existe, mettez un lien vers lui.
+3. Cherchez si le fait existe déjà : `grep -rn "<terme>" docs .claude/skills AGENTS.md`. S'il existe, mettez un lien vers lui.
 
 ## 2. Écrivez une page MDX
 
-Storybook charge `src/**/*.mdx` (`.storybook/main.ts`). Il compile le MDX sans `remark-gfm` : le CommonMark fonctionne, les extensions GitHub non.
+Storybook charge les pages `docs/**/*.mdx` et les stories `packages/*/src/**/*.stories.ts` (`.storybook/main.ts`). Il compile le MDX sans `remark-gfm` : le CommonMark fonctionne, les extensions GitHub non.
 
 ```mdx
 import { Meta } from "@storybook/addon-docs/blocks";
@@ -23,18 +23,18 @@ import { Meta } from "@storybook/addon-docs/blocks";
 # Support navigateurs
 ```
 
-| Type        | Titre                              | Dossier                     |
-| ----------- | ---------------------------------- | --------------------------- |
-| Tutoriel    | `Documentation/Premiers pas`       | `src/docs/premiers-pas.mdx` |
-| Guide       | `Documentation/Guides/<Nom>`       | `src/docs/guides/`          |
-| Référence   | `Documentation/Référence/<Nom>`    | `src/docs/reference/`       |
-| Explication | `Documentation/Explication/<Nom>`  | `src/docs/explication/`     |
-| Décision    | `Documentation/ADR/<numéro> <Nom>` | `src/docs/adr/`             |
+| Type        | Titre                              | Dossier                 |
+| ----------- | ---------------------------------- | ----------------------- |
+| Tutoriel    | `Documentation/Premiers pas`       | `docs/premiers-pas.mdx` |
+| Guide       | `Documentation/Guides/<Nom>`       | `docs/guides/`          |
+| Référence   | `Documentation/Référence/<Nom>`    | `docs/reference/`       |
+| Explication | `Documentation/Explication/<Nom>`  | `docs/explication/`     |
+| Décision    | `Documentation/ADR/<numéro> <Nom>` | `docs/adr/`             |
 
 - `storySort` (`.storybook/preview.ts`) fixe l'ordre de ces dossiers.
 - Un lien vers une page utilise son id : `[Support navigateurs](?path=/docs/documentation-référence-support-navigateurs--docs)`.
 - L'id est le titre en minuscules, chaque espace ou `/` remplacé par `-`, suivi de `--docs`. Les accents restent. Vérifiez l'id dans l'URL de Storybook.
-- `AGENTS.md` et les skills mettent un lien vers le fichier : `src/docs/reference/support-navigateurs.mdx`.
+- `AGENTS.md` et les skills mettent un lien vers le fichier : `docs/reference/support-navigateurs.mdx`.
 
 ### Tableaux : en HTML
 
@@ -72,14 +72,14 @@ Un tableau Markdown à barres verticales s'affiche en texte brut. Écrivez le ta
 
 ## 3. Écrivez les règles d'usage d'un composant (DSDS, pilote)
 
-Les règles d'usage de `button` et `button-link` vivent dans leur document DSDS : `src/components/button/<nom>.dsds.yaml`. `design-system.dsds.yaml` liste ces documents. La spec est sur [designsystemdocspec.org](https://designsystemdocspec.org), en version 0.23.1.
+Les règles d'usage de `button` et `button-link` vivent dans leur document DSDS : `packages/components/src/components/button/<nom>.dsds.yaml`. `design-system.dsds.yaml` liste ces documents. La spec est sur [designsystemdocspec.org](https://designsystemdocspec.org), en version 0.23.1.
 
 1. Écrivez chaque règle comme un élément de `guidelines` : un `level` (`must`, `should`, `may`, `should-not`, `must-not`) et un `statement` au présent, à l'impératif.
 2. Donnez un `checkedBy` à chaque règle. Une règle `automated` cite dans `checks` le test qui la vérifie : `./button.stories.ts#Disabled`.
 3. Réservez aux agents ce qui ne sert qu'à eux : une section `for: agent`. Storybook ne l'affiche pas.
 4. Ne recopiez jamais l'API : attributs, slots, parts et tokens restent dans `custom-elements.json`. Les `traits` donnent seulement le sens de chaque valeur.
 5. Mettez les champs dans l'ordre de la spec : `npx dsds-format <fichier>`.
-6. Lancez `npm run dsds`, puis `npx vitest run --project browser src/dsds.test.ts`. Le test compare les traits au composant et vérifie chaque lien vers un fichier ou une story.
+6. Lancez `npm run dsds`, puis `npx vitest run --project browser .storybook/dsds.test.ts`. Le test compare les traits au composant et vérifie chaque lien vers un fichier ou une story.
 
 `.storybook/dsds.ts` lit les documents, et `.storybook/DocumentationTemplate.mdx` affiche les règles dans la page du composant.
 

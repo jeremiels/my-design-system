@@ -2,7 +2,7 @@
 // does it, and publishes its results on `window.__results`.
 import "/dist/define.js";
 import { AcmeButton, AcmeCard, Button } from "/dist/index.js";
-import { contrastFailures } from "my-design-system/testing";
+import { contrastFailures } from "@unicorne/tokens/testing";
 
 const results = [];
 async function check(name, run) {

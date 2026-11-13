@@ -1,13 +1,13 @@
 ---
 name: lit-component
-description: Écrire ou modifier la classe d'un composant Lit du socle (src/components/**/*.ts) ou d'une marque — propriétés, rendu, événements, rendu d'autres composants, ElementInternals, accessibilité, extension par les marques. À charger pour tout changement du TypeScript d'un composant, avec component-styling pour son CSS et component-api-docs pour sa JSDoc.
+description: Écrire ou modifier la classe d'un composant Lit du socle (packages/components/src/components/**/*.ts) ou d'une marque — propriétés, rendu, événements, rendu d'autres composants, ElementInternals, accessibilité, extension par les marques. À charger pour tout changement du TypeScript d'un composant, avec component-styling pour son CSS et component-api-docs pour sa JSDoc.
 ---
 
 # Classe d'un composant Lit
 
-Les marques étendent les classes du socle et les enregistrent sous leur préfixe (ADR 0001, `src/docs/adr/0001-architecture-multi-marque.mdx`). Chaque règle de ce skill garde ces extensions fonctionnelles.
+Les marques étendent les classes du socle et les enregistrent sous leur préfixe (ADR 0001, `docs/adr/0001-architecture-multi-marque.mdx`). Chaque règle de ce skill garde ces extensions fonctionnelles.
 
-Exemples : `src/components/alert/alert.ts` (simple), `src/components/button/button-base.ts` et `button.ts` (base partagée, mixins, formulaire), `src/components/modal/modal.ts` (rend un autre composant), `examples/acme-design-system/src/components/acme-card/acme-card.ts` (composant de marque).
+Exemples : `packages/components/src/components/alert/alert.ts` (simple), `packages/components/src/components/button/button-base.ts` et `button.ts` (base partagée, mixins, formulaire), `packages/components/src/components/modal/modal.ts` (rend un autre composant), `examples/acme-design-system/src/components/acme-card/acme-card.ts` (composant de marque).
 
 ## Anatomie
 
@@ -38,7 +38,7 @@ export class Alert extends DSBaseElement {
 - **`static componentName` :** la balise sans préfixe (`"button-link"`). Déclarez-le sur chaque composant concret, jamais sur une base abstraite (`ButtonBase`).
 - **Enregistrement :** pas de `@customElement`, pas de `customElements.define`. `defineComponents()` enregistre (skill `create-component`).
 - **Styles :** `static styles = [super.styles ?? [], tokens, feuille]`. `tokens` est la feuille générée `<nom>.tokens.css` (skill `design-tokens`), `feuille` la feuille `.css` voisine (skill `component-styling`).
-- **Types :** les unions dans `<nom>.type.ts`, les types partagés dans `src/types/common.ts` (`ComponentSize`, `SemanticVariant`). Pas de préfixe `My`.
+- **Types :** les unions dans `<nom>.type.ts`, les types partagés dans `packages/components/src/types/common.ts` (`ComponentSize`, `SemanticVariant`). Pas de préfixe `My`.
 
 ## Propriétés
 
@@ -64,13 +64,13 @@ render() {
 - `tagFor()` donne la balise de l'enregistrement de cet élément : `u-modal` rend `u-button`, `acme-modal` rend la surcharge de la marque.
 - N'écrivez jamais la balise d'un autre composant en dur, et n'appelez jamais `document.createElement` pour lui. La surcharge de la marque serait ignorée.
 - Quand le sous-élément est un choix d'intégration, préférez un slot. La modale rend son bouton de fermeture (`tagFor(Button)`) et reçoit son déclencheur par le slot `trigger`.
-- Ajoutez tout nouvel import `lit/...` à `optimizeDeps.include` dans `vite.config.ts`. Sinon, Vitest et Storybook ré-optimisent en cours de test et échouent.
+- Ajoutez tout nouvel import `lit/...` à `optimizeDeps.include` dans le `vite.config.ts` de la racine. Sinon, Vitest et Storybook ré-optimisent en cours de test et échouent.
 
 ## Événements
 
-- Créez une sous-classe d'`Event` typée par événement, dans `src/events/<composant>-<événement>.ts`, sur le modèle de `src/events/modal-close.ts`.
+- Créez une sous-classe d'`Event` typée par événement, dans `packages/components/src/events/<composant>-<événement>.ts`, sur le modèle de `packages/components/src/events/modal-close.ts`.
 - Nommez l'événement `u-<événement>`, quel que soit le préfixe de la marque. Fixez ses `bubbles` et `composed`, et complétez `GlobalEventHandlersEventMap`.
-- Émettez-le avec `this.dispatchEvent(new ModalCloseEvent())`, documentez-le avec `@fires` et exportez-le depuis `src/index.ts`.
+- Émettez-le avec `this.dispatchEvent(new ModalCloseEvent())`, documentez-le avec `@fires` et exportez-le depuis `packages/components/src/index.ts`.
 - Créez un événement seulement s'il n'existe pas d'événement natif. Un `click` qui sort du shadow root depuis un `<button>` est l'événement du composant : documentez-le avec `@fires click`.
 - Un composant désactivé ne laisse sortir aucun événement natif (`ButtonBase.handleClick`).
 
@@ -80,7 +80,7 @@ render() {
 - Composant associé à un formulaire : `static formAssociated = true` (voir `button.ts`).
 - Avec `withDisabled`, rendez et gérez les interactions à partir de `this.isDisabled`, pas de `this.disabled`.
 - `this.internals` et `this.customStates` sont `protected` : jamais exposés à l'application.
-- Les détails des deux mixins sont dans `src/docs/reference/mixins.mdx`.
+- Les détails des deux mixins sont dans `docs/reference/mixins.mdx`.
 
 ## Extension par les marques
 
@@ -103,7 +103,7 @@ L'API publique est ce que la JSDoc documente : propriétés, attributs, slots, p
 
 ## Support navigateurs
 
-Vérifiez toute API récente contre `src/docs/reference/support-navigateurs.mdx` avant de l'utiliser.
+Vérifiez toute API récente contre `docs/reference/support-navigateurs.mdx` avant de l'utiliser.
 
 ## Vérifiez
 

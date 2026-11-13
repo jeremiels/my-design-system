@@ -1,0 +1,80 @@
+{
+  "name": "@unicorne/components",
+  "version": "0.0.0",
+  "private": true,
+  "description": "The web components of the base, built with Lit: classes without registration, a registration helper, and the tooling brands extend them with (ADR 0001, ADR 0003).",
+  "files": [
+    "dist",
+    "custom-elements.json"
+  ],
+  "type": "module",
+  "sideEffects": [
+    "**/*.css",
+    "./dist/define.js",
+    "./src/define.ts"
+  ],
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./define": {
+      "types": "./dist/define.d.ts",
+      "import": "./dist/define.js"
+    },
+    "./styles.css": "./dist/styles.css",
+    "./reset.css": "./dist/reset.css",
+    "./custom-elements.json": "./custom-elements.json",
+    "./vite-plugin": {
+      "types": "./dist/plugins/css-import-attributes.d.ts",
+      "import": "./dist/plugins/css-import-attributes.js"
+    },
+    "./cem-plugin": {
+      "types": "./dist/plugins/cem-plugin.d.ts",
+      "import": "./dist/plugins/cem-plugin.js"
+    },
+    "./css-modules": {
+      "types": "./dist/css-modules.d.ts"
+    },
+    "./button": {
+      "types": "./dist/components/button/button.d.ts",
+      "import": "./dist/button.js"
+    },
+    "./button-link": {
+      "types": "./dist/components/button/button-link.d.ts",
+      "import": "./dist/button-link.js"
+    },
+    "./alert": {
+      "types": "./dist/components/alert/alert.d.ts",
+      "import": "./dist/alert.js"
+    },
+    "./modal": {
+      "types": "./dist/components/modal/modal.d.ts",
+      "import": "./dist/modal.js"
+    }
+  },
+  "scripts": {
+    "build": "npm run tokens && npm run analyze && vite build && tsc -p tsconfig.build.json && tsc -p tsconfig.plugin.json && cp src/css-modules.d.ts dist/",
+    "analyze": "NODE_OPTIONS=--conditions=@unicorne/source cem analyze",
+    "tokens": "tz build && oxfmt src/components/*/*.tokens.css",
+    "tokens:check": "npm run tokens && git diff --exit-code -- 'src/components/*/*.tokens.css'",
+    "api:check": "npm run analyze && git diff --exit-code -- custom-elements.json"
+  },
+  "devDependencies": {
+    "@unicorne/tokens": "0.0.0"
+  },
+  "peerDependencies": {
+    "@unicorne/tokens": "^0.0.0",
+    "lit": "^3.3.3",
+    "vite": "^8.3.0"
+  },
+  "peerDependenciesMeta": {
+    "vite": {
+      "optional": true
+    }
+  },
+  "customElements": "custom-elements.json"
+}

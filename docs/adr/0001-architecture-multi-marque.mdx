@@ -1,0 +1,259 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Documentation/ADR/0001 Architecture multi-marque" />
+
+# ADR 0001 — Architecture multi-marque (socle marque blanche)
+
+**Statut :** accepté · **Date :** 11 novembre 2026
+
+## Contexte
+
+Cette librairie doit devenir un **socle marque blanche** : un catalogue de composants et de mixins génériques, publié en package npm. Chaque marque a son propre projet de design system qui :
+
+1. dépend de ce package ;
+2. étend ses composants et en ajoute de spécifiques, avec ses propres règles ;
+3. republie le tout sous son propre package, consommé par les applications de la marque.
+
+Les design tokens de chaque marque viennent de Figma. La façon de les produire (format, outillage) n'est pas encore décidée : elle fera l'objet d'un ADR dédié (voir D4).
+
+Le code actuel a été écrit pour un seul design system. Plusieurs choix y sont implicites et bloquent ou fragilisent ce modèle :
+
+- **Enregistrement à l'import :** chaque classe s'enregistre elle-même (`@customElement("my-button")`). Importer un composant définit donc `my-button` dans toute la page, sous un préfixe imposé.
+- **Balises internes en dur :** `modal.ts` rend `<my-button>` directement. Une marque qui étend le bouton ne le verra jamais dans la modale.
+- **Tokens :** les primitives et sémantiques n'ont pas de préfixe (`--color-primary`), ce qui expose à des collisions avec l'application ou d'autres librairies. Les tokens de composant sont préfixés par le nom de balise (`--my-button-*`).
+- **Thème :** la feuille globale est un point d'entrée séparé (`my-design-system/styles.css`). `css-architecture.mdx` affirme que `src/index.ts` l'importe, ce qui est faux.
+- **API publique non vérifiée :** la JSDoc de `my-button` et `my-alert` annonce des `@csspart`, mais aucun template n'expose d'attribut `part`. `my-button::part(button)` ne fonctionne donc pas.
+- **Package :** `"private": true`, version `0.0.0`, Lit en `dependencies` (alors qu'il est externalisé au build), pas de champ `sideEffects`.
+
+Rien n'est encore publié : c'est le bon moment pour des changements cassants.
+
+### Critères de décision
+
+1. Une marque change l'apparence sans forker.
+2. Une marque étend le comportement, et son extension est utilisée **partout**, y compris à l'intérieur des autres composants.
+3. Un design system de marque consomme le socle comme une dépendance npm, et republie sans recopier son code ni sa chaîne de build.
+4. Deux marques différentes peuvent coexister sur une même page.
+5. Tout fonctionne dans la [matrice navigateurs](?path=/docs/documentation-référence-support-navigateurs--docs) sans polyfill lourd.
+6. La surface publique est minimale et explicite : tout ce qui est exposé devient une API à maintenir.
+7. C'est simple pour les équipes de marque comme pour les agents (skills).
+
+## D1 — Enregistrement des custom elements
+
+Chaque design system de marque republie les composants sous son propre nom : on en déduit qu'il utilise **son propre préfixe de balises** (`acme-button`).
+
+### Option A — Statu quo : enregistrement à l'import
+
+- **Pour :** rien à faire côté consommateur.
+- **Contre :** préfixe `my-` imposé ; l'import a un effet de bord global ; une marque qui étend un composant doit lui donner un autre nom, mais `my-*` reste défini. Deux versions de la librairie sur une même page échouent (`NotSupportedError`, nom déjà défini).
+
+### Option B — Classes sans enregistrement, et modules de définition séparés
+
+C'est le modèle de Spectrum Web Components : `import { Button }` donne la classe, et un module dédié (`my-button.js`) l'enregistre. Une marque écrit `class AcmeButton extends Button {}` puis `customElements.define("acme-button", AcmeButton)`.
+
+- **Pour :** aucun effet de bord à l'import d'une classe ; tree-shaking ; préfixe libre.
+- **Contre :** chaque marque doit définir chaque élément. Un même constructeur ne peut être enregistré qu'une fois par registre : il faut une sous-classe pour chaque nouveau nom.
+
+### Option C — B, plus un helper qui enregistre tout le catalogue
+
+Par exemple `defineComponents({ prefix: "acme", overrides: { button: AcmeButton } })`. Le helper enregistre chaque composant sous le préfixe, en créant une sous-classe vide pour ceux que la marque ne surcharge pas. Le design system de marque publie ce module de définition dans son propre package.
+
+- **Pour :** la marque n'écrit que ce qu'elle personnalise ; les noms de balises restent cohérents ; c'est le point d'appui naturel de D2.
+- **Contre :** une API de plus à maintenir.
+
+**Décision : C**, construite sur B. Les modules `my-*.js` peuvent rester pour Storybook, la démo et un usage sans marque.
+
+## D2 — Dépendances entre composants (balises internes)
+
+Avec un préfixe propre à chaque marque (D1), un composant qui en rend un autre ne peut plus écrire le nom de balise en dur : la modale d'Acme doit rendre `acme-button`, ou le bouton surchargé par la marque.
+
+### Option A — Balises en dur (statu quo)
+
+- **Contre :** incompatible avec D1-B et D1-C.
+
+### Option B — Scoped custom element registries
+
+Chaque composant déclare ses dépendances dans le registre de son shadow root (par exemple via `@lit-labs/scoped-registry-mixin`, ou `@open-wc/scoped-elements` comme le fait Lion). Une marque remplace la table des dépendances dans sa sous-classe.
+
+- **Pour :** standard du web ; isolation complète, donc des versions ou marques multiples coexistent sans préfixe.
+- **Contre :** natif seulement depuis Chrome 146, Safari 26 et Firefox 159 (Baseline en octobre 2026), donc hors de notre matrice. Il faudrait le polyfill `@webcomponents/scoped-custom-element-registry`, qui modifie les API DOM globales ; Lion a d'ailleurs cessé de le charger automatiquement.
+
+### Option C — Nom de balise résolu au rendu
+
+Le composant demande au registre de la librairie (rempli par `defineComponents`) le nom de balise de chaque dépendance, et le rend avec les templates statiques de Lit (`lit/static-html.js`, `unsafeStatic`).
+
+- **Pour :** fonctionne dans toute la matrice sans polyfill ; suit le préfixe et les surcharges de D1 ; deux marques coexistent puisqu'elles ont des préfixes différents ; les dépendances sont déclarées explicitement, ce qui prépare une migration vers B.
+- **Contre :** un mécanisme interne à maintenir ; deux versions du design system d'une **même** marque sur une même page restent en conflit (cas jugé rare).
+
+### Option D — Composition par slots
+
+Le composant ne crée pas lui-même ses sous-composants interactifs : l'intégrateur les fournit (par exemple, le déclencheur de la modale passé dans un slot `trigger`).
+
+- **Pour :** aucun couplage entre composants ; le choix revient à l'application.
+- **Contre :** ne s'applique pas partout (un sélecteur de date a besoin de ses boutons internes) ; déplace du travail vers l'intégrateur.
+
+**Décision : C** quand un composant a besoin d'un autre pour fonctionner, **D** quand le sous-élément relève d'un choix d'intégration (comme le déclencheur de la modale). On réévaluera **B** quand la matrice inclura les scoped registries natifs.
+
+### Deux versions d'une même marque sur une page : non couvert
+
+Ce cas est jugé peu probable et n'est pas traité ; depuis l'amendement du 11 novembre 2026, il ne fait toutefois plus échouer la page (voir les questions tranchées). Pour qu'un passage ultérieur à B reste un changement localisé, deux règles s'appliquent dès maintenant :
+
+1. **Toute dépendance entre composants est déclarée** (table de dépendances de C) : jamais de nom de balise en dur dans un template, jamais de `document.createElement` d'un composant du socle. Cette table deviendrait le registre scopé de chaque composant.
+2. **Le branchement au registre se fait en un seul endroit** : la classe de base (`DSBaseElement`), et non chaque composant.
+
+Avec ces règles, la migration toucherait la classe de base, `defineComponents` et l'ajout du polyfill ou la hausse de la matrice. Les composants et les sous-classes des marques ne bougeraient pas. Sans elles, il faudrait reprendre chaque composant et chaque marque.
+
+## D3 — Surface d'extension publique
+
+Trois niveaux cumulatifs ; chaque niveau donne plus de liberté aux marques et plus d'API à maintenir :
+
+1. **Tokens CSS de composant** seulement.
+2. **Plus `::part()`** sur les éléments internes clés, et des **slots** documentés.
+3. **Plus l'extension par sous-classe**, avec des méthodes `protected` documentées (par exemple, un rendu découpé en `renderPrefix()`, `renderContent()`…).
+
+Lion, référence du modèle marque blanche, va jusqu'au niveau 3. Spectrum s'en tient surtout aux niveaux 1 et 2. Comme les marques ajoutent leurs propres règles et composants en étendant ceux du socle, le niveau 3 est nécessaire.
+
+**Décision : niveau 3, avec une frontière explicite.** Est public uniquement ce qui est documenté (`@cssprop`, `@csspart`, `@slot`, `@fires`, membres `protected` documentés). Le reste est interne (champs `#privés`, `@internal`). Aucune rupture sur un élément public hors version majeure.
+
+## D4 — Tokens et thèmes de marque
+
+### Production des tokens : reportée
+
+La production des tokens n'est **pas tranchée** et fera l'objet d'un ADR dédié : source Figma, format (DTCG ou autre), outillage, validation, nommage détaillé.
+
+**Amendement du 12 novembre 2026 :** l'[ADR 0002](?path=/docs/documentation-adr-0002-tokens-au-format-dtcg--docs) tranche le format (DTCG 2025.10), l'outil (Terrazzo) et le nommage. L'export depuis Figma reste ouvert.
+
+Cet ADR suppose seulement ce que les composants exigent déjà, quelle que soit la future chaîne de production :
+
+- les composants consomment des **custom properties CSS**, à travers leurs tokens de composant, qui pointent vers des tokens sémantiques (architecture à trois niveaux actuelle) ;
+- un thème de marque est une feuille CSS qui redéfinit ces valeurs, chargée après celle du socle : les composants n'ont pas à être recompilés par marque.
+
+**Éléments déjà vérifiés, à reprendre dans l'ADR tokens :**
+
+- L'API REST des variables Figma est réservée au plan Enterprise ; sans elle, l'export passe par des plugins (Tokens Studio, Tokens Bruecke…). Un export natif au format DTCG est annoncé par certaines sources, sans confirmation officielle.
+- Le format DTCG est stable depuis sa version 2025.10, et son module « Resolver » couvre thèmes et modes. Style Dictionary (v5) et Terrazzo le prennent en charge.
+
+### Préfixe des tokens
+
+C'est la seule question de tokens qui ne peut pas attendre : les noms des tokens sont **compilés dans le CSS des composants du socle**. Les changer plus tard est une rupture pour chaque thème de marque, à coordonner avec une version majeure.
+
+Aujourd'hui, primitives et sémantiques n'ont pas de préfixe (`--color-primary`, `--radius-md`) : une application ou une autre librairie qui définit les mêmes noms sur `:root` change silencieusement l'apparence des composants. Tailwind CSS v4, par exemple, expose son thème en variables `--color-*` et `--radius-*`.
+
+- **Option A — Pas de préfixe (statu quo).**
+  - **Contre :** risque de collision décrit ci-dessus, dans des applications qu'on ne maîtrise pas.
+- **Option B — Préfixe neutre et fixe, défini par le socle**, identique pour toutes les marques (par exemple `--u-color-action-bg`, `--u-button-background-color`), indépendant du préfixe des balises. Les marques changent les valeurs, jamais les noms. Les tokens propres aux composants d'une marque prennent le préfixe de la marque.
+  - **Pour :** pas de collision ; composants compilés une seule fois ; les noms de variables Figma restent sans préfixe, car c'est l'outil de génération qui l'ajoute (Style Dictionary et Terrazzo ont une option de préfixe).
+  - **Contre :** le préfixe des tokens diffère de celui des balises (`acme-button` lit `--u-button-*`), comme chez Spectrum (`sp-button`, `--spectrum-*`). Deux marques sur une même page partagent les mêmes noms : chaque thème doit alors s'appliquer à un conteneur (`[data-brand="acme"]`, `data-theme` servant déjà au mode sombre) plutôt qu'à `:root`.
+- **Option C — Préfixe propre à chaque marque** pour tous les tokens (`--acme-button-*`).
+  - **Contre :** le CSS des composants du socle est compilé dans son JS ; chaque marque devrait le recompiler depuis les sources avec une transformation des noms, ce qui contredit le critère 3. Le seul gain est l'homogénéité des noms.
+
+**Décision : B, avec le préfixe `--u-`** pour tous les tokens du socle : primitives, sémantiques et tokens de composant (par exemple `--u-color-action-bg`, `--u-button-background-color`). Les thèmes s'appliquent à `:root` par défaut, et à un conteneur quand plusieurs marques partagent une page.
+
+## D5 — Documentation de l'API publique
+
+- **Option A — JSDoc écrite à la main (statu quo).** Rien ne la vérifie : c'est ainsi que des `@csspart` sans `part` réel sont passés.
+- **Option B — Custom Elements Manifest généré** par `@custom-elements-manifest/analyzer` (avec son plugin Lit) depuis la JSDoc et TypeScript, puis publié avec le package. Storybook l'utilise pour générer contrôles et documentation (`setCustomElementsManifest`), les IDE pour l'autocomplétion, et la CI peut signaler tout changement de l'API publique. Un design system de marque génère son propre manifest en incluant celui du socle (option `--dependencies` de l'analyseur, et le plugin `@wc-toolkit/cem-inheritance` pour les membres hérités) : ses composants republiés restent documentés.
+- **Option C — Documentation MDX écrite à la main.** Elle diverge du code avec le temps, dans le socle comme chez chaque marque.
+
+**Décision : B.** Le manifest devient la définition concrète de la surface publique de D3.
+
+## D6 — Distribution du package
+
+### Lit : dépendance ou peer dependency
+
+- **Option A — `dependencies` (statu quo).** Si les plages de versions du socle, du design system de marque et de l'application divergent, npm installe plusieurs copies de Lit : runtime dupliqué, avertissement de Lit en mode dev, et classes de base différentes selon le niveau d'extension.
+- **Option B — `peerDependencies`** (et `devDependencies` pour le développement du socle). Une seule copie de Lit, fournie par le design system de marque ou l'application.
+
+**Décision : B.**
+
+### Outillage des CSS module scripts côté marque
+
+Les composants de marque qui étendent ceux du socle écriront leurs styles de la même façon (`with { type: "css" }`), et auront donc besoin du même plugin Vite et des mêmes types.
+
+- **Option A — Rien de fourni :** chaque marque recopie le plugin ou choisit une autre méthode. Les conventions divergent.
+- **Option B — Export depuis le socle :** `my-design-system/vite-plugin` et les types des imports CSS, avec `vite` en peer dependency optionnelle.
+- **Option C — Package séparé** pour le plugin.
+
+**Décision : B**, et extraction en C seulement si d'autres projets en ont besoin.
+
+**Amendement du 13 novembre 2026 :** l'[ADR 0003](?path=/docs/documentation-adr-0003-packages-tokens-et-composants--docs) scinde le socle en deux packages, `@unicorne/tokens` et `@unicorne/components`. Chaque plugin suit son package : `terrazzo-plugin` dans `@unicorne/tokens`, `vite-plugin` et `cem-plugin` dans `@unicorne/components`.
+
+### Publication
+
+Le package sera publié sur un **registre privé interne (Artifactory)**, configuré ailleurs que sur ce poste : nom de package scopé et `publishConfig`, à définir à ce moment-là. Pour la démo actuelle, rien n'est publié : le design system de marque d'exemple consomme le socle via `npm pack`, c'est-à-dire exactement l'archive qui serait publiée (fichiers, carte `exports`, `sideEffects`).
+
+### Points sans alternative réelle
+
+- Déclarer `"sideEffects"` (CSS et modules de définition seulement), pour que le tree-shaking de D1 fonctionne chez les marques.
+- Compléter la carte `exports` : classes, modules de définition, `defineComponents`, `styles.css`, `custom-elements.json`, plugin et types.
+- Versionner en semver dès la première publication, avec un changelog tenu à chaque changement (par exemple avec Changesets) ; la surface publique de D3 dit ce qui est cassant.
+- Maintenir dans le dépôt un **design system de marque d'exemple** qui étend, surcharge et republie, et le tester en CI : c'est la seule preuve continue que le parcours d'une marque fonctionne.
+
+## Récapitulatif
+
+<table>
+  <thead>
+    <tr>
+      <th>Décision</th>
+      <th>Décision</th>
+      <th>Pourquoi</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>D1 — Enregistrement</td>
+      <td>Classes sans enregistrement + `defineComponents({ prefix, overrides })`</td>
+      <td>Chaque marque republie sous son préfixe, sans effet de bord, en n'écrivant que ce qu'elle personnalise</td>
+    </tr>
+    <tr>
+      <td>D2 — Balises internes</td>
+      <td>Nom résolu au rendu ; slots pour les choix d'intégration</td>
+      <td>Fonctionne dans toute la matrice ; scoped registries hors matrice pour l'instant</td>
+    </tr>
+    <tr>
+      <td>D3 — Surface d'extension</td>
+      <td>Tokens, parts, slots et sous-classes, avec une frontière documentée</td>
+      <td>Les marques étendent les composants ; tout le reste est interne</td>
+    </tr>
+    <tr>
+      <td>D4 — Tokens et thèmes</td>
+      <td>Production tranchée par l'ADR 0002 ; préfixe `--u-` pour tous les tokens</td>
+      <td>Les noms sont compilés dans les composants : à fixer avant la première marque</td>
+    </tr>
+    <tr>
+      <td>D5 — Documentation de l'API</td>
+      <td>Custom Elements Manifest généré et publié</td>
+      <td>API vérifiable ; les marques héritent de la documentation du socle</td>
+    </tr>
+    <tr>
+      <td>D6 — Distribution</td>
+      <td>Lit en peer dependency, plugin et types exportés, design system d'exemple testé en CI</td>
+      <td>Une seule copie de Lit ; les marques réutilisent l'outillage au lieu de le recopier</td>
+    </tr>
+  </tbody>
+</table>
+
+## Conséquences
+
+- **Code :**
+  - retirer `@customElement` des classes et ajouter les modules de définition et `defineComponents` ;
+  - faire résoudre par la modale la balise de son bouton (ou passer le déclencheur en slot) ;
+  - ajouter les attributs `part` documentés ;
+  - générer le manifest, le publier et le brancher sur Storybook ;
+  - renommer tous les tokens avec le préfixe `--u-` ;
+  - adapter les stories et `tests/legacy` au nouvel enregistrement.
+- **Package :** Lit en peer dependency, `sideEffects`, carte `exports` complète, export du plugin et des types, mise en place du versionnement et du changelog, design system d'exemple.
+- **Documentation :** corriger `css-architecture.mdx` (chargement réel de `styles.css`), mettre à jour `AGENTS.md`, et écrire un guide « Créer un design system de marque ».
+- **Skills :** `lit-component`, `component-styling`, `create-component`, `lit-mixin` et `component-api-docs` encoderont ces décisions, dont les deux règles de D2 qui préservent une migration vers les scoped registries ; `design-tokens` attendra l'ADR tokens.
+
+## Questions ouvertes
+
+Aucune.
+
+## Questions tranchées
+
+- **Préfixe des tokens :** `--u-`, neutre et identique pour toutes les marques (D4).
+- **Préfixe des balises du socle :** `u-` (`u-button`, `u-modal`…), aligné sur les tokens ; il ne sert qu'à l'enregistrement par défaut (Storybook, démo, usage sans marque). Les événements propres au socle suivent (`u-close`) ; le bouton, lui, émet le `click` natif de son contrôle, sans événement dupliqué (amendement du 11 novembre 2026).
+- **Deux versions d'une même marque sur une page :** non couvert, jugé peu probable ; les règles de D2 gardent la migration localisée. Amendement du 11 novembre 2026 : un second enregistrement du même préfixe (autre copie du design system chargée par un autre micro-frontend, rechargement à chaud) ne fait plus échouer la page. Les définitions existantes sont conservées, avec un avertissement si elles diffèrent : les deux applications utilisent alors la version chargée en premier. C'est un repli, pas une prise en charge.
+- **Publication :** registre privé interne (Artifactory), configuré hors de ce poste ; démo d'abord, via `npm pack`.
+- **Packages :** `@unicorne/tokens` et `@unicorne/components`, dans un dépôt à workspaces npm ([ADR 0003](?path=/docs/documentation-adr-0003-packages-tokens-et-composants--docs), 13 novembre 2026).
+- **Production des tokens :** sources DTCG générées en CSS par Terrazzo, sur les trois niveaux (ADR 0002, 12 novembre 2026).

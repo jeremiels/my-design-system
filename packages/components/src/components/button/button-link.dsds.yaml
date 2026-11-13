@@ -1,0 +1,43 @@
+# Quand utiliser button-link (DSDS). Son API vit dans custom-elements.json.
+kind: component
+id: button-link
+name: Button link
+description: Un lien qui a l'apparence d'un bouton.
+metadata:
+  origin:
+    method: authored
+    author: assisted
+  status:
+    status: experimental
+
+sections:
+  - kind: guidelines
+    for: all
+    framing: when-to-use
+    items:
+      - level: must
+        statement: Utilisez `button-link` pour aller vers une autre page, avec `href`.
+        checkedBy: manual
+      - level: must-not
+        statement: N'utilisez pas `button-link` pour une action dans la page. Utilisez <dsds:button>.
+        alternatives:
+          - to: button
+        checkedBy: manual
+
+refs:
+  - href: ./button-link.stories.ts
+    rel: demo
+    role: Stories (CSF)
+
+sourceFiles:
+  - platform: web-component
+    file: ./button-link.ts
+
+imports:
+  - platform: web-component
+    code: import "@unicorne/components/define";
+    package: "@unicorne/components"
+
+specs:
+  - href: ../../../custom-elements.json
+    role: Custom Elements Manifest

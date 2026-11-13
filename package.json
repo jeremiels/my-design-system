@@ -1,96 +1,27 @@
 {
-  "name": "my-design-system",
+  "name": "unicorne",
   "version": "0.0.0",
   "private": true,
-  "files": [
-    "dist",
-    "custom-elements.json",
-    "tokens/**/*.json"
+  "description": "The base's monorepo: @unicorne/tokens and @unicorne/components (packages/), their documentation (docs/, Storybook) and the example brand (examples/). See ADR 0003.",
+  "workspaces": [
+    "packages/tokens",
+    "packages/components"
   ],
   "type": "module",
-  "sideEffects": [
-    "**/*.css",
-    "./dist/define.js",
-    "./src/define.ts"
-  ],
-  "main": "./dist/index.js",
-  "module": "./dist/index.js",
-  "types": "./dist/index.d.ts",
-  "imports": {
-    "#*": [
-      "./*",
-      "./*.ts",
-      "./*.tsx",
-      "./*.js",
-      "./*.jsx"
-    ]
-  },
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
-    },
-    "./define": {
-      "types": "./dist/define.d.ts",
-      "import": "./dist/define.js"
-    },
-    "./styles.css": "./dist/styles.css",
-    "./reset.css": "./dist/reset.css",
-    "./custom-elements.json": "./custom-elements.json",
-    "./vite-plugin": {
-      "types": "./dist/plugins/css-import-attributes.d.ts",
-      "import": "./dist/plugins/css-import-attributes.js"
-    },
-    "./terrazzo-plugin": {
-      "types": "./dist/plugins/terrazzo-plugin.d.ts",
-      "import": "./dist/plugins/terrazzo-plugin.js"
-    },
-    "./cem-plugin": {
-      "types": "./dist/plugins/cem-plugin.d.ts",
-      "import": "./dist/plugins/cem-plugin.js"
-    },
-    "./tokens/*": "./tokens/*",
-    "./css-modules": {
-      "types": "./dist/css-modules.d.ts"
-    },
-    "./button": {
-      "types": "./dist/components/button/button.d.ts",
-      "import": "./dist/button.js"
-    },
-    "./button-link": {
-      "types": "./dist/components/button/button-link.d.ts",
-      "import": "./dist/button-link.js"
-    },
-    "./alert": {
-      "types": "./dist/components/alert/alert.d.ts",
-      "import": "./dist/alert.js"
-    },
-    "./modal": {
-      "types": "./dist/components/modal/modal.d.ts",
-      "import": "./dist/modal.js"
-    },
-    "./testing": {
-      "types": "./dist/testing/contrast.d.ts",
-      "import": "./dist/testing.js"
-    }
-  },
   "scripts": {
     "dev": "vite",
-    "build": "npm run tokens && npm run analyze && vite build && tsc -p tsconfig.build.json && tsc -p tsconfig.plugin.json && cp src/css-modules.d.ts dist/",
-    "preview": "vite preview",
     "storybook": "npm run tokens && npm run analyze && storybook dev -p 6006",
     "build-storybook": "npm run tokens && npm run analyze && storybook build",
-    "analyze": "cem analyze",
-    "tokens": "tz build && oxfmt src/styles/tokens.css src/components/*/*.tokens.css",
-    "tokens:check": "npm run tokens && git diff --exit-code -- src/styles/tokens.css 'src/components/*/*.tokens.css'",
-    "api:check": "cem analyze && git diff --exit-code -- custom-elements.json",
-    "check": "oxlint src && oxfmt --check && tsc -p tsconfig.json --noEmit && npm run tokens:check && npm run api:check && npm run dsds && vitest run",
-    "lint": "oxlint src --fix",
+    "build": "npm run build --workspaces",
+    "tokens": "npm run tokens --workspaces",
+    "analyze": "npm run analyze -w @unicorne/components",
+    "check": "oxlint packages/components/src packages/tokens/testing .storybook && oxfmt --check && tsc -p tsconfig.json --noEmit && npm run tokens:check --workspaces && npm run api:check -w @unicorne/components && npm run dsds && vitest run",
+    "lint": "oxlint packages/components/src packages/tokens/testing .storybook --fix",
     "fmt": "oxfmt",
     "fmt:check": "oxfmt --check",
-    "compat": "npm run build && es-check checkBrowser \"dist/**/*.js\" --module --checkFeatures && node scripts/check-css-compat.mjs",
+    "compat": "npm run build && es-check checkBrowser \"packages/*/dist/**/*.js\" --module --checkFeatures && node scripts/check-css-compat.mjs",
     "example": "node scripts/run-example.mjs",
-    "dsds": "dsds-validate --strict design-system.dsds.yaml src/components/*/*.dsds.yaml && dsds-format --check design-system.dsds.yaml src/components/*/*.dsds.yaml"
+    "dsds": "dsds-validate --strict design-system.dsds.yaml packages/components/src/components/*/*.dsds.yaml && dsds-format --check design-system.dsds.yaml packages/components/src/components/*/*.dsds.yaml"
   },
   "devDependencies": {
     "@chromatic-com/storybook": "^5.6.0",
@@ -124,23 +55,6 @@
     "vitest": "^5.1.0",
     "yaml": "^2.9.1"
   },
-  "peerDependencies": {
-    "@terrazzo/cli": "^2.10.0",
-    "@terrazzo/token-tools": "^2.10.0",
-    "lit": "^3.3.3",
-    "vite": "^8.3.0"
-  },
-  "peerDependenciesMeta": {
-    "vite": {
-      "optional": true
-    },
-    "@terrazzo/cli": {
-      "optional": true
-    },
-    "@terrazzo/token-tools": {
-      "optional": true
-    }
-  },
   "browserslist": [
     "chrome >= 111",
     "edge >= 111",
@@ -157,6 +71,5 @@
   "engines": {
     "node": ">=26.0.0",
     "npm": ">=11.12.1"
-  },
-  "customElements": "custom-elements.json"
+  }
 }

@@ -1,0 +1,140 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Documentation/ADR/0003 Packages tokens et composants" />
+
+# ADR 0003 — Packages tokens et composants
+
+**Statut :** accepté · **Date :** 13 novembre 2026
+
+## Contexte
+
+Avant cet ADR, le socle est un seul package, `my-design-system`. Il contient les composants Lit, les sources DTCG, le CSS généré et l'outillage des marques.
+
+Le socle prévoit des implémentations iOS et Android. Elles suivent les mêmes thèmes que le web. Elles n'utilisent ni Lit ni les composants web.
+
+Le code fixe déjà la frontière entre tokens et composants :
+
+- Les composants compilent des noms de tokens, jamais leurs valeurs. `button.tokens.css` ne contient que des alias : `--u-button-background-color: var(--u-color-action-background)`.
+- Les valeurs arrivent par la feuille de page, chargée par l'application.
+- Ce qui est propre au web est la liaison : les feuilles `:host`, l'attribut qui choisit chaque contexte (`variant`), les couches `u.*`, `[data-brand]`.
+
+Rien n'est publié : les noms des packages et leurs exports peuvent changer.
+
+### Critères de décision
+
+1. Le web, iOS et Android suivent les mêmes thèmes, depuis une seule source.
+2. Une application, web ou native, utilise les tokens sans Lit ni composants.
+3. Un changement de valeur de token ne demande aucune version des composants.
+4. Une marque garde le parcours de l'[ADR 0001](?path=/docs/documentation-adr-0001-architecture-multi-marque--docs) : dépendre du socle, l'étendre, le republier.
+5. Le développement du socle ne demande aucun build intermédiaire.
+
+## D1 — Découpage
+
+- **Option A — Un seul package (statu quo).** Une application native installe des composants Lit pour lire des tokens. Une version de tokens est une version de composants.
+- **Option B — Deux packages : `@unicorne/tokens` et `@unicorne/components`.** Chacun publie aussi l'outillage de ce qu'il contient.
+- **Option C — B, plus un package d'outillage** (plugins Vite, Terrazzo et analyseur). L'ADR 0001 (D6) réserve cette extraction au cas où d'autres projets en ont besoin.
+
+**Décision : B.** `@unicorne/tokens` n'a aucune dépendance d'exécution. Il publie les sources DTCG, leur resolver, `tokens.css`, le plugin Terrazzo et `contrastFailures()`. `@unicorne/components` publie les composants, leurs feuilles, le plugin Vite et le plugin de l'analyseur. Il déclare `@unicorne/tokens` et Lit en peer dependencies.
+
+Les icônes relèvent d'un autre package, `@unicorne/icons`, et d'un autre ADR.
+
+## D2 — Où vivent les tokens de composant
+
+- **Option A — Dans `@unicorne/components`**, à côté du composant. Les implémentations natives n'ont pas les tokens de leurs composants.
+- **Option B — Dans `@unicorne/tokens`**, avec les primitives et les tokens sémantiques. Material 3 (`md.comp.*`), Spectrum et Primer publient ainsi leurs tokens de composant, pour toutes leurs plateformes.
+
+**Décision : B.** Un bouton iOS lit `button.background-color`, comme le bouton web. Un modifier de variante (`button-variant`) reste un fait de design, sans lien avec le web.
+
+La liaison web reste dans `@unicorne/components`. Sa configuration Terrazzo lit le resolver de `@unicorne/tokens`, associe chaque modifier à un attribut et écrit les feuilles `:host`. Un composant touche donc les deux packages : ses tokens, puis sa classe.
+
+## D3 — Feuille de page
+
+- **Option A — `@unicorne/components/styles.css` inclut les valeurs des tokens.** Une seule feuille à charger. Mais chaque build des composants fige une version des tokens, en double avec `@unicorne/tokens/tokens.css`.
+- **Option B — Deux feuilles.** `@unicorne/components/styles.css` contient l'ordre des couches et les utilitaires. `@unicorne/tokens/tokens.css` contient les valeurs.
+
+**Décision : B.** L'application charge `styles.css`, puis `tokens.css`. Une marque republie les deux dans sa propre feuille.
+
+## D4 — Versions
+
+- **Option A — Une version commune**, comme Spectrum Web Components. Un changement de valeur publie aussi les composants.
+- **Option B — Une version par package.** iOS, Android et le web suivent chacun leur rythme.
+
+**Décision : B**, à la première publication. Le nom d'un token est son API : le renommer ou le retirer est une version majeure de `@unicorne/tokens`. Changer sa valeur n'est pas une rupture. `@unicorne/components` déclare une plage majeure de `@unicorne/tokens`.
+
+Aujourd'hui, les deux packages sont en `0.0.0`, sans outil de version.
+
+## D5 — Dépôt
+
+- **Option A — Deux dépôts.** Un changement de token et sa liaison web demandent deux revues et deux publications.
+- **Option B — Un dépôt, avec les workspaces de npm.** Les packages vivent dans `packages/`. Storybook, la documentation et l'exemple de marque restent à la racine.
+- **Option C — B, avec Turborepo ou Nx.** Leur cache sert de grands dépôts. Deux packages n'en ont pas besoin.
+
+**Décision : B.** Un package importe l'autre depuis ses sources TypeScript, par la condition d'export `@unicorne/source`. TypeScript, Vite et Node la lisent pendant le développement. Les builds l'ignorent : un package construit lit les fichiers `dist/` de l'autre.
+
+## D6 — Sorties par plateforme
+
+- **Option A — Chaque plateforme lit les sources DTCG avec son propre outil.** Trois chaînes de génération, qui divergent.
+- **Option B — `@unicorne/tokens` génère la sortie de chaque plateforme**, depuis ses sources, dans un seul build.
+
+**Décision : B.** Les sources DTCG et leur resolver sont le contrat entre les plateformes. Aujourd'hui, `@unicorne/tokens` génère le CSS. Les sorties iOS et Android sont une question ouverte.
+
+Sur le web, une marque ne génère que ses tokens : la cascade applique les autres. Une plateforme native n'a pas de cascade : elle lit l'ensemble résolu, socle et marque.
+
+## Récapitulatif
+
+<table>
+  <thead>
+    <tr>
+      <th>Décision</th>
+      <th>Choix</th>
+      <th>Pourquoi</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>D1 — Découpage</td>
+      <td>`@unicorne/tokens` et `@unicorne/components`</td>
+      <td>Les tokens servent sans Lit ni composants</td>
+    </tr>
+    <tr>
+      <td>D2 — Tokens de composant</td>
+      <td>Dans `@unicorne/tokens` ; la liaison web dans `@unicorne/components`</td>
+      <td>Les composants natifs lisent les mêmes tokens</td>
+    </tr>
+    <tr>
+      <td>D3 — Feuille de page</td>
+      <td>`styles.css` sans valeurs, `tokens.css` à part</td>
+      <td>Aucune version de tokens figée dans les composants</td>
+    </tr>
+    <tr>
+      <td>D4 — Versions</td>
+      <td>Une par package ; le nom d'un token est son API</td>
+      <td>Chaque plateforme suit son rythme</td>
+    </tr>
+    <tr>
+      <td>D5 — Dépôt</td>
+      <td>Workspaces de npm, condition `@unicorne/source`</td>
+      <td>Un changement, une revue ; aucun build en développement</td>
+    </tr>
+    <tr>
+      <td>D6 — Plateformes</td>
+      <td>Le resolver comme contrat ; CSS aujourd'hui</td>
+      <td>Une source pour le web, iOS et Android</td>
+    </tr>
+  </tbody>
+</table>
+
+## Conséquences
+
+- **Code :** `tokensCss()` génère seulement les feuilles qu'on lui donne : `page` et `components` sont optionnels. `cem-plugin` lit le resolver de `@unicorne/tokens`.
+- **Exports :** `terrazzo-plugin`, `testing` et les sources DTCG passent dans `@unicorne/tokens`, avec `tokens.css`, `resolver.json` et `dtcg-sources`.
+- **Marques :** elles dépendent des deux packages. Leur resolver référence `node_modules/@unicorne/tokens/src/…`. Leur feuille importe `styles.css`, puis `tokens.css`, puis leur thème.
+- **Documentation :** amendements de l'ADR 0001 (D6) et de l'[ADR 0002](?path=/docs/documentation-adr-0002-tokens-au-format-dtcg--docs) (D2, D7), le guide de marque, [Premiers pas](?path=/docs/documentation-premiers-pas--docs), [Tokens et couches CSS](?path=/docs/documentation-référence-tokens-et-couches-css--docs), `AGENTS.md` et les skills.
+
+## Questions ouvertes
+
+- **Générateurs natifs :** `@terrazzo/plugin-swift` produit un catalogue d'assets Xcode, et il est expérimental. Aucun plugin Terrazzo pour Android n'est confirmé. Le choix se fait avec les équipes iOS et Android.
+- **Distribution native :** Swift Package Manager, Maven, ou lecture du package npm.
+- **Unités :** les sources utilisent `rem`, une unité du web. Des sources en `px`, converties en `rem` dans la sortie CSS, donneraient le même CSS.
+- **Tokens propres au web :** l'anneau de focus (`focus-ring`) et les familles de polices génériques (`sans-serif`).
+- **Contraste :** `contrastFailures()` mesure le CSS dans un navigateur. Un contrôle des valeurs résolues couvrirait toutes les plateformes.

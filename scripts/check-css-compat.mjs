@@ -1,9 +1,10 @@
-// Checks every source .css file against package.json "browserslist" (doiuse,
-// caniuse data). Exits 1 on any finding not reviewed in IGNORED below.
+// Checks every source .css file of the packages against the root package.json
+// "browserslist" (doiuse, caniuse data). Exits 1 on any finding not reviewed
+// in IGNORED below.
 //
 // doiuse only knows caniuse features: it misses color-mix(), text-wrap,
 // ::backdrop inheritance, `:state()` and nested at-rules. Those are covered by
-// the manual checklist in src/docs/reference/support-navigateurs.mdx. Nesting
+// the manual checklist in docs/reference/support-navigateurs.mdx. Nesting
 // is lowered by Lightning CSS at build time.
 //
 // Uses doiuse as a PostCSS plugin: its CLI streams files in chunks and fails
@@ -26,7 +27,9 @@ const IGNORED = {
 const root = join(import.meta.dirname, "..");
 const findings = [];
 
-for await (const file of glob("src/**/*.css", { cwd: root })) {
+for await (const file of glob(["packages/components/src/**/*.css", "packages/tokens/css/*.css"], {
+  cwd: root,
+})) {
   const css = await readFile(join(root, file), "utf8");
   const plugin = doiuse({
     ignore: Object.keys(IGNORED),

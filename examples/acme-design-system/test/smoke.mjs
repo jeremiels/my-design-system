@@ -16,8 +16,8 @@ const dist =
   (await readFile(join(root, "dist/define.js"), "utf8"));
 record(
   "dist/ imports the base instead of bundling it",
-  dist.includes('from "my-design-system"') && !dist.includes("--u-button-background-color:"),
-  `imports my-design-system: ${dist.includes('from "my-design-system"')}`,
+  dist.includes('from "@unicorne/components"') && !dist.includes("--u-button-background-color:"),
+  `imports @unicorne/components: ${dist.includes('from "@unicorne/components"')}`,
 );
 
 const manifest = JSON.parse(await readFile(join(root, "custom-elements.json"), "utf8"));

@@ -1,13 +1,13 @@
 ---
 name: lit-mixin
-description: Créer ou modifier un mixin de comportement du socle (src/mixins/withX.ts) — quand choisir un mixin, sa signature, la fusion des styles, son interface publique, son cycle de vie, sa composition avec withInternals, sa documentation et son export. À charger quand plusieurs composants partagent un comportement, ou quand les marques doivent l'ajouter à leurs composants.
+description: Créer ou modifier un mixin de comportement du socle (packages/components/src/mixins/withX.ts) — quand choisir un mixin, sa signature, la fusion des styles, son interface publique, son cycle de vie, sa composition avec withInternals, sa documentation et son export. À charger quand plusieurs composants partagent un comportement, ou quand les marques doivent l'ajouter à leurs composants.
 ---
 
 # Mixins de comportement
 
-Exemples : `src/mixins/withDisabled.ts` (propriété, styles, ARIA dans le cycle de vie) et `src/mixins/withInternals.ts` (bases abstraites, API du navigateur à usage unique).
+Exemples : `packages/components/src/mixins/withDisabled.ts` (propriété, styles, ARIA dans le cycle de vie) et `packages/components/src/mixins/withInternals.ts` (bases abstraites, API du navigateur à usage unique).
 
-Un mixin est une API publique : les marques l'appliquent à leurs composants, et `src/index.ts` l'exporte. La référence des mixins existants est `src/docs/reference/mixins.mdx`.
+Un mixin est une API publique : les marques l'appliquent à leurs composants, et `packages/components/src/index.ts` l'exporte. La référence des mixins existants est `docs/reference/mixins.mdx`.
 
 ## Quand en écrire un
 
@@ -45,7 +45,7 @@ export function withDisabled<T extends Constructor<LitElement>>(Base: T) {
 }
 ```
 
-- **Nom :** `withX`, dans `src/mixins/withX.ts`, avec ses styles dans `withX.css`.
+- **Nom :** `withX`, dans `packages/components/src/mixins/withX.ts`, avec ses styles dans `withX.css`.
 - **Signature :** `Constructor<LitElement>`. Prenez `AbstractConstructor`, avec une `abstract class` à l'intérieur, pour accepter une base abstraite comme `ButtonBase` (voir `withInternals`).
 - **Membres publics :** déclarez-les dans une classe `declare class XInterface` exportée. Convertissez le retour en `Constructor<XInterface> & T` : TypeScript voit alors les membres sur le composant.
 - **Styles :** ajoutez-les à ceux de la base : `[(Base as unknown as typeof LitElement).styles ?? [], xStyles]`. Les règles du skill `component-styling` s'appliquent : des tokens, jamais de valeur littérale.
@@ -61,8 +61,8 @@ export function withDisabled<T extends Constructor<LitElement>>(Base: T) {
 ## Documentez et exportez
 
 1. Documentez chaque membre public en JSDoc. La description apparaît sur chaque composant qui applique le mixin (skill `component-api-docs`).
-2. Ajoutez une section au mixin dans `src/docs/reference/mixins.mdx` : rôle, membres, comportement, support navigateurs, pièges (skill `storybook-documentation`).
-3. Exportez le mixin et son interface depuis `src/index.ts`.
+2. Ajoutez une section au mixin dans `docs/reference/mixins.mdx` : rôle, membres, comportement, support navigateurs, pièges (skill `storybook-documentation`).
+3. Exportez le mixin et son interface depuis `packages/components/src/index.ts`.
 
 ## Vérifiez
 

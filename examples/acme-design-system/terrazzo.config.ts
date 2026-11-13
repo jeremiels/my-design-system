@@ -2,7 +2,7 @@
 // The output (src/theme.css, src/components/*/*.tokens.css) isn't committed.
 import { defineConfig } from "@terrazzo/cli";
 // The base ships the plugin that writes its own sheets.
-import { tokensCss } from "my-design-system/terrazzo-plugin";
+import { tokensCss } from "@unicorne/tokens/terrazzo-plugin";
 
 export default defineConfig({
   tokens: ["./tokens/acme.resolver.json"],

@@ -2,7 +2,7 @@
   "name": "@acme/design-system",
   "version": "0.0.0",
   "private": true,
-  "description": "Example brand design system built on my-design-system (ADR 0001): run `npm run example` from the repository root.",
+  "description": "Example brand design system built on @unicorne/tokens and @unicorne/components (ADR 0001, ADR 0003): run `npm run example` from the repository root.",
   "files": [
     "dist",
     "custom-elements.json"
@@ -30,7 +30,8 @@
     "test": "node test/smoke.mjs"
   },
   "dependencies": {
-    "my-design-system": "file:.base/my-design-system-0.0.0.tgz"
+    "@unicorne/components": "file:.base/unicorne-components-0.0.0.tgz",
+    "@unicorne/tokens": "file:.base/unicorne-tokens-0.0.0.tgz"
   },
   "peerDependencies": {
     "lit": "^3.3.3"

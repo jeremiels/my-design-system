@@ -1,4 +1,4 @@
-import { Button } from "my-design-system";
+import { Button } from "@unicorne/components";
 import acmeButtonStyles from "./acme-button.css" with { type: "css" };
 import acmeButtonTokens from "./acme-button.tokens.css" with { type: "css" };
 

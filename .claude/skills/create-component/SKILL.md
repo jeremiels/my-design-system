@@ -5,7 +5,9 @@ description: Créer un composant du socle de bout en bout — fichiers, classe, 
 
 # Créer un composant
 
-Un composant touche une douzaine d'endroits. Un oubli échoue souvent sans bruit : le composant marche dans Storybook, mais n'est pas publié ou pas enregistré par les marques. Suivez chaque étape.
+Un composant touche une douzaine d'endroits, dans les deux packages du socle. Un oubli échoue souvent sans bruit : le composant marche dans Storybook, mais n'est pas publié ou pas enregistré par les marques. Suivez chaque étape.
+
+Les chemins partent de `packages/components/`, sauf ceux de `packages/tokens/` et de la racine.
 
 ## 0. Socle ou marque ?
 
@@ -16,7 +18,7 @@ Un composant touche une douzaine d'endroits. Un oubli échoue souvent sans bruit
 ## 1. Créez les fichiers dans `src/components/<nom>/`
 
 - `<nom>.ts` : la classe (skill `lit-component`). Elle étend `DSBaseElement`, déclare `static override componentName = "<nom>"` et, si elle rend d'autres composants, `static dependencies` avec `tagFor()`.
-- `tokens/component/<nom>/<nom>.tokens.json` : ses tokens, en DTCG (skill `design-tokens`). `npm run tokens` génère `src/components/<nom>/<nom>.tokens.css`.
+- `packages/tokens/src/component/<nom>/<nom>.tokens.json` : ses tokens, en DTCG (skill `design-tokens`). Ils vivent dans `@unicorne/tokens`, pour toutes les plateformes. `npm run tokens` génère `src/components/<nom>/<nom>.tokens.css`.
 - `<nom>.css` : sa feuille (skill `component-styling`). Elle lit les tokens `--u-<nom>-<propriété-css>`. Ajoutez `part="…"` sur les éléments que les marques peuvent styler.
 - `<nom>.type.ts` : ses types union, s'il en a.
 - `<nom>.stories.ts` : voir l'étape 4.
@@ -29,8 +31,8 @@ Un composant touche une douzaine d'endroits. Un oubli échoue souvent sans bruit
 2. Ajoutez `"u-<nom>": <Classe>` à `HTMLElementTagNameMap` dans `src/define.ts`.
 3. Exportez la classe, ses événements et ses types depuis `src/index.ts`.
 4. Ajoutez une entrée `lib.entry` dans `vite.config.ts` : `"<nom>": resolve(import.meta.dirname, "src/components/<nom>/<nom>.ts")`.
-5. Ajoutez `"./<nom>"` aux `exports` de `package.json`, avec `types` (`./dist/components/<nom>/<nom>.d.ts`) et `import` (`./dist/<nom>.js`).
-6. Ajoutez tout nouvel import `lit/...` à `optimizeDeps.include` dans `vite.config.ts`.
+5. Ajoutez `"./<nom>"` aux `exports` de `packages/components/package.json`, avec `types` (`./dist/components/<nom>/<nom>.d.ts`) et `import` (`./dist/<nom>.js`).
+6. Ajoutez tout nouvel import `lit/...` à `optimizeDeps.include` dans le `vite.config.ts` de la racine.
 
 ## 3. Générez les tokens et le manifest
 
@@ -45,16 +47,16 @@ Lancez `npm run tokens`, puis `npm run analyze`. Relisez le diff de `custom-elem
 - Une story par état utile.
 - Des fonctions `play` qui vérifient le comportement et le rendu : feuilles adoptées, rôles, événements. Elles tournent dans Chromium, Firefox et WebKit.
 
-La preview enregistre déjà le catalogue (`src/define.ts`). Une page MDX suit le skill `storybook-documentation`.
+La preview (`.storybook/preview.ts`, à la racine) enregistre déjà le catalogue (`src/define.ts`). Une page MDX suit le skill `storybook-documentation`.
 
 ## 5. Vérifiez
 
 ```sh
-npm run tokens && npm run analyze && git add tokens src custom-elements.json   # tokens:check et api:check comparent avec l'index
+npm run tokens && npm run analyze && git add packages   # tokens:check et api:check comparent avec l'index
 npm run check                         # lint, format, tsc, tokens:check, api:check, Vitest (stories dans 3 moteurs)
 npm run compat                        # syntaxe et fonctionnalités contre la matrice
-npm run example                       # archive du socle → build et test d'ACME
-npx publint && npx @arethetypeswrong/cli --pack . --profile esm-only   # si les exports changent
+npm run example                       # archives du socle → build et test d'ACME
+npx publint packages/components && npx @arethetypeswrong/cli --pack packages/components --profile esm-only   # si les exports changent
 ```
 
 Commitez ensuite les tokens générés et le manifest avec le code.
@@ -63,9 +65,9 @@ Commitez ensuite les tokens générés et le manifest avec le code.
 
 Dans le design system de la marque (par exemple `examples/acme-design-system`) :
 
-- Appliquez les mêmes règles de classe, avec les imports du package du socle : `import { DSBaseElement, Button } from "my-design-system"`. Les dépendances vers les composants du socle donnent les surcharges de la marque.
+- Appliquez les mêmes règles de classe, avec les imports du package du socle : `import { DSBaseElement, Button } from "@unicorne/components"`. Les dépendances vers les composants du socle donnent les surcharges de la marque.
 - Écrivez ses tokens dans les sources DTCG de la marque (`tokens/component/<nom>/`), en alias de tokens sémantiques. L'option `prefix` du plugin leur donne le préfixe de la marque (`--acme-card-padding`).
 - Ajoutez le composant à `defineComponents({ components: [...allComponents, AcmeCard] })`, à `HTMLElementTagNameMap` et à `src/index.ts` de la marque.
 - Pour étendre un composant du socle, créez une sous-classe (`class AcmeButton extends Button`, `static styles = [Button.styles ?? [], acmeButtonTokens, acmeButtonStyles]`). Passez-la dans `overrides: { button: AcmeButton }`. Ses valeurs de tokens viennent des sources DTCG de la marque.
 
-Le guide complet est `src/docs/guides/design-system-de-marque.mdx`.
+Le guide complet est `docs/guides/design-system-de-marque.mdx`.

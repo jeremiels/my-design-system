@@ -1,4 +1,6 @@
 {
+  // The whole monorepo, type-checked at once (`npm run check`). The packages'
+  // build configs (packages/*/tsconfig.*.json) extend it.
   "compilerOptions": {
     "target": "ES2022",
     "experimentalDecorators": true,
@@ -16,6 +18,11 @@
     "verbatimModuleSyntax": true,
     "moduleDetection": "force",
     "noEmit": true,
+    // A package imports another from its TypeScript sources, without building
+    // it first (ADR 0003). The build configs turn this off.
+    "customConditions": ["@unicorne/source"],
+    // The stories import the root's Storybook preview (CSF Factories).
+    "paths": { "#.storybook/*": ["./.storybook/*"] },
 
     /* Linting */
     "strict": true,
@@ -25,5 +32,11 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
-  "include": ["src", ".storybook", "plugins"]
+  "include": [
+    ".storybook",
+    "packages/components/src",
+    "packages/components/plugins",
+    "packages/tokens/plugins",
+    "packages/tokens/testing"
+  ]
 }

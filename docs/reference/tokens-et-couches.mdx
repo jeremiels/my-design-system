@@ -1,0 +1,441 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Documentation/Référence/Tokens et couches CSS" />
+
+# Tokens et couches CSS
+
+Les raisons de ces règles sont dans [Architecture CSS](?path=/docs/documentation-explication-architecture-css--docs). La décision du format est dans l'[ADR 0002](?path=/docs/documentation-adr-0002-tokens-au-format-dtcg--docs). Le découpage en packages est dans l'[ADR 0003](?path=/docs/documentation-adr-0003-packages-tokens-et-composants--docs).
+
+## Feuilles de l'application
+
+<table>
+  <thead>
+    <tr>
+      <th>Import</th>
+      <th>Source</th>
+      <th>Contenu</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>`@unicorne/components/styles.css`</td>
+      <td>`packages/components/src/styles/main.css`</td>
+      <td>
+        L'ordre des couches et la classe utilitaire `.visually-hidden`. Ne style aucun élément de la
+        page.
+      </td>
+    </tr>
+    <tr>
+      <td>`@unicorne/tokens/tokens.css`</td>
+      <td>`packages/tokens/css/tokens.css`, généré</td>
+      <td>Les primitives et les tokens sémantiques. Ne style aucun élément de la page.</td>
+    </tr>
+    <tr>
+      <td>`@unicorne/components/reset.css`</td>
+      <td>`packages/components/src/styles/reset.css`</td>
+      <td>
+        Optionnelle : le reset et les styles de base (`body`, titres, médias, champs). Utilise les
+        tokens de `tokens.css`.
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+- L'application charge `styles.css`, puis `tokens.css`, une seule fois.
+- `packages/components/src/index.ts` n'importe aucune feuille.
+- Une application sans composants charge seulement `tokens.css`.
+
+## Couches
+
+`packages/components/src/styles/layers/order.css` déclare l'ordre des couches. `styles.css` et `reset.css` l'importent en premier.
+
+```css
+@layer u.reset, u.tokens, u.base, u.components, u.utilities, u.shame;
+```
+
+<table>
+  <thead>
+    <tr>
+      <th>Couche</th>
+      <th>Contenu</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>`u.reset`</td>
+      <td>Le reset (`reset.css`)</td>
+    </tr>
+    <tr>
+      <td>`u.tokens.base`</td>
+      <td>Les tokens du socle (`tokens.css`)</td>
+    </tr>
+    <tr>
+      <td>`u.tokens.brand`</td>
+      <td>Les tokens d'une marque, générés par la marque</td>
+    </tr>
+    <tr>
+      <td>`u.base`</td>
+      <td>Les styles des éléments HTML (`reset.css`)</td>
+    </tr>
+    <tr>
+      <td>`u.components`</td>
+      <td>Les styles de la page qui visent les composants, comme l'espacement entre eux</td>
+    </tr>
+    <tr>
+      <td>`u.utilities`</td>
+      <td>Les classes utilitaires</td>
+    </tr>
+    <tr>
+      <td>`u.shame`</td>
+      <td>
+        Les surcharges d'urgence en `!important`, chacune documentée avec sa raison et son ticket
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+- Les styles de l'application hors couche l'emportent sur toutes les couches du socle.
+- Les styles internes des composants vivent dans leur shadow DOM. Les couches de la page ne les atteignent pas.
+- L'ordre de `u.tokens.base` et `u.tokens.brand` est celui de leurs blocs. Une marque importe sa feuille après `tokens.css`.
+- `order.css` ne déclare pas ces deux sous-couches. La raison est dans [Architecture CSS](?path=/docs/documentation-explication-architecture-css--docs).
+
+## Sources DTCG
+
+Les tokens sont écrits au format [DTCG](https://www.designtokens.org/tr/2025.10/format/) 2025.10, dans `packages/tokens/src/`. `@unicorne/tokens` publie ces sources : elles servent le web, iOS et Android. Le CSS des tokens est généré à partir d'elles.
+
+Les chemins de ce tableau partent de `packages/tokens/`.
+
+<table>
+  <thead>
+    <tr>
+      <th>Fichier</th>
+      <th>Contenu</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>`src/u.resolver.json`</td>
+      <td>Le resolver : les sets, les modifiers et l'ordre de résolution</td>
+    </tr>
+    <tr>
+      <td>`src/primitive/*.tokens.json`</td>
+      <td>Les primitives : palettes, dimensions, typographie, mouvement, effets</td>
+    </tr>
+    <tr>
+      <td>`src/semantic/semantic.tokens.json`</td>
+      <td>Les tokens sémantiques communs aux deux thèmes : espacements, rayons, polices, ombres, mouvement</td>
+    </tr>
+    <tr>
+      <td>`src/semantic/theme.<thème>.tokens.json`</td>
+      <td>Les couleurs sémantiques d'un thème : `light`, `dark`</td>
+    </tr>
+    <tr>
+      <td>`src/semantic/motion.reduced.tokens.json`</td>
+      <td>Les durées en mouvement réduit</td>
+    </tr>
+    <tr>
+      <td>`src/component/<composant>/<composant>.tokens.json`</td>
+      <td>Les tokens d'un composant, avec leur valeur par défaut</td>
+    </tr>
+    <tr>
+      <td>`src/component/<composant>/<attribut>.<valeur>.tokens.json`</td>
+      <td>Les tokens qu'une valeur d'attribut change : `variant.danger`, `size.small`</td>
+    </tr>
+  </tbody>
+</table>
+
+Le resolver déclare trois sets et des modifiers. Chaque modifier a des contextes, dont un par défaut.
+
+<table>
+  <thead>
+    <tr>
+      <th>Modifier</th>
+      <th>Contextes (défaut en premier)</th>
+      <th>Change</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>`theme`</td>
+      <td>`light`, `dark`</td>
+      <td>Les couleurs sémantiques</td>
+    </tr>
+    <tr>
+      <td>`motion`</td>
+      <td>`full`, `reduced`</td>
+      <td>Les durées sémantiques</td>
+    </tr>
+    <tr>
+      <td>`button-variant`</td>
+      <td>`primary`, `secondary`, `success`, `warning`, `danger`, `information`</td>
+      <td>Les couleurs de `button` et `button-link`</td>
+    </tr>
+    <tr>
+      <td>`button-size`</td>
+      <td>`medium`, `small`, `large`</td>
+      <td>La police et les marges de `button` et `button-link`</td>
+    </tr>
+    <tr>
+      <td>`alert-type`</td>
+      <td>`information`, `success`, `warning`, `danger`</td>
+      <td>Les couleurs de `alert`</td>
+    </tr>
+  </tbody>
+</table>
+
+- Un token a un identifiant : son chemin dans les groupes, `color.action.background`.
+- Son nom CSS est `--u-` suivi de l'identifiant, avec des tirets à la place des points : `--u-color-action-background`.
+- Un alias s'écrit `{palette.brand.600}`. Il devient `var(--u-palette-brand-600)`.
+- Une couleur est un objet `srgb` avec `components` et `hex`, la forme qu'exporte Figma.
+
+## Niveaux de tokens
+
+<table>
+  <thead>
+    <tr>
+      <th>Niveau</th>
+      <th>Set du resolver</th>
+      <th>Valeur</th>
+      <th>Exemple</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Primitive</td>
+      <td>`primitive`</td>
+      <td>Une valeur littérale, la même dans les deux thèmes</td>
+      <td>`palette.brand.600` : `#1c65c8`</td>
+    </tr>
+    <tr>
+      <td>Token sémantique</td>
+      <td>`semantic`, modifiers `theme` et `motion`</td>
+      <td>Un alias de primitive, nommé par intention</td>
+      <td>`color.action.background` : `{palette.brand.600}`</td>
+    </tr>
+    <tr>
+      <td>Token de composant</td>
+      <td>`component`, modifiers des composants</td>
+      <td>Un alias de token sémantique</td>
+      <td>`button.background-color` : `{color.action.background}`</td>
+    </tr>
+  </tbody>
+</table>
+
+Le plugin de génération fait échouer le build quand une de ces règles n'est pas respectée :
+
+- Seules les primitives contiennent des valeurs littérales. Une primitive ne référence que des primitives.
+- Un token sémantique est un alias de primitive ou de token sémantique.
+- Un token de composant est un alias de token sémantique, avec une `$description`.
+- Un token reste à un seul niveau.
+- Un contexte change seulement des tokens qui ont une valeur par défaut.
+- Les thèmes `light` et `dark` déclarent les mêmes tokens.
+- Deux identifiants ne donnent jamais le même nom CSS.
+
+### Palettes
+
+Une palette est une échelle de primitives de couleur, par rôle : `brand`, `accent`, `neutral`, `success`, `warning`, `danger`, `information`. Ses pas suivent la clarté, de 100 (le plus clair) à 900. `neutral` ajoute 0 (blanc), 950 et 1000 (noir).
+
+<table>
+  <thead>
+    <tr>
+      <th>Token sémantique</th>
+      <th>Thème clair</th>
+      <th>Thème sombre</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>`color.<intention>.background`</td>
+      <td>600</td>
+      <td>300</td>
+    </tr>
+    <tr>
+      <td>`color.<intention>.background-hover`</td>
+      <td>700</td>
+      <td>200</td>
+    </tr>
+    <tr>
+      <td>`color.<intention>.background-active`</td>
+      <td>800</td>
+      <td>100</td>
+    </tr>
+    <tr>
+      <td>`color.<intention>.text`</td>
+      <td>`neutral.0`</td>
+      <td>`neutral.950`</td>
+    </tr>
+  </tbody>
+</table>
+
+Les intentions sont `action` (palette `brand`), `secondary` (`accent`), `success`, `warning`, `danger` et `information`.
+
+## Génération
+
+`npm run tokens` lance Terrazzo dans chaque package, sur le même resolver. Les deux builds utilisent le plugin `packages/tokens/plugins/terrazzo-plugin.ts`, exporté en `@unicorne/tokens/terrazzo-plugin`.
+
+- `packages/tokens/terrazzo.config.ts` génère la feuille de page.
+- `packages/components/terrazzo.config.ts` génère les feuilles des composants. Il associe chaque modifier de composant à un attribut de l'hôte.
+
+<table>
+  <thead>
+    <tr>
+      <th>Sortie</th>
+      <th>Sélecteur</th>
+      <th>Tokens</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>`packages/tokens/css/tokens.css`</td>
+      <td>`:root`</td>
+      <td>Les primitives</td>
+    </tr>
+    <tr>
+      <td>`packages/tokens/css/tokens.css`</td>
+      <td>`:root, [data-brand]`</td>
+      <td>Les tokens sémantiques, dans le contexte par défaut</td>
+    </tr>
+    <tr>
+      <td>`packages/tokens/css/tokens.css`</td>
+      <td>Les sélecteurs sombres de la section Thèmes</td>
+      <td>Les tokens que change le contexte `theme: dark`</td>
+    </tr>
+    <tr>
+      <td>`packages/tokens/css/tokens.css`</td>
+      <td>`:root, [data-brand]` sous `@media (prefers-reduced-motion: reduce)`</td>
+      <td>Les tokens que change le contexte `motion: reduced`</td>
+    </tr>
+    <tr>
+      <td>`packages/components/src/components/<composant>/<composant>.tokens.css`</td>
+      <td>`:host`</td>
+      <td>Les tokens du composant, dans le contexte par défaut</td>
+    </tr>
+    <tr>
+      <td>`packages/components/src/components/<composant>/<composant>.tokens.css`</td>
+      <td>`:host([<attribut>="<contexte>"])`</td>
+      <td>Les tokens que change ce contexte</td>
+    </tr>
+  </tbody>
+</table>
+
+- `tokens.css` est dans la couche `u.tokens.base`. Les feuilles des composants n'ont pas de couche.
+- Les fichiers générés sont commités. N'éditez pas un fichier généré : changez la source DTCG, puis lancez `npm run tokens`.
+- `npm run tokens:check` régénère les fichiers et échoue s'ils diffèrent de l'index git. `npm run check` le lance.
+- `npm run build`, `npm run storybook` et `npm run build-storybook` lancent `npm run tokens`.
+
+## Tokens de composant
+
+- Les tokens d'un composant forment le groupe DTCG qui porte son nom : `button`, pour `u-button` comme pour `acme-button`.
+- Ils vivent dans `@unicorne/tokens`, comme les autres niveaux : les implémentations natives les lisent aussi.
+- Nom : `<composant>.<propriété-css>[-<état>]`, par exemple `button.background-color-hover`.
+  - `<propriété-css>` est le nom complet de la propriété : `background-color`, pas `bg`.
+- Chaque token a une `$description`. Elle documente le composant.
+- Un modifier par attribut reflété : `<composant>-<attribut>`, par exemple `button-variant`. Chaque contexte change les valeurs par défaut sur l'hôte : `:host([variant="danger"])`.
+- La classe nomme son groupe dans sa JSDoc : `@tokens button`. Le plugin `packages/components/plugins/cem-plugin.ts`, exporté en `@unicorne/components/cem-plugin`, ajoute ses tokens au manifest, avec leur valeur par défaut et leur description.
+- La classe adopte la feuille générée avant sa propre feuille, comme dans la section Feuille d'un composant.
+- Aucune règle d'un élément interne ne redéclare un token documenté.
+- Les règles internes lisent les tokens du composant : `background-color: var(--u-button-background-color)`.
+
+`packages/components/src/api-contract.test.ts` vérifie ces règles. Les tokens documentés sont exactement ceux déclarés sur `:host`. Aucun n'est redéclaré ailleurs. Un token posé sur l'hôte s'applique dans chaque état `:host([…])`.
+
+## Valeurs de repli
+
+Un `var()` n'a pas de valeur de repli littérale : la feuille de tokens est une dépendance des composants. Deux exceptions :
+
+- Les mots-clés système de `forced-colors` (`ButtonText`, `Highlight`, `CanvasText`) dans les media queries d'accessibilité.
+- `::backdrop` dans `modal.css` : avant Chrome 122, Firefox 120 et Safari 17.4, il n'hérite d'aucune custom property. Sa valeur de repli recopie `color.backdrop` du thème clair.
+
+## Thèmes
+
+<table>
+  <thead>
+    <tr>
+      <th>Thème</th>
+      <th>Déclencheur</th>
+      <th>Règle</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Sombre, selon la préférence du système</td>
+      <td>Aucun attribut</td>
+      <td>
+        `@media (prefers-color-scheme: dark)` sur `:root:not([data-theme="light"])` et ses
+        `[data-brand]`
+      </td>
+    </tr>
+    <tr>
+      <td>Sombre, choisi par l'application</td>
+      <td>`data-theme="dark"` sur `<html>`</td>
+      <td>`:root[data-theme="dark"]` et ses `[data-brand]`</td>
+    </tr>
+    <tr>
+      <td>Clair, choisi par l'application</td>
+      <td>`data-theme="light"` sur `<html>`</td>
+      <td>Exclu de la media query sombre</td>
+    </tr>
+    <tr>
+      <td>Marque limitée à un conteneur</td>
+      <td>`data-brand` sur le conteneur</td>
+      <td>`[data-brand="acme"]`, l'option `scope` du plugin de la marque</td>
+    </tr>
+  </tbody>
+</table>
+
+- Un thème change les tokens sémantiques de couleur. Les primitives sont les mêmes dans les deux thèmes.
+- Une marque change ses palettes et garde les deux thèmes du socle. Elle n'écrit aucune valeur sombre.
+- Un composant ne contient aucune logique de thème.
+
+## Mouvement réduit
+
+Le contexte `motion: reduced` met `motion.duration.*` à `{duration.0}` sous `@media (prefers-reduced-motion: reduce)`. Les composants lisent ces tokens et n'ont pas leur propre media query.
+
+## Contraste
+
+`contrastFailures()` (`@unicorne/tokens/testing`, source `packages/tokens/testing/contrast.ts`) mesure ces paires dans le thème courant :
+
+<table>
+  <thead>
+    <tr>
+      <th>Premier plan</th>
+      <th>Fond</th>
+      <th>Minimum</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>`--u-color-<intention>-text`</td>
+      <td>
+        `--u-color-<intention>-background`, `-background-hover`, `-background-active`
+      </td>
+      <td>4,5:1</td>
+    </tr>
+    <tr>
+      <td>`--u-color-text-default`</td>
+      <td>`--u-color-surface-default`, `--u-color-surface-raised`</td>
+      <td>4,5:1</td>
+    </tr>
+    <tr>
+      <td>`--u-color-focus-ring`</td>
+      <td>`--u-color-surface-default`, `--u-color-surface-raised`</td>
+      <td>3:1</td>
+    </tr>
+  </tbody>
+</table>
+
+`packages/tokens/testing/tokens.test.ts` vérifie les tokens du socle dans les deux thèmes.
+
+## Feuille d'un composant
+
+Les styles d'un composant ou d'un mixin vivent dans un fichier `.css` voisin, importé comme CSS module script. Un composant adopte aussi la feuille de ses tokens :
+
+```ts
+import alertStyles from "./alert.css" with { type: "css" };
+import alertTokens from "./alert.tokens.css" with { type: "css" };
+
+static styles = [DSBaseElement.styles ?? [], alertTokens, alertStyles];
+```
+
+- L'import donne un `CSSStyleSheet` constructible, que Lit adopte.
+- Le plugin `packages/components/plugins/css-import-attributes.ts` compile cet import pour Vite, Storybook, Vitest et le build.
+- Les classes internes (`.button`) ne sont pas une API. Une marque style les éléments internes par leurs parts : `[part~="button"]`.

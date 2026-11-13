@@ -17,16 +17,21 @@ export default mergeConfig(
           extends: true,
           test: {
             name: "unit",
-            include: ["plugins/**/*.test.ts"],
+            include: ["packages/*/plugins/**/*.test.ts"],
             environment: "node",
           },
         },
         {
-          // Component-level logic that needs a real DOM (e.g. the registry).
+          // Logic that needs a real DOM: the registry, the tokens' contrast,
+          // the DSDS documents against the components.
           extends: true,
           test: {
             name: "browser",
-            include: ["src/**/*.test.ts"],
+            include: [
+              "packages/components/src/**/*.test.ts",
+              "packages/tokens/testing/**/*.test.ts",
+              ".storybook/**/*.test.ts",
+            ],
             browser: {
               enabled: true,
               headless: true,

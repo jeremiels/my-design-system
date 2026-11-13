@@ -1,4 +1,4 @@
-import { Button, DSBaseElement } from "my-design-system";
+import { Button, DSBaseElement } from "@unicorne/components";
 import { nothing } from "lit";
 import { property } from "lit/decorators.js";
 import { html } from "lit/static-html.js";

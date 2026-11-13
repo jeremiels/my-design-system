@@ -1,4 +1,4 @@
-// Reads the components' DSDS documents (src/components/**/*.dsds.yaml, see
+// Reads the components' DSDS documents (packages/components/src/components/**/*.dsds.yaml, see
 // design-system.dsds.yaml) for the docs pages: their usage guidelines, in
 // Markdown. The API stays in custom-elements.json.
 import { parse } from "yaml";
@@ -51,7 +51,7 @@ export interface ComponentEntry {
 /** The documents, by path from the repository root. */
 export const documents: Record<string, ComponentEntry> = Object.fromEntries(
   Object.entries(
-    import.meta.glob<string>("../src/components/**/*.dsds.yaml", {
+    import.meta.glob<string>("../packages/components/src/components/**/*.dsds.yaml", {
       query: "?raw",
       import: "default",
       eager: true,

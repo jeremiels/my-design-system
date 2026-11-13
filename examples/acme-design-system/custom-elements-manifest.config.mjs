@@ -2,7 +2,7 @@
 // (its `customElements` field) so components extending the base's classes are
 // documented with what they inherit. Its dependency crawl prints
 // "Cannot resolve './x.js'" for TypeScript sources (imported as .js); harmless.
-import { tokensManifest } from "my-design-system/cem-plugin";
+import { tokensManifest } from "@unicorne/components/cem-plugin";
 
 export default {
   globs: ["src/**/*.ts"],

@@ -2,7 +2,7 @@
 // (`@fires`, custom-elements.json), and nothing else: its public events.
 import type { Decorator } from "@storybook/web-components-vite";
 import { action } from "storybook/actions";
-import manifest from "../custom-elements.json";
+import manifest from "../packages/components/custom-elements.json";
 
 interface Declaration {
   tagName?: string;
