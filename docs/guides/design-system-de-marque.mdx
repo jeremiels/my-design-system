@@ -246,49 +246,69 @@ Les règles des fichiers SVG sont dans [Icônes](?path=/docs/documentation-réf�
 2. Pour remplacer une icône du socle, donnez au fichier le nom de cette icône : `icons/information.svg`.
 3. Lancez `npx unicorne-icons icons --out src/icons --export acmeIcons`. La commande écrit `src/icons/`, ou liste les fichiers refusés.
 4. Ignorez `src/icons/` dans git : le build le génère.
-5. Étendez `Icon`, avec le set du socle puis le vôtre :
+5. Passez-les à votre design system, à l'étape 7 : `icons: acmeIcons`.
 
-   ```ts
-   import { Icon } from "@unicorne/components";
-   import { acmeIcons } from "../../icons/index.js";
-
-   /** @element acme-icon */
-   export class AcmeIcon extends Icon {
-     static override icons = { ...Icon.icons, ...acmeIcons };
-   }
-   ```
-
-6. Passez `AcmeIcon` dans `overrides`, à l'étape 7 : `overrides: { button: AcmeButton, icon: AcmeIcon }`.
-
+- Vos icônes passent par-dessus celles du socle, nom par nom.
 - Chaque composant de l'enregistrement rend vos icônes : `acme-alert` rend `acme-icon`, avec votre `information`.
 - Vite découpe chaque icône en un chunk de votre `dist/`. Une application télécharge seulement les icônes qu'elle affiche.
 - Une icône du socle que vous ne remplacez pas reste dans `@unicorne/icons`, et se charge depuis ce package.
 
-## 7. Enregistrez et republiez
+## 7. Déclarez le design system et republiez
 
 ```ts
-// src/define.ts : les applications l'importent une fois
-import { allComponents, defineComponents } from "@unicorne/components";
+// src/design-system.ts : n'enregistre rien, n'importe aucun composant
+import { designSystem } from "@unicorne/components";
+import { acmeIcons } from "./icons/index.js";
 
-defineComponents({
+export const acme = designSystem({
   prefix: "acme",
-  components: [...allComponents, AcmeCard],
-  overrides: { button: AcmeButton, icon: AcmeIcon },
+  catalog: ["button", "alert", "modal", "icon", "card"],
+  overrides: {
+    button: () =>
+      import("./components/acme-button/acme-button.js").then((module) => module.AcmeButton),
+  },
+  icons: acmeIcons,
 });
 ```
 
+- `designSystem({ prefix: "acme" })` seul propose tout le socle, sans surcharge.
+- `catalog` liste les composants qu'une application peut demander. ACME ne propose pas `button-link`. Sans `catalog`, une application peut demander tout composant.
+- Un composant s'enregistre avec les composants qu'il rend, listés ou non : `acme-card` enregistre `acme-button`.
+- `overrides` remplace un composant dans tout l'enregistrement : `acme-modal` et `acme-card` rendent `AcmeButton`.
+- Une surcharge donnée par `import()` se télécharge avec le premier composant enregistré qui la rend.
+
 ```ts
-// src/index.ts : le socle, republié avec les composants de la marque
-export * from "@unicorne/components";
-export * from "./components/acme-button/acme-button.js";
-export * from "./components/acme-card/acme-card.js";
-export * from "./components/acme-icon/acme-icon.js";
+// src/define.ts : tout le catalogue, pour une application qui utilise tout
+import { Alert, Button, Icon, Modal } from "@unicorne/components";
+import { AcmeCard } from "./components/acme-card/acme-card.js";
+import { acme } from "./design-system.js";
+
+void acme.define(Button, Alert, Modal, Icon, AcmeCard);
 ```
 
-- `overrides` remplace un composant dans tout l'enregistrement : `acme-modal` et `acme-card` rendent `AcmeButton`.
+```ts
+// src/index.ts : le socle, republié avec le design system de la marque
+export * from "@unicorne/components";
+export type { AcmeButton } from "./components/acme-button/acme-button.js";
+export * from "./components/acme-card/acme-card.js";
+export { acme } from "./design-system.js";
+```
+
+- N'exportez pas depuis `index.ts` la classe d'une surcharge chargée par `import()` : `index.js` la contiendrait. Publiez-la dans sa propre entrée, comme `./acme-button`.
 - Déclarez `"sideEffects": ["**/*.css", "./dist/define.js"]` dans `package.json`. Le bundler d'une application retire alors les modules qu'elle n'importe pas.
-- `define` enregistre tout le catalogue de la marque. Une application ACME ne peut pas enregistrer une partie du catalogue avec les surcharges d'ACME : c'est une question ouverte de l'ADR 0005.
 - Partagez une seule copie de la marque entre les applications d'une page. Un second enregistrement garde les balises déjà définies, avec un avertissement si la définition diffère.
+
+Une application enregistre ce qu'elle utilise :
+
+```ts
+import { acme, Alert } from "@acme/design-system";
+
+await acme.define(Alert); // acme-alert et acme-icon, sans le bouton d'ACME
+```
+
+- `define()` se résout quand chaque balise est définie. Pendant le chargement, l'application stylise `:not(:defined)`.
+- Une application qui utilise tout le catalogue importe `@acme/design-system/define`.
+- Les règles de `define()` sont dans sa JSDoc, et ses raisons dans l'[ADR 0006](?path=/docs/documentation-adr-0006-design-system-de-marque--docs).
 
 ## 8. Générez le manifest
 
@@ -326,6 +346,8 @@ export default {
 - la carte d'ACME lit ses tokens `--acme-card-*` ;
 - la modale et la carte d'ACME rendent `AcmeButton` ;
 - l'alerte d'ACME rend l'icône `information` d'ACME, et `acme-icon` rend l'icône `star` d'ACME ;
+- ACME ne propose pas `button-link` : `acme.define(ButtonLink)` est rejeté ;
+- une application qui enregistre seulement `Alert` définit `acme-alert` et `acme-icon`, et ne télécharge pas le bouton d'ACME ;
 - le `dist/` d'ACME contient ses icônes en chunks séparés, et aucune icône du socle ;
 - la page télécharge seulement les icônes du socle qu'elle affiche ;
 - aucune balise `u-` n'est enregistrée ;

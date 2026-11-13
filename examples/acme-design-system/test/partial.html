@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <title>ACME design system — partial registration</title>
+    <link rel="stylesheet" href="/dist/styles.css" />
+    <!-- Bare specifiers resolve to the installed packages, as a bundler would. -->
+    <script type="importmap">
+      {
+        "imports": {
+          "@unicorne/components": "/node_modules/@unicorne/components/dist/index.js",
+          "@unicorne/icons": "/node_modules/@unicorne/icons/js/index.js",
+          "@unicorne/tokens/testing": "/node_modules/@unicorne/tokens/dist/testing/contrast.js",
+          "lit": "/node_modules/lit/index.js",
+          "lit/": "/node_modules/lit/",
+          "lit-html": "/node_modules/lit-html/lit-html.js",
+          "lit-html/": "/node_modules/lit-html/",
+          "lit-element/": "/node_modules/lit-element/",
+          "@lit/reactive-element": "/node_modules/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "/node_modules/@lit/reactive-element/"
+        }
+      }
+    </script>
+    <script>
+      window.__errors = [];
+      addEventListener("error", (event) => window.__errors.push(String(event.message)));
+      addEventListener("unhandledrejection", (event) => window.__errors.push(String(event.reason)));
+    </script>
+    <script
+      type="module"
+      src="./partial.js"
+      onerror="window.__errors.push('partial.js failed to load')"
+    ></script>
+  </head>
+  <body>
+    <!-- An app that shows alerts only: it registers acme-alert, nothing else. -->
+    <acme-alert id="alert" type="information">Nouvelle version disponible</acme-alert>
+  </body>
+</html>

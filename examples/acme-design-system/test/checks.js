@@ -1,18 +1,10 @@
 // Runs in the browser against ACME's build (dist/), registered the way an app
 // does it, and publishes its results on `window.__results`.
 import "/dist/define.js";
-import { AcmeButton, AcmeCard, AcmeIcon, Button, Icon } from "/dist/index.js";
+import { AcmeButton } from "/dist/acme-button.js";
+import { acme, AcmeCard, Button, ButtonLink, Icon } from "/dist/index.js";
 import { contrastFailures } from "@unicorne/tokens/testing";
-
-const results = [];
-async function check(name, run) {
-  try {
-    const [ok, detail] = await run();
-    results.push({ name, ok, detail });
-  } catch (error) {
-    results.push({ name, ok: false, detail: `threw ${error}` });
-  }
-}
+import { alertIconSvg, check, parsed, publish } from "./support.js";
 
 const $ = (selector) => document.querySelector(selector);
 const style = (element) => getComputedStyle(element);
@@ -34,13 +26,6 @@ const alertIcons = [...document.querySelectorAll("acme-alert")].map((alert) =>
   alert.shadowRoot.querySelector('[part~="icon"]'),
 );
 await Promise.all(alertIcons.map((icon) => icon.updateComplete));
-
-/** An `<svg>` as the browser parses it, for comparisons. */
-function parsed(markup) {
-  const template = document.createElement("template");
-  template.innerHTML = markup;
-  return template.content.querySelector("svg").outerHTML;
-}
 
 await check("acme-button is ACME's button, extending the base's", () => {
   const button = $("#button");
@@ -104,14 +89,14 @@ await check("ACME's own card renders ACME's button", () => {
 });
 
 await check("ACME's alert renders ACME's version of a base icon", async () => {
-  const icon = $("#alert").shadowRoot.querySelector('[part~="icon"]');
-  const svg = icon.shadowRoot.querySelector("svg")?.outerHTML;
+  const { icon, svg } = await alertIconSvg($("#alert"));
+  const AcmeIcon = customElements.get("acme-icon");
   // ACME's loader, not the base's: the base's information icon never loads.
-  const { default: acme } = await AcmeIcon.icons.information();
-  const isAcme = svg === parsed(acme);
+  const { default: markup } = await AcmeIcon.icons.information();
+  const isAcme = svg === parsed(markup);
   return [
-    icon instanceof AcmeIcon && AcmeIcon.icons.information !== Icon.icons.information && isAcme,
-    `<${icon.localName}> (AcmeIcon: ${icon instanceof AcmeIcon}), renders ACME's markup: ${isAcme}`,
+    icon instanceof Icon && AcmeIcon.icons.information !== Icon.icons.information && isAcme,
+    `<${icon.localName}> (Icon: ${icon instanceof Icon}), renders ACME's markup: ${isAcme}`,
   ];
 });
 
@@ -123,14 +108,20 @@ await check("ACME's own icons render, by name", () => {
   ];
 });
 
+await check("ACME offers part of the base: no button-link", async () => {
+  const rejected = await acme.define(ButtonLink).then(
+    () => "registered",
+    (error) => String(error),
+  );
+  return [
+    !customElements.get("acme-button-link") && rejected.includes("isn't in the catalog of acme"),
+    `acme-button-link defined: ${Boolean(customElements.get("acme-button-link"))}; define(ButtonLink): ${rejected}`,
+  ];
+});
+
 await check("only the acme- prefix is registered", () => {
   const defaults = ["u-button", "u-modal"].filter((tag) => customElements.get(tag));
   return [defaults.length === 0, `default tags registered: ${defaults.join(", ") || "none"}`];
 });
 
-await check("no runtime errors", () => [
-  window.__errors.length === 0,
-  window.__errors.join(" | ") || "none",
-]);
-
-window.__results = results;
+publish();

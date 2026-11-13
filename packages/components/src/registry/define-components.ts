@@ -24,7 +24,23 @@ export interface DefineComponentsOptions {
 const PREFIX = /^[a-z][a-z0-9]*$/;
 const COMPONENT_NAME = /^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/;
 
-function nameOf(component: ComponentClass): string {
+/**
+ * Throws for a prefix the registration functions refuse.
+ * @internal Shared with `designSystem()`; not exported by the package.
+ */
+export function assertPrefix(prefix: string): void {
+  if (!PREFIX.test(prefix)) {
+    throw new Error(
+      `Invalid prefix ${JSON.stringify(prefix)}: use lowercase letters and digits, starting with a letter.`,
+    );
+  }
+}
+
+/**
+ * The component name of a class that can be registered; throws otherwise.
+ * @internal Shared with `designSystem()`; not exported by the package.
+ */
+export function nameOf(component: ComponentClass): string {
   const name = component.componentName;
   if (!COMPONENT_NAME.test(name)) {
     throw new Error(
@@ -73,11 +89,7 @@ export function defineComponents({
   components,
   overrides = {},
 }: DefineComponentsOptions): Readonly<Record<string, string>> {
-  if (!PREFIX.test(prefix)) {
-    throw new Error(
-      `Invalid prefix ${JSON.stringify(prefix)}: use lowercase letters and digits, starting with a letter.`,
-    );
-  }
+  assertPrefix(prefix);
 
   // Component name → class to register, dependencies included.
   const resolved = new Map<string, ComponentClass>();

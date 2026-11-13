@@ -148,6 +148,8 @@ defineComponents({ prefix: "acme", components, overrides: { icon: AcmeIcon } });
 - **Relecture :** un fichier `CODEOWNERS` pour `packages/icons/src/`, comme pour les tokens (ADR 0004, D1).
 - **Enregistrement partiel chez une marque :** `defineComponents()` refuse une surcharge d'un composant non demandé. Une application ACME ne peut donc pas enregistrer une partie du catalogue avec les surcharges d'ACME. Cette question concerne tous les composants, pas seulement les icônes.
 
+**Amendement du 13 novembre 2026 :** l'[ADR 0006](?path=/docs/documentation-adr-0006-design-system-de-marque--docs) tranche l'enregistrement partiel avec `designSystem()`. Une marque y donne ses icônes par l'option `icons`, sans sous-classe d'`Icon`.
+
 ## Sources
 
 Consultées le 13 novembre 2026.

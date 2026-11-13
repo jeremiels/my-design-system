@@ -62,6 +62,8 @@ Par exemple `defineComponents({ prefix: "acme", overrides: { button: AcmeButton 
 
 **Décision : C**, construite sur B. Les modules `my-*.js` peuvent rester pour Storybook, la démo et un usage sans marque.
 
+**Amendement du 13 novembre 2026 :** l'[ADR 0006](?path=/docs/documentation-adr-0006-design-system-de-marque--docs) ajoute `designSystem()`. Une marque y déclare son catalogue, ses surcharges et ses icônes. Une application enregistre une partie du catalogue avec `define()`, qui appelle `defineComponents()`.
+
 ## D2 — Dépendances entre composants (balises internes)
 
 Avec un préfixe propre à chaque marque (D1), un composant qui en rend un autre ne peut plus écrire le nom de balise en dur : la modale d'Acme doit rendre `acme-button`, ou le bouton surchargé par la marque.

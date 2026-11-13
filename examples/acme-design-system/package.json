@@ -21,6 +21,10 @@
       "types": "./dist/define.d.ts",
       "import": "./dist/define.js"
     },
+    "./acme-button": {
+      "types": "./dist/components/acme-button/acme-button.d.ts",
+      "import": "./dist/acme-button.js"
+    },
     "./styles.css": "./dist/styles.css",
     "./reset.css": "./dist/reset.css",
     "./custom-elements.json": "./custom-elements.json"

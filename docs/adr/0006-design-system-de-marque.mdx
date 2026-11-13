@@ -1,0 +1,133 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Documentation/ADR/0006 Design system de marque" />
+
+# ADR 0006 — Design system de marque
+
+**Statut :** accepté · **Date :** 13 novembre 2026
+
+## Contexte
+
+Une marque étend le socle et le republie sous son préfixe ([ADR 0001](?path=/docs/documentation-adr-0001-architecture-multi-marque--docs)). Avant cet ADR, elle appelle `defineComponents()` dans son module `define`, avec toutes ses surcharges, et ce module enregistre tout son catalogue.
+
+L'[ADR 0005](?path=/docs/documentation-adr-0005-icônes--docs) pose un principe : une application charge seulement ce qu'elle utilise. Il laisse une question ouverte : `defineComponents()` refuse une surcharge d'un composant non demandé. Une application ACME ne peut donc pas enregistrer une partie du catalogue avec les surcharges d'ACME.
+
+Le besoin est le suivant :
+
+- Une marque déclare son design system rapidement. Sans autre précision, il propose tout le socle.
+- Elle peut ne proposer qu'une partie du socle.
+- Elle ajoute ses propres composants. Certains rendent des composants du socle : la carte d'ACME rend un bouton.
+- Elle remplace des composants et des icônes du socle.
+- L'application prend ce dont elle a besoin, et ne télécharge que cela.
+
+### Critères de décision
+
+1. Une marque déclare son design system en une expression, sans lister le socle.
+2. Une application enregistre une partie du catalogue, avec les surcharges et les icônes de la marque.
+3. Une application télécharge seulement les composants et les surcharges qu'elle enregistre.
+4. Deux marques coexistent sur une page (ADR 0001, critère 4).
+5. `defineComponents()` reste disponible et synchrone, pour le socle, Storybook et les tests.
+
+## D1 — Où vit la définition d'une marque
+
+- **Option A — `defineComponents()` accepte les surcharges inutilisées.** L'application doit alors connaître et importer toutes les surcharges de la marque : le critère 3 échoue.
+- **Option B — Un module de définition par composant chez la marque** (`@acme/design-system/alert`). Chaque module importe les surcharges de ses dépendances. La marque écrit et tient à jour un module par composant.
+- **Option C — `designSystem()`, une déclaration sans effet de bord.** La marque déclare son préfixe, son catalogue, ses surcharges et ses icônes. L'application appelle `define()` avec les classes qu'elle utilise.
+
+**Décision : C.**
+
+```ts
+// @acme/design-system
+export const acme = designSystem({
+  prefix: "acme",
+  catalog: ["button", "alert", "modal", "icon", "card"],
+  overrides: {
+    button: () => import("./acme-button.js").then((module) => module.AcmeButton),
+  },
+  icons: acmeIcons,
+});
+
+// Une application qui n'affiche que des alertes
+import { acme, Alert } from "@acme/design-system";
+await acme.define(Alert);
+```
+
+- `designSystem({ prefix: "acme" })` propose tout le socle, sans surcharge.
+- `define()` enregistre les composants donnés et ceux qu'ils rendent, avec les classes de la marque. Il appelle `defineComponents()`, qui reste inchangé.
+- Le module `define` de la marque enregistre tout son catalogue, pour une application qui utilise tout.
+
+## D2 — Chargement des surcharges
+
+- **Option A — Des surcharges statiques.** `define()` est synchrone. Mais chaque surcharge est dans le bundle de l'application, même pour un composant qu'elle n'enregistre pas : le critère 3 échoue.
+- **Option B — Des surcharges chargées à la demande.** Une surcharge est une classe, ou une fonction qui la charge par `import()`. `define()` charge seulement les surcharges des composants qu'il enregistre.
+
+**Décision : B.**
+
+- `define()` est asynchrone. Il se résout quand chaque balise est définie.
+- Une application stylise `:not(:defined)` pendant le chargement.
+- Un design system charge chaque surcharge une fois, et enregistre toujours la même classe. Un second `define()` reste donc silencieux.
+- Une surcharge qui échoue à se charger rejette `define()`. L'appel suivant la recharge.
+
+## D3 — Catalogue d'une marque
+
+- **Option A — Une liste de classes.** Le module de la marque importe alors chaque classe listée : une application les télécharge toutes, et le critère 3 échoue.
+- **Option B — Une liste de noms**, `catalog`. Elle n'importe rien.
+
+**Décision : B.**
+
+- `catalog` liste les composants qu'une application peut demander directement.
+- Sans `catalog`, une application peut demander tout composant.
+- Les composants qu'un composant demandé rend s'enregistrent avec lui, listés ou non.
+
+## D4 — Icônes d'une marque
+
+- **Option A — Une sous-classe d'`Icon`**, passée dans `overrides` (ADR 0005, D3). La marque écrit une classe pour changer des données.
+- **Option B — Un set restreint.** La marque choisit les icônes du socle qu'elle garde. Il faut alors vérifier que chaque composant a ses icônes.
+- **Option C — L'option `icons`, fusionnée par-dessus le set du socle.** Elle remplace et ajoute des icônes par nom.
+
+**Décision : C.** `designSystem()` enregistre `icon` avec une sous-classe qui porte ces icônes, par-dessus celles d'`Icon` ou de sa surcharge. Chaque icône reste chargée à la demande (ADR 0005, D2).
+
+## Récapitulatif
+
+<table>
+  <thead>
+    <tr>
+      <th>Décision</th>
+      <th>Choix</th>
+      <th>Pourquoi</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>D1 — Définition</td>
+      <td>`designSystem()`, puis `define()` par l'application</td>
+      <td>La marque déclare ; l'application prend ce qu'elle utilise</td>
+    </tr>
+    <tr>
+      <td>D2 — Surcharges</td>
+      <td>Une classe ou un `import()` ; `define()` asynchrone</td>
+      <td>Seules les surcharges utiles se téléchargent</td>
+    </tr>
+    <tr>
+      <td>D3 — Catalogue</td>
+      <td>Une liste de noms ; les dépendances suivent leur composant</td>
+      <td>La déclaration n'importe aucun composant</td>
+    </tr>
+    <tr>
+      <td>D4 — Icônes</td>
+      <td>L'option `icons`, fusionnée</td>
+      <td>Aucune classe à écrire pour changer des icônes</td>
+    </tr>
+  </tbody>
+</table>
+
+## Conséquences
+
+- **Code :** `designSystem()` dans `@unicorne/components`. ACME déclare `acme` dans `src/design-system.ts`, sans `button-link`, et publie son bouton dans l'entrée `./acme-button`. La sous-classe `AcmeIcon` disparaît.
+- **Tests :** le registre teste `designSystem()`. ACME vérifie qu'un enregistrement partiel ne télécharge pas son bouton.
+- **Documentation :** amendements de l'ADR 0001 et de l'ADR 0005, le guide de marque, la charte, `AGENTS.md`, et les skills `icons` et `create-component`.
+
+## Questions ouvertes
+
+- **Préchargement :** une application peut précharger une surcharge qu'elle enregistre plus tard, avec un `modulepreload`.
+- **`define()` sans argument :** il enregistrerait tout le catalogue. Le design system devrait alors connaître les classes du socle, et les importer.

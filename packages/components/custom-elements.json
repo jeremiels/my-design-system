@@ -150,6 +150,38 @@
             "name": "DefineComponentsOptions",
             "module": "./registry/define-components.js"
           }
+        },
+        {
+          "kind": "js",
+          "name": "designSystem",
+          "declaration": {
+            "name": "designSystem",
+            "module": "./registry/design-system.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "ComponentSource",
+          "declaration": {
+            "name": "ComponentSource",
+            "module": "./registry/design-system.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "DesignSystem",
+          "declaration": {
+            "name": "DesignSystem",
+            "module": "./registry/design-system.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "DesignSystemOptions",
+          "declaration": {
+            "name": "DesignSystemOptions",
+            "module": "./registry/design-system.js"
+          }
         }
       ]
     },

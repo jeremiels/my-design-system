@@ -67,7 +67,8 @@ Dans le design system de la marque (par exemple `examples/acme-design-system`) :
 
 - Appliquez les mêmes règles de classe, avec les imports du package du socle : `import { DSBaseElement, Button } from "@unicorne/components"`. Les dépendances vers les composants du socle donnent les surcharges de la marque.
 - Écrivez ses tokens dans les sources DTCG de la marque (`tokens/component/<nom>/`), en alias de tokens sémantiques. L'option `prefix` du plugin leur donne le préfixe de la marque (`--acme-card-padding`).
-- Ajoutez le composant à `defineComponents({ components: [...allComponents, AcmeCard] })`, à `HTMLElementTagNameMap` et à `src/index.ts` de la marque.
-- Pour étendre un composant du socle, créez une sous-classe (`class AcmeButton extends Button`, `static styles = [Button.styles ?? [], acmeButtonTokens, acmeButtonStyles]`). Passez-la dans `overrides: { button: AcmeButton }`. Ses valeurs de tokens viennent des sources DTCG de la marque.
+- Ajoutez son nom au `catalog` de `designSystem()` (`src/design-system.ts`), sa classe à `acme.define(…)` dans `src/define.ts`, et sa balise à `HTMLElementTagNameMap`. Exportez-le depuis `src/index.ts`.
+- Pour étendre un composant du socle, créez une sous-classe (`class AcmeButton extends Button`, `static styles = [Button.styles ?? [], acmeButtonTokens, acmeButtonStyles]`). Passez-la dans `overrides` de `designSystem()`, par un `import()` : `button: () => import("…").then((module) => module.AcmeButton)`. Ses valeurs de tokens viennent des sources DTCG de la marque.
+- Publiez une surcharge chargée par `import()` dans sa propre entrée, jamais en valeur depuis `src/index.ts`.
 
 Le guide complet est `docs/guides/design-system-de-marque.mdx`.

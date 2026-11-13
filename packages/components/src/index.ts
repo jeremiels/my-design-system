@@ -17,3 +17,9 @@ export type * from "./components/alert/alert.type.js";
 export type { IconLoader, IconSet, IconSource } from "@unicorne/icons";
 export { allComponents } from "./registry/catalog.js";
 export { defineComponents, type DefineComponentsOptions } from "./registry/define-components.js";
+export {
+  designSystem,
+  type ComponentSource,
+  type DesignSystem,
+  type DesignSystemOptions,
+} from "./registry/design-system.js";

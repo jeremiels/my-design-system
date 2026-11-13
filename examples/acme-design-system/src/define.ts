@@ -1,27 +1,21 @@
 /**
- * Registers ACME's catalog: every base component under the `acme-` prefix,
- * with ACME's button and icons everywhere a button or an icon is rendered,
- * plus ACME's own components. Apps import "@acme/design-system/define" once.
+ * Registers ACME's whole catalog under the `acme-` prefix. An app that uses
+ * everything imports "@acme/design-system/define" once; the others register
+ * only what they use with `acme.define()` (src/design-system.ts).
  */
-import { allComponents, defineComponents } from "@unicorne/components";
-import type { Alert, ButtonLink, Modal } from "@unicorne/components";
-import { AcmeButton } from "./components/acme-button/acme-button.js";
+import { Alert, Button, Icon, Modal } from "@unicorne/components";
+import type { AcmeButton } from "./components/acme-button/acme-button.js";
 import { AcmeCard } from "./components/acme-card/acme-card.js";
-import { AcmeIcon } from "./components/acme-icon/acme-icon.js";
+import { acme } from "./design-system.js";
 
-defineComponents({
-  prefix: "acme",
-  components: [...allComponents, AcmeCard],
-  overrides: { button: AcmeButton, icon: AcmeIcon },
-});
+void acme.define(Button, Alert, Modal, Icon, AcmeCard);
 
 declare global {
   interface HTMLElementTagNameMap {
     "acme-alert": Alert;
     "acme-button": AcmeButton;
-    "acme-button-link": ButtonLink;
     "acme-card": AcmeCard;
-    "acme-icon": AcmeIcon;
+    "acme-icon": Icon;
     "acme-modal": Modal;
   }
 }

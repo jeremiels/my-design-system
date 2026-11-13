@@ -73,7 +73,8 @@ record(
 );
 
 // --- ACME in a browser
-const requested = new Set();
+/** The paths each page requested, by page. */
+let requested = new Set();
 const server = createServer(async (request, response) => {
   const path = normalize(decodeURIComponent(new URL(request.url, "http://x").pathname)).replace(
     /^\/+/,
@@ -98,21 +99,30 @@ const server = createServer(async (request, response) => {
 await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
 
 const browser = await chromium.launch();
-try {
+
+/** Opens a test page, records its browser checks, and returns the paths it requested. */
+async function runPage(path) {
+  requested = new Set();
   const page = await browser.newPage();
-  await page.goto(`http://127.0.0.1:${server.address().port}/test/index.html`);
+  await page.goto(`http://127.0.0.1:${server.address().port}/${path}`);
   await page.waitForFunction(() => window.__results, null, { timeout: 15_000 }).catch(() => {});
   const { browserResults, errors } = await page.evaluate(() => ({
     browserResults: window.__results ?? [],
     errors: window.__errors ?? [],
   }));
   if (browserResults.length === 0)
-    record("browser checks ran", false, errors.join(" | ") || "no result");
+    record(`browser checks of ${path} ran`, false, errors.join(" | ") || "no result");
   results.push(...browserResults);
+  await page.close();
+  return requested;
+}
+
+try {
+  const full = await runPage("test/index.html");
 
   // The page renders an alert of each type `success` (base icon) and
   // `information` (ACME's icon): of the base's icons, only `success` loads.
-  const loadedBaseIcons = [...requested]
+  const loadedBaseIcons = [...full]
     .filter(
       (path) => path.startsWith("node_modules/@unicorne/icons/js/") && !path.endsWith("/index.js"),
     )
@@ -122,6 +132,14 @@ try {
     "the page downloads only the icons it renders",
     loadedBaseIcons.join() === "success",
     `base icons downloaded: ${loadedBaseIcons.join(", ") || "none"} (expected: success)`,
+  );
+
+  // `acme.define(Alert)`: the alert and its icon, without ACME's button.
+  const partial = await runPage("test/partial.html");
+  record(
+    "a partial registration doesn't download the overrides it doesn't use",
+    full.has("dist/acme-button.js") && !partial.has("dist/acme-button.js"),
+    `dist/acme-button.js downloaded by the full page: ${full.has("dist/acme-button.js")}, by the partial page: ${partial.has("dist/acme-button.js")}`,
   );
 } finally {
   await browser.close();

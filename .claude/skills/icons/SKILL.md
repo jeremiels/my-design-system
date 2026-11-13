@@ -7,7 +7,7 @@ description: Ajouter, remplacer ou retirer une icône SVG du socle (packages/ico
 
 Les règles des sources, les sorties et le chargement sont dans `docs/reference/icones.mdx`. Les décisions sont dans l'ADR 0005 (`docs/adr/0005-icones.mdx`). Lisez la référence avant de changer une icône.
 
-Exemples : `packages/icons/src/information.svg`, `packages/components/src/components/icon/icon.ts`, `packages/components/src/components/alert/alert.ts` (rend une icône), `examples/acme-design-system/src/components/acme-icon/acme-icon.ts` (marque).
+Exemples : `packages/icons/src/information.svg`, `packages/components/src/components/icon/icon.ts`, `packages/components/src/components/alert/alert.ts` (rend une icône), `examples/acme-design-system/src/design-system.ts` (marque).
 
 ## Ajouter ou changer une icône du socle
 
@@ -45,8 +45,7 @@ Le guide est `docs/guides/design-system-de-marque.mdx`, étape 6.
 
 1. Écrivez les icônes dans `icons/<nom>.svg`. Le nom d'une icône du socle la remplace.
 2. Générez-les avant Vite : `unicorne-icons icons --out src/icons --export acmeIcons`.
-3. Étendez le set dans une sous-classe : `static override icons = { ...Icon.icons, ...acmeIcons }`.
-4. Passez la sous-classe dans `overrides: { icon: AcmeIcon }` de `defineComponents()`.
+3. Passez-les à `designSystem()` : `icons: acmeIcons`. Elles passent par-dessus les icônes du socle, nom par nom.
 
 ## Vérifiez
 
