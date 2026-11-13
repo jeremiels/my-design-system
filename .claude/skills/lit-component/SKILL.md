@@ -63,6 +63,7 @@ render() {
 
 - `tagFor()` donne la balise de l'enregistrement de cet élément : `u-modal` rend `u-button`, `acme-modal` rend la surcharge de la marque.
 - N'écrivez jamais la balise d'un autre composant en dur, et n'appelez jamais `document.createElement` pour lui. La surcharge de la marque serait ignorée.
+- Une icône se rend de la même façon, avec `Icon` dans `dependencies` (skill `icons`).
 - Quand le sous-élément est un choix d'intégration, préférez un slot. La modale rend son bouton de fermeture (`tagFor(Button)`) et reçoit son déclencheur par le slot `trigger`.
 - Ajoutez tout nouvel import `lit/...` à `optimizeDeps.include` dans le `vite.config.ts` de la racine. Sinon, Vitest et Storybook ré-optimisent en cours de test et échouent.
 

@@ -1,7 +1,7 @@
 // Runs in the browser against ACME's build (dist/), registered the way an app
 // does it, and publishes its results on `window.__results`.
 import "/dist/define.js";
-import { AcmeButton, AcmeCard, Button } from "/dist/index.js";
+import { AcmeButton, AcmeCard, AcmeIcon, Button, Icon } from "/dist/index.js";
 import { contrastFailures } from "@unicorne/tokens/testing";
 
 const results = [];
@@ -26,9 +26,21 @@ function resolveColor(color) {
   return value;
 }
 
-const tags = ["acme-button", "acme-card", "acme-modal", "acme-alert"];
+const tags = ["acme-button", "acme-card", "acme-modal", "acme-alert", "acme-icon"];
 await Promise.all(tags.map((tag) => customElements.whenDefined(tag)));
 await Promise.all([...document.querySelectorAll(tags.join(","))].map((el) => el.updateComplete));
+// The icons inside the alerts: `updateComplete` waits for their load.
+const alertIcons = [...document.querySelectorAll("acme-alert")].map((alert) =>
+  alert.shadowRoot.querySelector('[part~="icon"]'),
+);
+await Promise.all(alertIcons.map((icon) => icon.updateComplete));
+
+/** An `<svg>` as the browser parses it, for comparisons. */
+function parsed(markup) {
+  const template = document.createElement("template");
+  template.innerHTML = markup;
+  return template.content.querySelector("svg").outerHTML;
+}
 
 await check("acme-button is ACME's button, extending the base's", () => {
   const button = $("#button");
@@ -88,6 +100,26 @@ await check("ACME's own card renders ACME's button", () => {
   return [
     card instanceof AcmeCard && action instanceof AcmeButton && heading === "Offre",
     `action <${action?.localName}> (AcmeButton: ${action instanceof AcmeButton}), heading "${heading}"`,
+  ];
+});
+
+await check("ACME's alert renders ACME's version of a base icon", async () => {
+  const icon = $("#alert").shadowRoot.querySelector('[part~="icon"]');
+  const svg = icon.shadowRoot.querySelector("svg")?.outerHTML;
+  // ACME's loader, not the base's: the base's information icon never loads.
+  const { default: acme } = await AcmeIcon.icons.information();
+  const isAcme = svg === parsed(acme);
+  return [
+    icon instanceof AcmeIcon && AcmeIcon.icons.information !== Icon.icons.information && isAcme,
+    `<${icon.localName}> (AcmeIcon: ${icon instanceof AcmeIcon}), renders ACME's markup: ${isAcme}`,
+  ];
+});
+
+await check("ACME's own icons render, by name", () => {
+  const box = $("#star").shadowRoot.querySelector('[part~="icon"]');
+  return [
+    box.querySelector("svg") !== null && box.getAttribute("aria-label") === "Favori",
+    `svg: ${box.querySelector("svg") !== null}, role ${box.getAttribute("role")}, label "${box.getAttribute("aria-label")}"`,
   ];
 });
 

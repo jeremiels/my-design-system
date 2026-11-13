@@ -1,0 +1,182 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Documentation/Référence/Icônes" />
+
+# Icônes
+
+Les décisions sont dans l'[ADR 0005](?path=/docs/documentation-adr-0005-icônes--docs). Le composant `u-icon` est documenté dans sa page, sous **Components/Icon**, avec la galerie du set.
+
+## Fichiers de `@unicorne/icons`
+
+<table>
+  <thead>
+    <tr>
+      <th>Chemin</th>
+      <th>Contenu</th>
+      <th>Publié</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>`src/<nom>.svg`</td>
+      <td>Les sources, telles qu'exportées</td>
+      <td>Non</td>
+    </tr>
+    <tr>
+      <td>`js/index.js`</td>
+      <td>`icons` : nom → fonction qui charge le module de l'icône. Import : `@unicorne/icons`</td>
+      <td>Oui, généré</td>
+    </tr>
+    <tr>
+      <td>`js/<nom>.js`</td>
+      <td>Le markup SVG optimisé, en export par défaut. Import : `@unicorne/icons/<nom>`</td>
+      <td>Oui, généré</td>
+    </tr>
+    <tr>
+      <td>`svg/<nom>.svg`</td>
+      <td>Le fichier SVG optimisé, avec `xmlns`. Import : `@unicorne/icons/svg/<nom>.svg`</td>
+      <td>Oui, généré</td>
+    </tr>
+    <tr>
+      <td>`plugins/`</td>
+      <td>Le générateur : la commande `unicorne-icons` et `@unicorne/icons/icon-set`</td>
+      <td>Oui, construit dans `dist/`</td>
+    </tr>
+  </tbody>
+</table>
+
+- `npm run icons` génère `js/` et `svg/` depuis `src/`.
+- `npm run icons:check` échoue si `js/` ou `svg/` diffère de ce que génèrent les sources.
+- Le nom d'une icône est une API : le renommer ou le retirer est une version majeure.
+
+## Règles des sources
+
+Le générateur refuse une source qui enfreint une règle. Une seule erreur liste tous les fichiers refusés.
+
+<table>
+  <thead>
+    <tr>
+      <th>Règle</th>
+      <th>Exemple refusé</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Le nom est en minuscules, des mots joints par des tirets</td>
+      <td>`Close.svg`, `close_small.svg`</td>
+    </tr>
+    <tr>
+      <td>Les noms `index` et `icon-set` sont réservés</td>
+      <td>`index.svg`</td>
+    </tr>
+    <tr>
+      <td>La racine est `<svg viewBox="0 0 24 24">`</td>
+      <td>`viewBox="0 0 16 16"`, pas de `viewBox`</td>
+    </tr>
+    <tr>
+      <td>Aucun élément qui exécute du code, charge une ressource ou porte des styles</td>
+      <td>`<script>`, `<foreignObject>`, `<style>`, `<image>`</td>
+    </tr>
+    <tr>
+      <td>Aucun gestionnaire d'événement</td>
+      <td>`onclick`, `onload`</td>
+    </tr>
+    <tr>
+      <td>Un lien pointe vers un fragment du même fichier</td>
+      <td>`href="sprite.svg#a"`, `xlink:href="https://…"`</td>
+    </tr>
+    <tr>
+      <td>Le markup optimisé fait 2 Ko au plus (`--max-bytes`)</td>
+      <td>Une image matricielle intégrée, des formes non aplaties</td>
+    </tr>
+  </tbody>
+</table>
+
+## Optimisation
+
+SVGO optimise chaque source en plusieurs passes :
+
+- le préréglage `preset-default` ;
+- toute couleur, sauf `none` et celles des masques, devient `currentColor` : l'icône prend la couleur du texte ;
+- `width`, `height`, `<title>` et `<desc>` sont retirés : CSS donne la taille, `u-icon` donne le nom accessible ;
+- `xlink:href` devient `href` ;
+- le markup de `js/` n'a pas de `xmlns`, celui de `svg/` le garde.
+
+## Chargement
+
+`Icon.icons` est le set de l'enregistrement. Chaque valeur est l'une de ces deux formes :
+
+<table>
+  <thead>
+    <tr>
+      <th>Valeur</th>
+      <th>Rendu</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Une fonction qui charge un module (`() => import("./close.js")`)</td>
+      <td>
+        L'icône apparaît quand son module est chargé. La page garde le markup : les affichages
+        suivants sont immédiats.
+      </td>
+    </tr>
+    <tr>
+      <td>Le markup SVG</td>
+      <td>L'icône apparaît dès le premier rendu.</td>
+    </tr>
+  </tbody>
+</table>
+
+- Une page télécharge seulement les modules des icônes qu'elle affiche.
+- La boîte de l'icône a sa taille avant le chargement.
+- `updateComplete` se résout quand l'icône est rendue.
+- Un nom absent du set, ou un module qui ne se charge pas, rend une boîte vide et un avertissement dans la console.
+- Pour un rendu immédiat, une sous-classe d'`Icon` peut fournir le markup : `import close from "@unicorne/icons/close"`.
+
+## Commande `unicorne-icons`
+
+```sh
+unicorne-icons <sources> --out <dossier> [--svg-out <dossier>] [--export <nom>] [--max-bytes <n>]
+```
+
+<table>
+  <thead>
+    <tr>
+      <th>Option</th>
+      <th>Effet</th>
+      <th>Défaut</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>`<sources>`</td>
+      <td>Le dossier des fichiers `.svg`</td>
+      <td>Obligatoire</td>
+    </tr>
+    <tr>
+      <td>`--out`</td>
+      <td>Le dossier de `index.js`, `index.d.ts` et d'un module par icône</td>
+      <td>Obligatoire</td>
+    </tr>
+    <tr>
+      <td>`--svg-out`</td>
+      <td>Le dossier des fichiers SVG optimisés</td>
+      <td>Aucun fichier SVG</td>
+    </tr>
+    <tr>
+      <td>`--export`</td>
+      <td>Le nom de la table exportée par `index.js`</td>
+      <td>`icons`</td>
+    </tr>
+    <tr>
+      <td>`--max-bytes`</td>
+      <td>Le budget d'une icône optimisée</td>
+      <td>`2048`</td>
+    </tr>
+  </tbody>
+</table>
+
+- Un dossier de sortie contient seulement des fichiers générés. La commande refuse un dossier qui contient un autre fichier, et ne change rien.
+- La commande supprime les fichiers d'une icône retirée des sources.
+- `@unicorne/icons/icon-set` exporte les mêmes fonctions pour un script : `readIconSet()` et `writeIconSet()`.

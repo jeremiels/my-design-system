@@ -8,7 +8,7 @@ import { join } from "node:path";
 
 const root = join(import.meta.dirname, "..");
 const example = join(root, "examples/acme-design-system");
-const packages = ["@unicorne/tokens", "@unicorne/components"];
+const packages = ["@unicorne/tokens", "@unicorne/icons", "@unicorne/components"];
 const run = (args, cwd = root) => execFileSync("npm", args, { cwd, stdio: "inherit" });
 
 run(["run", "build"]);

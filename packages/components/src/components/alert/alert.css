@@ -1,11 +1,19 @@
 /* The tokens and their types are in alert.tokens.css, generated from
    tokens/component/alert/ (ADR 0002). These rules only read them. */
 .alert {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--u-alert-gap);
   padding: var(--u-alert-padding);
   border-radius: var(--u-alert-border-radius);
   font-family: var(--u-alert-font-family);
   color: var(--u-alert-text-color);
   background-color: var(--u-alert-background-color);
+}
+
+.message {
+  flex: 1;
+  min-inline-size: 0;
 }
 
 /* Until the message is revealed in the live region (see alert.ts): laid out,

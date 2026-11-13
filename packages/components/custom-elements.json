@@ -52,6 +52,14 @@
           "name": "*",
           "declaration": {
             "name": "*",
+            "module": "src/components/icon/icon.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "*",
+          "declaration": {
+            "name": "*",
             "module": "src/mixins/withDisabled.js"
           }
         },
@@ -93,6 +101,30 @@
           "declaration": {
             "name": "*",
             "module": "src/components/alert/alert.type.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "IconLoader",
+          "declaration": {
+            "name": "IconLoader",
+            "module": "@unicorne/icons"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "IconSet",
+          "declaration": {
+            "name": "IconSet",
+            "module": "@unicorne/icons"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "IconSource",
+          "declaration": {
+            "name": "IconSource",
+            "module": "@unicorne/icons"
           }
         },
         {
@@ -418,7 +450,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "An alert component that displays a message to the user.\n\nIts container is a live region (`role=\"status\"` or `\"alert\"`, from\n`type`). Screen readers announce what is added to a live region, not what\nit already held when it appeared, so the message is revealed 100 ms after\nthe alert is first rendered: an alert inserted with its message is\nannounced too. Until then the message is laid out (nothing moves) but\ninvisible.",
+          "description": "An alert component that displays a message to the user.\n\nThe icon of its type comes first: the icon of the same name, from the\n`icon` component of its registration. It's decorative: the type is in the\nrole and the colors, and the message says it.\n\nIts container is a live region (`role=\"status\"` or `\"alert\"`, from\n`type`). Screen readers announce what is added to a live region, not what\nit already held when it appeared, so the message is revealed 100 ms after\nthe alert is first rendered: an alert inserted with its message is\nannounced too. Until then the message is laid out (nothing moves) but\ninvisible.",
           "name": "Alert",
           "cssProperties": [
             {
@@ -437,6 +469,11 @@
               "default": "var(--u-spacing-md)"
             },
             {
+              "description": "Space between the icon and the message.",
+              "name": "--u-alert-gap",
+              "default": "var(--u-spacing-sm)"
+            },
+            {
               "description": "Corner radius.",
               "name": "--u-alert-border-radius",
               "default": "var(--u-radius-md)"
@@ -451,6 +488,10 @@
             {
               "description": "The alert container.",
               "name": "alert"
+            },
+            {
+              "description": "The icon of the type: the `icon` component of the same registration.",
+              "name": "icon"
             }
           ],
           "slots": [
@@ -469,6 +510,20 @@
               "static": true,
               "default": "\"alert\"",
               "description": "Name of the component in the catalog, without any tag prefix: the\nregistered tag is `<prefix>-<componentName>`. Every concrete component\nsets it; abstract bases (e.g. `ButtonBase`) don't.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/components/base-element.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "dependencies",
+              "type": {
+                "text": "readonly (typeof DSBaseElement)[]"
+              },
+              "static": true,
+              "default": "[Icon]",
+              "description": "Renders the icon of its type with the `icon` of its own registration (ADR 0001, D2).",
               "inheritedFrom": {
                 "name": "DSBaseElement",
                 "module": "src/components/base-element.ts"
@@ -504,20 +559,6 @@
               "privacy": "private",
               "description": "`danger`/`warning` interrupt immediately (role=\"alert\", implicit\naria-live=\"assertive\"); `success`/`information` are announced without\ninterrupting the user (role=\"status\", implicit aria-live=\"polite\").\nSee https://www.w3.org/WAI/ARIA/apg/patterns/alert/.",
               "readonly": true
-            },
-            {
-              "kind": "field",
-              "name": "dependencies",
-              "type": {
-                "text": "readonly (typeof DSBaseElement)[]"
-              },
-              "static": true,
-              "default": "[]",
-              "description": "Components this one renders (ADR 0001, D2): `defineComponents()`\nregisters them too, and `tagFor()` resolves their tag. Never hard-code\nanother component's tag in a template, nor create one with\n`document.createElement` — a brand's override would be bypassed.",
-              "inheritedFrom": {
-                "name": "DSBaseElement",
-                "module": "src/components/base-element.ts"
-              }
             },
             {
               "kind": "method",
@@ -1814,6 +1855,221 @@
       "path": "src/components/button/button.type.ts",
       "declarations": [],
       "exports": []
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/components/icon/icon.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "An icon of the set of its registration, by name (ADR 0005).\n\nThe set of the base is `@unicorne/icons`: one module per icon, loaded the\nfirst time an icon renders, so a page downloads only the icons it shows.\nThe box keeps its size while the icon loads, and `updateComplete` resolves\nonce the icon is rendered. The icon takes the color of the text\n(`currentColor`).\n\nWithout `label`, the icon is decorative: assistive technologies ignore it.\nGive a `label` to an icon that carries meaning on its own.",
+          "name": "Icon",
+          "cssProperties": [
+            {
+              "description": "Width and height of the icon.",
+              "name": "--u-icon-size",
+              "default": "var(--u-size-icon)"
+            }
+          ],
+          "cssParts": [
+            {
+              "description": "The box of the icon, around its `<svg>`.",
+              "name": "icon"
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "componentName",
+              "type": {
+                "text": "string"
+              },
+              "static": true,
+              "default": "\"icon\"",
+              "description": "Name of the component in the catalog, without any tag prefix: the\nregistered tag is `<prefix>-<componentName>`. Every concrete component\nsets it; abstract bases (e.g. `ButtonBase`) don't.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/components/base-element.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "icons",
+              "type": {
+                "text": "IconSet"
+              },
+              "static": true,
+              "default": "icons",
+              "description": "The icon set: icon name → its SVG markup, or a loader of its module.\nThe default is the set of `@unicorne/icons`. A brand adds or replaces\nicons by name in a subclass, registered with `overrides: { icon: … }`,\nso every component of the registration renders them:\n`static override icons = { ...Icon.icons, ...brandIcons }`.\nRendered as HTML: trusted markup only, such as the output of `unicorne-icons`."
+            },
+            {
+              "kind": "field",
+              "name": "name",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "Name of the icon in the set.",
+              "attribute": "name"
+            },
+            {
+              "kind": "field",
+              "name": "label",
+              "type": {
+                "text": "string | undefined"
+              },
+              "description": "Accessible name. Without it, the icon is decorative.",
+              "attribute": "label"
+            },
+            {
+              "kind": "field",
+              "name": "markup",
+              "type": {
+                "text": "string | undefined"
+              },
+              "privacy": "private",
+              "description": "The SVG markup of `name`, once available."
+            },
+            {
+              "kind": "field",
+              "name": "loading",
+              "type": {
+                "text": "Promise<void> | undefined"
+              },
+              "privacy": "private",
+              "description": "The load of the current `name`, until it settles."
+            },
+            {
+              "kind": "method",
+              "name": "sourceOf",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "IconSource | undefined"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "name",
+                  "type": {
+                    "text": "string"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "load",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "Promise<void>"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "name",
+                  "type": {
+                    "text": "string"
+                  }
+                },
+                {
+                  "name": "loader",
+                  "type": {
+                    "text": "IconLoader"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "warn",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "problem",
+                  "type": {
+                    "text": "string"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "field",
+              "name": "dependencies",
+              "type": {
+                "text": "readonly (typeof DSBaseElement)[]"
+              },
+              "static": true,
+              "default": "[]",
+              "description": "Components this one renders (ADR 0001, D2): `defineComponents()`\nregisters them too, and `tagFor()` resolves their tag. Never hard-code\nanother component's tag in a template, nor create one with\n`document.createElement` — a brand's override would be bypassed.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/components/base-element.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "tagFor",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "StaticValue"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "component",
+                  "type": {
+                    "text": "typeof DSBaseElement"
+                  }
+                }
+              ],
+              "description": "The tag of a component declared in `static dependencies`, for templates\nfrom `lit/static-html.js`: `` html`<${this.tagFor(Button)}>…</${…}>` ``.\nIt follows the registration of this element: `u-modal` renders\n`u-button`, `acme-modal` renders `acme-button` — the brand's override\nof `Button` if it has one.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/components/base-element.ts"
+              }
+            }
+          ],
+          "attributes": [
+            {
+              "name": "name",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "Name of the icon in the set.",
+              "fieldName": "name"
+            },
+            {
+              "name": "label",
+              "type": {
+                "text": "string | undefined"
+              },
+              "description": "Accessible name. Without it, the icon is decorative.",
+              "fieldName": "label"
+            }
+          ],
+          "superclass": {
+            "name": "DSBaseElement",
+            "module": "/src/components/base-element.js"
+          },
+          "tagName": "u-icon",
+          "customElement": true,
+          "summary": "Displays an icon of the set, by name."
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "Icon",
+          "declaration": {
+            "name": "Icon",
+            "module": "src/components/icon/icon.ts"
+          }
+        }
+      ]
     },
     {
       "kind": "javascript-module",

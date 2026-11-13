@@ -2,6 +2,7 @@ import preview from "#.storybook/preview";
 import { html } from "lit";
 import { ifDefined } from "lit/directives/if-defined.js";
 import { expect } from "storybook/test";
+import type { Icon } from "../icon/icon";
 import type { Alert } from "./alert";
 
 const meta = preview.meta({
@@ -70,5 +71,12 @@ export const Variants = meta.story({
     // Each type resolves to its own semantic token.
     const backgrounds = inner.map((el) => getComputedStyle(el).backgroundColor);
     expect(new Set(backgrounds).size).toBe(alerts.length);
+    // Each type has its icon in the set of the base, by the same name.
+    const icons = alerts.map((alert) => alert.shadowRoot!.querySelector<Icon>('[part~="icon"]')!);
+    await Promise.all(icons.map((icon) => icon.updateComplete));
+    expect(icons.map((icon) => icon.name)).toEqual(alerts.map((alert) => alert.type));
+    for (const icon of icons) {
+      expect(icon.shadowRoot!.querySelector("svg"), icon.name).not.toBeNull();
+    }
   },
 });

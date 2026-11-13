@@ -1,0 +1,45 @@
+{
+  "name": "@unicorne/icons",
+  "version": "0.0.0",
+  "private": true,
+  "description": "The icons of the base (ADR 0005): optimized SVG, one module per icon loaded on demand, and the generator brands build their own icons with.",
+  "bin": {
+    "unicorne-icons": "./dist/plugins/cli.js"
+  },
+  "files": [
+    "js",
+    "svg",
+    "dist"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./js/index.d.ts",
+      "import": "./js/index.js"
+    },
+    "./icon-set": {
+      "@unicorne/source": "./plugins/icon-set.ts",
+      "types": "./dist/plugins/icon-set.d.ts",
+      "import": "./dist/plugins/icon-set.js"
+    },
+    "./svg/*": "./svg/*",
+    "./*": {
+      "types": "./js/*.d.ts",
+      "import": "./js/*.js"
+    }
+  },
+  "scripts": {
+    "icons": "node plugins/cli.ts src --out js --svg-out svg && oxfmt js",
+    "icons:check": "npm run icons && git diff --exit-code -- js svg",
+    "build": "npm run icons && tsc -p tsconfig.build.json"
+  },
+  "peerDependencies": {
+    "svgo": "^4.1.0"
+  },
+  "peerDependenciesMeta": {
+    "svgo": {
+      "optional": true
+    }
+  }
+}

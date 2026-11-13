@@ -3,6 +3,7 @@
   --u-alert-background-color: var(--u-color-information-background);
   --u-alert-text-color: var(--u-color-information-text);
   --u-alert-padding: var(--u-spacing-md);
+  --u-alert-gap: var(--u-spacing-sm);
   --u-alert-border-radius: var(--u-radius-md);
   --u-alert-font-family: var(--u-font-family-body);
 }

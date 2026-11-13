@@ -1,8 +1,9 @@
 // Smoke-tests ACME's build in Chromium, and checks what it publishes: no
 // copy of the base in dist/, and a manifest documenting inherited API.
-import { readFile } from "node:fs/promises";
+import { readdir, readFile } from "node:fs/promises";
 import { createServer } from "node:http";
 import { extname, join, normalize } from "node:path";
+import { pathToFileURL } from "node:url";
 import { chromium } from "playwright";
 
 const root = join(import.meta.dirname, "..");
@@ -20,6 +21,43 @@ record(
   `imports @unicorne/components: ${dist.includes('from "@unicorne/components"')}`,
 );
 
+/** The SVG markup of each icon of a generated set: name → markup. */
+async function iconMarkup(dir) {
+  const files = (await readdir(dir)).filter((file) => file.endsWith(".js") && file !== "index.js");
+  return new Map(
+    await Promise.all(
+      files.map(async (file) => [
+        file.slice(0, -3),
+        (await import(pathToFileURL(join(dir, file)).href)).default,
+      ]),
+    ),
+  );
+}
+const baseIcons = await iconMarkup(join(root, "node_modules/@unicorne/icons/js"));
+const acmeIcons = await iconMarkup(join(root, "src/icons"));
+const distFiles = (await readdir(join(root, "dist"))).filter((file) => file.endsWith(".js"));
+// The bundler may requote the markup: compare without escaped quotes.
+const unescape = (code) => code.replaceAll('\\"', '"');
+const distAll = unescape(
+  (await Promise.all(distFiles.map((file) => readFile(join(root, "dist", file), "utf8")))).join(
+    "\n",
+  ),
+);
+const copied = [...baseIcons]
+  .filter(([, markup]) => distAll.includes(markup))
+  .map(([name]) => name);
+const eager = [...acmeIcons]
+  .filter(([, markup]) => unescape(dist).includes(markup))
+  .map(([name]) => name);
+const missing = [...acmeIcons]
+  .filter(([, markup]) => !distAll.includes(markup))
+  .map(([name]) => name);
+record(
+  "dist/ has ACME's icons in their own chunks, and none of the base's",
+  copied.length === 0 && eager.length === 0 && missing.length === 0,
+  `base icons copied: ${copied.join(", ") || "none"}; ACME icons in index/define: ${eager.join(", ") || "none"}; missing: ${missing.join(", ") || "none"}`,
+);
+
 const manifest = JSON.parse(await readFile(join(root, "custom-elements.json"), "utf8"));
 const declarations = manifest.modules.flatMap((module) => module.declarations ?? []);
 const acmeButton = declarations.find((declaration) => declaration.name === "AcmeButton");
@@ -35,11 +73,13 @@ record(
 );
 
 // --- ACME in a browser
+const requested = new Set();
 const server = createServer(async (request, response) => {
   const path = normalize(decodeURIComponent(new URL(request.url, "http://x").pathname)).replace(
     /^\/+/,
     "",
   );
+  requested.add(path);
   if (!["dist/", "test/", "node_modules/"].some((prefix) => path.startsWith(prefix))) {
     response.writeHead(404).end();
     return;
@@ -69,6 +109,20 @@ try {
   if (browserResults.length === 0)
     record("browser checks ran", false, errors.join(" | ") || "no result");
   results.push(...browserResults);
+
+  // The page renders an alert of each type `success` (base icon) and
+  // `information` (ACME's icon): of the base's icons, only `success` loads.
+  const loadedBaseIcons = [...requested]
+    .filter(
+      (path) => path.startsWith("node_modules/@unicorne/icons/js/") && !path.endsWith("/index.js"),
+    )
+    .map((path) => path.slice(path.lastIndexOf("/") + 1, -".js".length))
+    .sort();
+  record(
+    "the page downloads only the icons it renders",
+    loadedBaseIcons.join() === "success",
+    `base icons downloaded: ${loadedBaseIcons.join(", ") || "none"} (expected: success)`,
+  );
 } finally {
   await browser.close();
   server.close();

@@ -16,6 +16,11 @@
       "$value": "{spacing.md}",
       "$description": "Internal padding."
     },
+    "gap": {
+      "$type": "dimension",
+      "$value": "{spacing.sm}",
+      "$description": "Space between the icon and the message."
+    },
     "border-radius": {
       "$type": "dimension",
       "$value": "{radius.md}",

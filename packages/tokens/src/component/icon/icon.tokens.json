@@ -1,0 +1,10 @@
+{
+  "icon": {
+    "$description": "Tokens of `icon`.",
+    "size": {
+      "$type": "dimension",
+      "$value": "{size.icon}",
+      "$description": "Width and height of the icon."
+    }
+  }
+}

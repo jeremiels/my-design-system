@@ -25,6 +25,12 @@ export default defineConfig({
     // discovers one mid-run in Vitest/Storybook (e.g. lit/static-html.js),
     // re-optimizes, and already-loaded test iframes fail on a cold cache.
     // Add any new `lit/...` import here.
-    include: ["lit", "lit/decorators.js", "lit/directives/if-defined.js", "lit/static-html.js"],
+    include: [
+      "lit",
+      "lit/decorators.js",
+      "lit/directives/if-defined.js",
+      "lit/directives/unsafe-html.js",
+      "lit/static-html.js",
+    ],
   },
 });

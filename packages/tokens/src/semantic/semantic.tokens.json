@@ -10,6 +10,14 @@
     "xl": { "$value": "{dimension.800}" },
     "2xl": { "$value": "{dimension.1200}" }
   },
+  "size": {
+    "$type": "dimension",
+    "$description": "Sizes of elements set inside a component.",
+    "icon": {
+      "$value": "{dimension.600}",
+      "$description": "An icon next to body text: the 24px grid of the icons."
+    }
+  },
   "radius": {
     "$type": "dimension",
     "$description": "Corner radii.",

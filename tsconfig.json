@@ -36,6 +36,7 @@
     ".storybook",
     "packages/components/src",
     "packages/components/plugins",
+    "packages/icons/plugins",
     "packages/tokens/plugins",
     "packages/tokens/testing"
   ]

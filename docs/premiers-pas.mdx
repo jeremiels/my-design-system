@@ -6,7 +6,7 @@ import { Meta } from "@storybook/addon-docs/blocks";
 
 Dans ce tutoriel, vous affichez des composants du socle dans une application Vite. Vous changez ensuite un token, puis le thème. Comptez dix minutes.
 
-Le socle n'est pas publié. L'application installe ses deux packages depuis les archives que produit `npm pack`, comme le ferait un registre.
+Le socle n'est pas publié. L'application installe ses trois packages depuis les archives que produit `npm pack`, comme le ferait un registre.
 
 ## Prérequis
 
@@ -19,12 +19,13 @@ Le socle n'est pas publié. L'application installe ses deux packages depuis les 
 
 ```sh
 npm run build
-npm pack -w @unicorne/tokens -w @unicorne/components
+npm pack -w @unicorne/tokens -w @unicorne/icons -w @unicorne/components
 ```
 
-`npm pack` crée deux archives :
+`npm pack` crée trois archives :
 
 - `unicorne-tokens-0.0.0.tgz` : les tokens, pour toutes les plateformes ;
+- `unicorne-icons-0.0.0.tgz` : les icônes ;
 - `unicorne-components-0.0.0.tgz` : les composants web.
 
 ## 2. Créez l'application
@@ -35,10 +36,10 @@ npm pack -w @unicorne/tokens -w @unicorne/components
 mkdir mon-app && cd mon-app
 npm init -y
 npm pkg set type=module
-npm install vite lit ../my-design-system/unicorne-tokens-0.0.0.tgz ../my-design-system/unicorne-components-0.0.0.tgz
+npm install vite lit ../my-design-system/unicorne-tokens-0.0.0.tgz ../my-design-system/unicorne-icons-0.0.0.tgz ../my-design-system/unicorne-components-0.0.0.tgz
 ```
 
-Lit et `@unicorne/tokens` sont des peer dependencies de `@unicorne/components` : l'application les installe une seule fois.
+Lit, `@unicorne/tokens` et `@unicorne/icons` sont des peer dependencies de `@unicorne/components` : l'application les installe une seule fois.
 
 ## 3. Chargez les styles et enregistrez les composants
 
@@ -74,6 +75,8 @@ Créez `index.html` :
       <u-button slot="trigger">Ouvrir la modale</u-button>
       <p>Voulez-vous continuer ?</p>
     </u-modal>
+
+    <u-alert type="success">Modifications enregistrées.</u-alert>
   </body>
 </html>
 ```
@@ -84,11 +87,12 @@ Lancez le serveur de développement :
 npx vite
 ```
 
-Ouvrez l'adresse affichée (`http://localhost:5173`). Vous voyez deux boutons, bleu et rouge, et un troisième bouton qui ouvre la modale.
+Ouvrez l'adresse affichée (`http://localhost:5173`). Vous voyez deux boutons, bleu et rouge, un troisième bouton qui ouvre la modale, et une alerte verte avec son icône.
 
 - L'attribut `variant` choisit la couleur du bouton.
 - Le slot `trigger` contient l'élément qui ouvre la modale.
 - L'attribut `label` donne son nom accessible à la modale.
+- L'alerte affiche l'icône de son type. Le navigateur télécharge seulement le module de cette icône, pas tout le set.
 
 ## 5. Réagissez à la fermeture de la modale
 

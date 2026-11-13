@@ -109,6 +109,7 @@
     --u-spacing-lg: var(--u-dimension-600);
     --u-spacing-xl: var(--u-dimension-800);
     --u-spacing-2xl: var(--u-dimension-1200);
+    --u-size-icon: var(--u-dimension-600);
     --u-radius-sm: var(--u-dimension-50);
     --u-radius-md: var(--u-dimension-100);
     --u-radius-lg: var(--u-dimension-200);

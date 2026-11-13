@@ -9,6 +9,7 @@
 import type { Alert } from "./components/alert/alert.js";
 import type { ButtonLink } from "./components/button/button-link.js";
 import type { Button } from "./components/button/button.js";
+import type { Icon } from "./components/icon/icon.js";
 import type { Modal } from "./components/modal/modal.js";
 import { allComponents } from "./registry/catalog.js";
 import { defineComponents } from "./registry/define-components.js";
@@ -20,6 +21,7 @@ declare global {
     "u-alert": Alert;
     "u-button": Button;
     "u-button-link": ButtonLink;
+    "u-icon": Icon;
     "u-modal": Modal;
   }
 }

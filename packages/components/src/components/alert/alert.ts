@@ -1,6 +1,8 @@
-import { html, type PropertyValues } from "lit";
+import type { PropertyValues } from "lit";
 import { property, state } from "lit/decorators.js";
+import { html } from "lit/static-html.js";
 import { DSBaseElement } from "../base-element.js";
+import { Icon } from "../icon/icon.js";
 import alertStyles from "./alert.css" with { type: "css" };
 import alertTokens from "./alert.tokens.css" with { type: "css" };
 import type { AlertType } from "./alert.type.js";
@@ -15,6 +17,10 @@ const REVEAL_DELAY_MS = 100;
 /**
  * An alert component that displays a message to the user.
  *
+ * The icon of its type comes first: the icon of the same name, from the
+ * `icon` component of its registration. It's decorative: the type is in the
+ * role and the colors, and the message says it.
+ *
  * Its container is a live region (`role="status"` or `"alert"`, from
  * `type`). Screen readers announce what is added to a live region, not what
  * it already held when it appeared, so the message is revealed 100 ms after
@@ -26,10 +32,14 @@ const REVEAL_DELAY_MS = 100;
  * @summary Displays a message, announced to assistive technologies.
  * @slot - The content of the alert.
  * @csspart alert - The alert container.
+ * @csspart icon - The icon of the type: the `icon` component of the same registration.
  * @tokens alert - Its tokens (`@cssprop`), from `@unicorne/tokens` (`src/component/alert/`): `npm run analyze` documents them.
  */
 export class Alert extends DSBaseElement {
   static override componentName = "alert";
+
+  /** Renders the icon of its type with the `icon` of its own registration (ADR 0001, D2). */
+  static override dependencies = [Icon];
 
   /** Alert type: sets the colors and how assistive technologies announce it. */
   @property({ type: String, reflect: true })
@@ -60,9 +70,11 @@ export class Alert extends DSBaseElement {
 
   render() {
     const pending = this.revealed ? "" : " alert--pending";
+    const icon = this.tagFor(Icon);
     return html`
       <div part="alert" class="alert${pending}" role=${this.alertRole}>
-        <slot></slot>
+        <${icon} part="icon" name=${this.type}></${icon}>
+        <div class="message"><slot></slot></div>
       </div>
     `;
   }

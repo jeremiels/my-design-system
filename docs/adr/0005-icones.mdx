@@ -1,0 +1,157 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Documentation/ADR/0005 Icônes" />
+
+# ADR 0005 — Icônes
+
+**Statut :** accepté · **Date :** 13 novembre 2026
+
+## Contexte
+
+L'[ADR 0003](?path=/docs/documentation-adr-0003-packages-tokens-et-composants--docs) (D1) renvoie les icônes à un package `@unicorne/icons` et à un ADR dédié.
+
+Le socle publie un set d'icônes nommées. Ces icônes viennent de Figma, avec un flux à décider, comme celui des tokens ([ADR 0004](?path=/docs/documentation-adr-0004-plateformes-natives-et-figma--docs), D2). Un export SVG de Figma écrit les dimensions du cadre et les couleurs du calque, en valeurs fixes. Une marque remplace une icône du socle sous le même nom. Les composants du socle rendent aussi des icônes : `alert` affiche l'icône de son type.
+
+Faits vérifiés le 13 novembre 2026, avec leurs sources en fin de page :
+
+- **`mask-image` :** Chrome demande le préfixe `-webkit-` avant sa version 120. La matrice commence à Chrome 111.
+- **ARIA par `ElementInternals` :** Firefox le prend en charge depuis sa version 119. La matrice contient Firefox 115 ESR.
+- **`import()` dynamique :** Vite découpe chaque module chargé par `import()` en un chunk séparé, constaté sur le build d'ACME.
+
+### Critères de décision
+
+1. Une marque remplace une icône par son nom, partout, y compris dans les composants du socle ([ADR 0001](?path=/docs/documentation-adr-0001-architecture-multi-marque--docs), critère 2).
+2. Deux marques coexistent sur une page (ADR 0001, critère 4).
+3. Une application télécharge seulement les icônes qu'elle affiche.
+4. Les icônes publiées sont optimisées, et aucune n'exécute de code.
+5. Une icône prend la couleur du texte, en couleurs forcées aussi.
+6. Les sources servent aussi aux sorties natives (ADR 0004).
+
+## D1 — Package et sources
+
+- **Option A — Dans `@unicorne/components`.** Une application sans Lit, ou une plateforme native, installe des composants web pour lire des SVG.
+- **Option B — Un package `@unicorne/icons`, sans dépendance d'exécution.** Il publie des SVG optimisés et un module JS par icône.
+
+**Décision : B.**
+
+- Les sources sont dans `packages/icons/src/`, un fichier `<nom>.svg` par icône. Elles ne sont pas publiées.
+- Le nom du fichier est le nom de l'icône. Ce nom est une API, comme le nom d'un token : le renommer ou le retirer est une version majeure.
+- Chaque icône occupe une grille de 24 × 24 et dessine en `currentColor`.
+- Les sorties sont générées et commitées, comme `tokens.css`. `icons:check` les compare aux sources.
+
+## D2 — Livraison web
+
+- **Option A — Un module avec tout le set.** Une application télécharge toutes les icônes, même celles qu'elle n'affiche pas.
+- **Option B — Un sprite SVG** (`<use href="sprite.svg#nom">`). L'application sert le fichier sur sa propre origine. Une marque fusionne son sprite avec celui du socle.
+- **Option C — Des custom properties CSS** (`--u-icon-nom: url(data:…)`) dessinées par `mask-image`. Le remplacement suit la cascade, comme les tokens. Mais la feuille contient toutes les icônes, une icône n'a qu'une couleur, et un nom manquant ne se voit pas.
+- **Option D — Une déclaration explicite.** L'application importe et enregistre chaque icône qu'elle utilise. Le rendu est synchrone. Mais chaque application tient sa liste, et un nom oublié n'apparaît qu'à l'exécution.
+- **Option E — Un module par icône, et une table nom → `import()`.** Le bundler de l'application découpe un chunk par icône. Une icône se télécharge à son premier affichage.
+
+**Décision : E.**
+
+- `@unicorne/icons` exporte `icons` : chaque nom donne une fonction qui charge le module de l'icône.
+- Le module d'une icône exporte son markup SVG par défaut : `@unicorne/icons/<nom>`.
+- Une icône chargée reste en cache : ses affichages suivants sont synchrones.
+- Une valeur du set peut aussi être le markup lui-même. L'icône s'affiche alors dès le premier rendu.
+
+## D3 — Remplacement par une marque
+
+- **Option A — Un registre global** (`registerIcons()`). Une page n'a qu'un set : deux marques remplacent mutuellement leurs icônes (critère 2).
+- **Option B — Des custom properties CSS** (D2, option C).
+- **Option C — Le set est une propriété statique d'`Icon`.** Une marque l'étend dans une sous-classe, passée dans `overrides` (ADR 0001, D1). Chaque enregistrement a son set.
+
+**Décision : C.**
+
+```ts
+export class AcmeIcon extends Icon {
+  static override icons = { ...Icon.icons, ...acmeIcons };
+}
+defineComponents({ prefix: "acme", components, overrides: { icon: AcmeIcon } });
+```
+
+- `alert` déclare `Icon` dans ses `dependencies` et rend la balise de `tagFor(Icon)` (ADR 0001, D2). `acme-alert` rend donc `acme-icon`, avec le set d'ACME.
+- La marque génère ses icônes avec l'outil du socle. Sa table charge ses propres modules à la demande.
+- `defineComponents()` ne change pas.
+
+## D4 — Composant `icon`
+
+- **Option A — Une image** (`<img src="…svg">`). L'icône ne prend pas la couleur du texte (critère 5).
+- **Option B — Le SVG inline, dans le shadow DOM d'`u-icon`.**
+
+**Décision : B.**
+
+- Le composant vit dans `@unicorne/components`, qui dépend de `@unicorne/icons` en peer dependency.
+- Sans `label`, l'icône est décorative : `aria-hidden="true"`.
+- Avec `label`, l'icône a le rôle `img` et ce nom. Le rôle est dans le shadow DOM : l'ARIA par `ElementInternals` exclut Firefox 115 ESR.
+- La boîte a sa taille avant le chargement : rien ne bouge quand l'icône apparaît.
+- Le token `icon.size` donne la taille. Il pointe vers le token sémantique `size.icon` (24 px).
+
+## D5 — Optimisation et validation
+
+- **Option A — Publier les SVG tels qu'exportés.** Ils gardent des dimensions et des couleurs fixes, des métadonnées et des chemins non optimisés.
+- **Option B — Un générateur du socle, `unicorne-icons`.** Il vérifie chaque source, l'optimise avec SVGO et écrit les sorties. Les marques l'utilisent pour leurs icônes.
+
+**Décision : B.** Les règles des sources et la liste des optimisations sont dans [Icônes](?path=/docs/documentation-référence-icônes--docs).
+
+## Récapitulatif
+
+<table>
+  <thead>
+    <tr>
+      <th>Décision</th>
+      <th>Choix</th>
+      <th>Pourquoi</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>D1 — Package</td>
+      <td>`@unicorne/icons`, sans dépendance d'exécution ; le nom du fichier est l'API</td>
+      <td>Des SVG pour toutes les plateformes, sans Lit</td>
+    </tr>
+    <tr>
+      <td>D2 — Livraison web</td>
+      <td>Un module par icône, une table de `import()`</td>
+      <td>Une application télécharge ce qu'elle affiche</td>
+    </tr>
+    <tr>
+      <td>D3 — Remplacement</td>
+      <td>Sous-classe d'`Icon` dans `overrides`</td>
+      <td>Partout dans l'enregistrement ; deux marques par page</td>
+    </tr>
+    <tr>
+      <td>D4 — Composant</td>
+      <td>`u-icon`, SVG inline, décoratif sans `label`</td>
+      <td>La couleur du texte, en couleurs forcées aussi</td>
+    </tr>
+    <tr>
+      <td>D5 — Optimisation</td>
+      <td>`unicorne-icons` : vérifications, puis SVGO</td>
+      <td>Des icônes légères, sans code exécutable</td>
+    </tr>
+  </tbody>
+</table>
+
+## Conséquences
+
+- **Code :** le package `packages/icons/`, le composant `icon`, l'icône de type d'`alert`, `AcmeIcon` et les icônes d'ACME.
+- **Tokens :** `size.icon`, `icon.size` et `alert.gap`.
+- **Tests :** le générateur, le composant, le remplacement dans `alert`. ACME vérifie que la page ne télécharge que les icônes affichées.
+- **Documentation :** amendement de l'ADR 0003, la référence [Icônes](?path=/docs/documentation-référence-icônes--docs), le guide de marque, [Premiers pas](?path=/docs/documentation-premiers-pas--docs), la charte, `AGENTS.md` et le skill `icons`.
+
+## Questions ouvertes
+
+- **Export depuis Figma :** le flux des icônes, comme celui des valeurs de tokens (ADR 0004, D2).
+- **Sorties natives :** un VectorDrawable pour Android, un catalogue d'assets pour iOS, et le remplacement d'une icône par une marque. L'injection de l'ADR 0004 (D5) est une piste.
+- **Icônes multicolores :** le générateur passe chaque couleur en `currentColor`.
+- **Préchargement :** une icône visible au chargement de la page apparaît après son module. Une application peut fournir son markup, ou précharger le module.
+- **Relecture :** un fichier `CODEOWNERS` pour `packages/icons/src/`, comme pour les tokens (ADR 0004, D1).
+- **Enregistrement partiel chez une marque :** `defineComponents()` refuse une surcharge d'un composant non demandé. Une application ACME ne peut donc pas enregistrer une partie du catalogue avec les surcharges d'ACME. Cette question concerne tous les composants, pas seulement les icônes.
+
+## Sources
+
+Consultées le 13 novembre 2026.
+
+- [Chrome 120 beta](https://developer.chrome.com/blog/chrome-120-beta) (Chrome for Developers) : propriétés `mask-*` sans préfixe.
+- [CSS property: mask-image](https://caniuse.com/mask-image) (Can I use) : support partiel jusqu'à Chrome 119.
+- [ElementInternals API: ariaLabel](https://caniuse.com/mdn-api_elementinternals_arialabel) (Can I use, données de MDN) : Firefox 119.

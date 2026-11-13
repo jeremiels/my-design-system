@@ -3,3 +3,4 @@
 export * from "@unicorne/components";
 export * from "./components/acme-button/acme-button.js";
 export * from "./components/acme-card/acme-card.js";
+export * from "./components/acme-icon/acme-icon.js";

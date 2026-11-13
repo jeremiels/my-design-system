@@ -27,6 +27,7 @@ export default defineConfig({
           attributes: { "alert-type": "type" },
         },
         modal: { file: "components/modal/modal.tokens.css" },
+        icon: { file: "components/icon/icon.tokens.css" },
       },
     }),
   ],

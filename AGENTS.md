@@ -1,13 +1,14 @@
 # Instructions pour les agents — My Design System
 
-Ce dépôt est un **socle marque blanche** pour design systems. Il contient deux packages ([ADR 0003](docs/adr/0003-packages-tokens-et-composants.mdx)) :
+Ce dépôt est un **socle marque blanche** pour design systems. Il contient trois packages ([ADR 0003](docs/adr/0003-packages-tokens-et-composants.mdx), [ADR 0005](docs/adr/0005-icones.mdx)) :
 
 - `@unicorne/tokens` : les tokens DTCG à trois niveaux, la source des thèmes du web, d'iOS et d'Android. Ils sont générés en custom properties `--u-`.
-- `@unicorne/components` : des composants Lit (`button`, `button-link`, `alert`, `modal`) et l'outillage pour les étendre.
+- `@unicorne/icons` : les icônes SVG, optimisées, un module par icône chargé à la demande, et leur générateur `unicorne-icons`.
+- `@unicorne/components` : des composants Lit (`button`, `button-link`, `alert`, `modal`, `icon`) et l'outillage pour les étendre.
 
 Chaque marque dépend du socle, l'étend, l'enregistre sous son préfixe et le republie ([ADR 0001](docs/adr/0001-architecture-multi-marque.mdx)). Le socle est une preuve de concept : il n'est pas publié et n'a pas de versions.
 
-Stack : workspaces npm · Lit 3 (peer dependency, jamais embarqué) · Vite 8 · TypeScript strict avec les décorateurs historiques de Lit · Terrazzo 2 (tokens DTCG) · Vitest, Storybook 10 et Playwright · oxlint et oxfmt · Node ≥ 26 et npm ≥ 11.12 (`.nvmrc`).
+Stack : workspaces npm · Lit 3 (peer dependency, jamais embarqué) · Vite 8 · TypeScript strict avec les décorateurs historiques de Lit · Terrazzo 2 (tokens DTCG) · SVGO 4 (icônes) · Vitest, Storybook 10 et Playwright · oxlint et oxfmt · Node ≥ 26 et npm ≥ 11.12 (`.nvmrc`).
 
 Ce fichier est un index. Les détails sont dans la documentation et dans les skills du projet (`.claude/skills/`). Chargez le skill de la tâche avant de la commencer.
 
@@ -21,6 +22,7 @@ Ce fichier est un index. Les détails sont dans la documentation et dans les ski
 | Token DTCG, à tout niveau : primitive, sémantique, composant, thème, variante | `design-tokens`           |
 | API publique : JSDoc, `custom-elements.json`, ruptures pour les marques       | `component-api-docs`      |
 | Mixin (`packages/components/src/mixins/withX.ts`)                             | `lit-mixin`               |
+| Icône SVG, du socle ou d'une marque ; icône rendue par un composant           | `icons`                   |
 | Documentation : pages Storybook, `AGENTS.md`, skills                          | `storybook-documentation` |
 
 ## Documentation
@@ -29,9 +31,9 @@ Les pages sont dans `docs/` et dans Storybook. Elles suivent la [charte de réda
 
 - Tutoriel : [Premiers pas](docs/premiers-pas.mdx).
 - Guide : [Créer un design system de marque](docs/guides/design-system-de-marque.mdx).
-- Référence : [Tokens et couches CSS](docs/reference/tokens-et-couches.mdx), [Support navigateurs](docs/reference/support-navigateurs.mdx), [Mixins](docs/reference/mixins.mdx), [Charte de rédaction](docs/reference/charte-de-redaction.mdx). La JSDoc des composants est leur référence.
+- Référence : [Tokens et couches CSS](docs/reference/tokens-et-couches.mdx), [Support navigateurs](docs/reference/support-navigateurs.mdx), [Mixins](docs/reference/mixins.mdx), [Icônes](docs/reference/icones.mdx), [Charte de rédaction](docs/reference/charte-de-redaction.mdx). La JSDoc des composants est leur référence.
 - Explication : [Architecture CSS](docs/explication/architecture-css.mdx).
-- Décisions : [ADR 0001](docs/adr/0001-architecture-multi-marque.mdx), [ADR 0002](docs/adr/0002-tokens-dtcg.mdx) (tokens DTCG), [ADR 0003](docs/adr/0003-packages-tokens-et-composants.mdx) (packages tokens et composants), [ADR 0004](docs/adr/0004-plateformes-natives-et-figma.mdx) (iOS, Android et Figma).
+- Décisions : [ADR 0001](docs/adr/0001-architecture-multi-marque.mdx), [ADR 0002](docs/adr/0002-tokens-dtcg.mdx) (tokens DTCG), [ADR 0003](docs/adr/0003-packages-tokens-et-composants.mdx) (packages tokens et composants), [ADR 0004](docs/adr/0004-plateformes-natives-et-figma.mdx) (iOS, Android et Figma), [ADR 0005](docs/adr/0005-icones.mdx) (icônes).
 
 ## Emplacements
 
@@ -41,6 +43,12 @@ Les pages sont dans `docs/` et dans Storybook. Elles suivent la [charte de réda
 - `css/tokens.css` : la feuille de page, générée par `terrazzo.config.ts` et commitée.
 - `plugins/` : `terrazzo-plugin.ts` (Terrazzo) génère le CSS des tokens. `dtcg-sources.ts` lit le resolver et vérifie les niveaux.
 - `testing/` : `contrastFailures()` (`@unicorne/tokens/testing`), le contraste d'un thème.
+
+`packages/icons/` (`@unicorne/icons`) :
+
+- `src/` : les sources SVG, une par icône (`<nom>.svg`). Elles ne sont pas publiées.
+- `js/` et `svg/` : les icônes optimisées, générées par `npm run icons` et commitées. `js/index.js` exporte `icons`, la table des chargements.
+- `plugins/` : `icon-set.ts` vérifie et optimise les sources (SVGO), `cli.ts` est la commande `unicorne-icons`.
 
 `packages/components/` (`@unicorne/components`) :
 
@@ -56,7 +64,7 @@ Les pages sont dans `docs/` et dans Storybook. Elles suivent la [charte de réda
 
 À la racine :
 
-- `docs/` et `.storybook/` : la documentation et Storybook, pour les deux packages.
+- `docs/` et `.storybook/` : la documentation et Storybook, pour les trois packages.
 - `vite.config.ts`, `vitest.config.ts` et `index.html` : l'environnement de développement (démo, Storybook, Vitest). Chaque package a sa propre configuration de build.
 - `examples/acme-design-system/` : une marque d'exemple, construite et testée contre les archives du socle.
 - `scripts/` : `run-example.mjs` et `check-css-compat.mjs`.
@@ -79,11 +87,12 @@ Les pages sont dans `docs/` et dans Storybook. Elles suivent la [charte de réda
 ```sh
 npm run dev | storybook          # démo Vite (index.html) | Storybook sur :6006
 npm run tokens                   # sources DTCG → packages/tokens/css/tokens.css et packages/components/src/components/*/*.tokens.css
+npm run icons                    # sources SVG → packages/icons/js/ et packages/icons/svg/
 npm run analyze                  # manifest → packages/components/custom-elements.json
-npm run build                    # les deux packages, tokens d'abord → packages/*/dist/
-npm run check                    # oxlint, oxfmt --check, tsc, tokens:check, api:check, dsds, Vitest : ce que la CI exige
+npm run build                    # les trois packages, tokens puis icônes d'abord → packages/*/dist/
+npm run check                    # oxlint, oxfmt --check, tsc, tokens:check, icons:check, api:check, dsds, Vitest : ce que la CI exige
 npx vitest run --project browser # un projet Vitest : unit (Node), browser (Chromium), storybook (3 moteurs)
-npm run example                  # archives des deux packages → installation, build et test d'ACME
+npm run example                  # archives des trois packages → installation, build et test d'ACME
 npm run dsds                     # valide et vérifie le format des documents DSDS
 npm run compat                   # es-check et doiuse contre la matrice
 npm run lint | fmt               # corrections automatiques
@@ -91,6 +100,6 @@ npm run lint | fmt               # corrections automatiques
 
 Un script d'un seul package se lance avec `-w` : `npm run tokens -w @unicorne/tokens`.
 
-`tokens:check` et `api:check` comparent les fichiers régénérés avec ceux de l'index git. Indexez-les (`git add`) avant de lancer `check`.
+`tokens:check`, `icons:check` et `api:check` comparent les fichiers régénérés avec ceux de l'index git. Indexez-les (`git add`) avant de lancer `check`.
 
 La CI tourne sur chaque push vers `master` et sur chaque pull request. Elle lance `check`, puis `example` et `compat`.

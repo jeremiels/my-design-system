@@ -4,6 +4,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { DSBaseElement } from "../components/base-element.js";
 import { Alert } from "../components/alert/alert.js";
 import { Button } from "../components/button/button.js";
+import { Icon } from "../components/icon/icon.js";
 import { Modal } from "../components/modal/modal.js";
 import { allComponents } from "./catalog.js";
 import { defineComponents } from "./define-components.js";
@@ -69,6 +70,21 @@ describe("defineComponents", () => {
     expect(customElements.get(`${prefix}-button`)?.prototype).toBeInstanceOf(BrandButton);
     const modal = await render<Modal>(`${prefix}-modal`);
     expect(modal.shadowRoot!.querySelector(`${prefix}-button`)).toBeInstanceOf(BrandButton);
+  });
+
+  it("uses an icon override in the icons other components render", async () => {
+    const brandSvg = '<svg id="brand-information" viewBox="0 0 24 24"></svg>';
+    class BrandIcon extends Icon {
+      static override icons = { ...Icon.icons, information: brandSvg };
+    }
+    const prefix = uniquePrefix();
+    defineComponents({ prefix, components: allComponents, overrides: { icon: BrandIcon } });
+
+    const alert = await render<Alert>(`${prefix}-alert`);
+    const icon = alert.shadowRoot!.querySelector<Icon>(`${prefix}-icon`)!;
+    await icon.updateComplete;
+    expect(icon).toBeInstanceOf(BrandIcon);
+    expect(icon.shadowRoot!.querySelector("svg")?.id).toBe("brand-information");
   });
 
   it("registers a brand component and the catalog components it renders", async () => {

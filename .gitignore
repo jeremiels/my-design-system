@@ -34,4 +34,5 @@ examples/*/.base
 examples/*/custom-elements.json
 examples/*/src/theme.css
 examples/*/src/**/*.tokens.css
+examples/*/src/icons/
 *.tgz

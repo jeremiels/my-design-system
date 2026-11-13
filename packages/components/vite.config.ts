@@ -39,13 +39,16 @@ export default defineConfig({
         "button-link": resolve(import.meta.dirname, "src/components/button/button-link.ts"),
         alert: resolve(import.meta.dirname, "src/components/alert/alert.ts"),
         modal: resolve(import.meta.dirname, "src/components/modal/modal.ts"),
+        icon: resolve(import.meta.dirname, "src/components/icon/icon.ts"),
       },
       formats: ["es"],
       fileName: (_format, entryName) => `${entryName}.js`,
     },
     rollupOptions: {
-      // Don’t bundle lit, consumers should install their own
-      external: /^lit/,
+      // Don't bundle Lit nor the other packages of the base: the application
+      // installs one copy of each. Its bundler splits @unicorne/icons into one
+      // chunk per icon, loaded when the icon renders (ADR 0005).
+      external: [/^lit/, /^@unicorne\//],
     },
   },
 });

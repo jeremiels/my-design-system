@@ -1,0 +1,20 @@
+/* The tokens and their types are in icon.tokens.css, generated from
+   @unicorne/tokens (src/component/icon/). These rules only read them.
+
+   The host has the size of the icon, loaded or not: nothing moves when the
+   icon appears. The <svg> draws in currentColor, the text color, which also
+   follows forced colors. */
+:host {
+  display: inline-block;
+  flex-shrink: 0;
+  inline-size: var(--u-icon-size);
+  block-size: var(--u-icon-size);
+  vertical-align: middle;
+}
+
+.icon,
+.icon > svg {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+}
