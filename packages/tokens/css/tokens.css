@@ -162,6 +162,18 @@
     --u-color-backdrop: var(--u-palette-black-alpha-50);
   }
 
+  :root {
+    color-scheme: light dark;
+  }
+
+  :root[data-theme="light"] {
+    color-scheme: light;
+  }
+
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+  }
+
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]),
     :root:not([data-theme="light"]) [data-brand] {

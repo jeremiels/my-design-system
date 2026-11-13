@@ -190,6 +190,13 @@ describe("the base's sheets", () => {
     ]);
   });
 
+  it("gives color-scheme the triggers of the dark context", async () => {
+    const { "tokens.css": css } = await run({ ...BASE, "test.resolver.json": BASE_RESOLVER });
+    expect(css).toContain("  :root {\n    color-scheme: light dark;\n  }");
+    expect(block(css!, '  :root[data-theme="light"]')).toEqual(["color-scheme: light;"]);
+    expect(block(css!, '  :root[data-theme="dark"]')).toEqual(["color-scheme: dark;"]);
+  });
+
   it("gives a component its tokens on :host, and each variant only the tokens it changes", async () => {
     const { "button.tokens.css": css } = await run({
       ...BASE,
@@ -281,6 +288,13 @@ describe("a brand's sheets", () => {
     expect(block(css, '  :root[data-theme="dark"] [data-brand="acme"]')).toEqual([
       "--u-color-action: var(--u-palette-brand-300);",
     ]);
+  });
+
+  it("leaves color-scheme to the base, whose themes it keeps", async () => {
+    const css = (await run({ ...BRAND, "test.resolver.json": BRAND_RESOLVER }, BRAND_OPTIONS))[
+      "theme.css"
+    ]!;
+    expect(css).not.toMatch(/^\s*color-scheme:/m);
   });
 
   it("gives its own component its prefix, and the base's components only what it changes", async () => {

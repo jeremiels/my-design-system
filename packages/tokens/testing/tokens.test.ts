@@ -56,6 +56,15 @@ it("applies a theme scoped to a [data-brand] container to the semantic tokens", 
   expect(resolve("var(--u-color-action-background)")).not.toBe("rgb(255, 0, 0)");
 });
 
+it("gives the browser's own UI the theme of the page", () => {
+  const scheme = () => getComputedStyle(document.documentElement).colorScheme;
+  expect(scheme()).toBe("light dark");
+  document.documentElement.dataset.theme = "dark";
+  expect(scheme()).toBe("dark");
+  document.documentElement.dataset.theme = "light";
+  expect(scheme()).toBe("light");
+});
+
 it("gives the dark theme its own steps of the same palettes", () => {
   const light = resolve("var(--u-color-action-background)");
   document.documentElement.dataset.theme = "dark";

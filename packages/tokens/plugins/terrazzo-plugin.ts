@@ -27,7 +27,10 @@ import {
  *     them (ADR 0001, D4);
  *   - the `theme: dark` context under `prefers-color-scheme: dark` and on
  *     `:root[data-theme="dark"]`, the `motion: reduced` context under
- *     `prefers-reduced-motion: reduce`.
+ *     `prefers-reduced-motion: reduce`;
+ *   - `color-scheme`, on the same triggers as the dark context, when the sheet
+ *     declares it: the browser's own UI (canvas, scrollbars, form controls)
+ *     follows the theme.
  * - One sheet per component (`components`), adopted by its shadow root: its
  *   tokens on `:host`, then one `:host([attribute="context"])` rule per
  *   context of its modifiers.
@@ -181,6 +184,19 @@ export function tokensCssFiles(
     const darkIds = ids(changedBy("theme", "dark"));
     const reducedIds = ids(changedBy("motion", "reduced"));
     const darkDeclarations = declarations(darkIds, { theme: "dark" });
+    // Only the sheet that declares the dark theme sets `color-scheme`: a brand
+    // keeps the base's themes and writes no dark value (ADR 0001).
+    const declaresDark = (sources.modifiers.get("theme")?.contexts.get("dark") ?? []).some(
+      ({ file }) => emit(file),
+    );
+    const onScope = (theme: string) => (scope === ":root" ? theme : `${theme} ${scope}`);
+    const colorScheme = declaresDark
+      ? [
+          rule([scope], ["color-scheme: light dark;"]),
+          rule([onScope(':root[data-theme="light"]')], ["color-scheme: light;"]),
+          rule([onScope(':root[data-theme="dark"]')], ["color-scheme: dark;"]),
+        ]
+      : [];
     const pageRules = [
       rule(
         [scope],
@@ -196,6 +212,7 @@ export function tokensCssFiles(
           {},
         ),
       ),
+      ...colorScheme,
       atRule(
         "@media (prefers-color-scheme: dark)",
         rule(themed(':root:not([data-theme="light"])'), darkDeclarations),

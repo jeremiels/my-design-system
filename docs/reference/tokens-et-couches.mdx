@@ -383,7 +383,10 @@ Un `var()` n'a pas de valeur de repli littérale : la feuille de tokens est une 
 </table>
 
 - Un thème change les tokens sémantiques de couleur. Les primitives sont les mêmes dans les deux thèmes.
-- Une marque change ses palettes et garde les deux thèmes du socle. Elle n'écrit aucune valeur sombre.
+- La feuille de page déclare aussi `color-scheme`, avec les mêmes déclencheurs : `light dark` sur `:root`, puis `light` ou `dark` selon `data-theme`.
+- `color-scheme` donne le thème à l'interface du navigateur : canevas, barres de défilement, champs natifs.
+- L'application ajoute `<meta name="color-scheme" content="light dark">` à son `<head>`. Le navigateur connaît les thèmes avant de charger les feuilles.
+- Une marque change ses palettes et garde les deux thèmes du socle. Elle n'écrit aucune valeur sombre, et sa feuille ne déclare pas `color-scheme`.
 - Un composant ne contient aucune logique de thème.
 
 ## Mouvement réduit

@@ -64,6 +64,7 @@ Créez `index.html` :
 <html lang="fr">
   <head>
     <meta charset="UTF-8" />
+    <meta name="color-scheme" content="light dark" />
     <title>Mon app</title>
     <script type="module" src="./main.js"></script>
   </head>
@@ -93,6 +94,7 @@ Ouvrez l'adresse affichée (`http://localhost:5173`). Vous voyez deux boutons, b
 - Le slot `trigger` contient l'élément qui ouvre la modale.
 - L'attribut `label` donne son nom accessible à la modale.
 - L'alerte affiche l'icône de son type. Le navigateur télécharge seulement le module de cette icône, pas tout le set.
+- La balise `meta` `color-scheme` annonce les thèmes clair et sombre au navigateur, avant le chargement des feuilles.
 
 ## 5. Réagissez à la fermeture de la modale
 
@@ -132,7 +134,7 @@ Ajoutez `data-theme="dark"` à la balise `<html>` :
 <html lang="fr" data-theme="dark"></html>
 ```
 
-Les couleurs des boutons s'éclaircissent. Sans cet attribut, le thème suit la préférence du système.
+Les couleurs des boutons s'éclaircissent. Le fond de la page passe en sombre. Sans cet attribut, le thème suit la préférence du système.
 
 ## Et ensuite
 
