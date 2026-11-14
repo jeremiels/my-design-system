@@ -1,0 +1,149 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Documentation/ADR/0007 Champs de formulaire" />
+
+# ADR 0007 — Champs de formulaire
+
+**Statut :** accepté · **Date :** 14 novembre 2026
+
+## Contexte
+
+`text-field` rend dans son shadow root un libellé, un indice, un `<input>` natif et un message d'erreur. Il porte aussi le comportement dans le formulaire : valeur, validité, reset, `<fieldset disabled>`.
+
+Chaque type de champ a besoin du même libellé, du même indice et de la même erreur : zone de texte, liste, case à cocher. Recopier ce code dans chaque composant le multiplie.
+
+Une piste est un composant `form-field` : il porte le libellé et l'indice, et reçoit le contrôle dans un slot.
+
+### La contrainte : les références entre shadow roots
+
+- Un `<label for>` nomme l'élément qui porte cet `id` « in the tree » : l'arbre du libellé (HTML). Un `aria-labelledby` ou un `aria-describedby` cherche aussi son `id` dans son propre arbre.
+- `ariaLabelledByElements` et `ariaDescribedByElements` prennent des éléments, pas des `id`. Le navigateur garde un élément seulement s'il est « a descendant of any of element's shadow-including ancestors » (HTML).
+- Un contrôle dans un shadow root peut donc viser le light DOM, mais pas le shadow root d'un composant voisin.
+- Au 14 novembre 2026, ces propriétés existent depuis Chrome et Edge 135, Firefox 136 et Safari 16.4.
+- Reference Target redirige un `id` du light DOM vers un élément d'un shadow root. Il « only works for ID references pointing into a shadow tree ».
+- Au 14 novembre 2026, seuls Chrome et Edge 152 livrent Reference Target. Firefox et Safari ne le livrent pas.
+- La [matrice](?path=/docs/documentation-référence-support-navigateurs--docs) exige Chrome 111, Firefox 115 et Safari 16.4.
+- Aucun polyfill ne crée de relation dans l'arbre d'accessibilité : le navigateur le construit seul, avec ces mécanismes.
+- Les contournements recopient le libellé dans un `aria-label` du contrôle. Le libellé visible et le nom accessible sont alors deux textes séparés. Un clic sur le libellé ne donne pas le focus au contrôle.
+
+### Critères de décision
+
+1. Le libellé, l'indice et l'erreur sont accessibles dans toute la matrice : nom accessible, description, clic sur le libellé.
+2. Un type de champ reprend le libellé, l'indice, l'erreur et le comportement dans le formulaire sans les recopier.
+3. Une application écrit un champ sans relier d'`id` à la main.
+4. Un composant ne modifie pas les enfants que le framework de l'application gère (Vue, React).
+
+## D1 — Où vivent le libellé, l'indice et l'erreur
+
+- **Option A — `form-field` avec le libellé dans son shadow root et le contrôle dans un slot :** `<u-form-field label="Nom"><u-input></u-input></u-form-field>`.
+  - Le libellé et l'`<input>` sont dans deux shadow roots voisins.
+  - Ni un `id`, ni `ariaLabelledByElements`, ni Reference Target ne les relient : le critère 1 échoue.
+- **Option B — `form-field` avec un contrôle natif dans le light DOM :** `<u-form-field label="Nom"><input name="name"></u-form-field>`.
+  - Le formulaire natif fonctionne sans `ElementInternals`.
+  - Le `form-field` crée le libellé, l'indice et l'erreur dans le light DOM, avec leurs `id` : le critère 4 échoue.
+  - Ses styles atteignent le contrôle seulement par `::slotted()`.
+- **Option C — `form-field` avec un libellé écrit par l'application dans le light DOM :** `<label slot="label" for="name">`.
+  - Il fonctionne dans toute la matrice.
+  - L'application relie chaque `id` à la main : le critère 3 échoue.
+- **Option D — Une classe de base abstraite `FieldBase` :**
+  - Chaque champ rend son libellé, son indice, son contrôle natif et son erreur dans son propre shadow root.
+  - La base porte ce code une seule fois.
+  - C'est la convention du socle pour une famille de composants, comme `ButtonBase`.
+
+**Décision : D.**
+
+```ts
+export abstract class FieldBase extends withInternals(withDisabled(DSBaseElement)) {
+  // label, hint, value, required, error-message, error-label, validité, formulaire
+  protected abstract renderControl(): unknown;
+}
+
+export class Textarea extends FieldBase {
+  static override componentName = "textarea";
+
+  protected renderControl() {
+    return html`<textarea part="textarea" class="control" id="control" …></textarea>`;
+  }
+}
+```
+
+- `FieldBase` rend, dans cet ordre :
+  - le libellé, avec `for="control"` ;
+  - l'indice ;
+  - le contrôle ;
+  - l'erreur.
+- Un champ écrit seulement `renderControl()` et ses contraintes : `type` et `pattern` pour `text-field`, `rows` pour `textarea`.
+- Les tokens `--u-field-*` sont communs à tous les champs.
+- Le contrat de `renderControl()` est dans la JSDoc de `packages/components/src/components/field/field-base.ts`.
+
+## Récapitulatif
+
+<table>
+  <thead>
+    <tr>
+      <th>Option</th>
+      <th>1. Accessible dans la matrice</th>
+      <th>2. Sans recopie</th>
+      <th>3. Sans `id` à la main</th>
+      <th>4. Enfants du framework intacts</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>A — `form-field`, libellé dans son shadow root</td>
+      <td>Non</td>
+      <td>Oui</td>
+      <td>Oui</td>
+      <td>Oui</td>
+    </tr>
+    <tr>
+      <td>B — `form-field`, contrôle natif dans le light DOM</td>
+      <td>Oui</td>
+      <td>Oui</td>
+      <td>Oui</td>
+      <td>Non</td>
+    </tr>
+    <tr>
+      <td>C — `form-field`, libellé écrit par l'application</td>
+      <td>Oui</td>
+      <td>En partie : le libellé et l'indice se recopient</td>
+      <td>Non</td>
+      <td>Oui</td>
+    </tr>
+    <tr>
+      <td>**D — `FieldBase`**</td>
+      <td>Oui</td>
+      <td>Oui</td>
+      <td>Oui</td>
+      <td>Oui</td>
+    </tr>
+  </tbody>
+</table>
+
+## Conséquences
+
+- **Code :** `FieldBase`, `text-field` et `textarea`, dans `packages/components/src/components/`. ACME propose les deux champs.
+- **Tokens :** le groupe `field`, commun aux champs.
+- **Tests :** les stories des deux champs, le test d'ACME et celui de l'application Vue `examples/acme-vue-app`.
+- **Limites :**
+  - Le libellé et l'indice sont du texte : la propriété `label` ne porte ni lien ni mise en forme.
+  - Un champ ne reçoit pas de contrôle de l'application : chaque contrôle est un composant qui étend `FieldBase`.
+  - L'ordre du rendu convient aux contrôles de texte. Une case à cocher a son libellé après le contrôle. Un groupe d'options demande un `<fieldset>` et sa `<legend>`. Ces composants surchargent `render()` ou ont leur propre base.
+- **Documentation :** cet ADR, le skill `lit-component` et `AGENTS.md`.
+
+## Questions ouvertes
+
+- **Reference Target dans toute la matrice :** un `<label for>` du light DOM nomme alors le contrôle d'un composant. Un contrôle sans libellé, que l'application nomme comme un `<input>` natif, devient possible. Il complète `FieldBase` sans le remplacer.
+- **Libellé enrichi :** un libellé avec un lien ou une mise en forme demande un slot `label` dans le shadow root du champ. Son nom accessible est à vérifier dans les trois moteurs.
+
+## Sources
+
+Consultées le 14 novembre 2026.
+
+- [HTML Standard — The label element](https://html.spec.whatwg.org/multipage/forms.html#the-label-element) (WHATWG) : le contrôle nommé par `for` est « an element in the tree whose ID is equal to the value of the for attribute ».
+- [HTML Standard — Reflecting content attributes in IDL attributes](https://html.spec.whatwg.org/multipage/common-dom-interfaces.html#reflecting-content-attributes-in-idl-attributes) (WHATWG) : un élément référencé est gardé s'il est « a descendant of any of element's shadow-including ancestors ».
+- [Element API: ariaLabelledByElements](https://caniuse.com/mdn-api_element_arialabelledbyelements) (Can I use, données de MDN) : Chrome et Edge 135, Firefox 136, Safari 16.4.
+- [Reference target](https://web-platform-dx.github.io/web-features-explorer/features/referencetarget/) (web-features explorer) : disponibilité limitée, Chrome et Edge 152 (août 2026), ni Firefox ni Safari.
+- [Intent to Ship: Reference Target](https://groups.google.com/a/chromium.org/g/blink-dev/c/eBx3sXIfJnw) (blink-dev, juin 2026) : la livraison dans Chromium.
+- [Reference Target](https://microsoftedge.github.io/Demos/reference-target) (démo de Microsoft Edge) : « The referenceTarget attribute only works for ID references pointing into a shadow tree ».
+- `accessible-web-components` (skill `modern-web-guidance`, `.agents/skills/modern-web-guidance/guides/html/accessible-web-components.md`) : les références par élément « do **not** resolve **inward** ». Son repli : « keep it within one tree (render the label in the same tree) ».

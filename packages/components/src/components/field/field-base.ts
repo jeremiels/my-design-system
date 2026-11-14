@@ -14,7 +14,9 @@ type FieldControl = HTMLInputElement | HTMLTextAreaElement;
 /**
  * Shared base of the form fields, `text-field` and `textarea`: a label, an
  * optional hint, a native control and its error message. Abstract: extend
- * `TextField` or `Textarea`, or write a field with `renderControl()`.
+ * `TextField` or `Textarea`, or write a field with `renderControl()`. The
+ * label stays in the shadow root of its control: an `id` doesn't cross a
+ * shadow root (ADR 0007).
  *
  * A field takes part in its form like a native control: it submits `value`
  * under `name`, blocks the submission while invalid, follows the form's
