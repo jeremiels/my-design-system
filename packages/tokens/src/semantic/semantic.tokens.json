@@ -51,6 +51,13 @@
       "body": { "$value": "{line-height.150}" }
     }
   },
+  "border": {
+    "$type": "dimension",
+    "width": {
+      "$value": "{dimension.25}",
+      "$description": "The border of a form control, like a text field."
+    }
+  },
   "focus-ring": {
     "$type": "dimension",
     "$description": "The focus indicator, the same in every component.",

@@ -11,6 +11,8 @@ import type { ButtonLink } from "./components/button/button-link.js";
 import type { Button } from "./components/button/button.js";
 import type { Icon } from "./components/icon/icon.js";
 import type { Modal } from "./components/modal/modal.js";
+import type { TextField } from "./components/text-field/text-field.js";
+import type { Textarea } from "./components/textarea/textarea.js";
 import { allComponents } from "./registry/catalog.js";
 import { defineComponents } from "./registry/define-components.js";
 
@@ -23,5 +25,7 @@ declare global {
     "u-button-link": ButtonLink;
     "u-icon": Icon;
     "u-modal": Modal;
+    "u-text-field": TextField;
+    "u-textarea": Textarea;
   }
 }

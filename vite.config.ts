@@ -29,6 +29,7 @@ export default defineConfig({
       "lit",
       "lit/decorators.js",
       "lit/directives/if-defined.js",
+      "lit/directives/live.js",
       "lit/directives/unsafe-html.js",
       "lit/static-html.js",
     ],

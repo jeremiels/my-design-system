@@ -23,6 +23,9 @@ const IGNORED = {
     "Flagged for `clip-path` (.visually-hidden); partial support only lacks " +
     "`mask-*` longhands, which no sheet uses.",
   "css-nesting": "Lowered to flat rules by Lightning CSS at build time (build.cssTarget).",
+  "css-resize":
+    "iOS Safari has no resize handle: the textarea keeps its `rows` height and " +
+    "scrolls (textarea.css) — harmless there.",
   "css3-cursors": "`cursor` values do nothing on touch-only iOS Safari — harmless there.",
   "intrinsic-width": "Firefox only lacks the `stretch` keyword; `fit-content` works since 94.",
   "text-decoration":

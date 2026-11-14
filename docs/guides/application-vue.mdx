@@ -1,0 +1,160 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Documentation/Guides/Utiliser une marque dans une application Vue" />
+
+# Utiliser une marque dans une application Vue
+
+Ce guide utilise les composants d'une marque dans une application Vue 3, formulaires compris. La marque est déjà créée ([Créer un design system de marque](?path=/docs/documentation-guides-créer-un-design-system-de-marque--docs)).
+
+L'exemple complet est `examples/acme-vue-app` : un formulaire d'inscription sur ACME. Les extraits de ce guide en sont tirés, simplifiés.
+
+## Prérequis
+
+- Node 26 et npm 11.12, ou une version plus récente.
+- L'archive de la marque et celles du socle. À la racine du dépôt, `npm run example` les crée dans `examples/acme-vue-app/.base`.
+
+## 1. Déclarez les dépendances
+
+```json
+{
+  "dependencies": {
+    "@acme/design-system": "file:.base/acme-design-system-0.0.0.tgz",
+    "lit": "^3.3.3",
+    "vue": "^3.5.45"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^6.0.11",
+    "typescript": "~6.0.3",
+    "vite": "^8.3.8",
+    "vue-tsc": "^3.3.14"
+  }
+}
+```
+
+- L'application dépend de la marque seule. La marque republie le socle.
+- Lit est une peer dependency de la marque : l'application l'installe.
+- `vue-tsc` utilise l'API JavaScript de TypeScript. TypeScript 7 n'en a pas : installez TypeScript 6.
+- Le socle et ACME ne sont pas publiés. Dans l'exemple, `overrides` fait pointer les dépendances d'ACME vers les archives du socle.
+
+## 2. Déclarez les custom elements à Vue
+
+```ts
+// vite.config.ts
+export default defineConfig({
+  plugins: [
+    vue({
+      template: {
+        compilerOptions: { isCustomElement: (tag) => tag.startsWith("acme-") },
+      },
+    }),
+  ],
+});
+```
+
+- Vue rend les balises `acme-` comme des éléments du DOM. Il ne cherche pas de composant Vue de ce nom.
+- Vue écrit une propriété quand l'élément l'a, un attribut sinon.
+- Vue compile `v-model` sur un custom element comme sur un `<input>`.
+
+## 3. Enregistrez les composants avant de monter l'application
+
+```ts
+// src/main.ts
+import "@acme/design-system/styles.css";
+import { acme, Alert, Button, Textarea, TextField } from "@acme/design-system";
+import { createApp } from "vue";
+import App from "./App.vue";
+
+await acme.define(TextField, Textarea, Button, Alert);
+
+createApp(App).mount("#app");
+```
+
+- Importez la feuille de la marque : les couches et les tokens du socle, puis le thème de la marque.
+- Enregistrez seulement les composants que l'application utilise. Elle télécharge ces composants et ce qu'ils rendent, rien d'autre.
+- Montez l'application après `define()`. Les balises sont alors définies, et Vue écrit leurs propriétés.
+
+## 4. Liez chaque champ avec `v-model`
+
+```vue
+<acme-text-field
+  v-model.trim="account.name"
+  label="Nom"
+  name="name"
+  autocomplete="name"
+  required
+  error-label="Erreur :"
+  error-message="Saisissez votre nom."
+></acme-text-field>
+```
+
+- `v-model` écrit la propriété `value` et écoute l'événement `input` du champ. `v-model.lazy` écoute `change`.
+- `v-model.trim` écoute aussi `change`. Le champ émet `change` quand l'utilisateur quitte le champ après une modification.
+- Donnez `name` à chaque champ : le formulaire soumet la valeur sous ce nom.
+- Écrivez `error-label` et `error-message` dans la langue de la page. Le message du navigateur est dans la langue du navigateur.
+
+```vue
+<acme-textarea
+  v-model="account.bio"
+  label="Présentation (facultatif)"
+  name="bio"
+  :maxlength="BIO_MAX"
+  :hint="bioHint"
+></acme-textarea>
+```
+
+- `acme-textarea` se lie par `v-model` comme `acme-text-field`. Les deux champs partagent le libellé, l'indice, l'erreur et le comportement dans le formulaire.
+- `:hint` lie une propriété au modèle. Ici, l'indice donne le nombre de caractères restants.
+
+Les attributs et l'affichage des erreurs sont décrits dans la documentation du [champ texte](?path=/docs/components-text-field--docs) et de la [zone de texte](?path=/docs/components-textarea--docs).
+
+## 5. Gérez la soumission et le reset
+
+```vue
+<form @submit.prevent="submit" @reset="reset">
+  <!-- les champs -->
+  <acme-button type="submit">Créer le compte</acme-button>
+  <acme-button type="reset" variant="secondary">Effacer</acme-button>
+</form>
+```
+
+- Le navigateur bloque la soumission tant qu'un champ est invalide. Il met le focus sur le premier champ invalide.
+- `submit` reçoit donc des valeurs valides. Lisez-les dans le modèle, ou dans `new FormData(form)`.
+- Le reset vide les champs sans émettre `input`, comme pour un `<input>` natif. Remettez le modèle à zéro dans le gestionnaire de `reset`.
+
+## 6. Ajoutez une vérification de l'application
+
+```ts
+import type { TextField } from "@acme/design-system";
+
+const usernameField = useTemplateRef<TextField>("username");
+
+watch(
+  () => account.username,
+  (username) =>
+    usernameField.value?.setCustomValidity(
+      TAKEN.includes(username) ? "Cet identifiant est déjà pris : choisissez-en un autre." : "",
+    ),
+);
+```
+
+- Donnez `ref="username"` au champ.
+- `setCustomValidity()` rend le champ invalide, avec ce message. Le message vide le rend valide.
+- Le champ affiche ce message comme celui du navigateur, et bloque la soumission.
+- Le type `TextField` vient de la marque : `vue-tsc` vérifie la ref.
+
+## 7. Vérifiez
+
+À la racine du dépôt, lancez `npm run example`. Après ACME, la commande installe l'application, vérifie ses types avec `vue-tsc`, la construit et la teste dans Chromium. Le test vérifie que :
+
+- l'application enregistre seulement les composants qu'elle utilise, sous le préfixe `acme` ;
+- aucune erreur ne s'affiche avant une interaction ;
+- un formulaire invalide n'est pas soumis : les erreurs s'affichent, et le premier champ a le focus ;
+- l'icône d'erreur se télécharge avec la première erreur ;
+- la saisie met à jour le modèle, et le modèle met à jour les champs ;
+- les lignes saisies dans la zone de texte arrivent dans le modèle, et son indice suit le modèle ;
+- `v-model.trim` nettoie la valeur quand l'utilisateur quitte le champ ;
+- le message de `setCustomValidity()` s'affiche ;
+- un formulaire valide soumet les valeurs des champs ;
+- le reset vide les champs et le modèle.
+
+Pour essayer le formulaire dans un navigateur, lancez `npm run dev` dans `examples/acme-vue-app`, après `npm run example`.

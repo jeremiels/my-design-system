@@ -58,6 +58,14 @@
     "./icon": {
       "types": "./dist/components/icon/icon.d.ts",
       "import": "./dist/icon.js"
+    },
+    "./text-field": {
+      "types": "./dist/components/text-field/text-field.d.ts",
+      "import": "./dist/text-field.js"
+    },
+    "./textarea": {
+      "types": "./dist/components/textarea/textarea.d.ts",
+      "import": "./dist/textarea.js"
     }
   },
   "scripts": {

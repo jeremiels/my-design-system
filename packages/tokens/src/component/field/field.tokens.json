@@ -1,0 +1,105 @@
+{
+  "field": {
+    "$description": "Tokens of the form fields: `text-field` and `textarea` (`FieldBase`).",
+    "gap": {
+      "$type": "dimension",
+      "$value": "{spacing.xs}",
+      "$description": "Space between the label, the hint, the control and the error message."
+    },
+    "font-family": {
+      "$type": "fontFamily",
+      "$value": "{font.family.body}",
+      "$description": "Font family."
+    },
+    "font-size": {
+      "$type": "dimension",
+      "$value": "{font.size.md}",
+      "$description": "Font size of the label and the control."
+    },
+    "line-height": {
+      "$type": "number",
+      "$value": "{font.line-height.body}",
+      "$description": "Line height."
+    },
+    "text-color": {
+      "$type": "color",
+      "$value": "{color.text.default}",
+      "$description": "Text color of the label, the hint and the control."
+    },
+    "label-font-weight": {
+      "$type": "fontWeight",
+      "$value": "{font.weight.medium}",
+      "$description": "Font weight of the label."
+    },
+    "hint-font-size": {
+      "$type": "dimension",
+      "$value": "{font.size.sm}",
+      "$description": "Font size of the hint."
+    },
+    "background-color": {
+      "$type": "color",
+      "$value": "{color.surface.default}",
+      "$description": "Background color of the control."
+    },
+    "border-color": {
+      "$type": "color",
+      "$value": "{color.border.control}",
+      "$description": "Border color of the control."
+    },
+    "border-color-invalid": {
+      "$type": "color",
+      "$value": "{color.text.danger}",
+      "$description": "Border color of the control while an error shows."
+    },
+    "border-width": {
+      "$type": "dimension",
+      "$value": "{border.width}",
+      "$description": "Border width of the control."
+    },
+    "border-radius": {
+      "$type": "dimension",
+      "$value": "{radius.md}",
+      "$description": "Corner radius of the control."
+    },
+    "padding-inline": {
+      "$type": "dimension",
+      "$value": "{spacing.sm}",
+      "$description": "Horizontal padding of the control."
+    },
+    "padding-block": {
+      "$type": "dimension",
+      "$value": "{spacing.xs}",
+      "$description": "Vertical padding of the control."
+    },
+    "focus-ring-color": {
+      "$type": "color",
+      "$value": "{color.focus-ring}",
+      "$description": "Focus outline color."
+    },
+    "focus-ring-width": {
+      "$type": "dimension",
+      "$value": "{focus-ring.width}",
+      "$description": "Focus outline width."
+    },
+    "focus-ring-offset": {
+      "$type": "dimension",
+      "$value": "{focus-ring.offset}",
+      "$description": "Focus outline offset."
+    },
+    "error-text-color": {
+      "$type": "color",
+      "$value": "{color.text.danger}",
+      "$description": "Text color of the error message."
+    },
+    "error-font-size": {
+      "$type": "dimension",
+      "$value": "{font.size.sm}",
+      "$description": "Font size of the error message."
+    },
+    "error-gap": {
+      "$type": "dimension",
+      "$value": "{spacing.xs}",
+      "$description": "Space between the error icon and the message."
+    }
+  }
+}

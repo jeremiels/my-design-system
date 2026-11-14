@@ -73,6 +73,7 @@
     --u-palette-black-alpha-50: #00000080;
     --u-palette-black-alpha-70: #000000b3;
     --u-dimension-0: 0rem;
+    --u-dimension-25: 0.0625rem;
     --u-dimension-50: 0.125rem;
     --u-dimension-100: 0.25rem;
     --u-dimension-200: 0.5rem;
@@ -122,6 +123,7 @@
     --u-font-weight-medium: var(--u-font-weight-500);
     --u-font-weight-semibold: var(--u-font-weight-600);
     --u-font-line-height-body: var(--u-line-height-150);
+    --u-border-width: var(--u-dimension-25);
     --u-focus-ring-width: var(--u-dimension-50);
     --u-focus-ring-offset: var(--u-dimension-50);
     --u-opacity-disabled: var(--u-opacity-60);
@@ -157,7 +159,9 @@
     --u-color-surface-default: var(--u-palette-neutral-0);
     --u-color-surface-raised: var(--u-palette-neutral-100);
     --u-color-text-default: var(--u-palette-neutral-950);
+    --u-color-text-danger: var(--u-palette-danger-600);
     --u-color-border-default: var(--u-palette-neutral-300);
+    --u-color-border-control: var(--u-palette-neutral-600);
     --u-color-focus-ring: var(--u-palette-brand-600);
     --u-color-backdrop: var(--u-palette-black-alpha-50);
   }
@@ -204,7 +208,9 @@
       --u-color-surface-default: var(--u-palette-neutral-950);
       --u-color-surface-raised: var(--u-palette-neutral-900);
       --u-color-text-default: var(--u-palette-neutral-100);
+      --u-color-text-danger: var(--u-palette-danger-300);
       --u-color-border-default: var(--u-palette-neutral-700);
+      --u-color-border-control: var(--u-palette-neutral-500);
       --u-color-focus-ring: var(--u-palette-brand-300);
       --u-color-backdrop: var(--u-palette-black-alpha-70);
     }
@@ -239,7 +245,9 @@
     --u-color-surface-default: var(--u-palette-neutral-950);
     --u-color-surface-raised: var(--u-palette-neutral-900);
     --u-color-text-default: var(--u-palette-neutral-100);
+    --u-color-text-danger: var(--u-palette-danger-300);
     --u-color-border-default: var(--u-palette-neutral-700);
+    --u-color-border-control: var(--u-palette-neutral-500);
     --u-color-focus-ring: var(--u-palette-brand-300);
     --u-color-backdrop: var(--u-palette-black-alpha-70);
   }

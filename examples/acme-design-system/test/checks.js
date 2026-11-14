@@ -2,7 +2,7 @@
 // does it, and publishes its results on `window.__results`.
 import "/dist/define.js";
 import { AcmeButton } from "/dist/acme-button.js";
-import { acme, AcmeCard, Button, ButtonLink, Icon } from "/dist/index.js";
+import { acme, AcmeCard, Button, ButtonLink, Icon, Textarea, TextField } from "/dist/index.js";
 import { contrastFailures } from "@unicorne/tokens/testing";
 import { alertIconSvg, check, parsed, publish } from "./support.js";
 
@@ -18,7 +18,15 @@ function resolveColor(color) {
   return value;
 }
 
-const tags = ["acme-button", "acme-card", "acme-modal", "acme-alert", "acme-icon"];
+const tags = [
+  "acme-button",
+  "acme-card",
+  "acme-modal",
+  "acme-alert",
+  "acme-icon",
+  "acme-text-field",
+  "acme-textarea",
+];
 await Promise.all(tags.map((tag) => customElements.whenDefined(tag)));
 await Promise.all([...document.querySelectorAll(tags.join(","))].map((el) => el.updateComplete));
 // The icons inside the alerts: `updateComplete` waits for their load.
@@ -105,6 +113,45 @@ await check("ACME's own icons render, by name", () => {
   return [
     box.querySelector("svg") !== null && box.getAttribute("aria-label") === "Favori",
     `svg: ${box.querySelector("svg") !== null}, role ${box.getAttribute("role")}, label "${box.getAttribute("aria-label")}"`,
+  ];
+});
+
+await check("acme-text-field is the base's field, in ACME's theme", () => {
+  const field = $("#field");
+  const input = field.shadowRoot.querySelector('[part~="input"]');
+  // ACME's font.family.body: its serif (tokens/primitive/typography.tokens.json).
+  const font = style(input).fontFamily;
+  return [
+    field instanceof TextField && font.startsWith("Georgia"),
+    `TextField: ${field instanceof TextField}, font ${font}`,
+  ];
+});
+
+await check("acme-text-field submits its value with its form, and validates it", async () => {
+  const form = $("#form");
+  const submitted = new FormData(form).get("email");
+  const field = $("#field");
+  // Its validity follows the value once rendered. Read it without
+  // `checkValidity()`: the error would show, and load its icon.
+  field.value = "ada";
+  await field.updateComplete;
+  const invalid = field.validity.typeMismatch;
+  field.value = "ada@example.com";
+  await field.updateComplete;
+  return [
+    submitted === "ada@example.com" && invalid,
+    `FormData email: "${submitted}"; "ada" rejected as an email: ${invalid}`,
+  ];
+});
+
+await check("acme-textarea is the base's textarea, in ACME's theme, in its form", () => {
+  const field = $("#message");
+  const textarea = field.shadowRoot.querySelector('[part~="textarea"]');
+  const font = style(textarea).fontFamily;
+  const submitted = new FormData($("#form")).get("message");
+  return [
+    field instanceof Textarea && font.startsWith("Georgia") && submitted === "Bonjour",
+    `Textarea: ${field instanceof Textarea}, font ${font}, FormData message: "${submitted}"`,
   ];
 });
 

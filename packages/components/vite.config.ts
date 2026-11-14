@@ -40,6 +40,8 @@ export default defineConfig({
         alert: resolve(import.meta.dirname, "src/components/alert/alert.ts"),
         modal: resolve(import.meta.dirname, "src/components/modal/modal.ts"),
         icon: resolve(import.meta.dirname, "src/components/icon/icon.ts"),
+        "text-field": resolve(import.meta.dirname, "src/components/text-field/text-field.ts"),
+        textarea: resolve(import.meta.dirname, "src/components/textarea/textarea.ts"),
       },
       formats: ["es"],
       fileName: (_format, entryName) => `${entryName}.js`,

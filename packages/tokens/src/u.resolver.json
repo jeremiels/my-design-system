@@ -23,7 +23,8 @@
         { "$ref": "component/button/button.tokens.json" },
         { "$ref": "component/alert/alert.tokens.json" },
         { "$ref": "component/modal/modal.tokens.json" },
-        { "$ref": "component/icon/icon.tokens.json" }
+        { "$ref": "component/icon/icon.tokens.json" },
+        { "$ref": "component/field/field.tokens.json" }
       ]
     }
   },

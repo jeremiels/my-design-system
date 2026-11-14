@@ -1,0 +1,19 @@
+{
+  // vue-tsc type-checks src/, .vue files included. It needs TypeScript's
+  // JavaScript API: TypeScript 6, from devDependencies (TypeScript 7, at the
+  // repository's root, has none).
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "types": ["vite/client"],
+    "verbatimModuleSyntax": true,
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "skipLibCheck": true,
+    "noEmit": true
+  },
+  "include": ["src/**/*.ts", "src/**/*.vue"]
+}

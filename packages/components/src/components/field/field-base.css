@@ -1,0 +1,78 @@
+/* The tokens are in field.tokens.css, generated from tokens/component/field/
+   (ADR 0002), and shared by every field. These rules only read them. */
+:host {
+  display: block;
+}
+
+.field {
+  display: grid;
+  gap: var(--u-field-gap);
+  font-family: var(--u-field-font-family);
+  font-size: var(--u-field-font-size);
+  line-height: var(--u-field-line-height);
+  color: var(--u-field-text-color);
+}
+
+.label {
+  font-weight: var(--u-field-label-font-weight);
+}
+
+.hint {
+  font-size: var(--u-field-hint-font-size);
+}
+
+/* The native control of the field: `<input>`, `<textarea>`. */
+.control {
+  font: inherit;
+  color: inherit;
+  inline-size: 100%;
+  min-inline-size: 0;
+  margin: 0;
+  padding-inline: var(--u-field-padding-inline);
+  padding-block: var(--u-field-padding-block);
+  background-color: var(--u-field-background-color);
+  border: var(--u-field-border-width) solid var(--u-field-border-color);
+  border-radius: var(--u-field-border-radius);
+}
+
+.control:focus-visible {
+  outline: var(--u-field-focus-ring-width) solid var(--u-field-focus-ring-color);
+  outline-offset: var(--u-field-focus-ring-offset);
+}
+
+/* Not by color alone: the error message, its icon and its label come with it. */
+.field--invalid .control {
+  border-color: var(--u-field-border-color-invalid);
+}
+
+.error {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--u-field-error-gap);
+  font-size: var(--u-field-error-font-size);
+  color: var(--u-field-error-text-color);
+}
+
+.hint[hidden],
+.error[hidden] {
+  display: none;
+}
+
+/* `error-label`, for assistive technologies only: the icon is decorative. */
+.visually-hidden {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (forced-colors: active) {
+  .control:focus-visible {
+    outline-color: Highlight;
+  }
+}

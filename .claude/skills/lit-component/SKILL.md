@@ -79,6 +79,8 @@ render() {
 
 - Passez par `withInternals()` (`this.internals`). N'appelez jamais `attachInternals()` vous-même : le second appel lève une erreur.
 - Composant associé à un formulaire : `static formAssociated = true` (voir `button.ts`).
+- Champ de formulaire (libellé, indice, erreur, validation) : étendez `FieldBase` et écrivez seulement `renderControl()`. Le contrat est dans la JSDoc de `packages/components/src/components/field/field-base.ts`, et `text-field.ts` en est l'exemple.
+- Ne séparez pas le libellé du contrôle dans deux shadow roots : un `id` ne traverse pas un shadow root, et `ariaLabelledByElements` ne va que vers l'extérieur. Rendez le `<label>` dans le même arbre que le contrôle.
 - Avec `withDisabled`, rendez et gérez les interactions à partir de `this.isDisabled`, pas de `this.disabled`.
 - `this.internals` et `this.customStates` sont `protected` : jamais exposés à l'application.
 - Les détails des deux mixins sont dans `docs/reference/mixins.mdx`.

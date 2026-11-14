@@ -19,7 +19,7 @@ export interface ContrastPair {
   foreground: string;
   /** The color it's drawn on. */
   background: string;
-  /** The minimum ratio: 4.5 for text, 3 for a focus indicator (WCAG AA). */
+  /** The minimum ratio: 4.5 for text, 3 for a focus indicator or a control border (WCAG AA). */
   minimum: number;
 }
 
@@ -48,6 +48,18 @@ export const contrastPairs: readonly ContrastPair[] = [
   })),
   ...SURFACES.map((background) => ({
     foreground: "var(--u-color-focus-ring)",
+    background,
+    minimum: 3,
+  })),
+  // An error message, and the border of an invalid text field.
+  ...SURFACES.map((background) => ({
+    foreground: "var(--u-color-text-danger)",
+    background,
+    minimum: 4.5,
+  })),
+  // The border that shows where a form control is (WCAG 1.4.11).
+  ...SURFACES.map((background) => ({
+    foreground: "var(--u-color-border-control)",
     background,
     minimum: 3,
   })),

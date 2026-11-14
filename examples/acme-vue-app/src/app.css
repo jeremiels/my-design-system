@@ -1,0 +1,9 @@
+/* The page: ACME's components style themselves, the app styles its page with
+   ACME's semantic tokens. */
+body {
+  margin: 0;
+  font-family: var(--u-font-family-body);
+  line-height: var(--u-font-line-height-body);
+  color: var(--u-color-text-default);
+  background-color: var(--u-color-surface-default);
+}

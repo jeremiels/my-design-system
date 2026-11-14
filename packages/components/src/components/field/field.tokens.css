@@ -1,0 +1,23 @@
+/* Generated from ../tokens/src/u.resolver.json by @unicorne/tokens/terrazzo-plugin (ADR 0002). Do not edit: change the tokens. */
+:host {
+  --u-field-gap: var(--u-spacing-xs);
+  --u-field-font-family: var(--u-font-family-body);
+  --u-field-font-size: var(--u-font-size-md);
+  --u-field-line-height: var(--u-font-line-height-body);
+  --u-field-text-color: var(--u-color-text-default);
+  --u-field-label-font-weight: var(--u-font-weight-medium);
+  --u-field-hint-font-size: var(--u-font-size-sm);
+  --u-field-background-color: var(--u-color-surface-default);
+  --u-field-border-color: var(--u-color-border-control);
+  --u-field-border-color-invalid: var(--u-color-text-danger);
+  --u-field-border-width: var(--u-border-width);
+  --u-field-border-radius: var(--u-radius-md);
+  --u-field-padding-inline: var(--u-spacing-sm);
+  --u-field-padding-block: var(--u-spacing-xs);
+  --u-field-focus-ring-color: var(--u-color-focus-ring);
+  --u-field-focus-ring-width: var(--u-focus-ring-width);
+  --u-field-focus-ring-offset: var(--u-focus-ring-offset);
+  --u-field-error-text-color: var(--u-color-text-danger);
+  --u-field-error-font-size: var(--u-font-size-sm);
+  --u-field-error-gap: var(--u-spacing-xs);
+}

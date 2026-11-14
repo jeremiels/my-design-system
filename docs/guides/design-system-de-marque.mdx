@@ -262,7 +262,7 @@ import { acmeIcons } from "./icons/index.js";
 
 export const acme = designSystem({
   prefix: "acme",
-  catalog: ["button", "alert", "modal", "icon", "card"],
+  catalog: ["button", "alert", "modal", "icon", "text-field", "textarea", "card"],
   overrides: {
     button: () =>
       import("./components/acme-button/acme-button.js").then((module) => module.AcmeButton),
@@ -279,11 +279,11 @@ export const acme = designSystem({
 
 ```ts
 // src/define.ts : tout le catalogue, pour une application qui utilise tout
-import { Alert, Button, Icon, Modal } from "@unicorne/components";
+import { Alert, Button, Icon, Modal, Textarea, TextField } from "@unicorne/components";
 import { AcmeCard } from "./components/acme-card/acme-card.js";
 import { acme } from "./design-system.js";
 
-void acme.define(Button, Alert, Modal, Icon, AcmeCard);
+void acme.define(Button, Alert, Modal, Icon, TextField, Textarea, AcmeCard);
 ```
 
 ```ts
@@ -309,6 +309,7 @@ await acme.define(Alert); // acme-alert et acme-icon, sans le bouton d'ACME
 - `define()` se résout quand chaque balise est définie. Pendant le chargement, l'application stylise `:not(:defined)`.
 - Une application qui utilise tout le catalogue importe `@acme/design-system/define`.
 - Les règles de `define()` sont dans sa JSDoc, et ses raisons dans l'[ADR 0006](?path=/docs/documentation-adr-0006-design-system-de-marque--docs).
+- Une application Vue suit le guide [Utiliser une marque dans une application Vue](?path=/docs/documentation-guides-utiliser-une-marque-dans-une-application-vue--docs).
 
 ## 8. Générez le manifest
 
@@ -346,9 +347,13 @@ export default {
 - la carte d'ACME lit ses tokens `--acme-card-*` ;
 - la modale et la carte d'ACME rendent `AcmeButton` ;
 - l'alerte d'ACME rend l'icône `information` d'ACME, et `acme-icon` rend l'icône `star` d'ACME ;
+- `acme-text-field` reçoit le thème d'ACME, soumet sa valeur avec son formulaire et la valide ;
+- `acme-textarea` reçoit le thème d'ACME et soumet sa valeur avec son formulaire ;
 - ACME ne propose pas `button-link` : `acme.define(ButtonLink)` est rejeté ;
 - une application qui enregistre seulement `Alert` définit `acme-alert` et `acme-icon`, et ne télécharge pas le bouton d'ACME ;
 - le `dist/` d'ACME contient ses icônes en chunks séparés, et aucune icône du socle ;
 - la page télécharge seulement les icônes du socle qu'elle affiche ;
 - aucune balise `u-` n'est enregistrée ;
 - le manifest d'ACME documente ce qu'`AcmeButton` hérite du socle.
+
+La commande empaquette ensuite ACME, puis installe, construit et teste l'application Vue `examples/acme-vue-app` ([Utiliser une marque dans une application Vue](?path=/docs/documentation-guides-utiliser-une-marque-dans-une-application-vue--docs)).

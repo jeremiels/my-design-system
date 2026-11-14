@@ -111,11 +111,19 @@
       "default": {
         "$value": "{palette.neutral.950}",
         "$description": "Text on the surfaces."
+      },
+      "danger": {
+        "$value": "{palette.danger.600}",
+        "$description": "An error message, on the surfaces."
       }
     },
     "border": {
       "default": {
         "$value": "{palette.neutral.300}"
+      },
+      "control": {
+        "$value": "{palette.neutral.600}",
+        "$description": "The border of a form control: 3:1 against the surfaces (WCAG 1.4.11)."
       }
     },
     "focus-ring": {

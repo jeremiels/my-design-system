@@ -28,6 +28,7 @@ export default defineConfig({
         },
         modal: { file: "components/modal/modal.tokens.css" },
         icon: { file: "components/icon/icon.tokens.css" },
+        field: { file: "components/field/field.tokens.css" },
       },
     }),
   ],

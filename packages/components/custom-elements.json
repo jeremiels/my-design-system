@@ -60,6 +60,30 @@
           "name": "*",
           "declaration": {
             "name": "*",
+            "module": "src/components/field/field-base.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "*",
+          "declaration": {
+            "name": "*",
+            "module": "src/components/text-field/text-field.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "*",
+          "declaration": {
+            "name": "*",
+            "module": "src/components/textarea/textarea.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "*",
+          "declaration": {
+            "name": "*",
             "module": "src/mixins/withDisabled.js"
           }
         },
@@ -101,6 +125,14 @@
           "declaration": {
             "name": "*",
             "module": "src/components/alert/alert.type.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "*",
+          "declaration": {
+            "name": "*",
+            "module": "src/components/text-field/text-field.type.js"
           }
         },
         {
@@ -1890,6 +1922,704 @@
     },
     {
       "kind": "javascript-module",
+      "path": "src/components/field/field-base.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "Shared base of the form fields, `text-field` and `textarea`: a label, an\noptional hint, a native control and its error message. Abstract: extend\n`TextField` or `Textarea`, or write a field with `renderControl()`.\n\nA field takes part in its form like a native control: it submits `value`\nunder `name`, blocks the submission while invalid, follows the form's\nreset and a `<fieldset disabled>`.\n\nValidation is the browser's, on the native control, plus\n`setCustomValidity()`. The error shows once the user has changed the value\nand left the field, or once validation has run (a submission attempt,\n`checkValidity()`, `reportValidity()`), then follows each keystroke. The\nmessage is the browser's, in the browser's language: give `error-message`\nto write it in the page's language. A message set with\n`setCustomValidity()` comes first.\n\nIts `input` and `change` events are those of a native control, on the\nhost: frameworks bind `value` as they would on an `<input>` (`v-model` in\nVue).",
+          "name": "FieldBase",
+          "cssProperties": [
+            {
+              "description": "Space between the label, the hint, the control and the error message.",
+              "name": "--u-field-gap",
+              "default": "var(--u-spacing-xs)"
+            },
+            {
+              "description": "Font family.",
+              "name": "--u-field-font-family",
+              "default": "var(--u-font-family-body)"
+            },
+            {
+              "description": "Font size of the label and the control.",
+              "name": "--u-field-font-size",
+              "default": "var(--u-font-size-md)"
+            },
+            {
+              "description": "Line height.",
+              "name": "--u-field-line-height",
+              "default": "var(--u-font-line-height-body)"
+            },
+            {
+              "description": "Text color of the label, the hint and the control.",
+              "name": "--u-field-text-color",
+              "default": "var(--u-color-text-default)"
+            },
+            {
+              "description": "Font weight of the label.",
+              "name": "--u-field-label-font-weight",
+              "default": "var(--u-font-weight-medium)"
+            },
+            {
+              "description": "Font size of the hint.",
+              "name": "--u-field-hint-font-size",
+              "default": "var(--u-font-size-sm)"
+            },
+            {
+              "description": "Background color of the control.",
+              "name": "--u-field-background-color",
+              "default": "var(--u-color-surface-default)"
+            },
+            {
+              "description": "Border color of the control.",
+              "name": "--u-field-border-color",
+              "default": "var(--u-color-border-control)"
+            },
+            {
+              "description": "Border color of the control while an error shows.",
+              "name": "--u-field-border-color-invalid",
+              "default": "var(--u-color-text-danger)"
+            },
+            {
+              "description": "Border width of the control.",
+              "name": "--u-field-border-width",
+              "default": "var(--u-border-width)"
+            },
+            {
+              "description": "Corner radius of the control.",
+              "name": "--u-field-border-radius",
+              "default": "var(--u-radius-md)"
+            },
+            {
+              "description": "Horizontal padding of the control.",
+              "name": "--u-field-padding-inline",
+              "default": "var(--u-spacing-sm)"
+            },
+            {
+              "description": "Vertical padding of the control.",
+              "name": "--u-field-padding-block",
+              "default": "var(--u-spacing-xs)"
+            },
+            {
+              "description": "Focus outline color.",
+              "name": "--u-field-focus-ring-color",
+              "default": "var(--u-color-focus-ring)"
+            },
+            {
+              "description": "Focus outline width.",
+              "name": "--u-field-focus-ring-width",
+              "default": "var(--u-focus-ring-width)"
+            },
+            {
+              "description": "Focus outline offset.",
+              "name": "--u-field-focus-ring-offset",
+              "default": "var(--u-focus-ring-offset)"
+            },
+            {
+              "description": "Text color of the error message.",
+              "name": "--u-field-error-text-color",
+              "default": "var(--u-color-text-danger)"
+            },
+            {
+              "description": "Font size of the error message.",
+              "name": "--u-field-error-font-size",
+              "default": "var(--u-font-size-sm)"
+            },
+            {
+              "description": "Space between the error icon and the message.",
+              "name": "--u-field-error-gap",
+              "default": "var(--u-spacing-xs)"
+            }
+          ],
+          "cssParts": [
+            {
+              "description": "The native `<label>`.",
+              "name": "label"
+            },
+            {
+              "description": "The hint, between the label and the control. Hidden without `hint`.",
+              "name": "hint"
+            },
+            {
+              "description": "The error message, after the control. Hidden while no error shows.",
+              "name": "error"
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "dependencies",
+              "type": {
+                "text": "readonly (typeof DSBaseElement)[]"
+              },
+              "static": true,
+              "default": "[Icon]",
+              "description": "Renders the icon of its error message with the `icon` of its own registration (ADR 0001, D2).",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/components/base-element.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "formAssociated",
+              "type": {
+                "text": "boolean"
+              },
+              "static": true,
+              "default": "true",
+              "description": "Takes part in its form: value, validity, reset, `<fieldset disabled>`."
+            },
+            {
+              "kind": "field",
+              "name": "shadowRootOptions",
+              "type": {
+                "text": "ShadowRootInit"
+              },
+              "static": true,
+              "default": "{ ...super.shadowRootOptions, delegatesFocus: true }"
+            },
+            {
+              "kind": "field",
+              "name": "label",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "The visible label, and the accessible name of the control. Required.",
+              "attribute": "label"
+            },
+            {
+              "kind": "field",
+              "name": "hint",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "A help text between the label and the control, read with the control.",
+              "attribute": "hint"
+            },
+            {
+              "kind": "field",
+              "name": "name",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "Name of the value in the form's data. Reflected: the form reads the attribute.",
+              "attribute": "name",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "value",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "The value, submitted with the form. The `value` attribute is the\ndefault value: the form's reset restores it.",
+              "attribute": "value"
+            },
+            {
+              "kind": "field",
+              "name": "required",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "The form can't be submitted while the field is empty.",
+              "attribute": "required"
+            },
+            {
+              "kind": "field",
+              "name": "autocomplete",
+              "type": {
+                "text": "string | undefined"
+              },
+              "description": "The `autocomplete` of the control: what the browser can fill in (`email`, `name`…).",
+              "attribute": "autocomplete"
+            },
+            {
+              "kind": "field",
+              "name": "errorMessage",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "The error message, in place of the browser's. Say how to fix the error.",
+              "attribute": "error-message"
+            },
+            {
+              "kind": "field",
+              "name": "errorLabel",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"Error:\"",
+              "description": "Read by assistive technologies before the error message, which a\ndecorative icon starts: \"Error:\" in the page's language, with its\npunctuation (`Erreur :` in French).",
+              "attribute": "error-label"
+            },
+            {
+              "kind": "field",
+              "name": "interacted",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "private",
+              "default": "false",
+              "description": "Whether the user has changed the value, or validation has run, since the last reset."
+            },
+            {
+              "kind": "field",
+              "name": "error",
+              "type": {
+                "text": "string"
+              },
+              "privacy": "private",
+              "default": "\"\"",
+              "description": "The error message shown, `\"\"` while none."
+            },
+            {
+              "kind": "field",
+              "name": "#customValidity",
+              "privacy": "private",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "The message of `setCustomValidity()`."
+            },
+            {
+              "kind": "field",
+              "name": "form",
+              "type": {
+                "text": "HTMLFormElement | null"
+              },
+              "description": "The form of the field, or `null`.",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "validity",
+              "type": {
+                "text": "ValidityState"
+              },
+              "description": "The validity of the value, as on a native control.",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "validationMessage",
+              "type": {
+                "text": "string"
+              },
+              "description": "The message of the first constraint the value fails, `\"\"` when valid.",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "willValidate",
+              "type": {
+                "text": "boolean"
+              },
+              "description": "Whether the field is validated with its form: `false` while disabled.",
+              "readonly": true
+            },
+            {
+              "kind": "method",
+              "name": "checkValidity",
+              "return": {
+                "type": {
+                  "text": "boolean"
+                }
+              },
+              "description": "Whether the value is valid. If not, fires `invalid` and shows the error."
+            },
+            {
+              "kind": "method",
+              "name": "reportValidity",
+              "return": {
+                "type": {
+                  "text": "boolean"
+                }
+              },
+              "description": "As `checkValidity()`, and the browser reports the error, focusing the control."
+            },
+            {
+              "kind": "method",
+              "name": "setCustomValidity",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "message",
+                  "type": {
+                    "text": "string"
+                  }
+                }
+              ],
+              "description": "Makes the value invalid with this message, as on a native control: a\ncheck of the application, such as a username already taken. `\"\"` makes\nthe value valid again."
+            },
+            {
+              "kind": "method",
+              "name": "renderControl",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "unknown"
+                }
+              },
+              "description": "Renders the native control, between the hint and the error message. It\nhas `id=\"control\"` (the label's `for`), `class=\"control\"` (the styles)\nand its own part. It binds `.value=${live(this.value)}`, `required`,\n`disabled` (`isDisabled`), `autocomplete`, its constraints,\n`controlInvalid`, `controlDescribedBy`, `handleInput` and\n`handleChange`."
+            },
+            {
+              "kind": "field",
+              "name": "controlDescribedBy",
+              "type": {
+                "text": "string | typeof nothing"
+              },
+              "privacy": "protected",
+              "description": "For `renderControl()`: the `aria-describedby` of the control, the hint and the error shown.",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "controlInvalid",
+              "type": {
+                "text": "\"true\" | \"false\""
+              },
+              "privacy": "protected",
+              "description": "For `renderControl()`: the `aria-invalid` of the control, `\"true\"` while an error shows.",
+              "readonly": true
+            },
+            {
+              "kind": "method",
+              "name": "handleInput",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "event",
+                  "type": {
+                    "text": "Event"
+                  }
+                }
+              ],
+              "description": "For `renderControl()`: the `input` listener of the control."
+            },
+            {
+              "kind": "method",
+              "name": "handleChange",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "description": "For `renderControl()`: the `change` listener of the control."
+            },
+            {
+              "kind": "field",
+              "name": "#control",
+              "privacy": "private",
+              "type": {
+                "text": "FieldControl | null"
+              },
+              "description": "The native control, once rendered.",
+              "readonly": true
+            },
+            {
+              "kind": "method",
+              "name": "#messageOf",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "string"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "control",
+                  "type": {
+                    "text": "FieldControl"
+                  }
+                }
+              ],
+              "description": "The message of the control's error, `\"\"` while valid."
+            },
+            {
+              "kind": "method",
+              "name": "#syncValidity",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "description": "Gives the host the validity of the control, the browser's constraints and ours."
+            },
+            {
+              "kind": "method",
+              "name": "#showError",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              }
+            },
+            {
+              "kind": "field",
+              "name": "internals",
+              "type": {
+                "text": "ElementInternals | undefined"
+              },
+              "privacy": "protected",
+              "inheritedFrom": {
+                "name": "withInternals",
+                "module": "src/mixins/withInternals.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "customStates",
+              "type": {
+                "text": "object"
+              },
+              "privacy": "protected",
+              "default": "{ set: (name: string, active: boolean) => { if (!supportsCustomStates || !this.internals?.states) { return; } if (active) { this.internals.states.add(name); } else { this.internals.states.delete(name); } }, has: (name: string): boolean => { if (!supportsCustomStates || !this.internals?.states) { return false; } return this.internals.states.has(name); }, }",
+              "description": "Wraps `internals.states` so components can toggle `:state(x)` selectors\n(e.g. `:state(open)`) instead of reflecting extra boolean attributes.\nA no-op where `:state()` is unsupported (see `supportsCustomStates`), so\n`:state()` styling must stay an enhancement — reflect an attribute too\nwhen the state is needed for the component to look right.",
+              "inheritedFrom": {
+                "name": "withInternals",
+                "module": "src/mixins/withInternals.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "disabled",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Disables interaction; also sets `aria-disabled=\"true\"` on the host.",
+              "attribute": "disabled",
+              "reflects": true,
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "formDisabled",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "private",
+              "default": "false",
+              "description": "The browser's disabled state of a form-associated element.",
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "styles",
+              "type": {
+                "text": "array"
+              },
+              "static": true,
+              "default": "[(Base as unknown as typeof LitElement).styles ?? [], disabledStyles]",
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "isDisabled",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "protected",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "componentName",
+              "type": {
+                "text": "string"
+              },
+              "static": true,
+              "default": "\"\"",
+              "description": "Name of the component in the catalog, without any tag prefix: the\nregistered tag is `<prefix>-<componentName>`. Every concrete component\nsets it; abstract bases (e.g. `ButtonBase`) don't.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/components/base-element.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "tagFor",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "StaticValue"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "component",
+                  "type": {
+                    "text": "typeof DSBaseElement"
+                  }
+                }
+              ],
+              "description": "The tag of a component declared in `static dependencies`, for templates\nfrom `lit/static-html.js`: `` html`<${this.tagFor(Button)}>…</${…}>` ``.\nIt follows the registration of this element: `u-modal` renders\n`u-button`, `acme-modal` renders `acme-button` — the brand's override\nof `Button` if it has one.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/components/base-element.ts"
+              }
+            }
+          ],
+          "events": [
+            {
+              "name": "change",
+              "type": {
+                "text": "Event"
+              },
+              "description": "When the user commits a change of the value, as on a native control (the inner `change` doesn't leave the shadow root: the host fires its own)."
+            },
+            {
+              "description": "The native `input` event of the inner control, on each change of the value by the user.",
+              "name": "input"
+            }
+          ],
+          "attributes": [
+            {
+              "name": "label",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "The visible label, and the accessible name of the control. Required.",
+              "fieldName": "label"
+            },
+            {
+              "name": "hint",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "A help text between the label and the control, read with the control.",
+              "fieldName": "hint"
+            },
+            {
+              "name": "name",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "Name of the value in the form's data. Reflected: the form reads the attribute.",
+              "fieldName": "name"
+            },
+            {
+              "name": "value",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "The value, submitted with the form. The `value` attribute is the\ndefault value: the form's reset restores it.",
+              "fieldName": "value"
+            },
+            {
+              "name": "required",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "The form can't be submitted while the field is empty.",
+              "fieldName": "required"
+            },
+            {
+              "name": "autocomplete",
+              "type": {
+                "text": "string | undefined"
+              },
+              "description": "The `autocomplete` of the control: what the browser can fill in (`email`, `name`…).",
+              "fieldName": "autocomplete"
+            },
+            {
+              "name": "error-message",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "The error message, in place of the browser's. Say how to fix the error.",
+              "fieldName": "errorMessage"
+            },
+            {
+              "name": "error-label",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"Error:\"",
+              "description": "Read by assistive technologies before the error message, which a\ndecorative icon starts: \"Error:\" in the page's language, with its\npunctuation (`Erreur :` in French).",
+              "fieldName": "errorLabel"
+            },
+            {
+              "name": "disabled",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Disables interaction; also sets `aria-disabled=\"true\"` on the host.",
+              "fieldName": "disabled",
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            }
+          ],
+          "mixins": [
+            {
+              "name": "withInternals",
+              "module": "/src/mixins/withInternals.js"
+            },
+            {
+              "name": "withDisabled",
+              "module": "/src/mixins/withDisabled.js"
+            }
+          ],
+          "superclass": {
+            "name": "DSBaseElement",
+            "module": "/src/components/base-element.js"
+          }
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "FieldBase",
+          "declaration": {
+            "name": "FieldBase",
+            "module": "src/components/field/field-base.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/components/icon/icon.ts",
       "declarations": [
         {
@@ -2324,6 +3054,2019 @@
           "declaration": {
             "name": "Modal",
             "module": "src/components/modal/modal.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/components/text-field/text-field.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "A text field: a label, an optional hint, a native `<input>` and its error\nmessage, on one line of text. Its validation adds the constraints of\n`type`, `minlength`, `maxlength` and `pattern`. The label, the hint, the\nerror message and the form behavior are those of `FieldBase`.",
+          "name": "TextField",
+          "cssParts": [
+            {
+              "description": "The native `<input>`.",
+              "name": "input"
+            },
+            {
+              "description": "The native `<label>`.",
+              "name": "label",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "The hint, between the label and the control. Hidden without `hint`.",
+              "name": "hint",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "The error message, after the control. Hidden while no error shows.",
+              "name": "error",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "componentName",
+              "type": {
+                "text": "string"
+              },
+              "static": true,
+              "default": "\"text-field\"",
+              "description": "Name of the component in the catalog, without any tag prefix: the\nregistered tag is `<prefix>-<componentName>`. Every concrete component\nsets it; abstract bases (e.g. `ButtonBase`) don't.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/components/base-element.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "type",
+              "type": {
+                "text": "TextFieldType"
+              },
+              "default": "\"text\"",
+              "description": "Type of the input: `text`, `email`, `password`, `tel`, `url` or `search`.",
+              "attribute": "type"
+            },
+            {
+              "kind": "field",
+              "name": "minLength",
+              "type": {
+                "text": "number | undefined"
+              },
+              "description": "Minimum length of the value, in characters.",
+              "attribute": "minlength"
+            },
+            {
+              "kind": "field",
+              "name": "maxLength",
+              "type": {
+                "text": "number | undefined"
+              },
+              "description": "Maximum length of the value, in characters: the input stops there.",
+              "attribute": "maxlength"
+            },
+            {
+              "kind": "field",
+              "name": "pattern",
+              "type": {
+                "text": "string | undefined"
+              },
+              "description": "A regular expression the whole value must match.",
+              "attribute": "pattern"
+            },
+            {
+              "kind": "method",
+              "name": "renderControl",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "unknown"
+                }
+              },
+              "description": "Renders the native control, between the hint and the error message. It\nhas `id=\"control\"` (the label's `for`), `class=\"control\"` (the styles)\nand its own part. It binds `.value=${live(this.value)}`, `required`,\n`disabled` (`isDisabled`), `autocomplete`, its constraints,\n`controlInvalid`, `controlDescribedBy`, `handleInput` and\n`handleChange`.",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "internals",
+              "type": {
+                "text": "ElementInternals | undefined"
+              },
+              "privacy": "protected",
+              "inheritedFrom": {
+                "name": "withInternals",
+                "module": "src/mixins/withInternals.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "customStates",
+              "type": {
+                "text": "object"
+              },
+              "privacy": "protected",
+              "default": "{ set: (name: string, active: boolean) => { if (!supportsCustomStates || !this.internals?.states) { return; } if (active) { this.internals.states.add(name); } else { this.internals.states.delete(name); } }, has: (name: string): boolean => { if (!supportsCustomStates || !this.internals?.states) { return false; } return this.internals.states.has(name); }, }",
+              "description": "Wraps `internals.states` so components can toggle `:state(x)` selectors\n(e.g. `:state(open)`) instead of reflecting extra boolean attributes.\nA no-op where `:state()` is unsupported (see `supportsCustomStates`), so\n`:state()` styling must stay an enhancement — reflect an attribute too\nwhen the state is needed for the component to look right.",
+              "inheritedFrom": {
+                "name": "withInternals",
+                "module": "src/mixins/withInternals.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "disabled",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Disables interaction; also sets `aria-disabled=\"true\"` on the host.",
+              "attribute": "disabled",
+              "reflects": true,
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "formDisabled",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "private",
+              "default": "false",
+              "description": "The browser's disabled state of a form-associated element.",
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "styles",
+              "type": {
+                "text": "array"
+              },
+              "static": true,
+              "default": "[(Base as unknown as typeof LitElement).styles ?? [], disabledStyles]",
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "isDisabled",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "protected",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "dependencies",
+              "type": {
+                "text": "readonly (typeof DSBaseElement)[]"
+              },
+              "static": true,
+              "default": "[Icon]",
+              "description": "Renders the icon of its error message with the `icon` of its own registration (ADR 0001, D2).",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/components/base-element.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "formAssociated",
+              "type": {
+                "text": "boolean"
+              },
+              "static": true,
+              "default": "true",
+              "description": "Takes part in its form: value, validity, reset, `<fieldset disabled>`.",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "shadowRootOptions",
+              "type": {
+                "text": "ShadowRootInit"
+              },
+              "static": true,
+              "default": "{ ...super.shadowRootOptions, delegatesFocus: true }",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "label",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "The visible label, and the accessible name of the control. Required.",
+              "attribute": "label",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "hint",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "A help text between the label and the control, read with the control.",
+              "attribute": "hint",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "name",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "Name of the value in the form's data. Reflected: the form reads the attribute.",
+              "attribute": "name",
+              "reflects": true,
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "value",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "The value, submitted with the form. The `value` attribute is the\ndefault value: the form's reset restores it.",
+              "attribute": "value",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "required",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "The form can't be submitted while the field is empty.",
+              "attribute": "required",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "autocomplete",
+              "type": {
+                "text": "string | undefined"
+              },
+              "description": "The `autocomplete` of the control: what the browser can fill in (`email`, `name`…).",
+              "attribute": "autocomplete",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "errorMessage",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "The error message, in place of the browser's. Say how to fix the error.",
+              "attribute": "error-message",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "errorLabel",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"Error:\"",
+              "description": "Read by assistive technologies before the error message, which a\ndecorative icon starts: \"Error:\" in the page's language, with its\npunctuation (`Erreur :` in French).",
+              "attribute": "error-label",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "interacted",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "private",
+              "default": "false",
+              "description": "Whether the user has changed the value, or validation has run, since the last reset.",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "error",
+              "type": {
+                "text": "string"
+              },
+              "privacy": "private",
+              "default": "\"\"",
+              "description": "The error message shown, `\"\"` while none.",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "#customValidity",
+              "privacy": "private",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "The message of `setCustomValidity()`.",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "form",
+              "type": {
+                "text": "HTMLFormElement | null"
+              },
+              "description": "The form of the field, or `null`.",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "validity",
+              "type": {
+                "text": "ValidityState"
+              },
+              "description": "The validity of the value, as on a native control.",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "validationMessage",
+              "type": {
+                "text": "string"
+              },
+              "description": "The message of the first constraint the value fails, `\"\"` when valid.",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "willValidate",
+              "type": {
+                "text": "boolean"
+              },
+              "description": "Whether the field is validated with its form: `false` while disabled.",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "checkValidity",
+              "return": {
+                "type": {
+                  "text": "boolean"
+                }
+              },
+              "description": "Whether the value is valid. If not, fires `invalid` and shows the error.",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "reportValidity",
+              "return": {
+                "type": {
+                  "text": "boolean"
+                }
+              },
+              "description": "As `checkValidity()`, and the browser reports the error, focusing the control.",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "setCustomValidity",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "message",
+                  "type": {
+                    "text": "string"
+                  }
+                }
+              ],
+              "description": "Makes the value invalid with this message, as on a native control: a\ncheck of the application, such as a username already taken. `\"\"` makes\nthe value valid again.",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "controlDescribedBy",
+              "type": {
+                "text": "string | typeof nothing"
+              },
+              "privacy": "protected",
+              "description": "For `renderControl()`: the `aria-describedby` of the control, the hint and the error shown.",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "controlInvalid",
+              "type": {
+                "text": "\"true\" | \"false\""
+              },
+              "privacy": "protected",
+              "description": "For `renderControl()`: the `aria-invalid` of the control, `\"true\"` while an error shows.",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "handleInput",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "event",
+                  "type": {
+                    "text": "Event"
+                  }
+                }
+              ],
+              "description": "For `renderControl()`: the `input` listener of the control.",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "handleChange",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "description": "For `renderControl()`: the `change` listener of the control.",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "#control",
+              "privacy": "private",
+              "type": {
+                "text": "FieldControl | null"
+              },
+              "description": "The native control, once rendered.",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "#messageOf",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "string"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "control",
+                  "type": {
+                    "text": "FieldControl"
+                  }
+                }
+              ],
+              "description": "The message of the control's error, `\"\"` while valid.",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "#syncValidity",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "description": "Gives the host the validity of the control, the browser's constraints and ours.",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "#showError",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "tagFor",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "StaticValue"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "component",
+                  "type": {
+                    "text": "typeof DSBaseElement"
+                  }
+                }
+              ],
+              "description": "The tag of a component declared in `static dependencies`, for templates\nfrom `lit/static-html.js`: `` html`<${this.tagFor(Button)}>…</${…}>` ``.\nIt follows the registration of this element: `u-modal` renders\n`u-button`, `acme-modal` renders `acme-button` — the brand's override\nof `Button` if it has one.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/components/base-element.ts"
+              }
+            }
+          ],
+          "attributes": [
+            {
+              "name": "type",
+              "type": {
+                "text": "TextFieldType"
+              },
+              "default": "\"text\"",
+              "description": "Type of the input: `text`, `email`, `password`, `tel`, `url` or `search`.",
+              "fieldName": "type"
+            },
+            {
+              "name": "minlength",
+              "type": {
+                "text": "number | undefined"
+              },
+              "description": "Minimum length of the value, in characters.",
+              "fieldName": "minLength"
+            },
+            {
+              "name": "maxlength",
+              "type": {
+                "text": "number | undefined"
+              },
+              "description": "Maximum length of the value, in characters: the input stops there.",
+              "fieldName": "maxLength"
+            },
+            {
+              "name": "pattern",
+              "type": {
+                "text": "string | undefined"
+              },
+              "description": "A regular expression the whole value must match.",
+              "fieldName": "pattern"
+            },
+            {
+              "name": "disabled",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Disables interaction; also sets `aria-disabled=\"true\"` on the host.",
+              "fieldName": "disabled",
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "name": "label",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "The visible label, and the accessible name of the control. Required.",
+              "fieldName": "label",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "name": "hint",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "A help text between the label and the control, read with the control.",
+              "fieldName": "hint",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "name": "name",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "Name of the value in the form's data. Reflected: the form reads the attribute.",
+              "fieldName": "name",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "name": "value",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "The value, submitted with the form. The `value` attribute is the\ndefault value: the form's reset restores it.",
+              "fieldName": "value",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "name": "required",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "The form can't be submitted while the field is empty.",
+              "fieldName": "required",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "name": "autocomplete",
+              "type": {
+                "text": "string | undefined"
+              },
+              "description": "The `autocomplete` of the control: what the browser can fill in (`email`, `name`…).",
+              "fieldName": "autocomplete",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "name": "error-message",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "The error message, in place of the browser's. Say how to fix the error.",
+              "fieldName": "errorMessage",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "name": "error-label",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"Error:\"",
+              "description": "Read by assistive technologies before the error message, which a\ndecorative icon starts: \"Error:\" in the page's language, with its\npunctuation (`Erreur :` in French).",
+              "fieldName": "errorLabel",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            }
+          ],
+          "superclass": {
+            "name": "FieldBase",
+            "module": "/src/components/field/field-base.js"
+          },
+          "tagName": "u-text-field",
+          "customElement": true,
+          "summary": "A labelled text input that takes part in its form.",
+          "cssProperties": [
+            {
+              "description": "Space between the label, the hint, the control and the error message.",
+              "name": "--u-field-gap",
+              "default": "var(--u-spacing-xs)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Font family.",
+              "name": "--u-field-font-family",
+              "default": "var(--u-font-family-body)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Font size of the label and the control.",
+              "name": "--u-field-font-size",
+              "default": "var(--u-font-size-md)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Line height.",
+              "name": "--u-field-line-height",
+              "default": "var(--u-font-line-height-body)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Text color of the label, the hint and the control.",
+              "name": "--u-field-text-color",
+              "default": "var(--u-color-text-default)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Font weight of the label.",
+              "name": "--u-field-label-font-weight",
+              "default": "var(--u-font-weight-medium)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Font size of the hint.",
+              "name": "--u-field-hint-font-size",
+              "default": "var(--u-font-size-sm)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Background color of the control.",
+              "name": "--u-field-background-color",
+              "default": "var(--u-color-surface-default)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Border color of the control.",
+              "name": "--u-field-border-color",
+              "default": "var(--u-color-border-control)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Border color of the control while an error shows.",
+              "name": "--u-field-border-color-invalid",
+              "default": "var(--u-color-text-danger)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Border width of the control.",
+              "name": "--u-field-border-width",
+              "default": "var(--u-border-width)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Corner radius of the control.",
+              "name": "--u-field-border-radius",
+              "default": "var(--u-radius-md)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Horizontal padding of the control.",
+              "name": "--u-field-padding-inline",
+              "default": "var(--u-spacing-sm)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Vertical padding of the control.",
+              "name": "--u-field-padding-block",
+              "default": "var(--u-spacing-xs)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Focus outline color.",
+              "name": "--u-field-focus-ring-color",
+              "default": "var(--u-color-focus-ring)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Focus outline width.",
+              "name": "--u-field-focus-ring-width",
+              "default": "var(--u-focus-ring-width)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Focus outline offset.",
+              "name": "--u-field-focus-ring-offset",
+              "default": "var(--u-focus-ring-offset)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Text color of the error message.",
+              "name": "--u-field-error-text-color",
+              "default": "var(--u-color-text-danger)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Font size of the error message.",
+              "name": "--u-field-error-font-size",
+              "default": "var(--u-font-size-sm)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Space between the error icon and the message.",
+              "name": "--u-field-error-gap",
+              "default": "var(--u-spacing-xs)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            }
+          ],
+          "events": [
+            {
+              "name": "change",
+              "type": {
+                "text": "Event"
+              },
+              "description": "When the user commits a change of the value, as on a native control (the inner `change` doesn't leave the shadow root: the host fires its own).",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "The native `input` event of the inner control, on each change of the value by the user.",
+              "name": "input",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "TextField",
+          "declaration": {
+            "name": "TextField",
+            "module": "src/components/text-field/text-field.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/components/text-field/text-field.type.ts",
+      "declarations": [],
+      "exports": []
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/components/textarea/textarea.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "A multi-line text field: a label, an optional hint, a native `<textarea>`\nand its error message. Its validation adds the constraints of `minlength`\nand `maxlength`. The user resizes it vertically. The label, the hint, the\nerror message and the form behavior are those of `FieldBase`.\n\nAs for `text-field`, the `value` attribute is the default value, not the\ntext content: the form's reset restores it.",
+          "name": "Textarea",
+          "cssParts": [
+            {
+              "description": "The native `<textarea>`.",
+              "name": "textarea"
+            },
+            {
+              "description": "The native `<label>`.",
+              "name": "label",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "The hint, between the label and the control. Hidden without `hint`.",
+              "name": "hint",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "The error message, after the control. Hidden while no error shows.",
+              "name": "error",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "componentName",
+              "type": {
+                "text": "string"
+              },
+              "static": true,
+              "default": "\"textarea\"",
+              "description": "Name of the component in the catalog, without any tag prefix: the\nregistered tag is `<prefix>-<componentName>`. Every concrete component\nsets it; abstract bases (e.g. `ButtonBase`) don't.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/components/base-element.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "rows",
+              "type": {
+                "text": "number | undefined"
+              },
+              "description": "Visible height, in lines of text. The browser's default is 2.",
+              "attribute": "rows"
+            },
+            {
+              "kind": "field",
+              "name": "minLength",
+              "type": {
+                "text": "number | undefined"
+              },
+              "description": "Minimum length of the value, in characters.",
+              "attribute": "minlength"
+            },
+            {
+              "kind": "field",
+              "name": "maxLength",
+              "type": {
+                "text": "number | undefined"
+              },
+              "description": "Maximum length of the value, in characters: the textarea stops there.",
+              "attribute": "maxlength"
+            },
+            {
+              "kind": "method",
+              "name": "renderControl",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "unknown"
+                }
+              },
+              "description": "Renders the native control, between the hint and the error message. It\nhas `id=\"control\"` (the label's `for`), `class=\"control\"` (the styles)\nand its own part. It binds `.value=${live(this.value)}`, `required`,\n`disabled` (`isDisabled`), `autocomplete`, its constraints,\n`controlInvalid`, `controlDescribedBy`, `handleInput` and\n`handleChange`.",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "internals",
+              "type": {
+                "text": "ElementInternals | undefined"
+              },
+              "privacy": "protected",
+              "inheritedFrom": {
+                "name": "withInternals",
+                "module": "src/mixins/withInternals.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "customStates",
+              "type": {
+                "text": "object"
+              },
+              "privacy": "protected",
+              "default": "{ set: (name: string, active: boolean) => { if (!supportsCustomStates || !this.internals?.states) { return; } if (active) { this.internals.states.add(name); } else { this.internals.states.delete(name); } }, has: (name: string): boolean => { if (!supportsCustomStates || !this.internals?.states) { return false; } return this.internals.states.has(name); }, }",
+              "description": "Wraps `internals.states` so components can toggle `:state(x)` selectors\n(e.g. `:state(open)`) instead of reflecting extra boolean attributes.\nA no-op where `:state()` is unsupported (see `supportsCustomStates`), so\n`:state()` styling must stay an enhancement — reflect an attribute too\nwhen the state is needed for the component to look right.",
+              "inheritedFrom": {
+                "name": "withInternals",
+                "module": "src/mixins/withInternals.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "disabled",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Disables interaction; also sets `aria-disabled=\"true\"` on the host.",
+              "attribute": "disabled",
+              "reflects": true,
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "formDisabled",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "private",
+              "default": "false",
+              "description": "The browser's disabled state of a form-associated element.",
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "styles",
+              "type": {
+                "text": "array"
+              },
+              "static": true,
+              "default": "[(Base as unknown as typeof LitElement).styles ?? [], disabledStyles]",
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "isDisabled",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "protected",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "dependencies",
+              "type": {
+                "text": "readonly (typeof DSBaseElement)[]"
+              },
+              "static": true,
+              "default": "[Icon]",
+              "description": "Renders the icon of its error message with the `icon` of its own registration (ADR 0001, D2).",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/components/base-element.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "formAssociated",
+              "type": {
+                "text": "boolean"
+              },
+              "static": true,
+              "default": "true",
+              "description": "Takes part in its form: value, validity, reset, `<fieldset disabled>`.",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "shadowRootOptions",
+              "type": {
+                "text": "ShadowRootInit"
+              },
+              "static": true,
+              "default": "{ ...super.shadowRootOptions, delegatesFocus: true }",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "label",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "The visible label, and the accessible name of the control. Required.",
+              "attribute": "label",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "hint",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "A help text between the label and the control, read with the control.",
+              "attribute": "hint",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "name",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "Name of the value in the form's data. Reflected: the form reads the attribute.",
+              "attribute": "name",
+              "reflects": true,
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "value",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "The value, submitted with the form. The `value` attribute is the\ndefault value: the form's reset restores it.",
+              "attribute": "value",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "required",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "The form can't be submitted while the field is empty.",
+              "attribute": "required",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "autocomplete",
+              "type": {
+                "text": "string | undefined"
+              },
+              "description": "The `autocomplete` of the control: what the browser can fill in (`email`, `name`…).",
+              "attribute": "autocomplete",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "errorMessage",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "The error message, in place of the browser's. Say how to fix the error.",
+              "attribute": "error-message",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "errorLabel",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"Error:\"",
+              "description": "Read by assistive technologies before the error message, which a\ndecorative icon starts: \"Error:\" in the page's language, with its\npunctuation (`Erreur :` in French).",
+              "attribute": "error-label",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "interacted",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "private",
+              "default": "false",
+              "description": "Whether the user has changed the value, or validation has run, since the last reset.",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "error",
+              "type": {
+                "text": "string"
+              },
+              "privacy": "private",
+              "default": "\"\"",
+              "description": "The error message shown, `\"\"` while none.",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "#customValidity",
+              "privacy": "private",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "The message of `setCustomValidity()`.",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "form",
+              "type": {
+                "text": "HTMLFormElement | null"
+              },
+              "description": "The form of the field, or `null`.",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "validity",
+              "type": {
+                "text": "ValidityState"
+              },
+              "description": "The validity of the value, as on a native control.",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "validationMessage",
+              "type": {
+                "text": "string"
+              },
+              "description": "The message of the first constraint the value fails, `\"\"` when valid.",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "willValidate",
+              "type": {
+                "text": "boolean"
+              },
+              "description": "Whether the field is validated with its form: `false` while disabled.",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "checkValidity",
+              "return": {
+                "type": {
+                  "text": "boolean"
+                }
+              },
+              "description": "Whether the value is valid. If not, fires `invalid` and shows the error.",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "reportValidity",
+              "return": {
+                "type": {
+                  "text": "boolean"
+                }
+              },
+              "description": "As `checkValidity()`, and the browser reports the error, focusing the control.",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "setCustomValidity",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "message",
+                  "type": {
+                    "text": "string"
+                  }
+                }
+              ],
+              "description": "Makes the value invalid with this message, as on a native control: a\ncheck of the application, such as a username already taken. `\"\"` makes\nthe value valid again.",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "controlDescribedBy",
+              "type": {
+                "text": "string | typeof nothing"
+              },
+              "privacy": "protected",
+              "description": "For `renderControl()`: the `aria-describedby` of the control, the hint and the error shown.",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "controlInvalid",
+              "type": {
+                "text": "\"true\" | \"false\""
+              },
+              "privacy": "protected",
+              "description": "For `renderControl()`: the `aria-invalid` of the control, `\"true\"` while an error shows.",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "handleInput",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "event",
+                  "type": {
+                    "text": "Event"
+                  }
+                }
+              ],
+              "description": "For `renderControl()`: the `input` listener of the control.",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "handleChange",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "description": "For `renderControl()`: the `change` listener of the control.",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "#control",
+              "privacy": "private",
+              "type": {
+                "text": "FieldControl | null"
+              },
+              "description": "The native control, once rendered.",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "#messageOf",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "string"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "control",
+                  "type": {
+                    "text": "FieldControl"
+                  }
+                }
+              ],
+              "description": "The message of the control's error, `\"\"` while valid.",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "#syncValidity",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "description": "Gives the host the validity of the control, the browser's constraints and ours.",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "#showError",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "tagFor",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "StaticValue"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "component",
+                  "type": {
+                    "text": "typeof DSBaseElement"
+                  }
+                }
+              ],
+              "description": "The tag of a component declared in `static dependencies`, for templates\nfrom `lit/static-html.js`: `` html`<${this.tagFor(Button)}>…</${…}>` ``.\nIt follows the registration of this element: `u-modal` renders\n`u-button`, `acme-modal` renders `acme-button` — the brand's override\nof `Button` if it has one.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/components/base-element.ts"
+              }
+            }
+          ],
+          "attributes": [
+            {
+              "name": "rows",
+              "type": {
+                "text": "number | undefined"
+              },
+              "description": "Visible height, in lines of text. The browser's default is 2.",
+              "fieldName": "rows"
+            },
+            {
+              "name": "minlength",
+              "type": {
+                "text": "number | undefined"
+              },
+              "description": "Minimum length of the value, in characters.",
+              "fieldName": "minLength"
+            },
+            {
+              "name": "maxlength",
+              "type": {
+                "text": "number | undefined"
+              },
+              "description": "Maximum length of the value, in characters: the textarea stops there.",
+              "fieldName": "maxLength"
+            },
+            {
+              "name": "disabled",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Disables interaction; also sets `aria-disabled=\"true\"` on the host.",
+              "fieldName": "disabled",
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "name": "label",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "The visible label, and the accessible name of the control. Required.",
+              "fieldName": "label",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "name": "hint",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "A help text between the label and the control, read with the control.",
+              "fieldName": "hint",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "name": "name",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "Name of the value in the form's data. Reflected: the form reads the attribute.",
+              "fieldName": "name",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "name": "value",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "The value, submitted with the form. The `value` attribute is the\ndefault value: the form's reset restores it.",
+              "fieldName": "value",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "name": "required",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "The form can't be submitted while the field is empty.",
+              "fieldName": "required",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "name": "autocomplete",
+              "type": {
+                "text": "string | undefined"
+              },
+              "description": "The `autocomplete` of the control: what the browser can fill in (`email`, `name`…).",
+              "fieldName": "autocomplete",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "name": "error-message",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "The error message, in place of the browser's. Say how to fix the error.",
+              "fieldName": "errorMessage",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "name": "error-label",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"Error:\"",
+              "description": "Read by assistive technologies before the error message, which a\ndecorative icon starts: \"Error:\" in the page's language, with its\npunctuation (`Erreur :` in French).",
+              "fieldName": "errorLabel",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            }
+          ],
+          "superclass": {
+            "name": "FieldBase",
+            "module": "/src/components/field/field-base.js"
+          },
+          "tagName": "u-textarea",
+          "customElement": true,
+          "summary": "A labelled multi-line text input that takes part in its form.",
+          "cssProperties": [
+            {
+              "description": "Space between the label, the hint, the control and the error message.",
+              "name": "--u-field-gap",
+              "default": "var(--u-spacing-xs)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Font family.",
+              "name": "--u-field-font-family",
+              "default": "var(--u-font-family-body)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Font size of the label and the control.",
+              "name": "--u-field-font-size",
+              "default": "var(--u-font-size-md)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Line height.",
+              "name": "--u-field-line-height",
+              "default": "var(--u-font-line-height-body)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Text color of the label, the hint and the control.",
+              "name": "--u-field-text-color",
+              "default": "var(--u-color-text-default)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Font weight of the label.",
+              "name": "--u-field-label-font-weight",
+              "default": "var(--u-font-weight-medium)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Font size of the hint.",
+              "name": "--u-field-hint-font-size",
+              "default": "var(--u-font-size-sm)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Background color of the control.",
+              "name": "--u-field-background-color",
+              "default": "var(--u-color-surface-default)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Border color of the control.",
+              "name": "--u-field-border-color",
+              "default": "var(--u-color-border-control)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Border color of the control while an error shows.",
+              "name": "--u-field-border-color-invalid",
+              "default": "var(--u-color-text-danger)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Border width of the control.",
+              "name": "--u-field-border-width",
+              "default": "var(--u-border-width)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Corner radius of the control.",
+              "name": "--u-field-border-radius",
+              "default": "var(--u-radius-md)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Horizontal padding of the control.",
+              "name": "--u-field-padding-inline",
+              "default": "var(--u-spacing-sm)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Vertical padding of the control.",
+              "name": "--u-field-padding-block",
+              "default": "var(--u-spacing-xs)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Focus outline color.",
+              "name": "--u-field-focus-ring-color",
+              "default": "var(--u-color-focus-ring)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Focus outline width.",
+              "name": "--u-field-focus-ring-width",
+              "default": "var(--u-focus-ring-width)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Focus outline offset.",
+              "name": "--u-field-focus-ring-offset",
+              "default": "var(--u-focus-ring-offset)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Text color of the error message.",
+              "name": "--u-field-error-text-color",
+              "default": "var(--u-color-text-danger)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Font size of the error message.",
+              "name": "--u-field-error-font-size",
+              "default": "var(--u-font-size-sm)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Space between the error icon and the message.",
+              "name": "--u-field-error-gap",
+              "default": "var(--u-spacing-xs)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            }
+          ],
+          "events": [
+            {
+              "name": "change",
+              "type": {
+                "text": "Event"
+              },
+              "description": "When the user commits a change of the value, as on a native control (the inner `change` doesn't leave the shadow root: the host fires its own).",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "The native `input` event of the inner control, on each change of the value by the user.",
+              "name": "input",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "Textarea",
+          "declaration": {
+            "name": "Textarea",
+            "module": "src/components/textarea/textarea.ts"
           }
         }
       ]

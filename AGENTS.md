@@ -4,7 +4,7 @@ Ce dépôt est un **socle marque blanche** pour design systems. Il contient troi
 
 - `@unicorne/tokens` : les tokens DTCG à trois niveaux, la source des thèmes du web, d'iOS et d'Android. Ils sont générés en custom properties `--u-`.
 - `@unicorne/icons` : les icônes SVG, optimisées, un module par icône chargé à la demande, et leur générateur `unicorne-icons`.
-- `@unicorne/components` : des composants Lit (`button`, `button-link`, `alert`, `modal`, `icon`) et l'outillage pour les étendre.
+- `@unicorne/components` : des composants Lit (`button`, `button-link`, `alert`, `modal`, `icon`, `text-field`, `textarea`) et l'outillage pour les étendre.
 
 Chaque marque dépend du socle, l'étend, l'enregistre sous son préfixe et le republie ([ADR 0001](docs/adr/0001-architecture-multi-marque.mdx)). Le socle est une preuve de concept : il n'est pas publié et n'a pas de versions.
 
@@ -30,7 +30,7 @@ Ce fichier est un index. Les détails sont dans la documentation et dans les ski
 Les pages sont dans `docs/` et dans Storybook. Elles suivent la [charte de rédaction](docs/reference/charte-de-redaction.mdx).
 
 - Tutoriel : [Premiers pas](docs/premiers-pas.mdx).
-- Guide : [Créer un design system de marque](docs/guides/design-system-de-marque.mdx).
+- Guides : [Créer un design system de marque](docs/guides/design-system-de-marque.mdx), [Utiliser une marque dans une application Vue](docs/guides/application-vue.mdx).
 - Référence : [Tokens et couches CSS](docs/reference/tokens-et-couches.mdx), [Support navigateurs](docs/reference/support-navigateurs.mdx), [Mixins](docs/reference/mixins.mdx), [Icônes](docs/reference/icones.mdx), [Charte de rédaction](docs/reference/charte-de-redaction.mdx). La JSDoc des composants est leur référence.
 - Explication : [Architecture CSS](docs/explication/architecture-css.mdx).
 - Décisions : [ADR 0001](docs/adr/0001-architecture-multi-marque.mdx), [ADR 0002](docs/adr/0002-tokens-dtcg.mdx) (tokens DTCG), [ADR 0003](docs/adr/0003-packages-tokens-et-composants.mdx) (packages tokens et composants), [ADR 0004](docs/adr/0004-plateformes-natives-et-figma.mdx) (iOS, Android et Figma), [ADR 0005](docs/adr/0005-icones.mdx) (icônes), [ADR 0006](docs/adr/0006-design-system-de-marque.mdx) (design system de marque).
@@ -52,7 +52,7 @@ Les pages sont dans `docs/` et dans Storybook. Elles suivent la [charte de réda
 
 `packages/components/` (`@unicorne/components`) :
 
-- `src/components/<nom>/` : la classe, sa feuille `.css`, la feuille générée de ses tokens `.tokens.css`, ses types `.type.ts` et ses stories `.stories.ts`. `base-element.ts` définit `DSBaseElement` (shadow DOM, contrat d'enregistrement, `tagFor()`).
+- `src/components/<nom>/` : la classe, sa feuille `.css`, la feuille générée de ses tokens `.tokens.css`, ses types `.type.ts` et ses stories `.stories.ts`. `base-element.ts` définit `DSBaseElement` (shadow DOM, contrat d'enregistrement, `tagFor()`). `field/` contient `FieldBase`, la base des champs de formulaire, et leurs tokens.
 - `src/mixins/` : `withDisabled` et `withInternals`.
 - `src/events/` : une classe `Event` typée par événement (`modal-close.ts`).
 - `src/registry/` : `defineComponents()`, le catalogue (`allComponents`) et `designSystem()`, la déclaration d'un design system de marque ([ADR 0006](docs/adr/0006-design-system-de-marque.mdx)). `src/define.ts` enregistre le catalogue avec le préfixe `u`. `src/index.ts` n'a aucun effet de bord.
@@ -67,6 +67,7 @@ Les pages sont dans `docs/` et dans Storybook. Elles suivent la [charte de réda
 - `docs/` et `.storybook/` : la documentation et Storybook, pour les trois packages.
 - `vite.config.ts`, `vitest.config.ts` et `index.html` : l'environnement de développement (démo, Storybook, Vitest). Chaque package a sa propre configuration de build.
 - `examples/acme-design-system/` : une marque d'exemple, construite et testée contre les archives du socle.
+- `examples/acme-vue-app/` : une application Vue d'exemple, un formulaire sur ACME. Elle est construite et testée contre les archives d'ACME et du socle.
 - `scripts/` : `run-example.mjs` et `check-css-compat.mjs`.
 - `.github/workflows/ci.yml` : la CI.
 
@@ -92,7 +93,7 @@ npm run analyze                  # manifest → packages/components/custom-eleme
 npm run build                    # les trois packages, tokens puis icônes d'abord → packages/*/dist/
 npm run check                    # oxlint, oxfmt --check, tsc, tokens:check, icons:check, api:check, dsds, Vitest : ce que la CI exige
 npx vitest run --project browser # un projet Vitest : unit (Node), browser (Chromium), storybook (3 moteurs)
-npm run example                  # archives des trois packages → installation, build et test d'ACME
+npm run example                  # archives du socle → build et test d'ACME, puis archive d'ACME → build et test de l'app Vue
 npm run dsds                     # valide et vérifie le format des documents DSDS
 npm run compat                   # es-check et doiuse contre la matrice
 npm run lint | fmt               # corrections automatiques

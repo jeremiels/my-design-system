@@ -3,12 +3,12 @@
  * everything imports "@acme/design-system/define" once; the others register
  * only what they use with `acme.define()` (src/design-system.ts).
  */
-import { Alert, Button, Icon, Modal } from "@unicorne/components";
+import { Alert, Button, Icon, Modal, Textarea, TextField } from "@unicorne/components";
 import type { AcmeButton } from "./components/acme-button/acme-button.js";
 import { AcmeCard } from "./components/acme-card/acme-card.js";
 import { acme } from "./design-system.js";
 
-void acme.define(Button, Alert, Modal, Icon, AcmeCard);
+void acme.define(Button, Alert, Modal, Icon, TextField, Textarea, AcmeCard);
 
 declare global {
   interface HTMLElementTagNameMap {
@@ -17,5 +17,7 @@ declare global {
     "acme-card": AcmeCard;
     "acme-icon": Icon;
     "acme-modal": Modal;
+    "acme-text-field": TextField;
+    "acme-textarea": Textarea;
   }
 }

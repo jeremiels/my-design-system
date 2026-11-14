@@ -39,7 +39,7 @@ jobs:
           if-no-files-found: ignore
 
   package:
-    name: Package, brand example, browser support
+    name: Package, examples, browser support
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -49,10 +49,11 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
-      # Chromium for the brand example's smoke test.
+      # Chromium for the smoke tests of the brand and the Vue app.
       - run: npx playwright install --with-deps chromium
       # Builds and packs the base, then installs, builds and tests ACME
-      # against the tarball, as a brand would consume it.
+      # against the tarballs, as a brand would consume them. Then packs ACME
+      # and does the same for the Vue app, as an application would.
       - run: npm run example
       # es-check and doiuse against the browserslist matrix.
       - run: npm run compat
