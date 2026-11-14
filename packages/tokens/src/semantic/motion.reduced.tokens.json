@@ -3,6 +3,9 @@
     "duration": {
       "fast": { "$value": "{duration.0}" },
       "base": { "$value": "{duration.0}" }
+    },
+    "scale": {
+      "enter": { "$value": "{scale.100}" }
     }
   }
 }

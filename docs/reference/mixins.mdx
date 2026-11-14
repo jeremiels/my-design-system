@@ -4,7 +4,7 @@ import { Meta } from "@storybook/addon-docs/blocks";
 
 # Mixins
 
-Un mixin ajoute un comportement à une classe de composant. Le socle exporte deux mixins, `withDisabled` et `withInternals`. Les marques les appliquent à leurs propres composants.
+Un mixin ajoute un comportement à une classe de composant. Le socle exporte cinq mixins : `withDisabled`, `withInternals`, `withInvoker`, `withCommands` et `withExitTransition`. Les marques les appliquent à leurs propres composants.
 
 ```ts
 import { DSBaseElement, withDisabled, withInternals } from "@unicorne/components";
@@ -94,3 +94,160 @@ Attache les `ElementInternals` du composant.
 ### Support navigateurs
 
 `customStates` est sans effet là où `:state()` standard n'existe pas : Chrome 90–124, Firefox avant 126 et Safari avant 17.4. Ces versions sont dans la [matrice](?path=/docs/documentation-référence-support-navigateurs--docs). Un état nécessaire au rendu se reflète donc aussi en attribut.
+
+## withInvoker
+
+Fait d'un composant qui rend un `<button>` natif un bouton de commande, comme `<button commandfor command>` (Invoker Commands). `Button` l'applique.
+
+<table>
+  <thead>
+    <tr>
+      <th>Membre</th>
+      <th>Accès</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>`commandFor`</td>
+      <td>public, attribut `commandfor`</td>
+      <td>L'`id` de l'élément contrôlé, dans l'arbre du composant : le document, ou son shadow root</td>
+    </tr>
+    <tr>
+      <td>`command`</td>
+      <td>public, attribut `command`</td>
+      <td>
+        La commande envoyée au clic : une commande intégrée pour un `<dialog>` ou un popover natif
+        (`show-modal`, `toggle-popover`), ou une commande `--` pour un composant (`--show-modal`)
+      </td>
+    </tr>
+    <tr>
+      <td>`commandForElement`</td>
+      <td>public, propriété seulement</td>
+      <td>
+        L'élément contrôlé. Prioritaire sur `commandfor`, il atteint un élément d'un shadow root
+        englobant.
+      </td>
+    </tr>
+    <tr>
+      <td>`invokerControl`</td>
+      <td>`protected`, lecture seule</td>
+      <td>
+        Le `<button>` natif qui envoie la commande : le premier `button` du shadow root. Surchargez-le
+        si le template en rend un autre avant.
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+- Le mixin passe la commande et sa cible au `<button>` natif, après chaque rendu et à chaque clic.
+- Le navigateur envoie la commande. `event.source` désigne l'hôte du composant, pas son bouton interne.
+- Une commande intégrée vers un `<dialog>` ou un popover natif fonctionne : `command="show-modal"` ouvre un `<dialog>`.
+- Un composant désactivé n'envoie rien : son `<button>` natif est `disabled`.
+- N'appliquez pas le mixin à un lien (`ButtonLink`) : seul un `<button>` envoie une commande.
+
+### Support navigateurs
+
+Invoker Commands existent depuis Chrome et Edge 135, Firefox 144 et Safari 26.2.
+
+- Ailleurs, le premier composant qui a une `command` charge `invokers-polyfill` avec `import()`.
+- Le polyfill ignore une cible située dans un shadow root autre que le document. Le mixin envoie alors lui-même la commande `--`.
+- Le mixin n'assigne `commandForElement` au bouton qu'après le chargement du polyfill. Une propriété assignée avant masquerait celle du polyfill.
+
+## withCommands
+
+Permet à un composant de recevoir des commandes : d'un `<button commandfor command>` natif, ou d'un composant avec `withInvoker`. `Modal` l'applique.
+
+<table>
+  <thead>
+    <tr>
+      <th>Membre</th>
+      <th>Accès</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>`handleCommand(event)`</td>
+      <td>`protected`</td>
+      <td>
+        Exécute une commande reçue : `event.command` est son nom, `event.source` le bouton. Sans
+        effet par défaut.
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+```ts
+export class AcmeDrawer extends withCommands(DSBaseElement) {
+  protected override handleCommand(event: CommandEvent) {
+    if (event.command === "--toggle-drawer") {
+      this.open = !this.open;
+    }
+  }
+}
+```
+
+- Nommez les commandes d'un composant avec le préfixe `--`. Le navigateur n'envoie jamais une commande intégrée (`show-modal`) à un custom element.
+- Ignorez les commandes inconnues : le polyfill envoie aussi les commandes intégrées.
+- Là où Invoker Commands manquent, le premier composant connecté charge le polyfill. Les boutons natifs de la page en ont besoin.
+
+## withExitTransition
+
+Anime la sortie d'un élément du top layer de son shadow root, un `<dialog>` ou un popover, dans toute la matrice. `Modal` l'applique.
+
+<table>
+  <thead>
+    <tr>
+      <th>Membre</th>
+      <th>Accès</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>`closeWithTransition(élément, fermer)`</td>
+      <td>`protected`</td>
+      <td>
+        Appelle `fermer` (`dialog.close()`, `hidePopover()`) à la fin de la transition de sortie de
+        l'élément
+      </td>
+    </tr>
+    <tr>
+      <td>`cancelExitTransition(élément)`</td>
+      <td>`protected`</td>
+      <td>Arrête une sortie en cours : l'élément reste ouvert</td>
+    </tr>
+  </tbody>
+</table>
+
+La feuille du composant écrit la transition :
+
+```css
+dialog {
+  opacity: 0;
+  transition-property: opacity, display, overlay;
+  transition-duration: var(--u-modal-transition-duration);
+  transition-behavior: allow-discrete;
+}
+dialog[open]:where(:not([data-closing])) {
+  opacity: 1;
+}
+@starting-style {
+  dialog[open]:where(:not([data-closing])) {
+    opacity: 0;
+  }
+}
+```
+
+- L'état fermé est sur l'élément. L'état ouvert est sur `[open]` ou `:popover-open`, suivi de `:where(:not([data-closing]))`.
+- L'entrée part de l'état fermé, écrit dans `@starting-style`.
+- `display` et `overlay` sont dans `transition-property`, avec `transition-behavior: allow-discrete` dans sa propre déclaration.
+- Le mixin attend les animations finies de l'élément et de son `::backdrop`, pas celles de son contenu. Il attend 2 secondes au plus.
+- Sans transition, en mouvement réduit par exemple, l'élément se ferme tout de suite.
+
+### Support navigateurs
+
+- Chrome et Edge 117 ont `overlay` : le mixin ferme l'élément tout de suite, et le CSS anime la sortie.
+- Firefox et Safari n'ont pas `overlay`. Le mixin pose `data-closing` : l'élément rejoint son état fermé dans le top layer, puis se ferme.
+- Sans `@starting-style` (Chrome avant 117, Firefox avant 129, Safari avant 17.5), l'entrée est instantanée.

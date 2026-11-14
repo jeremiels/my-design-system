@@ -95,6 +95,8 @@ Le composant ne crée pas lui-même ses sous-composants interactifs : l'intégra
 
 **Décision : C** quand un composant a besoin d'un autre pour fonctionner, **D** quand le sous-élément relève d'un choix d'intégration (comme le déclencheur de la modale). On réévaluera **B** quand la matrice inclura les scoped registries natifs.
 
+**Amendement du 14 novembre 2026 :** l'[ADR 0008](?path=/docs/documentation-adr-0008-commandes-et-modale--docs) retire le slot `trigger`. Le déclencheur de la modale reste un choix d'intégration, hors de la modale : un bouton avec `commandfor` et `command`.
+
 ### Deux versions d'une même marque sur une page : non couvert
 
 Ce cas est jugé peu probable et n'est pas traité ; depuis l'amendement du 11 novembre 2026, il ne fait toutefois plus échouer la page (voir les questions tranchées). Pour qu'un passage ultérieur à B reste un changement localisé, deux règles s'appliquent dès maintenant :

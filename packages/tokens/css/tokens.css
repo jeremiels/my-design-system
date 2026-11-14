@@ -95,6 +95,8 @@
     --u-duration-150: 150ms;
     --u-duration-250: 250ms;
     --u-easing-ease: cubic-bezier(0.25, 0.1, 0.25, 1);
+    --u-scale-95: 0.95;
+    --u-scale-100: 1;
     --u-shadow-100: 0px 1px 2px var(--u-palette-black-alpha-12);
     --u-shadow-200: 0px 4px 12px var(--u-palette-black-alpha-16);
     --u-shadow-300: 0px 12px 32px var(--u-palette-black-alpha-20);
@@ -132,6 +134,7 @@
     --u-motion-duration-fast: var(--u-duration-150);
     --u-motion-duration-base: var(--u-duration-250);
     --u-motion-easing-standard: var(--u-easing-ease);
+    --u-motion-scale-enter: var(--u-scale-95);
     --u-color-action-background: var(--u-palette-brand-600);
     --u-color-action-background-hover: var(--u-palette-brand-700);
     --u-color-action-background-active: var(--u-palette-brand-800);
@@ -257,6 +260,7 @@
     [data-brand] {
       --u-motion-duration-fast: var(--u-duration-0);
       --u-motion-duration-base: var(--u-duration-0);
+      --u-motion-scale-enter: var(--u-scale-100);
     }
   }
 }

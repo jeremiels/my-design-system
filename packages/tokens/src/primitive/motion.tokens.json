@@ -11,5 +11,10 @@
       "$description": "The CSS `ease` keyword.",
       "$value": [0.25, 0.1, 0.25, 1]
     }
+  },
+  "scale": {
+    "$type": "number",
+    "95": { "$value": 0.95 },
+    "100": { "$value": 1 }
   }
 }

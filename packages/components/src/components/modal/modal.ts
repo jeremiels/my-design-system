@@ -1,40 +1,61 @@
-import type { PropertyValues } from "lit";
+import type { LitElement, PropertyValues } from "lit";
 import { property, query } from "lit/decorators.js";
 import { ifDefined } from "lit/directives/if-defined.js";
 import { html } from "lit/static-html.js";
+import { ModalCancelEvent } from "../../events/modal-cancel.js";
 import { ModalCloseEvent } from "../../events/modal-close.js";
+import { withCommands } from "../../mixins/withCommands.js";
+import { withExitTransition } from "../../mixins/withExitTransition.js";
 import { DSBaseElement } from "../base-element.js";
 import { Button } from "../button/button.js";
+import { Icon } from "../icon/icon.js";
 import modalStyles from "./modal.css" with { type: "css" };
 import modalTokens from "./modal.tokens.css" with { type: "css" };
+import type { ModalClosedBy } from "./modal.type.js";
+
+/** `closedby` of `<dialog>`: Chrome and Edge 134, Firefox 141. Safari has none. */
+const supportsClosedBy =
+  typeof HTMLDialogElement !== "undefined" && "closedBy" in HTMLDialogElement.prototype;
 
 /**
  * A modal dialog. Built on the native `<dialog>`: the browser provides the
- * backdrop, closes it on Escape and makes the rest of the page inert while
- * it's open. Open it with `open`, or with a trigger in the `trigger` slot.
+ * backdrop, makes the rest of the page inert, closes it on Escape and gives
+ * the focus back to the element that had it.
+ *
+ * Open it from a button, without script: `<u-button commandfor="id"
+ * command="--show-modal">`, or a native `<button>` with the same attributes.
+ * The commands are `--show-modal`, `--close` and `--request-close`; the last
+ * two take the button's `value` as `returnValue`. From script, call
+ * `showModal()`, `close()` or `requestClose()`, or set `open`.
+ *
+ * It enters and leaves with a fade and a slight scale, set by its tokens.
+ * With reduced motion, it appears and disappears at once.
  *
  * @element u-modal
  * @summary A modal dialog.
- * @slot - The dialog content.
- * @slot trigger - Optional: an element that opens the dialog when clicked, e.g. a `button`.
+ * @slot - The dialog content. Its first `autofocus` element gets the focus on opening; the close button otherwise.
  * @csspart dialog - The native `<dialog>`.
- * @csspart content - The content wrapper inside the dialog.
+ * @csspart content - The content wrapper inside the dialog: the content, and the close button at its top end.
  * @csspart close-button - The button that closes the dialog: the `button` component of the same registration.
- * @fires {ModalCloseEvent} u-close - When the dialog closes, whatever the cause: close button, Escape or `open = false`.
+ * @csspart close-icon - The icon of the close button: the `icon` component of the same registration, named by `close-label`.
+ * @fires {ModalCancelEvent} u-cancel - Before it closes at the user's request: close button, Escape, click outside, `requestClose()`. Cancelable: `preventDefault()` keeps it open.
+ * @fires {ModalCloseEvent} u-close - When the dialog closes, whatever the cause. Its `value` is the modal's `returnValue`.
  * @tokens modal - Its tokens (`@cssprop`), from `@unicorne/tokens` (`src/component/modal/`): `npm run analyze` documents them.
  */
-export class Modal extends DSBaseElement {
+export class Modal extends withExitTransition(withCommands(DSBaseElement)) {
   static override componentName = "modal";
 
-  /** Renders its close button with the `button` of its own registration (ADR 0001, D2). */
-  static override dependencies = [Button];
+  /**
+   * Renders its close button and its icon with the `button` and the `icon`
+   * of its own registration (ADR 0001, D2).
+   */
+  static override dependencies = [Button, Icon];
 
   /**
    * Whether the modal is open. Reflects to the `open` attribute, so it can
    * be set declaratively (`<u-modal open>`) or bound reactively
-   * (`?open=${state}`) — the underlying `<dialog>` is kept in sync in
-   * `updated()`. Reading `.open` always reflects the real dialog state,
-   * including when the user closes it via Escape.
+   * (`?open=${state}`). Follows the real state: it turns `false` when the
+   * user closes the modal.
    */
   @property({ type: Boolean, reflect: true }) open = false;
 
@@ -46,17 +67,32 @@ export class Modal extends DSBaseElement {
   label?: string;
 
   /**
-   * Accessible label of the built-in close button.
-   * @default "Close"
+   * Accessible name of the close button, which shows only an icon. Translate
+   * it with the page: `close-label="Fermer"`.
    */
   @property({ type: String, attribute: "close-label" })
   closeLabel = "Close";
 
+  /**
+   * What closes the modal besides its close button, commands and methods:
+   * `closerequest`, Escape and the back gesture; `any`, also a click outside;
+   * `none`, nothing else.
+   */
+  @property({ type: String, attribute: "closedby" })
+  closedBy: ModalClosedBy = "closerequest";
+
+  /**
+   * The value the modal closed with: the `value` of the button that sent
+   * `--close` or `--request-close`, or the argument of `close()` or
+   * `requestClose()`. Empty on opening, and when dismissed without a value.
+   */
+  returnValue = "";
+
   /** @internal */
   @query("dialog") dialog!: HTMLDialogElement;
 
-  /** The next `close` event of the dialog is a reopening, not a closing. */
-  private reopening = false;
+  /** The last press on the dialog started outside it: on the backdrop. */
+  private pressedOutside = false;
 
   static styles = [DSBaseElement.styles ?? [], modalTokens, modalStyles];
 
@@ -67,27 +103,73 @@ export class Modal extends DSBaseElement {
     // non-modal dialog — no backdrop, the page isn't inert, Escape doesn't
     // close it. Reopen it as a modal; its `close` event isn't a closing.
     if (this.hasUpdated && this.dialog.open && !this.dialog.matches(":modal")) {
-      this.reopening = true;
       this.dialog.close();
       this.dialog.showModal();
     }
   }
 
+  /**
+   * Opens the modal, like `open = true` and the `--show-modal` command. The
+   * dialog is open on return once the modal has rendered, on its first
+   * render otherwise.
+   */
+  showModal(): void {
+    this.open = true;
+    if (this.hasUpdated) {
+      this.showDialog();
+    }
+  }
+
+  /**
+   * Closes the modal, like `open = false` and the `--close` command, without
+   * `u-cancel`. Its exit transition runs first; `u-close` follows.
+   * @param returnValue - The value it closes with, in `returnValue` and `u-close`.
+   */
+  close(returnValue?: string): void {
+    if (returnValue !== undefined) {
+      this.returnValue = returnValue;
+    }
+    this.open = false;
+    if (this.hasUpdated) {
+      this.closeDialog();
+    }
+  }
+
+  /**
+   * Asks to close the modal, like its close button and the `--request-close`
+   * command: fires `u-cancel`, then closes unless a listener canceled it.
+   * @param returnValue - The value it closes with, in `returnValue` and `u-close`.
+   */
+  requestClose(returnValue?: string): void {
+    if (this.open && this.dispatchEvent(new ModalCancelEvent())) {
+      this.close(returnValue);
+    }
+  }
+
   render() {
     const button = this.tagFor(Button);
-    // Clicks on the slotted trigger reach the <slot> through the composed path.
+    const icon = this.tagFor(Icon);
     return html`
-      <slot name="trigger" @click=${this.openModal}></slot>
       <dialog
         part="dialog"
         aria-label=${ifDefined(this.label || undefined)}
+        closedby=${this.closedBy}
+        @cancel=${this.handleDialogCancel}
         @close=${this.handleDialogClose}
+        @pointerdown=${this.handlePointerDown}
+        @pointerup=${this.handlePointerUp}
       >
         <div part="content" class="content">
-          <${button} part="close-button" variant="secondary" autofocus @click=${this.closeModal}>
-            ${this.closeLabel}
+          <!-- First in the focus order, at the top end on screen. -->
+          <${button}
+            part="close-button"
+            class="close"
+            variant="secondary"
+            @click=${this.handleCloseButton}
+          >
+            <${icon} part="close-icon" name="close" label=${this.closeLabel}></${icon}>
           </${button}>
-          <slot></slot>
+          <div class="body"><slot></slot></div>
         </div>
       </dialog>
     `;
@@ -97,33 +179,134 @@ export class Modal extends DSBaseElement {
     super.updated(changedProperties);
 
     if (changedProperties.has("open")) {
-      if (this.open && !this.dialog.open) {
-        this.dialog.showModal();
-      } else if (!this.open && this.dialog.open) {
-        this.dialog.close();
+      if (this.open) {
+        this.showDialog();
+      } else {
+        this.closeDialog();
       }
     }
   }
 
+  /** Runs `--show-modal`, `--close` and `--request-close`. */
+  protected override handleCommand(event: CommandEvent) {
+    // `source` is the native button, or the host of a `button` component.
+    const value = (event.source as { value?: unknown } | null)?.value;
+    const returnValue = typeof value === "string" && value !== "" ? value : undefined;
+    switch (event.command) {
+      case "--show-modal":
+        this.showModal();
+        break;
+      case "--close":
+        this.close(returnValue);
+        break;
+      case "--request-close":
+        this.requestClose(returnValue);
+        break;
+    }
+  }
+
+  private showDialog() {
+    const dialog = this.dialog;
+    // Reopened during its exit transition: it never closed.
+    this.cancelExitTransition(dialog);
+    if (!dialog.open) {
+      this.returnValue = "";
+      dialog.showModal();
+      void this.focusInitial();
+    }
+  }
+
   /**
-   * Fires whenever the native <dialog> closes, regardless of cause
-   * (close button, Escape key, `open = false`) — the single place that keeps
-   * `open` truthful to the actual dialog state and announces the closing.
+   * Gives the focus as the dialog's focusing steps would, across the slot:
+   * to the content's `autofocus` element, or else to the close button.
+   * Firefox and Safari only look for `autofocus` in the shadow root. Opened
+   * on its first render, the modal has a close button without its native
+   * `<button>` yet, and the dialog keeps the focus: focus again once the
+   * element has rendered, unless the focus moved meanwhile.
+   */
+  private async focusInitial() {
+    const target =
+      this.querySelector<HTMLElement>("[autofocus]") ??
+      this.renderRoot.querySelector<HTMLElement>(".close");
+    if (!target) {
+      return;
+    }
+    target.focus();
+    if (this.shadowRoot?.activeElement === this.dialog && "updateComplete" in target) {
+      await (target as LitElement).updateComplete;
+      if (this.dialog.open && this.shadowRoot?.activeElement === this.dialog) {
+        target.focus();
+      }
+    }
+  }
+
+  private closeDialog() {
+    const dialog = this.dialog;
+    if (dialog.open && !dialog.hasAttribute("data-closing")) {
+      void this.closeWithTransition(dialog, () => dialog.close());
+    }
+  }
+
+  /**
+   * Escape, the back gesture, or a click outside with `closedby="any"`.
+   * Closes through `u-cancel` and the exit transition, not at once.
+   */
+  private handleDialogCancel(event: Event) {
+    event.preventDefault();
+    // Safari ignores `closedby`: honor "none" here.
+    if (this.closedBy === "none") {
+      return;
+    }
+    // Not cancelable: the browser closes the dialog anyway.
+    if (this.dispatchEvent(new ModalCancelEvent({ cancelable: event.cancelable }))) {
+      this.close();
+    }
+  }
+
+  /**
+   * Fires whenever the native <dialog> closes, regardless of cause — the
+   * single place that keeps `open` truthful to the actual dialog state and
+   * announces the closing.
    */
   private handleDialogClose() {
-    if (this.reopening) {
-      this.reopening = false;
+    // The browser fires `close` in a later task. Reopened by then (moved in
+    // the DOM, or `close()` then `showModal()`), the modal never closed.
+    if (this.dialog.open) {
       return;
     }
     this.open = false;
-    this.dispatchEvent(new ModalCloseEvent());
+    this.dispatchEvent(new ModalCloseEvent(this.returnValue));
   }
 
-  private openModal() {
-    this.open = true;
+  private handleCloseButton() {
+    this.requestClose();
   }
 
-  private closeModal() {
-    this.open = false;
+  /** A click on the backdrop targets the dialog, outside its box. */
+  private isOutside(event: PointerEvent) {
+    const box = this.dialog.getBoundingClientRect();
+    return (
+      event.clientX < box.left ||
+      event.clientX > box.right ||
+      event.clientY < box.top ||
+      event.clientY > box.bottom
+    );
+  }
+
+  private handlePointerDown(event: PointerEvent) {
+    this.pressedOutside = this.isOutside(event);
+  }
+
+  /**
+   * `closedby="any"` where the browser lacks it (Safari). Press and release
+   * outside: a text selection that ends on the backdrop doesn't close it.
+   */
+  private handlePointerUp(event: PointerEvent) {
+    if (supportsClosedBy || this.closedBy !== "any") {
+      return;
+    }
+    if (this.pressedOutside && this.isOutside(event)) {
+      this.requestClose();
+    }
   }
 }

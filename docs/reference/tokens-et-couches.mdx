@@ -131,7 +131,7 @@ Les chemins de ce tableau partent de `packages/tokens/`.
     </tr>
     <tr>
       <td>`src/semantic/motion.reduced.tokens.json`</td>
-      <td>Les durées en mouvement réduit</td>
+      <td>Les durées et l'échelle en mouvement réduit</td>
     </tr>
     <tr>
       <td>`src/component/<composant>/<composant>.tokens.json`</td>
@@ -163,7 +163,7 @@ Le resolver déclare trois sets et des modifiers. Chaque modifier a des contexte
     <tr>
       <td>`motion`</td>
       <td>`full`, `reduced`</td>
-      <td>Les durées sémantiques</td>
+      <td>Les durées et l'échelle sémantiques</td>
     </tr>
     <tr>
       <td>`button-variant`</td>
@@ -391,7 +391,7 @@ Un `var()` n'a pas de valeur de repli littérale : la feuille de tokens est une 
 
 ## Mouvement réduit
 
-Le contexte `motion: reduced` met `motion.duration.*` à `{duration.0}` sous `@media (prefers-reduced-motion: reduce)`. Les composants lisent ces tokens et n'ont pas leur propre media query.
+Le contexte `motion: reduced` met `motion.duration.*` à `{duration.0}` et `motion.scale.*` à `{scale.100}`, sous `@media (prefers-reduced-motion: reduce)`. Les composants lisent ces tokens et n'ont pas leur propre media query.
 
 ## Contraste
 

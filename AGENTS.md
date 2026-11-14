@@ -30,10 +30,10 @@ Ce fichier est un index. Les détails sont dans la documentation et dans les ski
 Les pages sont dans `docs/` et dans Storybook. Elles suivent la [charte de rédaction](docs/reference/charte-de-redaction.mdx).
 
 - Tutoriel : [Premiers pas](docs/premiers-pas.mdx).
-- Guides : [Créer un design system de marque](docs/guides/design-system-de-marque.mdx), [Utiliser une marque dans une application Vue](docs/guides/application-vue.mdx).
+- Guides : [Créer un design system de marque](docs/guides/design-system-de-marque.mdx), [Utiliser une marque dans une application Vue](docs/guides/application-vue.mdx), [Ouvrir et fermer une modale](docs/guides/modale.mdx).
 - Référence : [Tokens et couches CSS](docs/reference/tokens-et-couches.mdx), [Support navigateurs](docs/reference/support-navigateurs.mdx), [Mixins](docs/reference/mixins.mdx), [Icônes](docs/reference/icones.mdx), [Charte de rédaction](docs/reference/charte-de-redaction.mdx). La JSDoc des composants est leur référence.
 - Explication : [Architecture CSS](docs/explication/architecture-css.mdx).
-- Décisions : [ADR 0001](docs/adr/0001-architecture-multi-marque.mdx), [ADR 0002](docs/adr/0002-tokens-dtcg.mdx) (tokens DTCG), [ADR 0003](docs/adr/0003-packages-tokens-et-composants.mdx) (packages tokens et composants), [ADR 0004](docs/adr/0004-plateformes-natives-et-figma.mdx) (iOS, Android et Figma), [ADR 0005](docs/adr/0005-icones.mdx) (icônes), [ADR 0006](docs/adr/0006-design-system-de-marque.mdx) (design system de marque), [ADR 0007](docs/adr/0007-champs-de-formulaire.mdx) (champs de formulaire).
+- Décisions : [ADR 0001](docs/adr/0001-architecture-multi-marque.mdx), [ADR 0002](docs/adr/0002-tokens-dtcg.mdx) (tokens DTCG), [ADR 0003](docs/adr/0003-packages-tokens-et-composants.mdx) (packages tokens et composants), [ADR 0004](docs/adr/0004-plateformes-natives-et-figma.mdx) (iOS, Android et Figma), [ADR 0005](docs/adr/0005-icones.mdx) (icônes), [ADR 0006](docs/adr/0006-design-system-de-marque.mdx) (design system de marque), [ADR 0007](docs/adr/0007-champs-de-formulaire.mdx) (champs de formulaire), [ADR 0008](docs/adr/0008-commandes.mdx) (commandes et modale).
 
 ## Emplacements
 
@@ -53,8 +53,9 @@ Les pages sont dans `docs/` et dans Storybook. Elles suivent la [charte de réda
 `packages/components/` (`@unicorne/components`) :
 
 - `src/components/<nom>/` : la classe, sa feuille `.css`, la feuille générée de ses tokens `.tokens.css`, ses types `.type.ts` et ses stories `.stories.ts`. `base-element.ts` définit `DSBaseElement` (shadow DOM, contrat d'enregistrement, `tagFor()`). `field/` contient `FieldBase`, la base des champs de formulaire, et leurs tokens.
-- `src/mixins/` : `withDisabled` et `withInternals`.
-- `src/events/` : une classe `Event` typée par événement (`modal-close.ts`).
+- `src/mixins/` : `withDisabled`, `withInternals`, `withInvoker` (envoyer une commande), `withCommands` (la recevoir) et `withExitTransition` (sortie animée du top layer).
+- `src/polyfills/` : `invokers.ts` charge `invokers-polyfill` à la demande, là où Invoker Commands manquent ([ADR 0008](docs/adr/0008-commandes.mdx)).
+- `src/events/` : une classe `Event` typée par événement (`modal-cancel.ts`, `modal-close.ts`).
 - `src/registry/` : `defineComponents()`, le catalogue (`allComponents`) et `designSystem()`, la déclaration d'un design system de marque ([ADR 0006](docs/adr/0006-design-system-de-marque.mdx)). `src/define.ts` enregistre le catalogue avec le préfixe `u`. `src/index.ts` n'a aucun effet de bord.
 - `src/styles/` : le CSS de la page. `main.css` devient `styles.css` (couches et utilitaires), `reset.css` devient le `reset.css` optionnel.
 - `terrazzo.config.ts` : la liaison web des tokens de composant. Il associe chaque modifier à un attribut et génère les feuilles `:host`.

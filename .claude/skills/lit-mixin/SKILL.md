@@ -5,7 +5,13 @@ description: Créer ou modifier un mixin de comportement du socle (packages/comp
 
 # Mixins de comportement
 
-Exemples : `packages/components/src/mixins/withDisabled.ts` (propriété, styles, ARIA dans le cycle de vie) et `packages/components/src/mixins/withInternals.ts` (bases abstraites, API du navigateur à usage unique).
+Exemples :
+
+- `packages/components/src/mixins/withDisabled.ts` : propriété, styles, ARIA dans le cycle de vie.
+- `packages/components/src/mixins/withInternals.ts` : bases abstraites, API du navigateur à usage unique.
+- `packages/components/src/mixins/withInvoker.ts` : attributs passés à un élément du template, listener posé dans le constructeur, polyfill chargé à la demande.
+- `packages/components/src/mixins/withCommands.ts` : un hook `protected` que le composant surcharge.
+- `packages/components/src/mixins/withExitTransition.ts` : des méthodes `protected` sans propriété, un contrat CSS documenté.
 
 Un mixin est une API publique : les marques l'appliquent à leurs composants, et `packages/components/src/index.ts` l'exporte. La référence des mixins existants est `docs/reference/mixins.mdx`.
 
@@ -51,7 +57,7 @@ export function withDisabled<T extends Constructor<LitElement>>(Base: T) {
 - **Styles :** ajoutez-les à ceux de la base : `[(Base as unknown as typeof LitElement).styles ?? [], xStyles]`. Les règles du skill `component-styling` s'appliquent : des tokens, jamais de valeur littérale.
 - **Cycle de vie :** appelez toujours `super` (`updated`, `connectedCallback`, `disconnectedCallback`, `firstUpdated`). Le constructeur reçoit et transmet `...args`. Les mixins s'empilent ainsi dans n'importe quel ordre.
 - **API à usage unique :** n'appelez jamais `attachInternals()` dans un autre mixin. Exigez `withInternals()` et lisez `this.internals`.
-- **Support navigateurs :** protégez une API absente de la matrice, et réduisez-la à une opération sans effet (`customStates` de `withInternals`).
+- **Support navigateurs :** protégez une API absente de la matrice, et réduisez-la à une opération sans effet (`customStates` de `withInternals`). Un polyfill se charge par `import()`, seulement là où l'API manque, depuis `packages/components/src/polyfills/` (`invokers.ts`). Ajoutez son package à `rollupOptions.external` de `packages/components/vite.config.ts`.
 
 ## Appliquez-le
 

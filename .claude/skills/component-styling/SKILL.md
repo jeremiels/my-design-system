@@ -54,6 +54,7 @@ Une variante est un contexte de modifier dans les sources DTCG (skill `design-to
 - Nommez les classes internes `.bloc` et `.bloc--modificateur` (`.alert--pending`). Elles ne sont pas une API : une marque vise les parts (`[part~="button"]`).
 - Un composant ne contient aucune logique de thème. Les thèmes changent les tokens sémantiques.
 - Faites pointer les durées vers `motion.duration.*`. Le contexte `motion: reduced` traite déjà le mouvement réduit.
+- Animez l'entrée et la sortie d'un élément du top layer (`<dialog>`, popover) comme `modal.css` : `@starting-style`, `display` et `overlay` dans les transitions, état ouvert suivi de `:where(:not([data-closing]))`. Le mixin `withExitTransition` gère la sortie dans Firefox et Safari.
 
 ## 5. Vérifiez le support navigateurs
 

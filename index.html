@@ -14,8 +14,8 @@
 
   <body>
     <u-button size="large" variant="primary">Hello World</u-button>
-    <u-modal label="Hello">
-      <u-button slot="trigger">Open modal</u-button>
+    <u-button commandfor="modal" command="--show-modal">Open modal</u-button>
+    <u-modal id="modal" label="Hello" closedby="any">
       <p>This is a modal</p>
     </u-modal>
   </body>

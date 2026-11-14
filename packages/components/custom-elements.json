@@ -100,6 +100,38 @@
           "name": "*",
           "declaration": {
             "name": "*",
+            "module": "src/mixins/withInvoker.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "*",
+          "declaration": {
+            "name": "*",
+            "module": "src/mixins/withCommands.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "*",
+          "declaration": {
+            "name": "*",
+            "module": "src/mixins/withExitTransition.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "*",
+          "declaration": {
+            "name": "*",
+            "module": "src/events/modal-cancel.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "*",
+          "declaration": {
+            "name": "*",
             "module": "src/events/modal-close.js"
           }
         },
@@ -125,6 +157,14 @@
           "declaration": {
             "name": "*",
             "module": "src/components/alert/alert.type.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "*",
+          "declaration": {
+            "name": "*",
+            "module": "src/components/modal/modal.type.js"
           }
         },
         {
@@ -286,12 +326,49 @@
     },
     {
       "kind": "javascript-module",
+      "path": "src/events/modal-cancel.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "Fired by `modal` before it closes at the user's request: its close button,\nEscape, a click outside (`closedby=\"any\"`), `requestClose()` or the\n`--request-close` command. `preventDefault()` keeps it open, for unsaved\nchanges for instance. Not cancelable when the browser closes it anyway:\nEscape pressed again without any interaction in between.",
+          "name": "ModalCancelEvent",
+          "superclass": {
+            "name": "Event",
+            "module": "src/events/modal-cancel.ts"
+          }
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "ModalCancelEvent",
+          "declaration": {
+            "name": "ModalCancelEvent",
+            "module": "src/events/modal-cancel.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/events/modal-close.ts",
       "declarations": [
         {
           "kind": "class",
-          "description": "Fired by `modal` when its dialog closes, whatever the cause: its close\nbutton, Escape, or `open` set to `false`. The native `close` event of the\ninner `<dialog>` doesn't leave the shadow root.",
+          "description": "Fired by `modal` when its dialog closes, whatever the cause: its close\nbutton, Escape, a click outside, a command, a method, or `open` set to\n`false`. The native `close` event of the inner `<dialog>` doesn't leave the\nshadow root.",
           "name": "ModalCloseEvent",
+          "members": [
+            {
+              "kind": "field",
+              "name": "value",
+              "type": {
+                "text": "string"
+              },
+              "readonly": true,
+              "description": "The value the modal closed with, its `returnValue`: the `value` of the\nbutton that sent `--close` or `--request-close`, or the argument of\n`close()` or `requestClose()`. Empty when dismissed without one, by\nEscape for instance. Not `returnValue`: `Event` has a legacy one.",
+              "default": "value"
+            }
+          ],
           "superclass": {
             "name": "Event",
             "module": "src/events/modal-close.ts"
@@ -305,6 +382,90 @@
           "declaration": {
             "name": "ModalCloseEvent",
             "module": "src/events/modal-close.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/mixins/withCommands.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "",
+          "name": "CommandsInterface",
+          "members": [
+            {
+              "kind": "method",
+              "name": "handleCommand",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "event",
+                  "type": {
+                    "text": "CommandEvent"
+                  }
+                }
+              ],
+              "description": "Runs a command sent to the component."
+            }
+          ]
+        },
+        {
+          "kind": "mixin",
+          "description": "Mixin: lets a component take commands from invoker buttons (Invoker\nCommands): a native `<button commandfor=\"id\" command=\"--name\">`, or a\ncomponent with `withInvoker` (`button`).\n\nThe browser runs a built-in command (`show-modal`) only on a native\n`<dialog>` or popover, and never sends it to a custom element. A component\ntakes custom commands, prefixed with `--`.\n\nWhere Invoker Commands are missing, the first connected component loads\ninvokers-polyfill: the page's native invoker buttons need it too.",
+          "name": "withCommands",
+          "members": [
+            {
+              "kind": "method",
+              "name": "handleCommand",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "_event",
+                  "type": {
+                    "text": "CommandEvent"
+                  }
+                }
+              ],
+              "description": "Runs a command sent to the component: `event.command` is its name,\n`event.source` the button, retargeted to its host. Does nothing by\ndefault. Handle the component's `--` commands and ignore the others:\nthe polyfill also sends built-in ones."
+            }
+          ],
+          "parameters": [
+            {
+              "name": "Base",
+              "type": {
+                "text": "T"
+              }
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "CommandsInterface",
+          "declaration": {
+            "name": "CommandsInterface",
+            "module": "src/mixins/withCommands.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "withCommands",
+          "declaration": {
+            "name": "withCommands",
+            "module": "src/mixins/withCommands.ts"
           }
         }
       ]
@@ -424,6 +585,139 @@
     },
     {
       "kind": "javascript-module",
+      "path": "src/mixins/withExitTransition.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "",
+          "name": "ExitTransitionInterface",
+          "members": [
+            {
+              "kind": "method",
+              "name": "closeWithTransition",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "Promise<void>"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "element",
+                  "type": {
+                    "text": "HTMLElement"
+                  }
+                },
+                {
+                  "name": "close",
+                  "type": {
+                    "text": "() => void"
+                  }
+                }
+              ],
+              "description": "Closes `element` once its exit transition ends."
+            },
+            {
+              "kind": "method",
+              "name": "cancelExitTransition",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "element",
+                  "type": {
+                    "text": "HTMLElement"
+                  }
+                }
+              ],
+              "description": "Stops an exit transition under way: `element` stays open."
+            }
+          ]
+        },
+        {
+          "kind": "mixin",
+          "description": "Mixin: animates the exit of a top-layer element of the shadow root, a\n`<dialog>` or a popover, in every browser.\n\nThe component's CSS writes the transition: the closed state on the\nelement, the open state on `[open]` or `:popover-open` followed by\n`:where(:not([data-closing]))`, the entry in `@starting-style`, and\n`display` and `overlay` among the transitioned properties. Where `overlay`\nis missing, `closeWithTransition()` sets `data-closing` first: the element\nreaches its closed state in the top layer, then closes.",
+          "name": "withExitTransition",
+          "members": [
+            {
+              "kind": "method",
+              "name": "closeWithTransition",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "Promise<void>"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "element",
+                  "type": {
+                    "text": "HTMLElement"
+                  }
+                },
+                {
+                  "name": "close",
+                  "type": {
+                    "text": "() => void"
+                  }
+                }
+              ],
+              "description": "Closes `element` once its exit transition ends: `close` closes it\n(`dialog.close()`, `hidePopover()`). Without transition, as with\nreduced motion, it closes at once. Resolves when closed, or when\n`cancelExitTransition()` kept it open."
+            },
+            {
+              "kind": "method",
+              "name": "cancelExitTransition",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "element",
+                  "type": {
+                    "text": "HTMLElement"
+                  }
+                }
+              ]
+            }
+          ],
+          "parameters": [
+            {
+              "name": "Base",
+              "type": {
+                "text": "T"
+              }
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "ExitTransitionInterface",
+          "declaration": {
+            "name": "ExitTransitionInterface",
+            "module": "src/mixins/withExitTransition.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "withExitTransition",
+          "declaration": {
+            "name": "withExitTransition",
+            "module": "src/mixins/withExitTransition.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/mixins/withInternals.ts",
       "declarations": [
         {
@@ -498,6 +792,222 @@
           "declaration": {
             "name": "withInternals",
             "module": "src/mixins/withInternals.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/mixins/withInvoker.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "",
+          "name": "InvokerInterface",
+          "members": [
+            {
+              "kind": "field",
+              "name": "commandFor",
+              "type": {
+                "text": "string | undefined"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "command",
+              "type": {
+                "text": "string | undefined"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "commandForElement",
+              "type": {
+                "text": "Element | null"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "invokerControl",
+              "type": {
+                "text": "HTMLButtonElement | null"
+              },
+              "privacy": "protected",
+              "description": "The native `<button>` that sends the command.",
+              "readonly": true
+            }
+          ]
+        },
+        {
+          "kind": "mixin",
+          "description": "Mixin: makes a component that renders a native `<button>` an invoker, as\n`<button commandfor command>` is (Invoker Commands). The component takes\n`commandfor` and `command`, and hands them to its native button: the\nbrowser sends the command, runs the built-in ones on a native `<dialog>`\nor popover, and retargets `event.source` to the host.\n\nWhere Invoker Commands are missing, the first component with a `command`\nloads invokers-polyfill.",
+          "name": "withInvoker",
+          "members": [
+            {
+              "kind": "field",
+              "name": "commandFor",
+              "type": {
+                "text": "string | undefined"
+              },
+              "description": "`id` of the element the button controls, in the button's tree: the\ndocument, or the shadow root the button is rendered in. Needs `command`.",
+              "attribute": "commandfor"
+            },
+            {
+              "kind": "field",
+              "name": "command",
+              "type": {
+                "text": "string | undefined"
+              },
+              "description": "Command sent on click: a built-in one for a native `<dialog>` or\npopover (`show-modal`, `close`, `toggle-popover`…), or a custom one,\nprefixed with `--`, for a component (`--show-modal` for `modal`).",
+              "attribute": "command"
+            },
+            {
+              "kind": "field",
+              "name": "commandForElement",
+              "type": {
+                "text": "Element | null"
+              },
+              "default": "null",
+              "description": "The element the button controls. Takes precedence over `commandfor`,\nand reaches an element of an enclosing shadow root, like the native\nproperty."
+            },
+            {
+              "kind": "field",
+              "name": "invokerControl",
+              "type": {
+                "text": "HTMLButtonElement | null"
+              },
+              "privacy": "protected",
+              "description": "The native `<button>` that sends the command: the first `button` of the\nshadow root. Override it when the template renders another one first.",
+              "readonly": true
+            },
+            {
+              "kind": "method",
+              "name": "#target",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "Element | null"
+                }
+              },
+              "description": "`commandForElement`, or the element `commandfor` names in the host's tree."
+            },
+            {
+              "kind": "method",
+              "name": "#sync",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "Element | null"
+                }
+              },
+              "description": "Hands the command and its target to the native button. Returns the target."
+            },
+            {
+              "kind": "field",
+              "name": "#syncOnClick",
+              "privacy": "private"
+            }
+          ],
+          "attributes": [
+            {
+              "name": "commandfor",
+              "type": {
+                "text": "string | undefined"
+              },
+              "description": "`id` of the element the button controls, in the button's tree: the\ndocument, or the shadow root the button is rendered in. Needs `command`.",
+              "fieldName": "commandFor"
+            },
+            {
+              "name": "command",
+              "type": {
+                "text": "string | undefined"
+              },
+              "description": "Command sent on click: a built-in one for a native `<dialog>` or\npopover (`show-modal`, `close`, `toggle-popover`…), or a custom one,\nprefixed with `--`, for a component (`--show-modal` for `modal`).",
+              "fieldName": "command"
+            }
+          ],
+          "parameters": [
+            {
+              "name": "Base",
+              "type": {
+                "text": "T"
+              }
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "InvokerInterface",
+          "declaration": {
+            "name": "InvokerInterface",
+            "module": "src/mixins/withInvoker.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "withInvoker",
+          "declaration": {
+            "name": "withInvoker",
+            "module": "src/mixins/withInvoker.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/polyfills/invokers.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "nativeInvokers",
+          "description": "The browser's own Invoker Commands, not the polyfill's: read before any loading."
+        },
+        {
+          "kind": "function",
+          "name": "invokersReady",
+          "return": {
+            "type": {
+              "text": "boolean"
+            }
+          },
+          "description": "Whether `HTMLButtonElement.commandForElement` exists, native or polyfilled.\nNever assign it before: an own property would hide the polyfill's accessor\nfor good, as with `popover`."
+        },
+        {
+          "kind": "function",
+          "name": "loadInvokers",
+          "return": {
+            "type": {
+              "text": "Promise<void>"
+            }
+          },
+          "description": "Loads the polyfill once, where Invoker Commands are missing. Resolves at once elsewhere."
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "nativeInvokers",
+          "declaration": {
+            "name": "nativeInvokers",
+            "module": "src/polyfills/invokers.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "invokersReady",
+          "declaration": {
+            "name": "invokersReady",
+            "module": "src/polyfills/invokers.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "loadInvokers",
+          "declaration": {
+            "name": "loadInvokers",
+            "module": "src/polyfills/invokers.ts"
           }
         }
       ]
@@ -1454,7 +1964,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "A button that triggers an action, or submits or resets its form (`type`).",
+          "description": "A button that triggers an action, or submits or resets its form (`type`).\nWith `commandfor` and `command`, it controls another element without\nscript, like a native invoker button: it opens a `modal` with\n`command=\"--show-modal\"`.",
           "name": "Button",
           "members": [
             {
@@ -1492,6 +2002,16 @@
               "attribute": "type"
             },
             {
+              "kind": "field",
+              "name": "value",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "Value of the button. A `modal` closed by this button (`--close`,\n`--request-close`) takes it as its `returnValue`.",
+              "attribute": "value"
+            },
+            {
               "kind": "method",
               "name": "handleClick",
               "privacy": "protected",
@@ -1507,6 +2027,98 @@
               "inheritedFrom": {
                 "name": "ButtonBase",
                 "module": "src/components/button/button-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "commandFor",
+              "type": {
+                "text": "string | undefined"
+              },
+              "description": "`id` of the element the button controls, in the button's tree: the\ndocument, or the shadow root the button is rendered in. Needs `command`.",
+              "attribute": "commandfor",
+              "inheritedFrom": {
+                "name": "withInvoker",
+                "module": "src/mixins/withInvoker.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "command",
+              "type": {
+                "text": "string | undefined"
+              },
+              "description": "Command sent on click: a built-in one for a native `<dialog>` or\npopover (`show-modal`, `close`, `toggle-popover`…), or a custom one,\nprefixed with `--`, for a component (`--show-modal` for `modal`).",
+              "attribute": "command",
+              "inheritedFrom": {
+                "name": "withInvoker",
+                "module": "src/mixins/withInvoker.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "commandForElement",
+              "type": {
+                "text": "Element | null"
+              },
+              "default": "null",
+              "description": "The element the button controls. Takes precedence over `commandfor`,\nand reaches an element of an enclosing shadow root, like the native\nproperty.",
+              "inheritedFrom": {
+                "name": "withInvoker",
+                "module": "src/mixins/withInvoker.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "invokerControl",
+              "type": {
+                "text": "HTMLButtonElement | null"
+              },
+              "privacy": "protected",
+              "description": "The native `<button>` that sends the command: the first `button` of the\nshadow root. Override it when the template renders another one first.",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "withInvoker",
+                "module": "src/mixins/withInvoker.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "#target",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "Element | null"
+                }
+              },
+              "description": "`commandForElement`, or the element `commandfor` names in the host's tree.",
+              "inheritedFrom": {
+                "name": "withInvoker",
+                "module": "src/mixins/withInvoker.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "#sync",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "Element | null"
+                }
+              },
+              "description": "Hands the command and its target to the native button. Returns the target.",
+              "inheritedFrom": {
+                "name": "withInvoker",
+                "module": "src/mixins/withInvoker.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "#syncOnClick",
+              "privacy": "private",
+              "inheritedFrom": {
+                "name": "withInvoker",
+                "module": "src/mixins/withInvoker.ts"
               }
             },
             {
@@ -1682,6 +2294,39 @@
               "fieldName": "type"
             },
             {
+              "name": "value",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "Value of the button. A `modal` closed by this button (`--close`,\n`--request-close`) takes it as its `returnValue`.",
+              "fieldName": "value"
+            },
+            {
+              "name": "commandfor",
+              "type": {
+                "text": "string | undefined"
+              },
+              "description": "`id` of the element the button controls, in the button's tree: the\ndocument, or the shadow root the button is rendered in. Needs `command`.",
+              "fieldName": "commandFor",
+              "inheritedFrom": {
+                "name": "withInvoker",
+                "module": "src/mixins/withInvoker.ts"
+              }
+            },
+            {
+              "name": "command",
+              "type": {
+                "text": "string | undefined"
+              },
+              "description": "Command sent on click: a built-in one for a native `<dialog>` or\npopover (`show-modal`, `close`, `toggle-popover`…), or a custom one,\nprefixed with `--`, for a component (`--show-modal` for `modal`).",
+              "fieldName": "command",
+              "inheritedFrom": {
+                "name": "withInvoker",
+                "module": "src/mixins/withInvoker.ts"
+              }
+            },
+            {
               "name": "disabled",
               "type": {
                 "text": "boolean"
@@ -1722,6 +2367,10 @@
             }
           ],
           "mixins": [
+            {
+              "name": "withInvoker",
+              "module": "/src/mixins/withInvoker.js"
+            },
             {
               "name": "withInternals",
               "module": "/src/mixins/withInternals.js"
@@ -2839,7 +3488,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "A modal dialog. Built on the native `<dialog>`: the browser provides the\nbackdrop, closes it on Escape and makes the rest of the page inert while\nit's open. Open it with `open`, or with a trigger in the `trigger` slot.",
+          "description": "A modal dialog. Built on the native `<dialog>`: the browser provides the\nbackdrop, makes the rest of the page inert, closes it on Escape and gives\nthe focus back to the element that had it.\n\nOpen it from a button, without script: `<u-button commandfor=\"id\"\ncommand=\"--show-modal\">`, or a native `<button>` with the same attributes.\nThe commands are `--show-modal`, `--close` and `--request-close`; the last\ntwo take the button's `value` as `returnValue`. From script, call\n`showModal()`, `close()` or `requestClose()`, or set `open`.\n\nIt enters and leaves with a fade and a slight scale, set by its tokens.\nWith reduced motion, it appears and disappears at once.",
           "name": "Modal",
           "cssProperties": [
             {
@@ -2858,6 +3507,16 @@
               "default": "var(--u-spacing-md)"
             },
             {
+              "description": "Space between the content and the close button.",
+              "name": "--u-modal-gap",
+              "default": "var(--u-spacing-sm)"
+            },
+            {
+              "description": "Padding of the close button around its icon, the same on every side: a square button.",
+              "name": "--u-modal-close-button-padding",
+              "default": "var(--u-spacing-xs)"
+            },
+            {
               "description": "Backdrop color.",
               "name": "--u-modal-backdrop-color",
               "default": "var(--u-color-backdrop)"
@@ -2866,6 +3525,21 @@
               "description": "Dialog shadow.",
               "name": "--u-modal-shadow",
               "default": "var(--u-shadow-overlay)"
+            },
+            {
+              "description": "Scale of the closed dialog: its entry starts there and its exit ends there. One with reduced motion.",
+              "name": "--u-modal-scale-closed",
+              "default": "var(--u-motion-scale-enter)"
+            },
+            {
+              "description": "Entry and exit transition duration, of the dialog and its backdrop. Zero with reduced motion.",
+              "name": "--u-modal-transition-duration",
+              "default": "var(--u-motion-duration-base)"
+            },
+            {
+              "description": "Entry and exit transition easing.",
+              "name": "--u-modal-transition-timing-function",
+              "default": "var(--u-motion-easing-standard)"
             }
           ],
           "cssParts": [
@@ -2874,22 +3548,22 @@
               "name": "dialog"
             },
             {
-              "description": "The content wrapper inside the dialog.",
+              "description": "The content wrapper inside the dialog: the content, and the close button at its top end.",
               "name": "content"
             },
             {
               "description": "The button that closes the dialog: the `button` component of the same registration.",
               "name": "close-button"
+            },
+            {
+              "description": "The icon of the close button: the `icon` component of the same registration, named by `close-label`.",
+              "name": "close-icon"
             }
           ],
           "slots": [
             {
-              "description": "The dialog content.",
+              "description": "The dialog content. Its first `autofocus` element gets the focus on opening; the close button otherwise.",
               "name": ""
-            },
-            {
-              "description": "Optional: an element that opens the dialog when clicked, e.g. a `button`.",
-              "name": "trigger"
             }
           ],
           "members": [
@@ -2914,8 +3588,8 @@
                 "text": "readonly (typeof DSBaseElement)[]"
               },
               "static": true,
-              "default": "[Button]",
-              "description": "Renders its close button with the `button` of its own registration (ADR 0001, D2).",
+              "default": "[Button, Icon]",
+              "description": "Renders its close button and its icon with the `button` and the `icon`\nof its own registration (ADR 0001, D2).",
               "inheritedFrom": {
                 "name": "DSBaseElement",
                 "module": "src/components/base-element.ts"
@@ -2928,7 +3602,7 @@
                 "text": "boolean"
               },
               "default": "false",
-              "description": "Whether the modal is open. Reflects to the `open` attribute, so it can\nbe set declaratively (`<u-modal open>`) or bound reactively\n(`?open=${state}`) — the underlying `<dialog>` is kept in sync in\n`updated()`. Reading `.open` always reflects the real dialog state,\nincluding when the user closes it via Escape.",
+              "description": "Whether the modal is open. Reflects to the `open` attribute, so it can\nbe set declaratively (`<u-modal open>`) or bound reactively\n(`?open=${state}`). Follows the real state: it turns `false` when the\nuser closes the modal.",
               "attribute": "open",
               "reflects": true
             },
@@ -2948,34 +3622,243 @@
                 "text": "string"
               },
               "default": "\"Close\"",
-              "description": "Accessible label of the built-in close button.",
+              "description": "Accessible name of the close button, which shows only an icon. Translate\nit with the page: `close-label=\"Fermer\"`.",
               "attribute": "close-label"
             },
             {
               "kind": "field",
-              "name": "reopening",
+              "name": "closedBy",
+              "type": {
+                "text": "ModalClosedBy"
+              },
+              "default": "\"closerequest\"",
+              "description": "What closes the modal besides its close button, commands and methods:\n`closerequest`, Escape and the back gesture; `any`, also a click outside;\n`none`, nothing else.",
+              "attribute": "closedby"
+            },
+            {
+              "kind": "field",
+              "name": "returnValue",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "The value the modal closed with: the `value` of the button that sent\n`--close` or `--request-close`, or the argument of `close()` or\n`requestClose()`. Empty on opening, and when dismissed without a value."
+            },
+            {
+              "kind": "field",
+              "name": "pressedOutside",
               "type": {
                 "text": "boolean"
               },
               "privacy": "private",
               "default": "false",
-              "description": "The next `close` event of the dialog is a reopening, not a closing."
+              "description": "The last press on the dialog started outside it: on the backdrop."
+            },
+            {
+              "kind": "method",
+              "name": "showModal",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "description": "Opens the modal, like `open = true` and the `--show-modal` command. The\ndialog is open on return once the modal has rendered, on its first\nrender otherwise."
+            },
+            {
+              "kind": "method",
+              "name": "close",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "returnValue",
+                  "optional": true,
+                  "type": {
+                    "text": "string"
+                  },
+                  "description": "The value it closes with, in `returnValue` and `u-close`."
+                }
+              ],
+              "description": "Closes the modal, like `open = false` and the `--close` command, without\n`u-cancel`. Its exit transition runs first; `u-close` follows."
+            },
+            {
+              "kind": "method",
+              "name": "requestClose",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "returnValue",
+                  "optional": true,
+                  "type": {
+                    "text": "string"
+                  },
+                  "description": "The value it closes with, in `returnValue` and `u-close`."
+                }
+              ],
+              "description": "Asks to close the modal, like its close button and the `--request-close`\ncommand: fires `u-cancel`, then closes unless a listener canceled it."
+            },
+            {
+              "kind": "method",
+              "name": "handleCommand",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "event",
+                  "type": {
+                    "text": "CommandEvent"
+                  }
+                }
+              ],
+              "description": "Runs `--show-modal`, `--close` and `--request-close`.",
+              "inheritedFrom": {
+                "name": "withCommands",
+                "module": "src/mixins/withCommands.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "showDialog",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "focusInitial",
+              "privacy": "private",
+              "description": "Gives the focus as the dialog's focusing steps would, across the slot:\nto the content's `autofocus` element, or else to the close button.\nFirefox and Safari only look for `autofocus` in the shadow root. Opened\non its first render, the modal has a close button without its native\n`<button>` yet, and the dialog keeps the focus: focus again once the\nelement has rendered, unless the focus moved meanwhile."
+            },
+            {
+              "kind": "method",
+              "name": "closeDialog",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "handleDialogCancel",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "event",
+                  "type": {
+                    "text": "Event"
+                  }
+                }
+              ],
+              "description": "Escape, the back gesture, or a click outside with `closedby=\"any\"`.\nCloses through `u-cancel` and the exit transition, not at once."
             },
             {
               "kind": "method",
               "name": "handleDialogClose",
               "privacy": "private",
-              "description": "Fires whenever the native <dialog> closes, regardless of cause\n(close button, Escape key, `open = false`) — the single place that keeps\n`open` truthful to the actual dialog state and announces the closing."
+              "description": "Fires whenever the native <dialog> closes, regardless of cause — the\nsingle place that keeps `open` truthful to the actual dialog state and\nannounces the closing."
             },
             {
               "kind": "method",
-              "name": "openModal",
+              "name": "handleCloseButton",
               "privacy": "private"
             },
             {
               "kind": "method",
-              "name": "closeModal",
-              "privacy": "private"
+              "name": "isOutside",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "event",
+                  "type": {
+                    "text": "PointerEvent"
+                  }
+                }
+              ],
+              "description": "A click on the backdrop targets the dialog, outside its box."
+            },
+            {
+              "kind": "method",
+              "name": "handlePointerDown",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "event",
+                  "type": {
+                    "text": "PointerEvent"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "handlePointerUp",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "event",
+                  "type": {
+                    "text": "PointerEvent"
+                  }
+                }
+              ],
+              "description": "`closedby=\"any\"` where the browser lacks it (Safari). Press and release\noutside: a text selection that ends on the backdrop doesn't close it."
+            },
+            {
+              "kind": "method",
+              "name": "closeWithTransition",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "Promise<void>"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "element",
+                  "type": {
+                    "text": "HTMLElement"
+                  }
+                },
+                {
+                  "name": "close",
+                  "type": {
+                    "text": "() => void"
+                  }
+                }
+              ],
+              "description": "Closes `element` once its exit transition ends: `close` closes it\n(`dialog.close()`, `hidePopover()`). Without transition, as with\nreduced motion, it closes at once. Resolves when closed, or when\n`cancelExitTransition()` kept it open.",
+              "inheritedFrom": {
+                "name": "withExitTransition",
+                "module": "src/mixins/withExitTransition.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "cancelExitTransition",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "element",
+                  "type": {
+                    "text": "HTMLElement"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "withExitTransition",
+                "module": "src/mixins/withExitTransition.ts"
+              }
             },
             {
               "kind": "method",
@@ -3004,9 +3887,16 @@
           "events": [
             {
               "type": {
+                "text": "ModalCancelEvent"
+              },
+              "description": "Before it closes at the user's request: close button, Escape, click outside, `requestClose()`. Cancelable: `preventDefault()` keeps it open.",
+              "name": "u-cancel"
+            },
+            {
+              "type": {
                 "text": "ModalCloseEvent"
               },
-              "description": "When the dialog closes, whatever the cause: close button, Escape or `open = false`.",
+              "description": "When the dialog closes, whatever the cause. Its `value` is the modal's `returnValue`.",
               "name": "u-close"
             }
           ],
@@ -3017,7 +3907,7 @@
                 "text": "boolean"
               },
               "default": "false",
-              "description": "Whether the modal is open. Reflects to the `open` attribute, so it can\nbe set declaratively (`<u-modal open>`) or bound reactively\n(`?open=${state}`) — the underlying `<dialog>` is kept in sync in\n`updated()`. Reading `.open` always reflects the real dialog state,\nincluding when the user closes it via Escape.",
+              "description": "Whether the modal is open. Reflects to the `open` attribute, so it can\nbe set declaratively (`<u-modal open>`) or bound reactively\n(`?open=${state}`). Follows the real state: it turns `false` when the\nuser closes the modal.",
               "fieldName": "open"
             },
             {
@@ -3034,8 +3924,27 @@
                 "text": "string"
               },
               "default": "\"Close\"",
-              "description": "Accessible label of the built-in close button.",
+              "description": "Accessible name of the close button, which shows only an icon. Translate\nit with the page: `close-label=\"Fermer\"`.",
               "fieldName": "closeLabel"
+            },
+            {
+              "name": "closedby",
+              "type": {
+                "text": "ModalClosedBy"
+              },
+              "default": "\"closerequest\"",
+              "description": "What closes the modal besides its close button, commands and methods:\n`closerequest`, Escape and the back gesture; `any`, also a click outside;\n`none`, nothing else.",
+              "fieldName": "closedBy"
+            }
+          ],
+          "mixins": [
+            {
+              "name": "withExitTransition",
+              "module": "/src/mixins/withExitTransition.js"
+            },
+            {
+              "name": "withCommands",
+              "module": "/src/mixins/withCommands.js"
             }
           ],
           "superclass": {
@@ -3057,6 +3966,12 @@
           }
         }
       ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/components/modal/modal.type.ts",
+      "declarations": [],
+      "exports": []
     },
     {
       "kind": "javascript-module",

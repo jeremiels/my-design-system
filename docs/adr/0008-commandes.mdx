@@ -1,0 +1,124 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Documentation/ADR/0008 Commandes et modale" />
+
+# ADR 0008 — Commandes et modale
+
+**Statut :** accepté · **Date :** 14 novembre 2026
+
+## Contexte
+
+`modal` recevait son déclencheur dans un slot `trigger`. Elle écoutait le clic de l'élément slotté ([ADR 0001](?path=/docs/documentation-adr-0001-architecture-multi-marque--docs), D2, option D).
+
+HTML a les Invoker Commands : `<button commandfor="id" command="show-modal">` ouvre un `<dialog>` sans script.
+
+- Ils existent depuis Chrome et Edge 135, Firefox 144 et Safari 26.2.
+- La [matrice](?path=/docs/documentation-référence-support-navigateurs--docs) exige Chrome 111, Firefox 115 et Safari 16.4.
+- Le navigateur exécute une commande intégrée (`show-modal`, `close`) seulement sur un `<dialog>` ou un popover. Pour un autre élément, « If this standard does not define is valid command steps for target's local name, then return false » : aucun événement `command` n'arrive.
+- Une commande personnalisée commence par `--`. Elle arrive sur tout élément HTML, sous la forme d'un événement `command`.
+- `commandfor` cherche son `id` dans l'arbre du bouton. `commandForElement` accepte aussi un élément d'un arbre ancêtre.
+- Reference Target redirigerait l'`id` de `u-modal` vers son `<dialog>` interne. Seuls Chrome et Edge 152 le livrent ([ADR 0007](?path=/docs/documentation-adr-0007-champs-de-formulaire--docs)).
+- `button` rend un `<button>` natif dans son shadow root. Son hôte n'est pas un `<button>` : il n'a ni `commandfor` ni `command`.
+
+La modale n'avait pas non plus d'animation, de fermeture annulable ni de valeur de retour.
+
+### Critères de décision
+
+1. Une application ouvre et ferme une modale sans script, avec les attributs de HTML.
+2. Tout bouton ouvre une modale : un `<button>` natif, le `button` du socle ou celui d'une marque.
+3. L'ouverture fonctionne dans toute la matrice.
+4. Une application qui n'envoie aucune commande ne télécharge rien de plus.
+
+## D1 — Le déclencheur
+
+- **Option A — Le slot `trigger` :**
+  - Le déclencheur est un enfant de la modale : il ne peut pas être ailleurs dans la page, dans un menu par exemple.
+  - Un bouton dans le contenu ne ferme pas la modale sans script : le critère 1 échoue.
+- **Option B — Les commandes :** `<u-button commandfor="confirm" command="--show-modal">`, ou un `<button>` natif avec les mêmes attributs.
+- **Option C — Une API programmatique seule :** `showModal()` et `close()`. Le critère 1 échoue.
+
+**Décision : B, et l'API de C en complément.** Le slot `trigger` disparaît.
+
+- `modal` reçoit `--show-modal`, `--close` et `--request-close` : les noms des commandes de `<dialog>`, préfixés par `--`.
+- Ses méthodes `showModal()`, `close()` et `requestClose()` font la même chose depuis le script.
+- `--close` et `--request-close` prennent la `value` du bouton comme `returnValue`, comme la commande native `close`.
+- `button` reçoit `commandfor`, `command`, `commandForElement` et `value`, et les passe à son `<button>` natif. Le navigateur envoie la commande, et reporte `event.source` sur l'hôte.
+
+## D2 — Les navigateurs sans Invoker Commands
+
+- **Option A — `invokers-polyfill`, chargé à la demande :** `import()` là où `HTMLButtonElement.prototype.commandForElement` manque.
+  - Le polyfill couvre aussi les `<button commandfor>` natifs de l'application, vers ses `<dialog>` et ses popovers.
+  - Il modifie `attachShadow()` et `attachInternals()` dans les navigateurs où il se charge.
+  - Il ignore une cible située dans un shadow root autre que le document.
+- **Option B — Un repli propre au socle :** il couvre les commandes `--` vers les composants, pas les `<dialog>` natifs de l'application.
+- **Option C — L'application charge le polyfill :** le critère 3 dépend de chaque application.
+
+**Décision : A.**
+
+- Le premier composant qui envoie ou reçoit une commande charge le polyfill. Une application sans commande ne le télécharge pas (critère 4).
+- `invokers-polyfill` est une dépendance de `@unicorne/components`, hors du build : le bundler de l'application en fait un chunk.
+- Pour une cible que le polyfill ignore, `withInvoker` envoie lui-même la commande personnalisée.
+
+## D3 — L'animation
+
+- La modale entre et sort en fondu, avec une légère réduction d'échelle : `opacity` et `scale`, des propriétés que le compositeur anime.
+- L'entrée part de l'état fermé, écrit dans `@starting-style`.
+- `display` et `overlay` gardent le `<dialog>` dans le top layer pendant sa sortie. Firefox et Safari n'ont pas `overlay` : `withExitTransition` y retarde la fermeture jusqu'à la fin de la transition.
+- Les tokens `modal.transition-duration`, `modal.transition-timing-function` et `modal.scale-closed` règlent l'animation. En mouvement réduit, la durée vaut 0 et l'échelle 1.
+
+## D4 — Les mixins
+
+<table>
+  <thead>
+    <tr>
+      <th>Mixin</th>
+      <th>Rôle</th>
+      <th>Appliqué à</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>`withInvoker`</td>
+      <td>Envoie des commandes depuis le `<button>` natif d'un composant</td>
+      <td>`Button`</td>
+    </tr>
+    <tr>
+      <td>`withCommands`</td>
+      <td>Reçoit les commandes `--` dans `handleCommand()`</td>
+      <td>`Modal`</td>
+    </tr>
+    <tr>
+      <td>`withExitTransition`</td>
+      <td>Anime la sortie d'un élément du top layer dans toute la matrice</td>
+      <td>`Modal`</td>
+    </tr>
+  </tbody>
+</table>
+
+Les marques appliquent ces mixins à leurs propres composants : un tiroir, un popover. La référence est [Mixins](?path=/docs/documentation-référence-mixins--docs).
+
+## Conséquences
+
+- **Code :** les trois mixins, `packages/components/src/polyfills/invokers.ts`, `Button` et `Modal`.
+- **API :**
+  - Le slot `trigger` disparaît : c'est une rupture pour les applications.
+  - `modal` reçoit `closedby`, `returnValue`, `showModal()`, `close()`, `requestClose()` et l'événement `u-cancel`.
+  - L'événement `u-close` porte la valeur de fermeture dans `value`, car `Event` a déjà un `returnValue` booléen hérité.
+  - Le bouton de fermeture affiche l'icône `close`. `close-label` lui donne son nom accessible, et la part `close-icon` expose l'icône.
+- **Tokens :** `motion.scale.enter`, et cinq tokens de `modal` : l'animation, l'espace entre le contenu et le bouton de fermeture, et le padding de ce bouton.
+- **Tests :** les stories de `modal` dans les trois moteurs, les tests des mixins, un test du polyfill dans Chromium sans Invoker Commands, et le test d'ACME.
+- **Documentation :** le guide [Ouvrir et fermer une modale](?path=/docs/documentation-guides-ouvrir-et-fermer-une-modale--docs), la référence des mixins, la matrice, les premiers pas, `AGENTS.md` et les skills.
+
+## Questions ouvertes
+
+- **Reference Target dans toute la matrice :** `commandfor` atteint alors le `<dialog>` interne. Les commandes intégrées (`show-modal`) fonctionnent aussi sur `u-modal`, et les commandes `--` restent.
+- **`aria-haspopup="dialog"` sur le déclencheur :** le navigateur ne l'ajoute pas pour `show-modal`, et les lecteurs d'écran l'annoncent de façons différentes.
+
+## Sources
+
+Consultées le 14 novembre 2026.
+
+- [HTML Standard — The button element](https://html.spec.whatwg.org/multipage/form-elements.html#the-button-element) (WHATWG) : la validité d'une commande pour sa cible, puis l'événement `command`.
+- [Invoker commands](https://web-platform-dx.github.io/web-features-explorer/features/invoker-commands/) (web-features explorer) : Chrome et Edge 135, Firefox 144, Safari 26.2, Baseline depuis décembre 2025.
+- [invokers-polyfill](https://github.com/keithamus/invokers-polyfill) (Keith Cirkel, licence MIT), version 1.0.4.
+- `declarative-dialog-popover-control`, `dialog` et `animate-to-from-top-layer` (skill `modern-web-guidance`) : détecter `commandForElement` sur `HTMLButtonElement.prototype`, ne charger le polyfill que s'il manque, et ajouter `overlay` aux transitions d'un élément du top layer.

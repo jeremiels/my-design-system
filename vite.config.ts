@@ -32,6 +32,8 @@ export default defineConfig({
       "lit/directives/live.js",
       "lit/directives/unsafe-html.js",
       "lit/static-html.js",
+      // Imported by src/polyfills/invokers.ts, where Invoker Commands are missing.
+      "invokers-polyfill/fn",
     ],
   },
 });

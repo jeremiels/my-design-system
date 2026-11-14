@@ -72,8 +72,8 @@ Créez `index.html` :
     <u-button>Enregistrer</u-button>
     <u-button variant="danger">Supprimer</u-button>
 
-    <u-modal label="Confirmation">
-      <u-button slot="trigger">Ouvrir la modale</u-button>
+    <u-button commandfor="confirm" command="--show-modal">Ouvrir la modale</u-button>
+    <u-modal id="confirm" label="Confirmation">
       <p>Voulez-vous continuer ?</p>
     </u-modal>
 
@@ -91,7 +91,7 @@ npx vite
 Ouvrez l'adresse affichée (`http://localhost:5173`). Vous voyez deux boutons, bleu et rouge, un troisième bouton qui ouvre la modale, et une alerte verte avec son icône.
 
 - L'attribut `variant` choisit la couleur du bouton.
-- Le slot `trigger` contient l'élément qui ouvre la modale.
+- Les attributs `commandfor` et `command` du troisième bouton ouvrent la modale, sans script.
 - L'attribut `label` donne son nom accessible à la modale.
 - L'alerte affiche l'icône de son type. Le navigateur télécharge seulement le module de cette icône, pas tout le set.
 - La balise `meta` `color-scheme` annonce les thèmes clair et sombre au navigateur, avant le chargement des feuilles.
@@ -106,7 +106,7 @@ document.querySelector("u-modal").addEventListener("u-close", () => {
 });
 ```
 
-Ouvrez la modale, puis fermez-la avec Échap ou avec son bouton de fermeture. La console affiche « Modale fermée ».
+Ouvrez la modale, puis fermez-la avec Échap ou avec son bouton de fermeture. La console affiche « Modale fermée ». Les autres façons d'ouvrir et de fermer la modale sont dans [Ouvrir et fermer une modale](?path=/docs/documentation-guides-ouvrir-et-fermer-une-modale--docs).
 
 ## 6. Changez un token
 

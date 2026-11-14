@@ -16,6 +16,16 @@
       "$value": "{spacing.md}",
       "$description": "Content padding."
     },
+    "gap": {
+      "$type": "dimension",
+      "$value": "{spacing.sm}",
+      "$description": "Space between the content and the close button."
+    },
+    "close-button-padding": {
+      "$type": "dimension",
+      "$value": "{spacing.xs}",
+      "$description": "Padding of the close button around its icon, the same on every side: a square button."
+    },
     "backdrop-color": {
       "$type": "color",
       "$value": "{color.backdrop}",
@@ -25,6 +35,21 @@
       "$type": "shadow",
       "$value": "{shadow.overlay}",
       "$description": "Dialog shadow."
+    },
+    "scale-closed": {
+      "$type": "number",
+      "$value": "{motion.scale.enter}",
+      "$description": "Scale of the closed dialog: its entry starts there and its exit ends there. One with reduced motion."
+    },
+    "transition-duration": {
+      "$type": "duration",
+      "$value": "{motion.duration.base}",
+      "$description": "Entry and exit transition duration, of the dialog and its backdrop. Zero with reduced motion."
+    },
+    "transition-timing-function": {
+      "$type": "cubicBezier",
+      "$value": "{motion.easing.standard}",
+      "$description": "Entry and exit transition easing."
     }
   }
 }

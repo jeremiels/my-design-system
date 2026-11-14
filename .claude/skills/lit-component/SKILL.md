@@ -64,7 +64,7 @@ render() {
 - `tagFor()` donne la balise de l'enregistrement de cet élément : `u-modal` rend `u-button`, `acme-modal` rend la surcharge de la marque.
 - N'écrivez jamais la balise d'un autre composant en dur, et n'appelez jamais `document.createElement` pour lui. La surcharge de la marque serait ignorée.
 - Une icône se rend de la même façon, avec `Icon` dans `dependencies` (skill `icons`).
-- Quand le sous-élément est un choix d'intégration, préférez un slot. La modale rend son bouton de fermeture (`tagFor(Button)`) et reçoit son déclencheur par le slot `trigger`.
+- Quand le sous-élément est un choix d'intégration, préférez un slot ou une commande. La modale rend son bouton de fermeture (`tagFor(Button)`). Son déclencheur reste hors d'elle : un bouton avec `commandfor` et `command` (section Commandes).
 - Ajoutez tout nouvel import `lit/...` à `optimizeDeps.include` dans le `vite.config.ts` de la racine. Sinon, Vitest et Storybook ré-optimisent en cours de test et échouent.
 
 ## Événements
@@ -74,6 +74,18 @@ render() {
 - Émettez-le avec `this.dispatchEvent(new ModalCloseEvent())`, documentez-le avec `@fires` et exportez-le depuis `packages/components/src/index.ts`.
 - Créez un événement seulement s'il n'existe pas d'événement natif. Un `click` qui sort du shadow root depuis un `<button>` est l'événement du composant : documentez-le avec `@fires click`.
 - Un composant désactivé ne laisse sortir aucun événement natif (`ButtonBase.handleClick`).
+
+## Commandes
+
+Un bouton contrôle un autre élément sans script : `<u-button commandfor="id" command="--show-modal">` (Invoker Commands, ADR 0008, `docs/adr/0008-commandes.mdx`).
+
+- Un composant qui s'ouvre, se ferme ou bascule reçoit des commandes : appliquez `withCommands` et surchargez `handleCommand()`.
+- Nommez ses commandes avec `--`, sur le modèle des commandes natives : `--show-modal`, `--close`. Le navigateur n'envoie jamais une commande intégrée à un custom element.
+- Donnez la même action en méthode publique documentée : `showModal()` pour `--show-modal`.
+- Un composant qui rend un `<button>` natif envoie des commandes : appliquez `withInvoker`.
+- Un élément du top layer (`<dialog>`, popover) anime sa sortie avec `withExitTransition`.
+- Le polyfill se charge seul, à la demande : n'importez jamais `invokers-polyfill` dans un composant.
+- Les membres de ces mixins sont dans `docs/reference/mixins.mdx`.
 
 ## ElementInternals, formulaires, états
 

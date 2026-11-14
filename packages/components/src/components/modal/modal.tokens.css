@@ -3,6 +3,11 @@
   --u-modal-background-color: var(--u-color-surface-raised);
   --u-modal-border-radius: var(--u-radius-lg);
   --u-modal-padding: var(--u-spacing-md);
+  --u-modal-gap: var(--u-spacing-sm);
+  --u-modal-close-button-padding: var(--u-spacing-xs);
   --u-modal-backdrop-color: var(--u-color-backdrop);
   --u-modal-shadow: var(--u-shadow-overlay);
+  --u-modal-scale-closed: var(--u-motion-scale-enter);
+  --u-modal-transition-duration: var(--u-motion-duration-base);
+  --u-modal-transition-timing-function: var(--u-motion-easing-standard);
 }

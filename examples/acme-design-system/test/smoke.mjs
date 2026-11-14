@@ -121,7 +121,8 @@ try {
   const full = await runPage("test/index.html");
 
   // The page renders an alert of each type `success` (base icon) and
-  // `information` (ACME's icon): of the base's icons, only `success` loads.
+  // `information` (ACME's icon), and a modal, whose close button shows
+  // `close`: of the base's icons, only `close` and `success` load.
   const loadedBaseIcons = [...full]
     .filter(
       (path) => path.startsWith("node_modules/@unicorne/icons/js/") && !path.endsWith("/index.js"),
@@ -130,8 +131,8 @@ try {
     .sort();
   record(
     "the page downloads only the icons it renders",
-    loadedBaseIcons.join() === "success",
-    `base icons downloaded: ${loadedBaseIcons.join(", ") || "none"} (expected: success)`,
+    loadedBaseIcons.join() === "close,success",
+    `base icons downloaded: ${loadedBaseIcons.join(", ") || "none"} (expected: close, success)`,
   );
 
   // `acme.define(Alert)`: the alert and its icon, without ACME's button.

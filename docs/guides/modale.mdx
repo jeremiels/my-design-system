@@ -1,0 +1,196 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Documentation/Guides/Ouvrir et fermer une modale" />
+
+# Ouvrir et fermer une modale
+
+Ce guide ouvre une modale depuis un bouton, puis depuis le script, et réagit à sa fermeture. Les exemples utilisent le préfixe `u`. Une marque utilise le sien : `acme-modal`, `acme-button`.
+
+L'API complète est dans la page du composant, Components/Modal. Les raisons de ces choix sont dans l'[ADR 0008](?path=/docs/documentation-adr-0008-commandes-et-modale--docs).
+
+## Ouvrir la modale depuis un bouton
+
+1. Donnez un `id` à la modale.
+2. Donnez au bouton `commandfor`, avec cet `id`.
+3. Donnez au bouton `command="--show-modal"`.
+
+```html
+<u-button commandfor="profile" command="--show-modal">Modifier le profil</u-button>
+
+<u-modal id="profile" label="Modifier le profil">
+  <p>Contenu de la modale</p>
+</u-modal>
+```
+
+- Un `<button>` natif prend les mêmes attributs : `<button type="button" commandfor="profile" command="--show-modal">`.
+- Le bouton et la modale sont dans le même arbre : le document, ou le même shadow root.
+- Hors de cet arbre, passez la modale à la propriété `commandForElement` du bouton.
+- Dans les navigateurs sans Invoker Commands, le socle charge un polyfill. L'application n'a rien à faire ([Support navigateurs](?path=/docs/documentation-référence-support-navigateurs--docs)).
+
+## Fermer la modale avec une réponse
+
+1. Ajoutez dans la modale un bouton par réponse.
+2. Donnez à chaque bouton `commandfor`, `command="--close"` et une `value`.
+3. Placez `autofocus` sur la réponse sans risque.
+4. Lisez la réponse dans `value` de l'événement `u-close`.
+
+```html
+<u-button commandfor="delete" command="--show-modal" variant="danger">Supprimer</u-button>
+
+<u-modal id="delete" label="Supprimer le fichier ?">
+  <p>Le fichier est supprimé définitivement.</p>
+  <u-button commandfor="delete" command="--close" value="cancel" variant="secondary" autofocus>
+    Annuler
+  </u-button>
+  <u-button commandfor="delete" command="--close" value="delete" variant="danger">
+    Supprimer
+  </u-button>
+</u-modal>
+```
+
+```js
+document.querySelector("#delete").addEventListener("u-close", (event) => {
+  if (event.value === "delete") {
+    deleteFile();
+  }
+});
+```
+
+- La propriété `returnValue` de la modale contient la même réponse.
+- Échap, le clic extérieur et le bouton de fermeture ferment sans réponse : `value` est vide.
+- Sans `autofocus` dans le contenu, le bouton de fermeture reçoit le focus.
+- Le bouton de fermeture affiche une icône. Traduisez son nom accessible avec `close-label` : `<u-modal close-label="Fermer">`.
+
+## Ouvrir et fermer la modale depuis le script
+
+1. Appelez `showModal()` pour ouvrir la modale.
+2. Appelez `close()` pour la fermer, avec une réponse si besoin.
+
+```js
+const modal = document.querySelector("#profile");
+
+modal.showModal();
+modal.close("saved");
+```
+
+<table>
+  <thead>
+    <tr>
+      <th>Script</th>
+      <th>Commande</th>
+      <th>Effet</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>`showModal()`, `open = true`</td>
+      <td>`--show-modal`</td>
+      <td>Ouvre la modale</td>
+    </tr>
+    <tr>
+      <td>`close(réponse)`, `open = false`</td>
+      <td>`--close`</td>
+      <td>Ferme la modale, puis émet `u-close`</td>
+    </tr>
+    <tr>
+      <td>`requestClose(réponse)`</td>
+      <td>`--request-close`</td>
+      <td>Émet `u-cancel`, puis ferme la modale si personne ne l'annule</td>
+    </tr>
+  </tbody>
+</table>
+
+- `open` suit l'état réel : il passe à `false` quand l'utilisateur ferme la modale.
+- `u-close` part après la transition de sortie.
+
+## Ouvrir la modale dans une application Vue
+
+1. Donnez une `ref` à la modale.
+2. Appelez `showModal()` sur cette `ref`.
+
+```vue
+<script setup lang="ts">
+import { ref } from "vue";
+import type { Modal, ModalCloseEvent } from "@acme/design-system";
+
+const profile = ref<Modal>();
+
+function onClose(event: ModalCloseEvent) {
+  if (event.value === "saved") {
+    // …
+  }
+}
+</script>
+
+<template>
+  <acme-button @click="profile?.showModal()">Modifier le profil</acme-button>
+  <acme-modal ref="profile" label="Modifier le profil" @u-close="onClose">…</acme-modal>
+</template>
+```
+
+- Les attributs `commandfor` et `command` fonctionnent aussi dans un template Vue.
+- La configuration de Vue pour les composants d'une marque est dans [Utiliser une marque dans une application Vue](?path=/docs/documentation-guides-utiliser-une-marque-dans-une-application-vue--docs).
+
+## Garder la modale ouverte
+
+Un formulaire avec des modifications non enregistrées garde la modale ouverte.
+
+1. Écoutez `u-cancel` sur la modale.
+2. Appelez `event.preventDefault()` tant que le formulaire a des modifications.
+3. Affichez un message qui dit pourquoi la modale reste ouverte.
+
+```js
+modal.addEventListener("u-cancel", (event) => {
+  if (form.dataset.dirty === "true") {
+    event.preventDefault();
+    message.hidden = false;
+  }
+});
+```
+
+- Le bouton de fermeture, Échap, le clic extérieur et `requestClose()` émettent `u-cancel`.
+- `close()` et `--close` ferment sans `u-cancel`.
+- Échap pressé deux fois sans autre interaction force la fermeture : `event.cancelable` vaut alors `false`.
+
+## Choisir ce qui ferme la modale
+
+1. Donnez à la modale l'attribut `closedby`.
+
+<table>
+  <thead>
+    <tr>
+      <th>`closedby`</th>
+      <th>Ferment la modale</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>`closerequest` (défaut)</td>
+      <td>Échap, le geste retour, le bouton de fermeture, les commandes, les méthodes</td>
+    </tr>
+    <tr>
+      <td>`any`</td>
+      <td>La même liste, et un clic à l'extérieur</td>
+    </tr>
+    <tr>
+      <td>`none`</td>
+      <td>Le bouton de fermeture, les commandes, les méthodes</td>
+    </tr>
+  </tbody>
+</table>
+
+Safari n'a pas `closedby` : la modale y gère elle-même le clic extérieur et `none`.
+
+## Changer l'animation
+
+1. Posez les tokens de la modale sur sa balise, dans la feuille de l'application.
+
+```css
+u-modal {
+  --u-modal-scale-closed: 1; /* un fondu seul */
+  --u-modal-transition-duration: var(--u-motion-duration-fast);
+}
+```
+
+- En mouvement réduit, la modale apparaît et disparaît sans transition.
+- Les tokens de la modale sont dans la page du composant, Components/Modal.

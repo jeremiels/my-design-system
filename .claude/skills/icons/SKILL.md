@@ -18,7 +18,7 @@ Exemples : `packages/icons/src/information.svg`, `packages/components/src/compon
 5. Indexez les sorties (`git add packages/icons`), puis lancez `npm run check`.
 
 - Le nom d'une icône est une API. Le renommer ou le retirer est une rupture pour les marques : cherchez le nom dans `packages/`, `examples/` et `docs/`.
-- Une icône utilisée par un composant du socle ne se retire pas : `alert` affiche `information`, `success`, `warning` et `danger`.
+- Une icône utilisée par un composant du socle ne se retire pas : `alert` affiche `information`, `success`, `warning` et `danger`, et `modal` affiche `close`.
 
 ## Rendre une icône dans un composant
 

@@ -130,6 +130,29 @@ Le socle supporte les canaux étendus des entreprises (Firefox ESR, Chrome et Ed
       <td>`text-wrap`, `interpolate-size`</td>
       <td>Amélioration progressive, `interpolate-size` sous `@supports`</td>
     </tr>
+    <tr>
+      <td>Invoker Commands (`commandfor`, `command`)</td>
+      <td>
+        Natifs depuis Chrome et Edge 135, Firefox 144 et Safari 26.2. Ailleurs, `withInvoker` et
+        `withCommands` chargent `invokers-polyfill` à la demande ([ADR
+        0008](?path=/docs/documentation-adr-0008-commandes-et-modale--docs)).
+      </td>
+    </tr>
+    <tr>
+      <td>`@starting-style`, `transition-behavior`, `overlay`</td>
+      <td>
+        Amélioration progressive. Avant Chrome 117, Firefox 129 et Safari 17.5, l'entrée est
+        instantanée. Sans `overlay` (Firefox, Safari), `withExitTransition` retarde la
+        fermeture.
+      </td>
+    </tr>
+    <tr>
+      <td>`closedby` de `<dialog>`</td>
+      <td>
+        Depuis Chrome et Edge 134 et Firefox 141, absent de Safari. `modal` y gère elle-même le clic
+        extérieur et `closedby="none"`.
+      </td>
+    </tr>
   </tbody>
 </table>
 

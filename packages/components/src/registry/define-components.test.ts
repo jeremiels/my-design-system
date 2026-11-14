@@ -45,9 +45,11 @@ describe("defineComponents", () => {
     const prefix = uniquePrefix();
     const tags = defineComponents({ prefix, components: [Modal] });
 
-    expect(Object.keys(tags).sort()).toEqual(["button", "modal"]);
+    expect(Object.keys(tags).sort()).toEqual(["button", "icon", "modal"]);
     const modal = await render<Modal>(`${prefix}-modal`);
     expect(modal.shadowRoot!.querySelector(`${prefix}-button`)).toBeInstanceOf(Button);
+    // The close button's icon.
+    expect(modal.shadowRoot!.querySelector(`${prefix}-icon`)).toBeInstanceOf(Icon);
   });
 
   it("lets two prefixes coexist, each modal rendering its own button", async () => {

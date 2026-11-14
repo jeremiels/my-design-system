@@ -75,6 +75,9 @@
     "tokens:check": "npm run tokens && git diff --exit-code -- 'src/components/*/*.tokens.css'",
     "api:check": "npm run analyze && git diff --exit-code -- custom-elements.json"
   },
+  "dependencies": {
+    "invokers-polyfill": "^1.0.4"
+  },
   "devDependencies": {
     "@unicorne/icons": "0.0.0",
     "@unicorne/tokens": "0.0.0"

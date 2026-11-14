@@ -49,8 +49,10 @@ export default defineConfig({
     rollupOptions: {
       // Don't bundle Lit nor the other packages of the base: the application
       // installs one copy of each. Its bundler splits @unicorne/icons into one
-      // chunk per icon, loaded when the icon renders (ADR 0005).
-      external: [/^lit/, /^@unicorne\//],
+      // chunk per icon, loaded when the icon renders (ADR 0005), and
+      // invokers-polyfill into a chunk loaded only where Invoker Commands
+      // are missing (ADR 0008).
+      external: [/^lit/, /^@unicorne\//, /^invokers-polyfill/],
     },
   },
 });

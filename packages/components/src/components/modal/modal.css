@@ -1,10 +1,28 @@
 /* The tokens are in modal.tokens.css, generated from tokens/component/modal/
    (ADR 0002). These rules only read them. */
+
+/* Closed: the state the entry starts from and the exit ends at. Opacity and
+   scale run on the compositor. `display` and `overlay` keep the dialog
+   visible and in the top layer until its exit ends (Chrome and Edge 117);
+   elsewhere, withExitTransition delays the closing with data-closing. With
+   reduced motion, the tokens give no duration and no scale. */
 dialog {
   border: none;
   border-radius: var(--u-modal-border-radius);
   padding: 0;
   box-shadow: var(--u-modal-shadow);
+  opacity: 0;
+  scale: var(--u-modal-scale-closed);
+  transition-property: opacity, scale, display, overlay;
+  transition-duration: var(--u-modal-transition-duration);
+  transition-timing-function: var(--u-modal-transition-timing-function);
+  /* On its own: inside the `transition` shorthand, a browser without it
+     would drop the whole declaration. */
+  transition-behavior: allow-discrete;
+}
+dialog[open]:where(:not([data-closing])) {
+  opacity: 1;
+  scale: 1;
 }
 /* Scrolling over the dialog or its backdrop doesn't scroll the page behind.
    The modal dialog is a scroll container (overflow: auto, from the user
@@ -19,13 +37,51 @@ dialog::backdrop {
   /* Documented exception to "no literal fallback": before Chrome 122,
      Firefox 120 and Safari 17.4, ::backdrop inherits nothing, so no token can
      reach it and the backdrop would be transparent. Keep in sync with
-     color.backdrop (light theme) in tokens/semantic/theme.light.tokens.json. */
+     color.backdrop (light theme) in tokens/semantic/theme.light.tokens.json.
+     There, the transition tokens don't reach it either: its duration is
+     0s, and it appears without fading. */
   background-color: var(--u-modal-backdrop-color, hsl(0deg 0% 0% / 50%));
   overflow: hidden;
   overscroll-behavior: contain;
+  opacity: 0;
+  transition-property: opacity, display, overlay;
+  transition-duration: var(--u-modal-transition-duration);
+  transition-timing-function: var(--u-modal-transition-timing-function);
+  transition-behavior: allow-discrete;
+}
+dialog[open]:where(:not([data-closing]))::backdrop {
+  opacity: 1;
+}
+/* The entry: from the closed state, when the dialog appears. After the open
+   state, which it overrides. Before Chrome 117, Firefox 129 and Safari 17.5,
+   the dialog appears at once. */
+@starting-style {
+  dialog[open]:where(:not([data-closing])) {
+    opacity: 0;
+    scale: var(--u-modal-scale-closed);
+  }
+  dialog[open]:where(:not([data-closing]))::backdrop {
+    opacity: 0;
+  }
 }
 .content {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: var(--u-modal-gap);
   background-color: var(--u-modal-background-color);
   border-radius: inherit;
   padding: var(--u-modal-padding);
+}
+/* The close button comes first in the DOM, so it gets the focus when the
+   content has no `autofocus`; it shows at the top end. */
+.close {
+  grid-area: 1 / 2;
+}
+/* A square button around the icon: the modal's token, not the button's. */
+.close::part(button) {
+  padding: var(--u-modal-close-button-padding);
+}
+.body {
+  grid-area: 1 / 1;
 }

@@ -86,6 +86,19 @@ await check("the modal's close button is ACME's button", () => {
   return [close instanceof AcmeButton, `close button <${close?.localName}>`];
 });
 
+await check("ACME's button opens ACME's modal with a command", async () => {
+  const modal = $("#modal");
+  // A user clicks the native button inside the component.
+  $("#open-modal").shadowRoot.querySelector("button").click();
+  const opened = modal.open && modal.shadowRoot.querySelector("dialog").matches(":modal");
+  const closed = new Promise((resolve) =>
+    modal.addEventListener("u-close", resolve, { once: true }),
+  );
+  modal.close("done");
+  const { value } = await closed;
+  return [opened && value === "done", `opened: ${opened}, closed with "${value}"`];
+});
+
 await check("ACME's own card renders ACME's button", () => {
   const card = $("#card");
   const action = card.shadowRoot.querySelector('[part~="action"]');

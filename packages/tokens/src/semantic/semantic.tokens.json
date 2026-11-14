@@ -89,6 +89,14 @@
     "easing": {
       "$type": "cubicBezier",
       "standard": { "$value": "{easing.ease}" }
+    },
+    "scale": {
+      "$type": "number",
+      "$description": "One when the user asks for reduced motion (motion.reduced).",
+      "enter": {
+        "$value": "{scale.95}",
+        "$description": "The scale an overlay enters from and leaves to, like a modal."
+      }
     }
   }
 }
