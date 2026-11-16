@@ -139,6 +139,22 @@ Le socle supporte les canaux étendus des entreprises (Firefox ESR, Chrome et Ed
       </td>
     </tr>
     <tr>
+      <td>Popover API (`popover`, `showPopover()`)</td>
+      <td>
+        Depuis Chrome et Edge 114, Firefox 125 et Safari 17. Ailleurs, `withAnchoredPopover` fixe le
+        popover au-dessus de la page, hors du top layer ([ADR
+        0009](?path=/docs/documentation-adr-0009-autocomplete-combobox-et-popovers-ancrés--docs)).
+      </td>
+    </tr>
+    <tr>
+      <td>CSS anchor positioning (`position-area`, `position-try-fallbacks`, `anchor-size()`)</td>
+      <td>
+        Depuis Chrome et Edge 129, Firefox 147 et Safari 26. Ailleurs, `withAnchoredPopover` charge
+        Floating UI à la demande ([ADR
+        0009](?path=/docs/documentation-adr-0009-autocomplete-combobox-et-popovers-ancrés--docs)).
+      </td>
+    </tr>
+    <tr>
       <td>`@starting-style`, `transition-behavior`, `overlay`</td>
       <td>
         Amélioration progressive. Avant Chrome 117, Firefox 129 et Safari 17.5, l'entrée est

@@ -34,6 +34,9 @@ export default defineConfig({
       "lit/static-html.js",
       // Imported by src/polyfills/invokers.ts, where Invoker Commands are missing.
       "invokers-polyfill/fn",
+      // Imported by src/polyfills/anchor-positioning.ts, where CSS anchor
+      // positioning is missing.
+      "@floating-ui/dom",
     ],
   },
 });

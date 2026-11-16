@@ -60,11 +60,11 @@ export default defineConfig({
 ```ts
 // src/main.ts
 import "@acme/design-system/styles.css";
-import { acme, Alert, Button, Textarea, TextField } from "@acme/design-system";
+import { acme, Alert, Autocomplete, Button, Textarea, TextField } from "@acme/design-system";
 import { createApp } from "vue";
 import App from "./App.vue";
 
-await acme.define(TextField, Textarea, Button, Alert);
+await acme.define(TextField, Textarea, Autocomplete, Button, Alert);
 
 createApp(App).mount("#app");
 ```
@@ -105,7 +105,20 @@ createApp(App).mount("#app");
 - `acme-textarea` se lie par `v-model` comme `acme-text-field`. Les deux champs partagent le libellé, l'indice, l'erreur et le comportement dans le formulaire.
 - `:hint` lie une propriété au modèle. Ici, l'indice donne le nombre de caractères restants.
 
-Les attributs et l'affichage des erreurs sont décrits dans la documentation du [champ texte](?path=/docs/components-text-field--docs) et de la [zone de texte](?path=/docs/components-textarea--docs).
+```vue
+<acme-autocomplete
+  v-model="account.city"
+  label="Ville (facultatif)"
+  name="city"
+  :options="cities"
+></acme-autocomplete>
+```
+
+- `:options` écrit la propriété `options` : un tableau `{ value, label?, disabled? }`.
+- `acme-autocomplete` se lie par `v-model` comme `acme-text-field`. Une suggestion choisie émet `input` et `change`, comme une saisie.
+- Sa valeur est le texte saisi : l'utilisateur choisit une suggestion ou en tape une autre.
+
+Les attributs et l'affichage des erreurs sont décrits dans la documentation du [champ texte](?path=/docs/components-text-field--docs), de la [zone de texte](?path=/docs/components-textarea--docs) et de l'[autocomplete](?path=/docs/components-autocomplete--docs).
 
 ## 5. Gérez la soumission et le reset
 
@@ -152,6 +165,7 @@ watch(
 - l'icône d'erreur se télécharge avec la première erreur ;
 - la saisie met à jour le modèle, et le modèle met à jour les champs ;
 - les lignes saisies dans la zone de texte arrivent dans le modèle, et son indice suit le modèle ;
+- l'autocomplete propose les villes qui correspondent au texte, et la suggestion choisie arrive dans le modèle ;
 - `v-model.trim` nettoie la valeur quand l'utilisateur quitte le champ ;
 - le message de `setCustomValidity()` s'affiche ;
 - un formulaire valide soumet les valeurs des champs ;

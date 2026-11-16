@@ -1,5 +1,5 @@
 // Tests the Vue app's build (dist/) in Chromium, as a user fills its form:
-// v-model in both directions, on a text field and a textarea, the browser's
+// v-model in both directions, on a text field, an autocomplete and a textarea, the browser's
 // validation, the app's own check, the submitted data and the reset. Playwright is resolved from the
 // repository's node_modules.
 import { readFile } from "node:fs/promises";
@@ -45,24 +45,27 @@ page.on("console", (message) => message.type() === "error" && errors.push(messag
 
 /** The state of a field, by its name: the host, its native control, its hint and its error. */
 const field = (name) =>
-  page.locator(`:is(acme-text-field, acme-textarea)[name="${name}"]`).evaluate((element) => {
-    const control = element.shadowRoot.querySelector('[part~="input"], [part~="textarea"]');
-    const text = (part) => {
-      const node = element.shadowRoot.querySelector(`[part~="${part}"]`);
-      return node.hidden ? null : node.textContent.replace(/\s+/g, " ").trim();
-    };
-    return {
-      value: element.value,
-      input: control.value,
-      invalid: control.getAttribute("aria-invalid"),
-      hint: text("hint"),
-      error: text("error"),
-    };
-  });
+  page
+    .locator(`:is(acme-text-field, acme-autocomplete, acme-textarea)[name="${name}"]`)
+    .evaluate((element) => {
+      const control = element.shadowRoot.querySelector('[part~="input"], [part~="textarea"]');
+      const text = (part) => {
+        const node = element.shadowRoot.querySelector(`[part~="${part}"]`);
+        return node.hidden ? null : node.textContent.replace(/\s+/g, " ").trim();
+      };
+      return {
+        value: element.value,
+        input: control.value,
+        invalid: control.getAttribute("aria-invalid"),
+        hint: text("hint"),
+        error: text("error"),
+      };
+    });
 const fields = async () => ({
   name: await field("name"),
   email: await field("email"),
   username: await field("username"),
+  city: await field("city"),
   bio: await field("bio"),
 });
 const greeting = () => page.locator("#greeting").textContent();
@@ -86,12 +89,14 @@ try {
   await check("the app registers only what it uses, under the acme- prefix", async () => {
     const defined = await page.evaluate(() =>
       [
-        ...["acme-text-field", "acme-textarea", "acme-button", "acme-alert", "acme-icon"],
+        ...["acme-text-field", "acme-textarea", "acme-autocomplete"],
+        ...["acme-button", "acme-alert", "acme-icon"],
         ...["acme-modal", "acme-card", "u-text-field", "u-textarea", "u-button"],
       ].filter((tag) => customElements.get(tag)),
     );
     return [
-      defined.join() === "acme-text-field,acme-textarea,acme-button,acme-alert,acme-icon",
+      defined.join() ===
+        "acme-text-field,acme-textarea,acme-autocomplete,acme-button,acme-alert,acme-icon",
       `defined: ${defined.join(", ")}`,
     ];
   });
@@ -117,15 +122,14 @@ try {
           document.activeElement?.shadowRoot?.activeElement?.getAttribute("part"),
       );
       const submitted = await page.locator("#submitted").count();
-      const { bio, ...required } = state;
+      const { bio, city, ...required } = state;
       return [
         submitted === 0 &&
           focused === "name > input" &&
           state.name.error === "Erreur : Saisissez votre nom." &&
           state.email.error === "Erreur : Saisissez une adresse e-mail au format nom@exemple.fr." &&
           Object.values(required).every(({ invalid }) => invalid === "true") &&
-          bio.invalid === "false" &&
-          bio.error === null,
+          [bio, city].every(({ invalid, error }) => invalid === "false" && error === null),
         `alert: ${submitted}, focus: ${focused}, ${JSON.stringify(state)}`,
       ];
     },
@@ -162,6 +166,30 @@ try {
     ];
   });
 
+  // The autocomplete: typing filters the suggestions, the keyboard picks one.
+  const city = page.getByRole("combobox", { name: "Ville (facultatif)" });
+  await city.pressSequentially("ly");
+  await check("the autocomplete suggests the cities that match the text", async () => {
+    const listbox = page.getByRole("listbox", { name: "Ville (facultatif)" });
+    await listbox.waitFor({ timeout: 5_000 });
+    const options = await listbox.getByRole("option").allTextContents();
+    const expanded = await city.getAttribute("aria-expanded");
+    return [
+      options.map((text) => text.trim()).join() === "Lyon" && expanded === "true",
+      `options: ${options.join(", ")}, aria-expanded: ${expanded}`,
+    ];
+  });
+  await city.press("ArrowDown");
+  await city.press("Enter");
+  await check("v-model on an autocomplete: a picked suggestion reaches the model", async () => {
+    const state = await field("city");
+    const expanded = await city.getAttribute("aria-expanded");
+    return [
+      state.value === "Lyon" && state.input === "Lyon" && expanded === "false",
+      `${JSON.stringify(state)}, aria-expanded: ${expanded}`,
+    ];
+  });
+
   const bio = "Mathématicienne.\nPremière programmeuse.";
   await page.getByLabel("Présentation (facultatif)", { exact: true }).fill(bio);
   await check(
@@ -180,6 +208,7 @@ try {
       name: "Ada Lovelace",
       email: "ada@example.com",
       username: "ada",
+      city: "Paris",
       bio: "Mathématicienne.",
     };
     const ok = Object.entries(expected).every(
@@ -195,7 +224,8 @@ try {
     await alert.getByText("Compte créé").waitFor({ timeout: 5_000 });
     const text = (await alert.textContent()).replace(/\s+/g, " ").trim();
     return [
-      text === "Compte créé : Ada Lovelace, ada@example.com, ada. Présentation : Mathématicienne.",
+      text ===
+        "Compte créé : Ada Lovelace, ada@example.com, ada, Paris. Présentation : Mathématicienne.",
       `alert "${text}"`,
     ];
   });

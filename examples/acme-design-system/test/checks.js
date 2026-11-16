@@ -2,7 +2,16 @@
 // does it, and publishes its results on `window.__results`.
 import "/dist/define.js";
 import { AcmeButton } from "/dist/acme-button.js";
-import { acme, AcmeCard, Button, ButtonLink, Icon, Textarea, TextField } from "/dist/index.js";
+import {
+  acme,
+  AcmeCard,
+  Autocomplete,
+  Button,
+  ButtonLink,
+  Icon,
+  Textarea,
+  TextField,
+} from "/dist/index.js";
 import { contrastFailures } from "@unicorne/tokens/testing";
 import { alertIconSvg, check, parsed, publish } from "./support.js";
 
@@ -26,6 +35,7 @@ const tags = [
   "acme-icon",
   "acme-text-field",
   "acme-textarea",
+  "acme-autocomplete",
 ];
 await Promise.all(tags.map((tag) => customElements.whenDefined(tag)));
 await Promise.all([...document.querySelectorAll(tags.join(","))].map((el) => el.updateComplete));
@@ -167,6 +177,41 @@ await check("acme-textarea is the base's textarea, in ACME's theme, in its form"
     `Textarea: ${field instanceof Textarea}, font ${font}, FormData message: "${submitted}"`,
   ];
 });
+
+await check(
+  "acme-autocomplete suggests its <option> children, in ACME's theme, in its form",
+  async () => {
+    const field = $("#city");
+    const input = field.shadowRoot.querySelector('[part~="input"]');
+    const popup = field.shadowRoot.querySelector('[part~="popup"]');
+    input.focus();
+    input.value = "pa";
+    input.dispatchEvent(new InputEvent("input", { bubbles: true, composed: true }));
+    await field.updateComplete;
+    const open = popup.matches(":popover-open");
+    const shown = [...field.shadowRoot.querySelectorAll('[part~="option"]')].map((o) =>
+      o.textContent.trim(),
+    );
+    // ACME's font.family.body, inherited by the list in the top layer.
+    const font = style(field.shadowRoot.querySelector('[part~="listbox"]')).fontFamily;
+    input.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true, composed: true }),
+    );
+    input.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "Enter", bubbles: true, composed: true }),
+    );
+    await field.updateComplete;
+    const submitted = new FormData($("#form")).get("city");
+    return [
+      field instanceof Autocomplete &&
+        open &&
+        shown.join() === "Paris,Pau" &&
+        font.startsWith("Georgia") &&
+        submitted === "Paris",
+      `Autocomplete: ${field instanceof Autocomplete}, open: ${open}, shown: ${shown.join(", ")}, font ${font}, FormData city: "${submitted}"`,
+    ];
+  },
+);
 
 await check("ACME offers part of the base: no button-link", async () => {
   const rejected = await acme.define(ButtonLink).then(

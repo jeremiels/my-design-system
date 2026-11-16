@@ -4,11 +4,11 @@ Ce dépôt est un **socle marque blanche** pour design systems. Il contient troi
 
 - `@unicorne/tokens` : les tokens DTCG à trois niveaux, la source des thèmes du web, d'iOS et d'Android. Ils sont générés en custom properties `--u-`.
 - `@unicorne/icons` : les icônes SVG, optimisées, un module par icône chargé à la demande, et leur générateur `unicorne-icons`.
-- `@unicorne/components` : des composants Lit (`button`, `button-link`, `alert`, `modal`, `icon`, `text-field`, `textarea`) et l'outillage pour les étendre.
+- `@unicorne/components` : des composants Lit (`button`, `button-link`, `alert`, `modal`, `icon`, `text-field`, `textarea`, `autocomplete`) et l'outillage pour les étendre.
 
 Chaque marque dépend du socle, l'étend, l'enregistre sous son préfixe et le republie ([ADR 0001](docs/adr/0001-architecture-multi-marque.mdx)). Le socle est une preuve de concept : il n'est pas publié et n'a pas de versions.
 
-Stack : workspaces npm · Lit 3 (peer dependency, jamais embarqué) · Vite 8 · TypeScript strict avec les décorateurs historiques de Lit · Terrazzo 2 (tokens DTCG) · SVGO 4 (icônes) · Vitest, Storybook 10 et Playwright · oxlint et oxfmt · Node ≥ 26 et npm ≥ 11.12 (`.nvmrc`).
+Stack : workspaces npm · Lit 3 (peer dependency, jamais embarqué) · Vite 8 · TypeScript strict avec les décorateurs historiques de Lit · Terrazzo 2 (tokens DTCG) · SVGO 4 (icônes) · Floating UI 1 (repli de CSS anchor positioning, chargé à la demande) · Vitest, Storybook 10 et Playwright · oxlint et oxfmt · Node ≥ 26 et npm ≥ 11.12 (`.nvmrc`).
 
 Ce fichier est un index. Les détails sont dans la documentation et dans les skills du projet (`.claude/skills/`). Chargez le skill de la tâche avant de la commencer.
 
@@ -33,7 +33,7 @@ Les pages sont dans `docs/` et dans Storybook. Elles suivent la [charte de réda
 - Guides : [Créer un design system de marque](docs/guides/design-system-de-marque.mdx), [Utiliser une marque dans une application Vue](docs/guides/application-vue.mdx), [Ouvrir et fermer une modale](docs/guides/modale.mdx).
 - Référence : [Tokens et couches CSS](docs/reference/tokens-et-couches.mdx), [Support navigateurs](docs/reference/support-navigateurs.mdx), [Mixins](docs/reference/mixins.mdx), [Icônes](docs/reference/icones.mdx), [Charte de rédaction](docs/reference/charte-de-redaction.mdx). La JSDoc des composants est leur référence.
 - Explication : [Architecture CSS](docs/explication/architecture-css.mdx).
-- Décisions : [ADR 0001](docs/adr/0001-architecture-multi-marque.mdx), [ADR 0002](docs/adr/0002-tokens-dtcg.mdx) (tokens DTCG), [ADR 0003](docs/adr/0003-packages-tokens-et-composants.mdx) (packages tokens et composants), [ADR 0004](docs/adr/0004-plateformes-natives-et-figma.mdx) (iOS, Android et Figma), [ADR 0005](docs/adr/0005-icones.mdx) (icônes), [ADR 0006](docs/adr/0006-design-system-de-marque.mdx) (design system de marque), [ADR 0007](docs/adr/0007-champs-de-formulaire.mdx) (champs de formulaire), [ADR 0008](docs/adr/0008-commandes.mdx) (commandes et modale).
+- Décisions : [ADR 0001](docs/adr/0001-architecture-multi-marque.mdx), [ADR 0002](docs/adr/0002-tokens-dtcg.mdx) (tokens DTCG), [ADR 0003](docs/adr/0003-packages-tokens-et-composants.mdx) (packages tokens et composants), [ADR 0004](docs/adr/0004-plateformes-natives-et-figma.mdx) (iOS, Android et Figma), [ADR 0005](docs/adr/0005-icones.mdx) (icônes), [ADR 0006](docs/adr/0006-design-system-de-marque.mdx) (design system de marque), [ADR 0007](docs/adr/0007-champs-de-formulaire.mdx) (champs de formulaire), [ADR 0008](docs/adr/0008-commandes.mdx) (commandes et modale), [ADR 0009](docs/adr/0009-autocomplete-combobox-et-popovers.mdx) (autocomplete, combobox et popovers ancrés).
 
 ## Emplacements
 
@@ -52,10 +52,10 @@ Les pages sont dans `docs/` et dans Storybook. Elles suivent la [charte de réda
 
 `packages/components/` (`@unicorne/components`) :
 
-- `src/components/<nom>/` : la classe, sa feuille `.css`, la feuille générée de ses tokens `.tokens.css`, ses types `.type.ts` et ses stories `.stories.ts`. `base-element.ts` définit `DSBaseElement` (shadow DOM, contrat d'enregistrement, `tagFor()`). `field/` contient `FieldBase`, la base des champs de formulaire, et leurs tokens.
-- `src/mixins/` : `withDisabled`, `withInternals`, `withInvoker` (envoyer une commande), `withCommands` (la recevoir) et `withExitTransition` (sortie animée du top layer).
-- `src/polyfills/` : `invokers.ts` charge `invokers-polyfill` à la demande, là où Invoker Commands manquent ([ADR 0008](docs/adr/0008-commandes.mdx)).
-- `src/events/` : une classe `Event` typée par événement (`modal-cancel.ts`, `modal-close.ts`).
+- `src/components/<nom>/` : la classe, sa feuille `.css`, la feuille générée de ses tokens `.tokens.css`, ses types `.type.ts` et ses stories `.stories.ts`. `base-element.ts` définit `DSBaseElement` (shadow DOM, contrat d'enregistrement, `tagFor()`). `field/` contient `FieldBase`, la base des champs de formulaire, et leurs tokens. `combobox/` contient `ComboboxBase`, la base des champs à popup, et ses tokens. `listbox/` contient les tokens et le type `ListboxOption` des listes d'options.
+- `src/mixins/` : `withDisabled`, `withInternals`, `withInvoker` (envoyer une commande), `withCommands` (la recevoir), `withExitTransition` (sortie animée du top layer), `withAnchoredPopover` (popover ancré sous un élément) et `withListbox` (liste d'options et option active).
+- `src/polyfills/` : `invokers.ts` charge `invokers-polyfill` à la demande, là où Invoker Commands manquent ([ADR 0008](docs/adr/0008-commandes.mdx)). `anchor-positioning.ts` charge Floating UI, là où CSS anchor positioning manque ([ADR 0009](docs/adr/0009-autocomplete-combobox-et-popovers.mdx)).
+- `src/events/` : une classe `Event` typée par événement (`modal-cancel.ts`, `modal-close.ts`, `listbox-select.ts`).
 - `src/registry/` : `defineComponents()`, le catalogue (`allComponents`) et `designSystem()`, la déclaration d'un design system de marque ([ADR 0006](docs/adr/0006-design-system-de-marque.mdx)). `src/define.ts` enregistre le catalogue avec le préfixe `u`. `src/index.ts` n'a aucun effet de bord.
 - `src/styles/` : le CSS de la page. `main.css` devient `styles.css` (couches et utilitaires), `reset.css` devient le `reset.css` optionnel.
 - `terrazzo.config.ts` : la liaison web des tokens de composant. Il associe chaque modifier à un attribut et génère les feuilles `:host`.
@@ -68,7 +68,7 @@ Les pages sont dans `docs/` et dans Storybook. Elles suivent la [charte de réda
 - `docs/` et `.storybook/` : la documentation et Storybook, pour les trois packages.
 - `vite.config.ts`, `vitest.config.ts` et `index.html` : l'environnement de développement (démo, Storybook, Vitest). Chaque package a sa propre configuration de build.
 - `examples/acme-design-system/` : une marque d'exemple, construite et testée contre les archives du socle.
-- `examples/acme-vue-app/` : une application Vue d'exemple, un formulaire sur ACME. Elle est construite et testée contre les archives d'ACME et du socle.
+- `examples/acme-vue-app/` : une application Vue d'exemple, un formulaire sur ACME avec un autocomplete. Elle est construite et testée contre les archives d'ACME et du socle.
 - `scripts/` : `run-example.mjs` et `check-css-compat.mjs`.
 - `.github/workflows/ci.yml` : la CI.
 

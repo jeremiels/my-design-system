@@ -6,10 +6,16 @@ interface Account {
   name: string;
   email: string;
   username: string;
+  city: string;
   bio: string;
 }
 
-const empty = (): Account => ({ name: "", email: "", username: "", bio: "" });
+const empty = (): Account => ({ name: "", email: "", username: "", city: "", bio: "" });
+
+/** The suggestions of the city field: the user picks one, or types another. */
+const cities = ["Paris", "Marseille", "Lyon", "Toulouse", "Nice", "Nantes", "Lille", "Évry"].map(
+  (city) => ({ value: city }),
+);
 
 /** The form's model: each field is bound to it with `v-model`. */
 const account = reactive(empty());
@@ -57,6 +63,7 @@ function prefill() {
     name: "Ada Lovelace",
     email: "ada@example.com",
     username: "ada",
+    city: "Paris",
     bio: "Mathématicienne.",
   });
 }
@@ -100,6 +107,13 @@ function prefill() {
         error-label="Erreur :"
         error-message="Choisissez un identifiant de 3 caractères au moins."
       ></acme-text-field>
+      <acme-autocomplete
+        v-model="account.city"
+        label="Ville (facultatif)"
+        name="city"
+        :options="cities"
+        hint="Choisissez une ville ou saisissez la vôtre."
+      ></acme-autocomplete>
       <acme-textarea
         v-model="account.bio"
         label="Présentation (facultatif)"
@@ -117,7 +131,8 @@ function prefill() {
     </form>
 
     <acme-alert v-if="submitted" id="submitted" type="success">
-      Compte créé : {{ submitted.name }}, {{ submitted.email }}, {{ submitted.username }}.
+      Compte créé : {{ submitted.name }}, {{ submitted.email }}, {{ submitted.username
+      }}<template v-if="submitted.city">, {{ submitted.city }}</template>.
       <template v-if="submitted.bio">Présentation : {{ submitted.bio }}</template>
     </acme-alert>
   </main>

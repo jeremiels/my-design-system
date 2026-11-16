@@ -55,6 +55,7 @@ Une variante est un contexte de modifier dans les sources DTCG (skill `design-to
 - Un composant ne contient aucune logique de thème. Les thèmes changent les tokens sémantiques.
 - Faites pointer les durées vers `motion.duration.*`. Le contexte `motion: reduced` traite déjà le mouvement réduit.
 - Animez l'entrée et la sortie d'un élément du top layer (`<dialog>`, popover) comme `modal.css` : `@starting-style`, `display` et `overlay` dans les transitions, état ouvert suivi de `:where(:not([data-closing]))`. Le mixin `withExitTransition` gère la sortie dans Firefox et Safari.
+- Un popover de `withAnchoredPopover` écrit son état ouvert sur `[data-open]`, pas sur `:popover-open` (`combobox-base.css`). Sa marge de bloc est l'espace sous son ancre. Le mixin le place et le masque fermé.
 
 ## 5. Vérifiez le support navigateurs
 

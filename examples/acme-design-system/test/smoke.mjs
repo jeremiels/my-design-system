@@ -135,6 +135,14 @@ try {
     `base icons downloaded: ${loadedBaseIcons.join(", ") || "none"} (expected: close, success)`,
   );
 
+  // Chromium anchors the autocomplete's list in CSS: the fallback stays on the server.
+  const floating = [...full].filter((path) => path.includes("@floating-ui"));
+  record(
+    "the page doesn't download Floating UI where CSS anchors the popovers",
+    floating.length === 0,
+    `Floating UI files downloaded: ${floating.join(", ") || "none"}`,
+  );
+
   // `acme.define(Alert)`: the alert and its icon, without ACME's button.
   const partial = await runPage("test/partial.html");
   record(

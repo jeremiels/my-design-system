@@ -12,6 +12,8 @@ Exemples :
 - `packages/components/src/mixins/withInvoker.ts` : attributs passés à un élément du template, listener posé dans le constructeur, polyfill chargé à la demande.
 - `packages/components/src/mixins/withCommands.ts` : un hook `protected` que le composant surcharge.
 - `packages/components/src/mixins/withExitTransition.ts` : des méthodes `protected` sans propriété, un contrat CSS documenté.
+- `packages/components/src/mixins/withAnchoredPopover.ts` : une feuille de mixin sur un contrat d'attributs (`[popover]`, `data-open`), un repli chargé à la demande.
+- `packages/components/src/mixins/withListbox.ts` : une propriété publique, un rendu `protected` (`renderListbox()`), des hooks que le composant surcharge, les tokens d'un groupe partagé.
 
 Un mixin est une API publique : les marques l'appliquent à leurs composants, et `packages/components/src/index.ts` l'exporte. La référence des mixins existants est `docs/reference/mixins.mdx`.
 
@@ -55,6 +57,8 @@ export function withDisabled<T extends Constructor<LitElement>>(Base: T) {
 - **Signature :** `Constructor<LitElement>`. Prenez `AbstractConstructor`, avec une `abstract class` à l'intérieur, pour accepter une base abstraite comme `ButtonBase` (voir `withInternals`).
 - **Membres publics :** déclarez-les dans une classe `declare class XInterface` exportée. Convertissez le retour en `Constructor<XInterface> & T` : TypeScript voit alors les membres sur le composant.
 - **Styles :** ajoutez-les à ceux de la base : `[(Base as unknown as typeof LitElement).styles ?? [], xStyles]`. Les règles du skill `component-styling` s'appliquent : des tokens, jamais de valeur littérale.
+- **Tokens :** un mixin qui peint lit un groupe de tokens de composant partagé (`listbox`), généré dans `src/components/<groupe>/<groupe>.tokens.css`. L'analyseur lit `@tokens` sur une classe seulement : chaque composant qui applique le mixin écrit `@tokens <groupe>`.
+- **Noms :** vérifiez qu'aucun membre ne masque un membre de `HTMLElement` (`matches`, `popover`, `showPopover`). TypeScript le refuse, mais tard.
 - **Cycle de vie :** appelez toujours `super` (`updated`, `connectedCallback`, `disconnectedCallback`, `firstUpdated`). Le constructeur reçoit et transmet `...args`. Les mixins s'empilent ainsi dans n'importe quel ordre.
 - **API à usage unique :** n'appelez jamais `attachInternals()` dans un autre mixin. Exigez `withInternals()` et lisez `this.internals`.
 - **Support navigateurs :** protégez une API absente de la matrice, et réduisez-la à une opération sans effet (`customStates` de `withInternals`). Un polyfill se charge par `import()`, seulement là où l'API manque, depuis `packages/components/src/polyfills/` (`invokers.ts`). Ajoutez son package à `rollupOptions.external` de `packages/components/vite.config.ts`.

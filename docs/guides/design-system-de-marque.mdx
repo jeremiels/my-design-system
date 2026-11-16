@@ -262,7 +262,7 @@ import { acmeIcons } from "./icons/index.js";
 
 export const acme = designSystem({
   prefix: "acme",
-  catalog: ["button", "alert", "modal", "icon", "text-field", "textarea", "card"],
+  catalog: ["button", "alert", "modal", "icon", "text-field", "textarea", "autocomplete", "card"],
   overrides: {
     button: () =>
       import("./components/acme-button/acme-button.js").then((module) => module.AcmeButton),
@@ -279,11 +279,19 @@ export const acme = designSystem({
 
 ```ts
 // src/define.ts : tout le catalogue, pour une application qui utilise tout
-import { Alert, Button, Icon, Modal, Textarea, TextField } from "@unicorne/components";
+import {
+  Alert,
+  Autocomplete,
+  Button,
+  Icon,
+  Modal,
+  Textarea,
+  TextField,
+} from "@unicorne/components";
 import { AcmeCard } from "./components/acme-card/acme-card.js";
 import { acme } from "./design-system.js";
 
-void acme.define(Button, Alert, Modal, Icon, TextField, Textarea, AcmeCard);
+void acme.define(Button, Alert, Modal, Icon, TextField, Textarea, Autocomplete, AcmeCard);
 ```
 
 ```ts
@@ -349,10 +357,12 @@ export default {
 - l'alerte d'ACME rend l'icône `information` d'ACME, et `acme-icon` rend l'icône `star` d'ACME ;
 - `acme-text-field` reçoit le thème d'ACME, soumet sa valeur avec son formulaire et la valide ;
 - `acme-textarea` reçoit le thème d'ACME et soumet sa valeur avec son formulaire ;
+- `acme-autocomplete` propose ses enfants `<option>`, dans le thème d'ACME, et soumet la suggestion choisie ;
 - ACME ne propose pas `button-link` : `acme.define(ButtonLink)` est rejeté ;
 - une application qui enregistre seulement `Alert` définit `acme-alert` et `acme-icon`, et ne télécharge pas le bouton d'ACME ;
 - le `dist/` d'ACME contient ses icônes en chunks séparés, et aucune icône du socle ;
 - la page télécharge seulement les icônes du socle qu'elle affiche ;
+- la page ne télécharge pas Floating UI, car Chromium ancre les popovers en CSS ;
 - aucune balise `u-` n'est enregistrée ;
 - le manifest d'ACME documente ce qu'`AcmeButton` hérite du socle.
 
