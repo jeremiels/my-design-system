@@ -1,0 +1,33 @@
+/* The tokens are in combobox.tokens.css, generated from tokens/component/combobox/
+   (ADR 0002), and shared by every combobox. These rules only read them. */
+
+/* The popup: below the control, at the distance of its block margin.
+   withAnchoredPopover positions it and hides it while closed. Its content
+   shrinks to the space the popup leaves it (a list scrolls).
+
+   Closed: the state the entry starts from and the exit ends at. `display`
+   and `overlay` keep it visible and in the top layer until its exit ends
+   (Chrome and Edge 117); elsewhere, withExitTransition delays the closing
+   with data-closing. With reduced motion, the tokens give no duration. */
+.popup {
+  display: flex;
+  flex-direction: column;
+  margin-block: var(--u-combobox-popup-offset);
+  opacity: 0;
+  transition-property: opacity, display, overlay;
+  transition-duration: var(--u-combobox-transition-duration);
+  transition-timing-function: var(--u-combobox-transition-timing-function);
+  /* On its own: inside the `transition` shorthand, a browser without it
+     would drop the whole declaration. */
+  transition-behavior: allow-discrete;
+}
+.popup[data-open]:where(:not([data-closing])) {
+  opacity: 1;
+}
+/* The entry: from the closed state, when the popup appears. Before Chrome
+   117, Firefox 129 and Safari 17.5, it appears at once. */
+@starting-style {
+  .popup[data-open]:where(:not([data-closing])) {
+    opacity: 0;
+  }
+}

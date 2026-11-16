@@ -1,0 +1,45 @@
+/* The tokens are in listbox.tokens.css, generated from tokens/component/listbox/
+   (ADR 0002), and shared by every list of options. These rules only read them. */
+
+/* The list scrolls past its largest height. In a flex popup, it also shrinks
+   to the space the popup leaves it (min-block-size: 0). */
+.listbox {
+  box-sizing: border-box;
+  min-block-size: 0;
+  max-block-size: var(--u-listbox-max-block-size);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: var(--u-listbox-padding);
+  background-color: var(--u-listbox-background-color);
+  border: var(--u-listbox-border-width) solid var(--u-listbox-border-color);
+  border-radius: var(--u-listbox-border-radius);
+  box-shadow: var(--u-listbox-shadow);
+}
+
+.option {
+  padding-inline: var(--u-listbox-option-padding-inline);
+  padding-block: var(--u-listbox-option-padding-block);
+  border-radius: var(--u-listbox-option-border-radius);
+  cursor: default;
+}
+
+/* The active option: the one the arrow keys or the pointer are on, which
+   the control's aria-activedescendant names. */
+.option[aria-selected="true"] {
+  background-color: var(--u-listbox-option-background-color-active);
+  color: var(--u-listbox-option-text-color-active);
+}
+
+.option[aria-disabled="true"] {
+  opacity: var(--u-listbox-option-opacity-disabled);
+}
+
+@media (forced-colors: active) {
+  .option[aria-selected="true"] {
+    background-color: Highlight;
+    color: HighlightText;
+  }
+  .option[aria-disabled="true"] {
+    color: GrayText;
+  }
+}

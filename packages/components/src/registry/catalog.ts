@@ -1,4 +1,5 @@
 import { Alert } from "../components/alert/alert.js";
+import { Autocomplete } from "../components/autocomplete/autocomplete.js";
 import { ButtonLink } from "../components/button/button-link.js";
 import { Button } from "../components/button/button.js";
 import { Icon } from "../components/icon/icon.js";
@@ -11,4 +12,13 @@ import { Textarea } from "../components/textarea/textarea.js";
  * system usually registers all of them, plus its own:
  * `defineComponents({ prefix: "acme", components: [...allComponents, AcmeCard] })`.
  */
-export const allComponents = [Button, ButtonLink, Alert, Modal, Icon, TextField, Textarea] as const;
+export const allComponents = [
+  Button,
+  ButtonLink,
+  Alert,
+  Modal,
+  Icon,
+  TextField,
+  Textarea,
+  Autocomplete,
+] as const;

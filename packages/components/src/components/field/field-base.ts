@@ -260,7 +260,7 @@ export abstract class FieldBase extends withInternals(withDisabled(DSBaseElement
     const icon = this.tagFor(Icon);
     return html`
       <div class="field${this.error ? " field--invalid" : ""}">
-        <label part="label" class="label" for="control">${this.label}</label>
+        <label part="label" class="label" id="label" for="control">${this.label}</label>
         <div part="hint" class="hint" id="hint" ?hidden=${!this.hint}>${this.hint}</div>
         ${this.renderControl()}
         <div part="error" class="error" id="error" ?hidden=${!this.error}>

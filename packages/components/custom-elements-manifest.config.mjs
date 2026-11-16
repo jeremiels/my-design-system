@@ -25,13 +25,16 @@ export default {
     tokensManifest({ resolver, prefix: "u" }),
     {
       // `dispatchEvent(new ModalCloseEvent())` yields an unnamed event next to
-      // the documented one (`@fires u-close`): keep documented events only.
-      name: "drop-unnamed-events",
+      // the documented one (`@fires u-close`), and `new ListboxSelectEvent(option)`
+      // one named after its argument: keep documented events only.
+      name: "drop-undocumented-events",
       packageLinkPhase({ customElementsManifest }) {
         for (const module of customElementsManifest.modules) {
           for (const declaration of module.declarations ?? []) {
             if (declaration.events) {
-              declaration.events = declaration.events.filter((event) => event.name);
+              declaration.events = declaration.events.filter(
+                (event) => event.name && event.description,
+              );
             }
           }
         }

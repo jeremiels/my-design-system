@@ -1,0 +1,16 @@
+/* Generated from ../tokens/src/u.resolver.json by @unicorne/tokens/terrazzo-plugin (ADR 0002). Do not edit: change the tokens. */
+:host {
+  --u-listbox-background-color: var(--u-color-surface-default);
+  --u-listbox-border-color: var(--u-color-border-default);
+  --u-listbox-border-width: var(--u-border-width);
+  --u-listbox-border-radius: var(--u-radius-md);
+  --u-listbox-shadow: var(--u-shadow-raised);
+  --u-listbox-padding: var(--u-spacing-2xs);
+  --u-listbox-max-block-size: var(--u-size-popup);
+  --u-listbox-option-padding-inline: var(--u-spacing-sm);
+  --u-listbox-option-padding-block: var(--u-spacing-xs);
+  --u-listbox-option-border-radius: var(--u-radius-sm);
+  --u-listbox-option-background-color-active: var(--u-color-action-background);
+  --u-listbox-option-text-color-active: var(--u-color-action-text);
+  --u-listbox-option-opacity-disabled: var(--u-opacity-disabled);
+}

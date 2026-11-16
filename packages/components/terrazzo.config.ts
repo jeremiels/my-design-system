@@ -29,6 +29,8 @@ export default defineConfig({
         modal: { file: "components/modal/modal.tokens.css" },
         icon: { file: "components/icon/icon.tokens.css" },
         field: { file: "components/field/field.tokens.css" },
+        combobox: { file: "components/combobox/combobox.tokens.css" },
+        listbox: { file: "components/listbox/listbox.tokens.css" },
       },
     }),
   ],

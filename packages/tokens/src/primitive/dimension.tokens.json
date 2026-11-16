@@ -12,6 +12,7 @@
     "600": { "$value": { "value": 1.5, "unit": "rem" } },
     "800": { "$value": { "value": 2, "unit": "rem" } },
     "1200": { "$value": { "value": 3, "unit": "rem" } },
+    "6400": { "$value": { "value": 16, "unit": "rem" } },
     "full": {
       "$description": "Larger than any element: a fully rounded corner.",
       "$value": { "value": 9999, "unit": "px" }

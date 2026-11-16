@@ -66,6 +66,10 @@
     "./textarea": {
       "types": "./dist/components/textarea/textarea.d.ts",
       "import": "./dist/textarea.js"
+    },
+    "./autocomplete": {
+      "types": "./dist/components/autocomplete/autocomplete.d.ts",
+      "import": "./dist/autocomplete.js"
     }
   },
   "scripts": {
@@ -76,6 +80,7 @@
     "api:check": "npm run analyze && git diff --exit-code -- custom-elements.json"
   },
   "dependencies": {
+    "@floating-ui/dom": "^1.8.0",
     "invokers-polyfill": "^1.0.4"
   },
   "devDependencies": {

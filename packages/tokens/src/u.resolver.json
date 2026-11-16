@@ -24,7 +24,9 @@
         { "$ref": "component/alert/alert.tokens.json" },
         { "$ref": "component/modal/modal.tokens.json" },
         { "$ref": "component/icon/icon.tokens.json" },
-        { "$ref": "component/field/field.tokens.json" }
+        { "$ref": "component/field/field.tokens.json" },
+        { "$ref": "component/combobox/combobox.tokens.json" },
+        { "$ref": "component/listbox/listbox.tokens.json" }
       ]
     }
   },

@@ -1,0 +1,16 @@
+/**
+ * An option of a list (`withListbox`): a suggestion of `autocomplete`. The
+ * component passes the same object back in `u-select`: the application's
+ * own fields (an id, a code) come with it.
+ */
+export interface ListboxOption {
+  /** The value: what the field takes when the user picks the option. */
+  value: string;
+  /** The text the list shows. `value` without it. */
+  label?: string;
+  /** The option shows, but the user can't reach nor pick it. */
+  disabled?: boolean;
+}
+
+/** Where `moveActive()` moves the active option. `none`: no option is active. */
+export type ListboxMove = "next" | "previous" | "first" | "last" | "none";

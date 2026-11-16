@@ -32,5 +32,10 @@
   "opacity": {
     "$type": "number",
     "60": { "$value": 0.6 }
+  },
+  "z-index": {
+    "$type": "number",
+    "$description": "Stacking orders, for the elements that can't reach the top layer.",
+    "1000": { "$value": 1000 }
   }
 }

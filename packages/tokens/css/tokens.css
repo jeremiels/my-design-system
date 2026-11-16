@@ -82,6 +82,7 @@
     --u-dimension-600: 1.5rem;
     --u-dimension-800: 2rem;
     --u-dimension-1200: 3rem;
+    --u-dimension-6400: 16rem;
     --u-dimension-full: 9999px;
     --u-font-family-sans: "Helvetica Neue", sans-serif;
     --u-font-weight-400: 400;
@@ -101,6 +102,7 @@
     --u-shadow-200: 0px 4px 12px var(--u-palette-black-alpha-16);
     --u-shadow-300: 0px 12px 32px var(--u-palette-black-alpha-20);
     --u-opacity-60: 0.6;
+    --u-z-index-1000: 1000;
   }
 
   :root,
@@ -113,6 +115,7 @@
     --u-spacing-xl: var(--u-dimension-800);
     --u-spacing-2xl: var(--u-dimension-1200);
     --u-size-icon: var(--u-dimension-600);
+    --u-size-popup: var(--u-dimension-6400);
     --u-radius-sm: var(--u-dimension-50);
     --u-radius-md: var(--u-dimension-100);
     --u-radius-lg: var(--u-dimension-200);
@@ -129,6 +132,7 @@
     --u-focus-ring-width: var(--u-dimension-50);
     --u-focus-ring-offset: var(--u-dimension-50);
     --u-opacity-disabled: var(--u-opacity-60);
+    --u-z-index-overlay: var(--u-z-index-1000);
     --u-shadow-raised: var(--u-shadow-200);
     --u-shadow-overlay: var(--u-shadow-300);
     --u-motion-duration-fast: var(--u-duration-150);

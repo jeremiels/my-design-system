@@ -1,0 +1,38 @@
+/* Every [popover] of the shadow root is anchored by withAnchoredPopover.
+   The user agent centers a popover in the viewport, with a border, a padding
+   and its own colors: the component paints its content instead. The fixed
+   position and the stacking order hold where the Popover API is missing: no
+   top layer there. */
+[popover] {
+  position: fixed;
+  inset: auto;
+  margin: 0;
+  border: 0;
+  padding: 0;
+  overflow: visible;
+  color: inherit;
+  background: none;
+  z-index: var(--u-z-index-overlay);
+}
+
+/* Closed: the attribute the mixin sets, the same in every browser. Important:
+   neither the component's `display` nor a brand's `::part()` shows a closed
+   popover. A transition of `display` still runs: transitions come before
+   important declarations in the cascade. */
+[popover]:not([data-open]) {
+  display: none !important;
+}
+
+/* Below the anchor, aligned with its start edge, at least as wide; flipped
+   when it would overflow the viewport. Elsewhere, Floating UI places it from
+   script (src/polyfills/anchor-positioning.ts). */
+@supports (position-area: block-end) and (position-try-fallbacks: flip-block) {
+  [popover] {
+    position-area: block-end span-inline-end;
+    position-try-fallbacks:
+      flip-block,
+      flip-inline,
+      flip-block flip-inline;
+    min-inline-size: anchor-size(inline);
+  }
+}

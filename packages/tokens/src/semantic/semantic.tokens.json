@@ -16,6 +16,10 @@
     "icon": {
       "$value": "{dimension.600}",
       "$description": "An icon next to body text: the 24px grid of the icons."
+    },
+    "popup": {
+      "$value": "{dimension.6400}",
+      "$description": "The largest block size of a popup, like a list of suggestions: its content scrolls past it."
     }
   },
   "radius": {
@@ -67,6 +71,13 @@
   "opacity": {
     "$type": "number",
     "disabled": { "$value": "{opacity.60}", "$description": "A disabled component." }
+  },
+  "z-index": {
+    "$type": "number",
+    "overlay": {
+      "$value": "{z-index.1000}",
+      "$description": "A popup outside the top layer, in the browsers without the Popover API."
+    }
   },
   "shadow": {
     "$type": "shadow",

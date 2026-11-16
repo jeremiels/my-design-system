@@ -42,6 +42,7 @@ export default defineConfig({
         icon: resolve(import.meta.dirname, "src/components/icon/icon.ts"),
         "text-field": resolve(import.meta.dirname, "src/components/text-field/text-field.ts"),
         textarea: resolve(import.meta.dirname, "src/components/textarea/textarea.ts"),
+        autocomplete: resolve(import.meta.dirname, "src/components/autocomplete/autocomplete.ts"),
       },
       formats: ["es"],
       fileName: (_format, entryName) => `${entryName}.js`,
@@ -51,8 +52,9 @@ export default defineConfig({
       // installs one copy of each. Its bundler splits @unicorne/icons into one
       // chunk per icon, loaded when the icon renders (ADR 0005), and
       // invokers-polyfill into a chunk loaded only where Invoker Commands
-      // are missing (ADR 0008).
-      external: [/^lit/, /^@unicorne\//, /^invokers-polyfill/],
+      // are missing (ADR 0008), and @floating-ui/dom into one loaded only
+      // where CSS anchor positioning is missing (ADR 0009).
+      external: [/^lit/, /^@unicorne\//, /^invokers-polyfill/, /^@floating-ui\//],
     },
   },
 });

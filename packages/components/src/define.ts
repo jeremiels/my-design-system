@@ -7,6 +7,7 @@
  * `defineComponents()` with its own prefix instead (ADR 0001, D1).
  */
 import type { Alert } from "./components/alert/alert.js";
+import type { Autocomplete } from "./components/autocomplete/autocomplete.js";
 import type { ButtonLink } from "./components/button/button-link.js";
 import type { Button } from "./components/button/button.js";
 import type { Icon } from "./components/icon/icon.js";
@@ -21,6 +22,7 @@ defineComponents({ prefix: "u", components: allComponents });
 declare global {
   interface HTMLElementTagNameMap {
     "u-alert": Alert;
+    "u-autocomplete": Autocomplete;
     "u-button": Button;
     "u-button-link": ButtonLink;
     "u-icon": Icon;

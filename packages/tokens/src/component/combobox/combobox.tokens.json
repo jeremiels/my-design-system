@@ -1,0 +1,20 @@
+{
+  "combobox": {
+    "$description": "Tokens of the comboboxes, a control and its popup: `autocomplete` (`ComboboxBase`).",
+    "popup-offset": {
+      "$type": "dimension",
+      "$value": "{spacing.2xs}",
+      "$description": "Space between the control and its popup."
+    },
+    "transition-duration": {
+      "$type": "duration",
+      "$value": "{motion.duration.fast}",
+      "$description": "Entry and exit transition duration of the popup. Zero with reduced motion."
+    },
+    "transition-timing-function": {
+      "$type": "cubicBezier",
+      "$value": "{motion.easing.standard}",
+      "$description": "Entry and exit transition easing of the popup."
+    }
+  }
+}

@@ -1,0 +1,6 @@
+/* Generated from ../tokens/src/u.resolver.json by @unicorne/tokens/terrazzo-plugin (ADR 0002). Do not edit: change the tokens. */
+:host {
+  --u-combobox-popup-offset: var(--u-spacing-2xs);
+  --u-combobox-transition-duration: var(--u-motion-duration-fast);
+  --u-combobox-transition-timing-function: var(--u-motion-easing-standard);
+}

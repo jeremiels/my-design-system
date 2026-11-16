@@ -84,6 +84,22 @@
           "name": "*",
           "declaration": {
             "name": "*",
+            "module": "src/components/combobox/combobox-base.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "*",
+          "declaration": {
+            "name": "*",
+            "module": "src/components/autocomplete/autocomplete.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "*",
+          "declaration": {
+            "name": "*",
             "module": "src/mixins/withDisabled.js"
           }
         },
@@ -124,6 +140,22 @@
           "name": "*",
           "declaration": {
             "name": "*",
+            "module": "src/mixins/withAnchoredPopover.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "*",
+          "declaration": {
+            "name": "*",
+            "module": "src/mixins/withListbox.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "*",
+          "declaration": {
+            "name": "*",
             "module": "src/events/modal-cancel.js"
           }
         },
@@ -133,6 +165,14 @@
           "declaration": {
             "name": "*",
             "module": "src/events/modal-close.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "*",
+          "declaration": {
+            "name": "*",
+            "module": "src/events/listbox-select.js"
           }
         },
         {
@@ -173,6 +213,30 @@
           "declaration": {
             "name": "*",
             "module": "src/components/text-field/text-field.type.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "*",
+          "declaration": {
+            "name": "*",
+            "module": "src/components/listbox/listbox.type.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "*",
+          "declaration": {
+            "name": "*",
+            "module": "src/components/combobox/combobox.type.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "*",
+          "declaration": {
+            "name": "*",
+            "module": "src/components/autocomplete/autocomplete.type.js"
           }
         },
         {
@@ -326,6 +390,43 @@
     },
     {
       "kind": "javascript-module",
+      "path": "src/events/listbox-select.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "Fired when the user picks an option of a list (`withListbox`), by a click\nor Enter: a suggestion of `autocomplete`, before the field takes its\nvalue. `preventDefault()` keeps the field as it is, to navigate to the\noption's page instead for instance.",
+          "name": "ListboxSelectEvent",
+          "members": [
+            {
+              "kind": "field",
+              "name": "option",
+              "type": {
+                "text": "ListboxOption"
+              },
+              "readonly": true,
+              "description": "The option picked: the very object of `options`, the application's own fields included.",
+              "default": "option"
+            }
+          ],
+          "superclass": {
+            "name": "Event",
+            "module": "src/events/listbox-select.ts"
+          }
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "ListboxSelectEvent",
+          "declaration": {
+            "name": "ListboxSelectEvent",
+            "module": "src/events/listbox-select.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/events/modal-cancel.ts",
       "declarations": [
         {
@@ -382,6 +483,201 @@
           "declaration": {
             "name": "ModalCloseEvent",
             "module": "src/events/modal-close.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/mixins/withAnchoredPopover.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "",
+          "name": "AnchoredPopoverInterface",
+          "members": [
+            {
+              "kind": "method",
+              "name": "openPopover",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "Promise<void>"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "popover",
+                  "type": {
+                    "text": "HTMLElement"
+                  }
+                },
+                {
+                  "name": "anchor",
+                  "type": {
+                    "text": "HTMLElement"
+                  }
+                }
+              ],
+              "description": "Shows `popover` in the top layer, anchored below `anchor`."
+            },
+            {
+              "kind": "method",
+              "name": "closePopover",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "popover",
+                  "type": {
+                    "text": "HTMLElement"
+                  }
+                }
+              ],
+              "description": "Hides `popover` at once."
+            }
+          ]
+        },
+        {
+          "kind": "mixin",
+          "description": "Mixin: shows a popover of the shadow root in the top layer, below an\nelement of the same shadow root, its anchor: the list of an autocomplete,\na menu, a tooltip.\n\nEach `[popover]` of the shadow root is a `popover=\"manual\"`: the component\ndecides when it closes (Escape, a click outside, a choice). The mixin sets\n`data-open` on it while it's open: the CSS writes its open state on\n`[data-open]`, not on `:popover-open`, which the oldest browsers of the\nmatrix lack. With `withExitTransition`, the open state is\n`[data-open]:where(:not([data-closing]))`.\n\nThe popover sits below its anchor, aligned with its start edge, at least\nas wide, and flips when it would overflow the viewport. Its block margin\nis the space between them. Where CSS anchor positioning is missing, the\nmixin loads Floating UI and positions it from script: the popover also\nshrinks to the space left, down to its `max-block-size`. Without the\nPopover API, there is no top layer: the popover is fixed above the page\n(`--u-z-index-overlay`), and an ancestor that clips its overflow clips it.",
+          "name": "withAnchoredPopover",
+          "members": [
+            {
+              "kind": "field",
+              "name": "styles",
+              "type": {
+                "text": "array"
+              },
+              "static": true,
+              "default": "[(Base as unknown as typeof LitElement).styles ?? [], anchoredPopoverStyles]"
+            },
+            {
+              "kind": "field",
+              "name": "#openings",
+              "privacy": "private",
+              "default": "new WeakMap<HTMLElement, object>()",
+              "description": "The opening under way of each popover: a closing meanwhile cancels it."
+            },
+            {
+              "kind": "field",
+              "name": "#cleanups",
+              "privacy": "private",
+              "default": "new Map<HTMLElement, () => void>()",
+              "description": "Stops the fallback's updates of each open popover."
+            },
+            {
+              "kind": "field",
+              "name": "#offsets",
+              "privacy": "private",
+              "default": "new WeakMap<HTMLElement, number>()",
+              "description": "The block margin of each popover: the fallback applies it as an offset."
+            },
+            {
+              "kind": "method",
+              "name": "openPopover",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "Promise<void>"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "popover",
+                  "type": {
+                    "text": "HTMLElement"
+                  }
+                },
+                {
+                  "name": "anchor",
+                  "type": {
+                    "text": "HTMLElement"
+                  }
+                }
+              ],
+              "description": "Shows `popover`, a `popover=\"manual\"` of the shadow root, in the top\nlayer, anchored below `anchor`, an element of the same shadow root.\nResolves once it's shown and positioned. Already open, it only follows\nthe new anchor."
+            },
+            {
+              "kind": "method",
+              "name": "closePopover",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "popover",
+                  "type": {
+                    "text": "HTMLElement"
+                  }
+                }
+              ],
+              "description": "Hides `popover` at once: its exit transition, if any, runs after."
+            },
+            {
+              "kind": "method",
+              "name": "#follow",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "Promise<void>"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "floating",
+                  "type": {
+                    "text": "FloatingUI"
+                  }
+                },
+                {
+                  "name": "popover",
+                  "type": {
+                    "text": "HTMLElement"
+                  }
+                },
+                {
+                  "name": "anchor",
+                  "type": {
+                    "text": "HTMLElement"
+                  }
+                }
+              ],
+              "description": "Positions `popover` with Floating UI, then again on each scroll,\nresize or move of the anchor, until it closes. Resolves once\npositioned: before the next paint, so it never shows unpositioned."
+            }
+          ],
+          "parameters": [
+            {
+              "name": "Base",
+              "type": {
+                "text": "T"
+              }
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "AnchoredPopoverInterface",
+          "declaration": {
+            "name": "AnchoredPopoverInterface",
+            "module": "src/mixins/withAnchoredPopover.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "withAnchoredPopover",
+          "declaration": {
+            "name": "withAnchoredPopover",
+            "module": "src/mixins/withAnchoredPopover.ts"
           }
         }
       ]
@@ -957,6 +1253,493 @@
     },
     {
       "kind": "javascript-module",
+      "path": "src/mixins/withListbox.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "",
+          "name": "ListboxInterface",
+          "members": [
+            {
+              "kind": "field",
+              "name": "options",
+              "type": {
+                "text": "readonly ListboxOption[] | undefined"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "availableOptions",
+              "type": {
+                "text": "readonly ListboxOption[]"
+              },
+              "privacy": "protected",
+              "description": "The options: `options` when set, the `<option>` children otherwise.",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "listboxOptions",
+              "type": {
+                "text": "readonly ListboxOption[]"
+              },
+              "privacy": "protected",
+              "description": "The options the list shows and the keyboard moves through.",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "activeIndex",
+              "type": {
+                "text": "number"
+              },
+              "privacy": "protected",
+              "description": "Index of the active option in `listboxOptions`, -1 when none."
+            },
+            {
+              "kind": "field",
+              "name": "activeOption",
+              "type": {
+                "text": "ListboxOption | undefined"
+              },
+              "privacy": "protected",
+              "description": "The active option, `undefined` when none.",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "activeDescendant",
+              "type": {
+                "text": "string | typeof nothing"
+              },
+              "privacy": "protected",
+              "description": "For the control: its `aria-activedescendant`.",
+              "readonly": true
+            },
+            {
+              "kind": "method",
+              "name": "renderListbox",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "unknown"
+                }
+              },
+              "description": "Renders the list of `listboxOptions`."
+            },
+            {
+              "kind": "method",
+              "name": "renderOption",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "unknown"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "option",
+                  "type": {
+                    "text": "ListboxOption"
+                  }
+                },
+                {
+                  "name": "index",
+                  "type": {
+                    "text": "number"
+                  }
+                }
+              ],
+              "description": "Renders the content of an option."
+            },
+            {
+              "kind": "method",
+              "name": "moveActive",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "to",
+                  "type": {
+                    "text": "ListboxMove"
+                  }
+                }
+              ],
+              "description": "Moves the active option."
+            },
+            {
+              "kind": "method",
+              "name": "handleListboxKeydown",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "boolean"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "event",
+                  "type": {
+                    "text": "KeyboardEvent"
+                  }
+                }
+              ],
+              "description": "Handles the list's keys. Returns whether it handled `event`."
+            },
+            {
+              "kind": "method",
+              "name": "selectOption",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "option",
+                  "type": {
+                    "text": "ListboxOption"
+                  }
+                }
+              ],
+              "description": "Called when the user picks an option."
+            }
+          ]
+        },
+        {
+          "kind": "mixin",
+          "description": "Mixin: a list of options in the shadow root, `role=\"listbox\"`, whose\nactive option follows the arrow keys while the focus stays on a control:\nthe input of an autocomplete, the button of a select. The control gets\nthe list's `aria-activedescendant`.\n\nThe options are `options`, or else the `<option>` children of the host.\nThe mixin reads those children and never changes them: a framework keeps\nrendering them. Either way, the list renders its own copies, in the shadow\nroot of the control. `aria-activedescendant` only reaches an element of\nits own tree (ADR 0007, ADR 0009).\n\n`renderListbox()` renders the list with `id=\"listbox\"`, named by the\nelement `#label` of the shadow root (the label of `FieldBase`). Each option\nhas `id=\"option-<index>\"`.",
+          "name": "withListbox",
+          "members": [
+            {
+              "kind": "field",
+              "name": "styles",
+              "type": {
+                "text": "array"
+              },
+              "static": true,
+              "default": "[ (Base as unknown as typeof LitElement).styles ?? [], listboxTokens, listboxStyles, ]"
+            },
+            {
+              "kind": "field",
+              "name": "options",
+              "type": {
+                "text": "readonly ListboxOption[] | undefined"
+              },
+              "description": "The options, as data: `{ value, label?, disabled? }`. Takes precedence\nover the `<option>` children. Property only."
+            },
+            {
+              "kind": "field",
+              "name": "childOptions",
+              "type": {
+                "text": "readonly ListboxOption[]"
+              },
+              "privacy": "private",
+              "default": "[]",
+              "description": "The `<option>` children, as data."
+            },
+            {
+              "kind": "field",
+              "name": "activeIndex",
+              "type": {
+                "text": "number"
+              },
+              "privacy": "protected",
+              "default": "-1"
+            },
+            {
+              "kind": "field",
+              "name": "#observer",
+              "privacy": "private",
+              "type": {
+                "text": "MutationObserver | undefined"
+              },
+              "description": "Reads the `<option>` children again when they change."
+            },
+            {
+              "kind": "field",
+              "name": "availableOptions",
+              "type": {
+                "text": "readonly ListboxOption[]"
+              },
+              "privacy": "protected",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "listboxOptions",
+              "type": {
+                "text": "readonly ListboxOption[]"
+              },
+              "privacy": "protected",
+              "description": "The options the list shows and the keyboard moves through:\n`availableOptions`. Override it to filter them.",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "activeOption",
+              "type": {
+                "text": "ListboxOption | undefined"
+              },
+              "privacy": "protected",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "activeDescendant",
+              "type": {
+                "text": "string | typeof nothing"
+              },
+              "privacy": "protected",
+              "readonly": true
+            },
+            {
+              "kind": "method",
+              "name": "renderListbox",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "unknown"
+                }
+              },
+              "description": "Renders the list of `listboxOptions`, `role=\"listbox\"`, and the hidden\nslot of the `<option>` children. A press on the list keeps the focus\non the control; the pointer makes the option under it active."
+            },
+            {
+              "kind": "method",
+              "name": "renderOption",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "unknown"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "option",
+                  "type": {
+                    "text": "ListboxOption"
+                  }
+                },
+                {
+                  "name": "_index",
+                  "type": {
+                    "text": "number"
+                  }
+                }
+              ],
+              "description": "Renders the content of an option: its label, or its value. Override it for a richer content."
+            },
+            {
+              "kind": "method",
+              "name": "moveActive",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "to",
+                  "type": {
+                    "text": "ListboxMove"
+                  }
+                }
+              ],
+              "description": "Moves the active option: to the next or previous enabled one, looping\nat the ends, to the first or last enabled one, or to none. Scrolls the\nlist to it."
+            },
+            {
+              "kind": "method",
+              "name": "handleListboxKeydown",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "boolean"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "event",
+                  "type": {
+                    "text": "KeyboardEvent"
+                  }
+                }
+              ],
+              "description": "Handles ArrowDown and ArrowUp (the next and previous option) and\nEnter (picks the active option). Returns whether it handled `event`:\nthe caller then prevents its default."
+            },
+            {
+              "kind": "method",
+              "name": "selectOption",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "_option",
+                  "type": {
+                    "text": "ListboxOption"
+                  }
+                }
+              ],
+              "description": "Called when the user picks an enabled option, by a click or Enter.\nDoes nothing by default: the component gives it its meaning."
+            },
+            {
+              "kind": "method",
+              "name": "#readChildren",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "#indexAt",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "number"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "event",
+                  "type": {
+                    "text": "Event"
+                  }
+                }
+              ],
+              "description": "The index of the option under the pointer, -1 when none."
+            },
+            {
+              "kind": "field",
+              "name": "#keepFocus",
+              "privacy": "private"
+            },
+            {
+              "kind": "field",
+              "name": "#activateUnderPointer",
+              "privacy": "private"
+            },
+            {
+              "kind": "field",
+              "name": "#selectUnderPointer",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "#scrollToActive",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "description": "Scrolls the list, not the page, to show the active option."
+            }
+          ],
+          "parameters": [
+            {
+              "name": "Base",
+              "type": {
+                "text": "T"
+              }
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "ListboxInterface",
+          "declaration": {
+            "name": "ListboxInterface",
+            "module": "src/mixins/withListbox.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "withListbox",
+          "declaration": {
+            "name": "withListbox",
+            "module": "src/mixins/withListbox.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/polyfills/anchor-positioning.ts",
+      "declarations": [
+        {
+          "kind": "function",
+          "name": "cssAnchors",
+          "return": {
+            "type": {
+              "text": "boolean"
+            }
+          },
+          "description": "Whether the browser positions an element against an anchor in CSS."
+        },
+        {
+          "kind": "function",
+          "name": "supportsPopover",
+          "return": {
+            "type": {
+              "text": "boolean"
+            }
+          },
+          "description": "Whether the Popover API exists: a popover reaches the top layer."
+        },
+        {
+          "kind": "function",
+          "name": "loadAnchorFallback",
+          "return": {
+            "type": {
+              "text": "Promise<FloatingUI>"
+            }
+          },
+          "description": "Loads Floating UI once. Call it only where `cssAnchors()` is false."
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "cssAnchors",
+          "declaration": {
+            "name": "cssAnchors",
+            "module": "src/polyfills/anchor-positioning.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "supportsPopover",
+          "declaration": {
+            "name": "supportsPopover",
+            "module": "src/polyfills/anchor-positioning.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "loadAnchorFallback",
+          "declaration": {
+            "name": "loadAnchorFallback",
+            "module": "src/polyfills/anchor-positioning.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/polyfills/invokers.ts",
       "declarations": [
         {
@@ -1192,6 +1975,1885 @@
     {
       "kind": "javascript-module",
       "path": "src/components/alert/alert.type.ts",
+      "declarations": [],
+      "exports": []
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/components/autocomplete/autocomplete.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "A text field with suggestions: the list below the input shows the\nsuggestions that match the text, and the user picks one or keeps typing.\nThe value is the text, free: a suggestion only fills it, as `<input list>`\ndoes. The label, the hint, the error and the form behavior are those of\n`FieldBase`; the popup is that of `ComboboxBase`.\n\nThe suggestions are `options`, or else the `<option>` children of the\nfield. With `filter=\"none\"`, the application filters them itself: it\nlistens to `input` and sets `options`, from a server for instance. New\noptions open the list while the user types.\n\nKeys, list open: ArrowDown and ArrowUp move to the next and previous\nsuggestion, looping at the ends; Enter picks the active one; Escape closes\nthe list and keeps the text; Home, End and the other keys edit the text.\nEnter without an active suggestion closes the list.\n\nThe browser's own suggestions (`autocomplete`) are off by default: they\nwould cover the list. Give `autocomplete` to have both.",
+          "name": "Autocomplete",
+          "cssProperties": [
+            {
+              "description": "Background color of the list.",
+              "name": "--u-listbox-background-color",
+              "default": "var(--u-color-surface-default)"
+            },
+            {
+              "description": "Border color of the list.",
+              "name": "--u-listbox-border-color",
+              "default": "var(--u-color-border-default)"
+            },
+            {
+              "description": "Border width of the list.",
+              "name": "--u-listbox-border-width",
+              "default": "var(--u-border-width)"
+            },
+            {
+              "description": "Corner radius of the list.",
+              "name": "--u-listbox-border-radius",
+              "default": "var(--u-radius-md)"
+            },
+            {
+              "description": "Shadow of the list, above the page.",
+              "name": "--u-listbox-shadow",
+              "default": "var(--u-shadow-raised)"
+            },
+            {
+              "description": "Padding of the list, around its options.",
+              "name": "--u-listbox-padding",
+              "default": "var(--u-spacing-2xs)"
+            },
+            {
+              "description": "Largest height of the list: its options scroll past it.",
+              "name": "--u-listbox-max-block-size",
+              "default": "var(--u-size-popup)"
+            },
+            {
+              "description": "Horizontal padding of an option.",
+              "name": "--u-listbox-option-padding-inline",
+              "default": "var(--u-spacing-sm)"
+            },
+            {
+              "description": "Vertical padding of an option.",
+              "name": "--u-listbox-option-padding-block",
+              "default": "var(--u-spacing-xs)"
+            },
+            {
+              "description": "Corner radius of an option.",
+              "name": "--u-listbox-option-border-radius",
+              "default": "var(--u-radius-sm)"
+            },
+            {
+              "description": "Background color of the active option: the one the arrow keys or the pointer are on.",
+              "name": "--u-listbox-option-background-color-active",
+              "default": "var(--u-color-action-background)"
+            },
+            {
+              "description": "Text color of the active option.",
+              "name": "--u-listbox-option-text-color-active",
+              "default": "var(--u-color-action-text)"
+            },
+            {
+              "description": "Opacity of a disabled option.",
+              "name": "--u-listbox-option-opacity-disabled",
+              "default": "var(--u-opacity-disabled)"
+            },
+            {
+              "description": "Space between the control and its popup.",
+              "name": "--u-combobox-popup-offset",
+              "default": "var(--u-spacing-2xs)",
+              "inheritedFrom": {
+                "name": "ComboboxBase",
+                "module": "src/components/combobox/combobox-base.ts"
+              }
+            },
+            {
+              "description": "Entry and exit transition duration of the popup. Zero with reduced motion.",
+              "name": "--u-combobox-transition-duration",
+              "default": "var(--u-motion-duration-fast)",
+              "inheritedFrom": {
+                "name": "ComboboxBase",
+                "module": "src/components/combobox/combobox-base.ts"
+              }
+            },
+            {
+              "description": "Entry and exit transition easing of the popup.",
+              "name": "--u-combobox-transition-timing-function",
+              "default": "var(--u-motion-easing-standard)",
+              "inheritedFrom": {
+                "name": "ComboboxBase",
+                "module": "src/components/combobox/combobox-base.ts"
+              }
+            },
+            {
+              "description": "Space between the label, the hint, the control and the error message.",
+              "name": "--u-field-gap",
+              "default": "var(--u-spacing-xs)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Font family.",
+              "name": "--u-field-font-family",
+              "default": "var(--u-font-family-body)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Font size of the label and the control.",
+              "name": "--u-field-font-size",
+              "default": "var(--u-font-size-md)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Line height.",
+              "name": "--u-field-line-height",
+              "default": "var(--u-font-line-height-body)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Text color of the label, the hint and the control.",
+              "name": "--u-field-text-color",
+              "default": "var(--u-color-text-default)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Font weight of the label.",
+              "name": "--u-field-label-font-weight",
+              "default": "var(--u-font-weight-medium)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Font size of the hint.",
+              "name": "--u-field-hint-font-size",
+              "default": "var(--u-font-size-sm)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Background color of the control.",
+              "name": "--u-field-background-color",
+              "default": "var(--u-color-surface-default)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Border color of the control.",
+              "name": "--u-field-border-color",
+              "default": "var(--u-color-border-control)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Border color of the control while an error shows.",
+              "name": "--u-field-border-color-invalid",
+              "default": "var(--u-color-text-danger)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Border width of the control.",
+              "name": "--u-field-border-width",
+              "default": "var(--u-border-width)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Corner radius of the control.",
+              "name": "--u-field-border-radius",
+              "default": "var(--u-radius-md)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Horizontal padding of the control.",
+              "name": "--u-field-padding-inline",
+              "default": "var(--u-spacing-sm)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Vertical padding of the control.",
+              "name": "--u-field-padding-block",
+              "default": "var(--u-spacing-xs)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Focus outline color.",
+              "name": "--u-field-focus-ring-color",
+              "default": "var(--u-color-focus-ring)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Focus outline width.",
+              "name": "--u-field-focus-ring-width",
+              "default": "var(--u-focus-ring-width)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Focus outline offset.",
+              "name": "--u-field-focus-ring-offset",
+              "default": "var(--u-focus-ring-offset)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Text color of the error message.",
+              "name": "--u-field-error-text-color",
+              "default": "var(--u-color-text-danger)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Font size of the error message.",
+              "name": "--u-field-error-font-size",
+              "default": "var(--u-font-size-sm)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Space between the error icon and the message.",
+              "name": "--u-field-error-gap",
+              "default": "var(--u-spacing-xs)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            }
+          ],
+          "cssParts": [
+            {
+              "description": "The native `<input>`, the combobox.",
+              "name": "input"
+            },
+            {
+              "description": "The list of suggestions, in the popup.",
+              "name": "listbox"
+            },
+            {
+              "description": "A suggestion. The active one has `aria-selected=\"true\"`, a disabled one `aria-disabled=\"true\"`.",
+              "name": "option"
+            },
+            {
+              "description": "The popup, below the control, in the top layer.",
+              "name": "popup",
+              "inheritedFrom": {
+                "name": "ComboboxBase",
+                "module": "src/components/combobox/combobox-base.ts"
+              }
+            },
+            {
+              "description": "The native `<label>`.",
+              "name": "label",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "The hint, between the label and the control. Hidden without `hint`.",
+              "name": "hint",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "The error message, after the control. Hidden while no error shows.",
+              "name": "error",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            }
+          ],
+          "slots": [
+            {
+              "description": "The suggestions as `<option>` elements, when `options` isn't set: their `value`, their `label` or text, and `disabled`. They aren't shown: the list renders copies of them.",
+              "name": ""
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "componentName",
+              "type": {
+                "text": "string"
+              },
+              "static": true,
+              "default": "\"autocomplete\"",
+              "description": "Name of the component in the catalog, without any tag prefix: the\nregistered tag is `<prefix>-<componentName>`. Every concrete component\nsets it; abstract bases (e.g. `ButtonBase`) don't.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/components/base-element.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "filter",
+              "type": {
+                "text": "AutocompleteFilter"
+              },
+              "default": "\"contains\"",
+              "description": "Which suggestions match the text, without case nor accents: those that\n`contains` it, those that `starts-with` it, or all of them with `none`,\nwhen the application filters them itself.",
+              "attribute": "filter"
+            },
+            {
+              "kind": "field",
+              "name": "#typed",
+              "privacy": "private",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether the user has typed since the list last closed: new options open it."
+            },
+            {
+              "kind": "field",
+              "name": "#changed",
+              "privacy": "private",
+              "type": {
+                "text": "string | undefined"
+              },
+              "description": "The value of the last `change`: the inner input may fire it again, on blur."
+            },
+            {
+              "kind": "field",
+              "name": "#matching",
+              "privacy": "private",
+              "type": {
+                "text": "{\n    options: readonly ListboxOption[];\n    value: string;\n    filter: AutocompleteFilter;\n    result: readonly ListboxOption[];\n  } | undefined"
+              },
+              "description": "The last result of `listboxOptions`, computed again when its inputs change."
+            },
+            {
+              "kind": "field",
+              "name": "listboxOptions",
+              "type": {
+                "text": "readonly ListboxOption[]"
+              },
+              "privacy": "protected",
+              "description": "The suggestions that match the text: all of them while it's empty, or with `filter=\"none\"`.",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "withListbox",
+                "module": "src/mixins/withListbox.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "optionMatches",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "boolean"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "option",
+                  "type": {
+                    "text": "ListboxOption"
+                  }
+                },
+                {
+                  "name": "query",
+                  "type": {
+                    "text": "string"
+                  }
+                }
+              ],
+              "description": "Whether `option` matches `query`, the trimmed text: its label contains\nit, or starts with it, without case nor accents. Override it for\nanother comparison; `filter=\"none\"` never calls it."
+            },
+            {
+              "kind": "field",
+              "name": "hasPopupContent",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "protected",
+              "description": "Whether the popup has something to show: it doesn't open empty. `true` by default.",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "ComboboxBase",
+                "module": "src/components/combobox/combobox-base.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "renderCombobox",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "unknown"
+                }
+              },
+              "description": "Renders the control: `role=\"combobox\"`, with the contract of\n`FieldBase.renderControl()` (`id=\"control\"`, `class=\"control\"`). It binds\n`aria-expanded=${this.comboboxExpanded}`,\n`aria-controls=${this.comboboxControls}` and\n`@keydown=${this.handleComboboxKeydown}`.",
+              "inheritedFrom": {
+                "name": "ComboboxBase",
+                "module": "src/components/combobox/combobox-base.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "renderPopup",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "unknown"
+                }
+              },
+              "description": "Renders the content of the popup, a list of options for instance.",
+              "inheritedFrom": {
+                "name": "ComboboxBase",
+                "module": "src/components/combobox/combobox-base.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "handleInput",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "event",
+                  "type": {
+                    "text": "Event"
+                  }
+                }
+              ],
+              "description": "For `renderControl()`: the `input` listener of the control.",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "handleChange",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "description": "For `renderControl()`: the `change` listener of the control.",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "hidePopup",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "description": "Closes the popup, after its exit transition.",
+              "inheritedFrom": {
+                "name": "ComboboxBase",
+                "module": "src/components/combobox/combobox-base.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "enterPopup",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "entry",
+                  "type": {
+                    "text": "ComboboxEntry"
+                  }
+                }
+              ],
+              "description": "Moves the keyboard into the popup, opened from the keyboard. Does nothing by default.",
+              "inheritedFrom": {
+                "name": "ComboboxBase",
+                "module": "src/components/combobox/combobox-base.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "handlePopupKeydown",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "boolean"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "event",
+                  "type": {
+                    "text": "KeyboardEvent"
+                  }
+                }
+              ],
+              "description": "Handles a key of the control while the popup is open, other than\nEscape, Alt+ArrowUp and Tab. Returns whether it handled it: the base\nthen prevents its default. Handles none by default.",
+              "inheritedFrom": {
+                "name": "ComboboxBase",
+                "module": "src/components/combobox/combobox-base.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "selectOption",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "option",
+                  "type": {
+                    "text": "ListboxOption"
+                  }
+                }
+              ],
+              "description": "Fires `u-select`, then, unless canceled, fills the field with the\nsuggestion's value, as a user's change: `input`, then `change`. The\nlist closes; the focus stays in the input.",
+              "inheritedFrom": {
+                "name": "withListbox",
+                "module": "src/mixins/withListbox.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "#focused",
+              "privacy": "private",
+              "type": {
+                "text": "boolean"
+              },
+              "description": "Whether the input has the focus.",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "styles",
+              "type": {
+                "text": "array"
+              },
+              "static": true,
+              "default": "[ (Base as unknown as typeof LitElement).styles ?? [], listboxTokens, listboxStyles, ]",
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "options",
+              "type": {
+                "text": "readonly ListboxOption[] | undefined"
+              },
+              "description": "The options, as data: `{ value, label?, disabled? }`. Takes precedence\nover the `<option>` children. Property only.",
+              "inheritedFrom": {
+                "name": "withListbox",
+                "module": "src/mixins/withListbox.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "childOptions",
+              "type": {
+                "text": "readonly ListboxOption[]"
+              },
+              "privacy": "private",
+              "default": "[]",
+              "description": "The `<option>` children, as data.",
+              "inheritedFrom": {
+                "name": "withListbox",
+                "module": "src/mixins/withListbox.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "activeIndex",
+              "type": {
+                "text": "number"
+              },
+              "privacy": "protected",
+              "default": "-1",
+              "inheritedFrom": {
+                "name": "withListbox",
+                "module": "src/mixins/withListbox.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "#observer",
+              "privacy": "private",
+              "type": {
+                "text": "MutationObserver | undefined"
+              },
+              "description": "Reads the `<option>` children again when they change.",
+              "inheritedFrom": {
+                "name": "withListbox",
+                "module": "src/mixins/withListbox.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "availableOptions",
+              "type": {
+                "text": "readonly ListboxOption[]"
+              },
+              "privacy": "protected",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "withListbox",
+                "module": "src/mixins/withListbox.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "activeOption",
+              "type": {
+                "text": "ListboxOption | undefined"
+              },
+              "privacy": "protected",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "withListbox",
+                "module": "src/mixins/withListbox.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "activeDescendant",
+              "type": {
+                "text": "string | typeof nothing"
+              },
+              "privacy": "protected",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "withListbox",
+                "module": "src/mixins/withListbox.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "renderListbox",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "unknown"
+                }
+              },
+              "description": "Renders the list of `listboxOptions`, `role=\"listbox\"`, and the hidden\nslot of the `<option>` children. A press on the list keeps the focus\non the control; the pointer makes the option under it active.",
+              "inheritedFrom": {
+                "name": "withListbox",
+                "module": "src/mixins/withListbox.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "renderOption",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "unknown"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "option",
+                  "type": {
+                    "text": "ListboxOption"
+                  }
+                },
+                {
+                  "name": "_index",
+                  "type": {
+                    "text": "number"
+                  }
+                }
+              ],
+              "description": "Renders the content of an option: its label, or its value. Override it for a richer content.",
+              "inheritedFrom": {
+                "name": "withListbox",
+                "module": "src/mixins/withListbox.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "moveActive",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "to",
+                  "type": {
+                    "text": "ListboxMove"
+                  }
+                }
+              ],
+              "description": "Moves the active option: to the next or previous enabled one, looping\nat the ends, to the first or last enabled one, or to none. Scrolls the\nlist to it.",
+              "inheritedFrom": {
+                "name": "withListbox",
+                "module": "src/mixins/withListbox.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "handleListboxKeydown",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "boolean"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "event",
+                  "type": {
+                    "text": "KeyboardEvent"
+                  }
+                }
+              ],
+              "description": "Handles ArrowDown and ArrowUp (the next and previous option) and\nEnter (picks the active option). Returns whether it handled `event`:\nthe caller then prevents its default.",
+              "inheritedFrom": {
+                "name": "withListbox",
+                "module": "src/mixins/withListbox.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "#readChildren",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "inheritedFrom": {
+                "name": "withListbox",
+                "module": "src/mixins/withListbox.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "#indexAt",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "number"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "event",
+                  "type": {
+                    "text": "Event"
+                  }
+                }
+              ],
+              "description": "The index of the option under the pointer, -1 when none.",
+              "inheritedFrom": {
+                "name": "withListbox",
+                "module": "src/mixins/withListbox.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "#keepFocus",
+              "privacy": "private",
+              "inheritedFrom": {
+                "name": "withListbox",
+                "module": "src/mixins/withListbox.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "#activateUnderPointer",
+              "privacy": "private",
+              "inheritedFrom": {
+                "name": "withListbox",
+                "module": "src/mixins/withListbox.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "#selectUnderPointer",
+              "privacy": "private",
+              "inheritedFrom": {
+                "name": "withListbox",
+                "module": "src/mixins/withListbox.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "#scrollToActive",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "description": "Scrolls the list, not the page, to show the active option.",
+              "inheritedFrom": {
+                "name": "withListbox",
+                "module": "src/mixins/withListbox.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "#openings",
+              "privacy": "private",
+              "default": "new WeakMap<HTMLElement, object>()",
+              "description": "The opening under way of each popover: a closing meanwhile cancels it.",
+              "inheritedFrom": {
+                "name": "withAnchoredPopover",
+                "module": "src/mixins/withAnchoredPopover.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "#cleanups",
+              "privacy": "private",
+              "default": "new Map<HTMLElement, () => void>()",
+              "description": "Stops the fallback's updates of each open popover.",
+              "inheritedFrom": {
+                "name": "withAnchoredPopover",
+                "module": "src/mixins/withAnchoredPopover.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "#offsets",
+              "privacy": "private",
+              "default": "new WeakMap<HTMLElement, number>()",
+              "description": "The block margin of each popover: the fallback applies it as an offset.",
+              "inheritedFrom": {
+                "name": "withAnchoredPopover",
+                "module": "src/mixins/withAnchoredPopover.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "openPopover",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "Promise<void>"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "popover",
+                  "type": {
+                    "text": "HTMLElement"
+                  }
+                },
+                {
+                  "name": "anchor",
+                  "type": {
+                    "text": "HTMLElement"
+                  }
+                }
+              ],
+              "description": "Shows `popover`, a `popover=\"manual\"` of the shadow root, in the top\nlayer, anchored below `anchor`, an element of the same shadow root.\nResolves once it's shown and positioned. Already open, it only follows\nthe new anchor.",
+              "inheritedFrom": {
+                "name": "withAnchoredPopover",
+                "module": "src/mixins/withAnchoredPopover.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "closePopover",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "popover",
+                  "type": {
+                    "text": "HTMLElement"
+                  }
+                }
+              ],
+              "description": "Hides `popover` at once: its exit transition, if any, runs after.",
+              "inheritedFrom": {
+                "name": "withAnchoredPopover",
+                "module": "src/mixins/withAnchoredPopover.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "#follow",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "Promise<void>"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "floating",
+                  "type": {
+                    "text": "FloatingUI"
+                  }
+                },
+                {
+                  "name": "popover",
+                  "type": {
+                    "text": "HTMLElement"
+                  }
+                },
+                {
+                  "name": "anchor",
+                  "type": {
+                    "text": "HTMLElement"
+                  }
+                }
+              ],
+              "description": "Positions `popover` with Floating UI, then again on each scroll,\nresize or move of the anchor, until it closes. Resolves once\npositioned: before the next paint, so it never shows unpositioned.",
+              "inheritedFrom": {
+                "name": "withAnchoredPopover",
+                "module": "src/mixins/withAnchoredPopover.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "closeWithTransition",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "Promise<void>"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "element",
+                  "type": {
+                    "text": "HTMLElement"
+                  }
+                },
+                {
+                  "name": "close",
+                  "type": {
+                    "text": "() => void"
+                  }
+                }
+              ],
+              "description": "Closes `element` once its exit transition ends: `close` closes it\n(`dialog.close()`, `hidePopover()`). Without transition, as with\nreduced motion, it closes at once. Resolves when closed, or when\n`cancelExitTransition()` kept it open.",
+              "inheritedFrom": {
+                "name": "withExitTransition",
+                "module": "src/mixins/withExitTransition.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "cancelExitTransition",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "element",
+                  "type": {
+                    "text": "HTMLElement"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "withExitTransition",
+                "module": "src/mixins/withExitTransition.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "open",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether the popup is open. Reflected. Follows the real state: it turns\n`false` when the user closes the popup. Set to `true`, it opens only\nwith some content to show.",
+              "attribute": "open",
+              "reflects": true,
+              "inheritedFrom": {
+                "name": "ComboboxBase",
+                "module": "src/components/combobox/combobox-base.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "renderControl",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "unknown"
+                }
+              },
+              "description": "Renders the control, from `renderCombobox()`, then the popup with the\ncontent of `renderPopup()`.",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "comboboxExpanded",
+              "type": {
+                "text": "\"true\" | \"false\""
+              },
+              "privacy": "protected",
+              "description": "For `renderCombobox()`: the `aria-expanded` of the control.",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "ComboboxBase",
+                "module": "src/components/combobox/combobox-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "comboboxControls",
+              "type": {
+                "text": "string"
+              },
+              "privacy": "protected",
+              "description": "For `renderCombobox()`: the `aria-controls` of the control, the `id` of the popup's content.",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "ComboboxBase",
+                "module": "src/components/combobox/combobox-base.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "showPopup",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "entry",
+                  "default": "\"none\"",
+                  "type": {
+                    "text": "ComboboxEntry"
+                  }
+                }
+              ],
+              "description": "Opens the popup, if it has content. The keyboard enters it at `entry`, through `enterPopup()`.",
+              "inheritedFrom": {
+                "name": "ComboboxBase",
+                "module": "src/components/combobox/combobox-base.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "handleComboboxKeydown",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "event",
+                  "type": {
+                    "text": "KeyboardEvent"
+                  }
+                }
+              ],
+              "description": "For `renderCombobox()`: the `keydown` listener of the control.",
+              "inheritedFrom": {
+                "name": "ComboboxBase",
+                "module": "src/components/combobox/combobox-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "popup",
+              "type": {
+                "text": "HTMLElement | null"
+              },
+              "privacy": "protected",
+              "description": "The popup, once rendered.",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "ComboboxBase",
+                "module": "src/components/combobox/combobox-base.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "#show",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "Promise<void>"
+                }
+              },
+              "inheritedFrom": {
+                "name": "ComboboxBase",
+                "module": "src/components/combobox/combobox-base.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "#hide",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "inheritedFrom": {
+                "name": "ComboboxBase",
+                "module": "src/components/combobox/combobox-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "internals",
+              "type": {
+                "text": "ElementInternals | undefined"
+              },
+              "privacy": "protected",
+              "inheritedFrom": {
+                "name": "withInternals",
+                "module": "src/mixins/withInternals.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "customStates",
+              "type": {
+                "text": "object"
+              },
+              "privacy": "protected",
+              "default": "{ set: (name: string, active: boolean) => { if (!supportsCustomStates || !this.internals?.states) { return; } if (active) { this.internals.states.add(name); } else { this.internals.states.delete(name); } }, has: (name: string): boolean => { if (!supportsCustomStates || !this.internals?.states) { return false; } return this.internals.states.has(name); }, }",
+              "description": "Wraps `internals.states` so components can toggle `:state(x)` selectors\n(e.g. `:state(open)`) instead of reflecting extra boolean attributes.\nA no-op where `:state()` is unsupported (see `supportsCustomStates`), so\n`:state()` styling must stay an enhancement — reflect an attribute too\nwhen the state is needed for the component to look right.",
+              "inheritedFrom": {
+                "name": "withInternals",
+                "module": "src/mixins/withInternals.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "disabled",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Disables interaction; also sets `aria-disabled=\"true\"` on the host.",
+              "attribute": "disabled",
+              "reflects": true,
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "formDisabled",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "private",
+              "default": "false",
+              "description": "The browser's disabled state of a form-associated element.",
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "isDisabled",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "protected",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "dependencies",
+              "type": {
+                "text": "readonly (typeof DSBaseElement)[]"
+              },
+              "static": true,
+              "default": "[Icon]",
+              "description": "Renders the icon of its error message with the `icon` of its own registration (ADR 0001, D2).",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/components/base-element.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "formAssociated",
+              "type": {
+                "text": "boolean"
+              },
+              "static": true,
+              "default": "true",
+              "description": "Takes part in its form: value, validity, reset, `<fieldset disabled>`.",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "shadowRootOptions",
+              "type": {
+                "text": "ShadowRootInit"
+              },
+              "static": true,
+              "default": "{ ...super.shadowRootOptions, delegatesFocus: true }",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "label",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "The visible label, and the accessible name of the control. Required.",
+              "attribute": "label",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "hint",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "A help text between the label and the control, read with the control.",
+              "attribute": "hint",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "name",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "Name of the value in the form's data. Reflected: the form reads the attribute.",
+              "attribute": "name",
+              "reflects": true,
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "value",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "The value, submitted with the form. The `value` attribute is the\ndefault value: the form's reset restores it.",
+              "attribute": "value",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "required",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "The form can't be submitted while the field is empty.",
+              "attribute": "required",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "autocomplete",
+              "type": {
+                "text": "string | undefined"
+              },
+              "description": "The `autocomplete` of the control: what the browser can fill in (`email`, `name`…).",
+              "attribute": "autocomplete",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "errorMessage",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "The error message, in place of the browser's. Say how to fix the error.",
+              "attribute": "error-message",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "errorLabel",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"Error:\"",
+              "description": "Read by assistive technologies before the error message, which a\ndecorative icon starts: \"Error:\" in the page's language, with its\npunctuation (`Erreur :` in French).",
+              "attribute": "error-label",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "interacted",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "private",
+              "default": "false",
+              "description": "Whether the user has changed the value, or validation has run, since the last reset.",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "error",
+              "type": {
+                "text": "string"
+              },
+              "privacy": "private",
+              "default": "\"\"",
+              "description": "The error message shown, `\"\"` while none.",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "#customValidity",
+              "privacy": "private",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "The message of `setCustomValidity()`.",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "form",
+              "type": {
+                "text": "HTMLFormElement | null"
+              },
+              "description": "The form of the field, or `null`.",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "validity",
+              "type": {
+                "text": "ValidityState"
+              },
+              "description": "The validity of the value, as on a native control.",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "validationMessage",
+              "type": {
+                "text": "string"
+              },
+              "description": "The message of the first constraint the value fails, `\"\"` when valid.",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "willValidate",
+              "type": {
+                "text": "boolean"
+              },
+              "description": "Whether the field is validated with its form: `false` while disabled.",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "checkValidity",
+              "return": {
+                "type": {
+                  "text": "boolean"
+                }
+              },
+              "description": "Whether the value is valid. If not, fires `invalid` and shows the error.",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "reportValidity",
+              "return": {
+                "type": {
+                  "text": "boolean"
+                }
+              },
+              "description": "As `checkValidity()`, and the browser reports the error, focusing the control.",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "setCustomValidity",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "message",
+                  "type": {
+                    "text": "string"
+                  }
+                }
+              ],
+              "description": "Makes the value invalid with this message, as on a native control: a\ncheck of the application, such as a username already taken. `\"\"` makes\nthe value valid again.",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "controlDescribedBy",
+              "type": {
+                "text": "string | typeof nothing"
+              },
+              "privacy": "protected",
+              "description": "For `renderControl()`: the `aria-describedby` of the control, the hint and the error shown.",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "controlInvalid",
+              "type": {
+                "text": "\"true\" | \"false\""
+              },
+              "privacy": "protected",
+              "description": "For `renderControl()`: the `aria-invalid` of the control, `\"true\"` while an error shows.",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "#control",
+              "privacy": "private",
+              "type": {
+                "text": "FieldControl | null"
+              },
+              "description": "The native control, once rendered.",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "#messageOf",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "string"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "control",
+                  "type": {
+                    "text": "FieldControl"
+                  }
+                }
+              ],
+              "description": "The message of the control's error, `\"\"` while valid.",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "#syncValidity",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "description": "Gives the host the validity of the control, the browser's constraints and ours.",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "#showError",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "tagFor",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "StaticValue"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "component",
+                  "type": {
+                    "text": "typeof DSBaseElement"
+                  }
+                }
+              ],
+              "description": "The tag of a component declared in `static dependencies`, for templates\nfrom `lit/static-html.js`: `` html`<${this.tagFor(Button)}>…</${…}>` ``.\nIt follows the registration of this element: `u-modal` renders\n`u-button`, `acme-modal` renders `acme-button` — the brand's override\nof `Button` if it has one.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/components/base-element.ts"
+              }
+            }
+          ],
+          "events": [
+            {
+              "description": "The native `input` event of the inner control, on each change of the value by the user.",
+              "name": "input",
+              "type": {
+                "text": "InputEvent"
+              },
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "type": {
+                "text": "ListboxSelectEvent"
+              },
+              "description": "When the user picks a suggestion, before the field takes its value. Its `option` is the suggestion. Cancelable: `preventDefault()` keeps the text.",
+              "name": "u-select"
+            },
+            {
+              "name": "change",
+              "type": {
+                "text": "Event"
+              },
+              "description": "When the user commits a change of the value, as on a native control (the inner `change` doesn't leave the shadow root: the host fires its own).",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            }
+          ],
+          "attributes": [
+            {
+              "name": "filter",
+              "type": {
+                "text": "AutocompleteFilter"
+              },
+              "default": "\"contains\"",
+              "description": "Which suggestions match the text, without case nor accents: those that\n`contains` it, those that `starts-with` it, or all of them with `none`,\nwhen the application filters them itself.",
+              "fieldName": "filter"
+            },
+            {
+              "name": "open",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether the popup is open. Reflected. Follows the real state: it turns\n`false` when the user closes the popup. Set to `true`, it opens only\nwith some content to show.",
+              "fieldName": "open",
+              "inheritedFrom": {
+                "name": "ComboboxBase",
+                "module": "src/components/combobox/combobox-base.ts"
+              }
+            },
+            {
+              "name": "disabled",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Disables interaction; also sets `aria-disabled=\"true\"` on the host.",
+              "fieldName": "disabled",
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "name": "label",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "The visible label, and the accessible name of the control. Required.",
+              "fieldName": "label",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "name": "hint",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "A help text between the label and the control, read with the control.",
+              "fieldName": "hint",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "name": "name",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "Name of the value in the form's data. Reflected: the form reads the attribute.",
+              "fieldName": "name",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "name": "value",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "The value, submitted with the form. The `value` attribute is the\ndefault value: the form's reset restores it.",
+              "fieldName": "value",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "name": "required",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "The form can't be submitted while the field is empty.",
+              "fieldName": "required",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "name": "autocomplete",
+              "type": {
+                "text": "string | undefined"
+              },
+              "description": "The `autocomplete` of the control: what the browser can fill in (`email`, `name`…).",
+              "fieldName": "autocomplete",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "name": "error-message",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "The error message, in place of the browser's. Say how to fix the error.",
+              "fieldName": "errorMessage",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "name": "error-label",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"Error:\"",
+              "description": "Read by assistive technologies before the error message, which a\ndecorative icon starts: \"Error:\" in the page's language, with its\npunctuation (`Erreur :` in French).",
+              "fieldName": "errorLabel",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            }
+          ],
+          "mixins": [
+            {
+              "name": "withListbox",
+              "module": "/src/mixins/withListbox.js"
+            }
+          ],
+          "superclass": {
+            "name": "ComboboxBase",
+            "module": "/src/components/combobox/combobox-base.js"
+          },
+          "tagName": "u-autocomplete",
+          "customElement": true,
+          "summary": "A labelled text input that suggests values as the user types."
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "Autocomplete",
+          "declaration": {
+            "name": "Autocomplete",
+            "module": "src/components/autocomplete/autocomplete.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/components/autocomplete/autocomplete.type.ts",
       "declarations": [],
       "exports": []
     },
@@ -2571,6 +5233,1338 @@
     },
     {
       "kind": "javascript-module",
+      "path": "src/components/combobox/combobox-base.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "Shared base of the comboboxes: a form field whose control opens a popup\nbelow it, `autocomplete` for instance. Abstract: extend `Autocomplete`, or\nwrite a combobox with `renderCombobox()` and `renderPopup()`. The label,\nthe hint, the error and the form behavior are those of `FieldBase`.\n\nThe control keeps the focus while the popup is open, and names the\npopup's content with `aria-controls`: both are in the same shadow root\n(ADR 0009). The popup is a `popover=\"manual\"` in the top layer, anchored\nby `withAnchoredPopover`, with the entry and exit of `withExitTransition`.\n\nKeys of the control, popup closed: ArrowDown and ArrowUp open it and enter\nit at its first or last item, Alt+ArrowDown opens it without entering.\nPopup open: Escape and Alt+ArrowUp close it, Tab closes it and moves on;\nthe others go to `handlePopupKeydown()`. The popup also closes when the\nfocus leaves the field, when the field is disabled, and when its form is\nreset. Escape closes only the popup, not a modal around the field.",
+          "name": "ComboboxBase",
+          "cssProperties": [
+            {
+              "description": "Space between the control and its popup.",
+              "name": "--u-combobox-popup-offset",
+              "default": "var(--u-spacing-2xs)"
+            },
+            {
+              "description": "Entry and exit transition duration of the popup. Zero with reduced motion.",
+              "name": "--u-combobox-transition-duration",
+              "default": "var(--u-motion-duration-fast)"
+            },
+            {
+              "description": "Entry and exit transition easing of the popup.",
+              "name": "--u-combobox-transition-timing-function",
+              "default": "var(--u-motion-easing-standard)"
+            },
+            {
+              "description": "Space between the label, the hint, the control and the error message.",
+              "name": "--u-field-gap",
+              "default": "var(--u-spacing-xs)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Font family.",
+              "name": "--u-field-font-family",
+              "default": "var(--u-font-family-body)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Font size of the label and the control.",
+              "name": "--u-field-font-size",
+              "default": "var(--u-font-size-md)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Line height.",
+              "name": "--u-field-line-height",
+              "default": "var(--u-font-line-height-body)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Text color of the label, the hint and the control.",
+              "name": "--u-field-text-color",
+              "default": "var(--u-color-text-default)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Font weight of the label.",
+              "name": "--u-field-label-font-weight",
+              "default": "var(--u-font-weight-medium)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Font size of the hint.",
+              "name": "--u-field-hint-font-size",
+              "default": "var(--u-font-size-sm)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Background color of the control.",
+              "name": "--u-field-background-color",
+              "default": "var(--u-color-surface-default)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Border color of the control.",
+              "name": "--u-field-border-color",
+              "default": "var(--u-color-border-control)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Border color of the control while an error shows.",
+              "name": "--u-field-border-color-invalid",
+              "default": "var(--u-color-text-danger)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Border width of the control.",
+              "name": "--u-field-border-width",
+              "default": "var(--u-border-width)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Corner radius of the control.",
+              "name": "--u-field-border-radius",
+              "default": "var(--u-radius-md)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Horizontal padding of the control.",
+              "name": "--u-field-padding-inline",
+              "default": "var(--u-spacing-sm)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Vertical padding of the control.",
+              "name": "--u-field-padding-block",
+              "default": "var(--u-spacing-xs)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Focus outline color.",
+              "name": "--u-field-focus-ring-color",
+              "default": "var(--u-color-focus-ring)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Focus outline width.",
+              "name": "--u-field-focus-ring-width",
+              "default": "var(--u-focus-ring-width)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Focus outline offset.",
+              "name": "--u-field-focus-ring-offset",
+              "default": "var(--u-focus-ring-offset)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Text color of the error message.",
+              "name": "--u-field-error-text-color",
+              "default": "var(--u-color-text-danger)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Font size of the error message.",
+              "name": "--u-field-error-font-size",
+              "default": "var(--u-font-size-sm)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Space between the error icon and the message.",
+              "name": "--u-field-error-gap",
+              "default": "var(--u-spacing-xs)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            }
+          ],
+          "cssParts": [
+            {
+              "description": "The popup, below the control, in the top layer.",
+              "name": "popup"
+            },
+            {
+              "description": "The native `<label>`.",
+              "name": "label",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "The hint, between the label and the control. Hidden without `hint`.",
+              "name": "hint",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "The error message, after the control. Hidden while no error shows.",
+              "name": "error",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "open",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether the popup is open. Reflected. Follows the real state: it turns\n`false` when the user closes the popup. Set to `true`, it opens only\nwith some content to show.",
+              "attribute": "open",
+              "reflects": true
+            },
+            {
+              "kind": "method",
+              "name": "renderControl",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "unknown"
+                }
+              },
+              "description": "Renders the control, from `renderCombobox()`, then the popup with the\ncontent of `renderPopup()`.",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "renderCombobox",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "unknown"
+                }
+              },
+              "description": "Renders the control: `role=\"combobox\"`, with the contract of\n`FieldBase.renderControl()` (`id=\"control\"`, `class=\"control\"`). It binds\n`aria-expanded=${this.comboboxExpanded}`,\n`aria-controls=${this.comboboxControls}` and\n`@keydown=${this.handleComboboxKeydown}`."
+            },
+            {
+              "kind": "method",
+              "name": "renderPopup",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "unknown"
+                }
+              },
+              "description": "Renders the content of the popup, a list of options for instance."
+            },
+            {
+              "kind": "field",
+              "name": "comboboxExpanded",
+              "type": {
+                "text": "\"true\" | \"false\""
+              },
+              "privacy": "protected",
+              "description": "For `renderCombobox()`: the `aria-expanded` of the control.",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "comboboxControls",
+              "type": {
+                "text": "string"
+              },
+              "privacy": "protected",
+              "description": "For `renderCombobox()`: the `aria-controls` of the control, the `id` of the popup's content.",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "hasPopupContent",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "protected",
+              "description": "Whether the popup has something to show: it doesn't open empty. `true` by default.",
+              "readonly": true
+            },
+            {
+              "kind": "method",
+              "name": "showPopup",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "entry",
+                  "default": "\"none\"",
+                  "type": {
+                    "text": "ComboboxEntry"
+                  }
+                }
+              ],
+              "description": "Opens the popup, if it has content. The keyboard enters it at `entry`, through `enterPopup()`."
+            },
+            {
+              "kind": "method",
+              "name": "hidePopup",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "description": "Closes the popup, after its exit transition."
+            },
+            {
+              "kind": "method",
+              "name": "enterPopup",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "_entry",
+                  "type": {
+                    "text": "ComboboxEntry"
+                  }
+                }
+              ],
+              "description": "Moves the keyboard into the popup, opened from the keyboard. Does nothing by default."
+            },
+            {
+              "kind": "method",
+              "name": "handlePopupKeydown",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "boolean"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "_event",
+                  "type": {
+                    "text": "KeyboardEvent"
+                  }
+                }
+              ],
+              "description": "Handles a key of the control while the popup is open, other than\nEscape, Alt+ArrowUp and Tab. Returns whether it handled it: the base\nthen prevents its default. Handles none by default."
+            },
+            {
+              "kind": "method",
+              "name": "handleComboboxKeydown",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "event",
+                  "type": {
+                    "text": "KeyboardEvent"
+                  }
+                }
+              ],
+              "description": "For `renderCombobox()`: the `keydown` listener of the control."
+            },
+            {
+              "kind": "field",
+              "name": "popup",
+              "type": {
+                "text": "HTMLElement | null"
+              },
+              "privacy": "protected",
+              "description": "The popup, once rendered.",
+              "readonly": true
+            },
+            {
+              "kind": "method",
+              "name": "#show",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "Promise<void>"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "#hide",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              }
+            },
+            {
+              "kind": "field",
+              "name": "styles",
+              "type": {
+                "text": "array"
+              },
+              "static": true,
+              "default": "[(Base as unknown as typeof LitElement).styles ?? [], anchoredPopoverStyles]",
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "#openings",
+              "privacy": "private",
+              "default": "new WeakMap<HTMLElement, object>()",
+              "description": "The opening under way of each popover: a closing meanwhile cancels it.",
+              "inheritedFrom": {
+                "name": "withAnchoredPopover",
+                "module": "src/mixins/withAnchoredPopover.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "#cleanups",
+              "privacy": "private",
+              "default": "new Map<HTMLElement, () => void>()",
+              "description": "Stops the fallback's updates of each open popover.",
+              "inheritedFrom": {
+                "name": "withAnchoredPopover",
+                "module": "src/mixins/withAnchoredPopover.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "#offsets",
+              "privacy": "private",
+              "default": "new WeakMap<HTMLElement, number>()",
+              "description": "The block margin of each popover: the fallback applies it as an offset.",
+              "inheritedFrom": {
+                "name": "withAnchoredPopover",
+                "module": "src/mixins/withAnchoredPopover.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "openPopover",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "Promise<void>"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "popover",
+                  "type": {
+                    "text": "HTMLElement"
+                  }
+                },
+                {
+                  "name": "anchor",
+                  "type": {
+                    "text": "HTMLElement"
+                  }
+                }
+              ],
+              "description": "Shows `popover`, a `popover=\"manual\"` of the shadow root, in the top\nlayer, anchored below `anchor`, an element of the same shadow root.\nResolves once it's shown and positioned. Already open, it only follows\nthe new anchor.",
+              "inheritedFrom": {
+                "name": "withAnchoredPopover",
+                "module": "src/mixins/withAnchoredPopover.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "closePopover",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "popover",
+                  "type": {
+                    "text": "HTMLElement"
+                  }
+                }
+              ],
+              "description": "Hides `popover` at once: its exit transition, if any, runs after.",
+              "inheritedFrom": {
+                "name": "withAnchoredPopover",
+                "module": "src/mixins/withAnchoredPopover.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "#follow",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "Promise<void>"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "floating",
+                  "type": {
+                    "text": "FloatingUI"
+                  }
+                },
+                {
+                  "name": "popover",
+                  "type": {
+                    "text": "HTMLElement"
+                  }
+                },
+                {
+                  "name": "anchor",
+                  "type": {
+                    "text": "HTMLElement"
+                  }
+                }
+              ],
+              "description": "Positions `popover` with Floating UI, then again on each scroll,\nresize or move of the anchor, until it closes. Resolves once\npositioned: before the next paint, so it never shows unpositioned.",
+              "inheritedFrom": {
+                "name": "withAnchoredPopover",
+                "module": "src/mixins/withAnchoredPopover.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "closeWithTransition",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "Promise<void>"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "element",
+                  "type": {
+                    "text": "HTMLElement"
+                  }
+                },
+                {
+                  "name": "close",
+                  "type": {
+                    "text": "() => void"
+                  }
+                }
+              ],
+              "description": "Closes `element` once its exit transition ends: `close` closes it\n(`dialog.close()`, `hidePopover()`). Without transition, as with\nreduced motion, it closes at once. Resolves when closed, or when\n`cancelExitTransition()` kept it open.",
+              "inheritedFrom": {
+                "name": "withExitTransition",
+                "module": "src/mixins/withExitTransition.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "cancelExitTransition",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "element",
+                  "type": {
+                    "text": "HTMLElement"
+                  }
+                }
+              ],
+              "inheritedFrom": {
+                "name": "withExitTransition",
+                "module": "src/mixins/withExitTransition.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "internals",
+              "type": {
+                "text": "ElementInternals | undefined"
+              },
+              "privacy": "protected",
+              "inheritedFrom": {
+                "name": "withInternals",
+                "module": "src/mixins/withInternals.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "customStates",
+              "type": {
+                "text": "object"
+              },
+              "privacy": "protected",
+              "default": "{ set: (name: string, active: boolean) => { if (!supportsCustomStates || !this.internals?.states) { return; } if (active) { this.internals.states.add(name); } else { this.internals.states.delete(name); } }, has: (name: string): boolean => { if (!supportsCustomStates || !this.internals?.states) { return false; } return this.internals.states.has(name); }, }",
+              "description": "Wraps `internals.states` so components can toggle `:state(x)` selectors\n(e.g. `:state(open)`) instead of reflecting extra boolean attributes.\nA no-op where `:state()` is unsupported (see `supportsCustomStates`), so\n`:state()` styling must stay an enhancement — reflect an attribute too\nwhen the state is needed for the component to look right.",
+              "inheritedFrom": {
+                "name": "withInternals",
+                "module": "src/mixins/withInternals.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "disabled",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Disables interaction; also sets `aria-disabled=\"true\"` on the host.",
+              "attribute": "disabled",
+              "reflects": true,
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "formDisabled",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "private",
+              "default": "false",
+              "description": "The browser's disabled state of a form-associated element.",
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "isDisabled",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "protected",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "dependencies",
+              "type": {
+                "text": "readonly (typeof DSBaseElement)[]"
+              },
+              "static": true,
+              "default": "[Icon]",
+              "description": "Renders the icon of its error message with the `icon` of its own registration (ADR 0001, D2).",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/components/base-element.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "formAssociated",
+              "type": {
+                "text": "boolean"
+              },
+              "static": true,
+              "default": "true",
+              "description": "Takes part in its form: value, validity, reset, `<fieldset disabled>`.",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "shadowRootOptions",
+              "type": {
+                "text": "ShadowRootInit"
+              },
+              "static": true,
+              "default": "{ ...super.shadowRootOptions, delegatesFocus: true }",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "label",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "The visible label, and the accessible name of the control. Required.",
+              "attribute": "label",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "hint",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "A help text between the label and the control, read with the control.",
+              "attribute": "hint",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "name",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "Name of the value in the form's data. Reflected: the form reads the attribute.",
+              "attribute": "name",
+              "reflects": true,
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "value",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "The value, submitted with the form. The `value` attribute is the\ndefault value: the form's reset restores it.",
+              "attribute": "value",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "required",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "The form can't be submitted while the field is empty.",
+              "attribute": "required",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "autocomplete",
+              "type": {
+                "text": "string | undefined"
+              },
+              "description": "The `autocomplete` of the control: what the browser can fill in (`email`, `name`…).",
+              "attribute": "autocomplete",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "errorMessage",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "The error message, in place of the browser's. Say how to fix the error.",
+              "attribute": "error-message",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "errorLabel",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"Error:\"",
+              "description": "Read by assistive technologies before the error message, which a\ndecorative icon starts: \"Error:\" in the page's language, with its\npunctuation (`Erreur :` in French).",
+              "attribute": "error-label",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "interacted",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "private",
+              "default": "false",
+              "description": "Whether the user has changed the value, or validation has run, since the last reset.",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "error",
+              "type": {
+                "text": "string"
+              },
+              "privacy": "private",
+              "default": "\"\"",
+              "description": "The error message shown, `\"\"` while none.",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "#customValidity",
+              "privacy": "private",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "The message of `setCustomValidity()`.",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "form",
+              "type": {
+                "text": "HTMLFormElement | null"
+              },
+              "description": "The form of the field, or `null`.",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "validity",
+              "type": {
+                "text": "ValidityState"
+              },
+              "description": "The validity of the value, as on a native control.",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "validationMessage",
+              "type": {
+                "text": "string"
+              },
+              "description": "The message of the first constraint the value fails, `\"\"` when valid.",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "willValidate",
+              "type": {
+                "text": "boolean"
+              },
+              "description": "Whether the field is validated with its form: `false` while disabled.",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "checkValidity",
+              "return": {
+                "type": {
+                  "text": "boolean"
+                }
+              },
+              "description": "Whether the value is valid. If not, fires `invalid` and shows the error.",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "reportValidity",
+              "return": {
+                "type": {
+                  "text": "boolean"
+                }
+              },
+              "description": "As `checkValidity()`, and the browser reports the error, focusing the control.",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "setCustomValidity",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "message",
+                  "type": {
+                    "text": "string"
+                  }
+                }
+              ],
+              "description": "Makes the value invalid with this message, as on a native control: a\ncheck of the application, such as a username already taken. `\"\"` makes\nthe value valid again.",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "controlDescribedBy",
+              "type": {
+                "text": "string | typeof nothing"
+              },
+              "privacy": "protected",
+              "description": "For `renderControl()`: the `aria-describedby` of the control, the hint and the error shown.",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "controlInvalid",
+              "type": {
+                "text": "\"true\" | \"false\""
+              },
+              "privacy": "protected",
+              "description": "For `renderControl()`: the `aria-invalid` of the control, `\"true\"` while an error shows.",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "handleInput",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "event",
+                  "type": {
+                    "text": "Event"
+                  }
+                }
+              ],
+              "description": "For `renderControl()`: the `input` listener of the control.",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "handleChange",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "description": "For `renderControl()`: the `change` listener of the control.",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "#control",
+              "privacy": "private",
+              "type": {
+                "text": "FieldControl | null"
+              },
+              "description": "The native control, once rendered.",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "#messageOf",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "string"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "control",
+                  "type": {
+                    "text": "FieldControl"
+                  }
+                }
+              ],
+              "description": "The message of the control's error, `\"\"` while valid.",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "#syncValidity",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "description": "Gives the host the validity of the control, the browser's constraints and ours.",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "#showError",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "componentName",
+              "type": {
+                "text": "string"
+              },
+              "static": true,
+              "default": "\"\"",
+              "description": "Name of the component in the catalog, without any tag prefix: the\nregistered tag is `<prefix>-<componentName>`. Every concrete component\nsets it; abstract bases (e.g. `ButtonBase`) don't.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/components/base-element.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "tagFor",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "StaticValue"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "component",
+                  "type": {
+                    "text": "typeof DSBaseElement"
+                  }
+                }
+              ],
+              "description": "The tag of a component declared in `static dependencies`, for templates\nfrom `lit/static-html.js`: `` html`<${this.tagFor(Button)}>…</${…}>` ``.\nIt follows the registration of this element: `u-modal` renders\n`u-button`, `acme-modal` renders `acme-button` — the brand's override\nof `Button` if it has one.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/components/base-element.ts"
+              }
+            }
+          ],
+          "attributes": [
+            {
+              "name": "open",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether the popup is open. Reflected. Follows the real state: it turns\n`false` when the user closes the popup. Set to `true`, it opens only\nwith some content to show.",
+              "fieldName": "open"
+            },
+            {
+              "name": "disabled",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Disables interaction; also sets `aria-disabled=\"true\"` on the host.",
+              "fieldName": "disabled",
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "name": "label",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "The visible label, and the accessible name of the control. Required.",
+              "fieldName": "label",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "name": "hint",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "A help text between the label and the control, read with the control.",
+              "fieldName": "hint",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "name": "name",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "Name of the value in the form's data. Reflected: the form reads the attribute.",
+              "fieldName": "name",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "name": "value",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "The value, submitted with the form. The `value` attribute is the\ndefault value: the form's reset restores it.",
+              "fieldName": "value",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "name": "required",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "The form can't be submitted while the field is empty.",
+              "fieldName": "required",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "name": "autocomplete",
+              "type": {
+                "text": "string | undefined"
+              },
+              "description": "The `autocomplete` of the control: what the browser can fill in (`email`, `name`…).",
+              "fieldName": "autocomplete",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "name": "error-message",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "The error message, in place of the browser's. Say how to fix the error.",
+              "fieldName": "errorMessage",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "name": "error-label",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"Error:\"",
+              "description": "Read by assistive technologies before the error message, which a\ndecorative icon starts: \"Error:\" in the page's language, with its\npunctuation (`Erreur :` in French).",
+              "fieldName": "errorLabel",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            }
+          ],
+          "mixins": [
+            {
+              "name": "withAnchoredPopover",
+              "module": "/src/mixins/withAnchoredPopover.js"
+            },
+            {
+              "name": "withExitTransition",
+              "module": "/src/mixins/withExitTransition.js"
+            }
+          ],
+          "superclass": {
+            "name": "FieldBase",
+            "module": "/src/components/field/field-base.js"
+          },
+          "events": [
+            {
+              "name": "change",
+              "type": {
+                "text": "Event"
+              },
+              "description": "When the user commits a change of the value, as on a native control (the inner `change` doesn't leave the shadow root: the host fires its own).",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "The native `input` event of the inner control, on each change of the value by the user.",
+              "name": "input",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "ComboboxBase",
+          "declaration": {
+            "name": "ComboboxBase",
+            "module": "src/components/combobox/combobox-base.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/components/combobox/combobox.type.ts",
+      "declarations": [],
+      "exports": []
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/components/field/field-base.ts",
       "declarations": [
         {
@@ -3481,6 +7475,12 @@
           }
         }
       ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/components/listbox/listbox.type.ts",
+      "declarations": [],
+      "exports": []
     },
     {
       "kind": "javascript-module",

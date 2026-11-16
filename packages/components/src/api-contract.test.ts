@@ -75,8 +75,9 @@ function hostAttributeStates(root: ShadowRoot): [string, string][] {
   return [...states.values()];
 }
 
-async function render(tag: string): Promise<DSBaseElement> {
+async function render(tag: string, content = ""): Promise<DSBaseElement> {
   const element = document.createElement(tag) as DSBaseElement;
+  element.innerHTML = content;
   document.body.append(element);
   await element.updateComplete;
   return element;
@@ -93,7 +94,10 @@ describe.each(components)("<$tagName> matches the manifest", (declaration) => {
   const tag = declaration.tagName!;
 
   it("exposes every documented part", async () => {
-    const root = (await render(tag)).shadowRoot!;
+    // Some parts need content: an `option` part, a suggestion of
+    // `autocomplete`, renders only with an `<option>` child.
+    const content = declaration.slots?.some(({ name }) => !name) ? "<option>Option</option>" : "";
+    const root = (await render(tag, content)).shadowRoot!;
     for (const { name } of declaration.cssParts ?? []) {
       expect(root.querySelector(`[part~="${name}"]`), `part "${name}"`).not.toBeNull();
     }
