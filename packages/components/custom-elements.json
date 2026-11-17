@@ -124,7 +124,7 @@
           "name": "*",
           "declaration": {
             "name": "*",
-            "module": "src/mixins/withCommands.js"
+            "module": "src/controllers/commands.js"
           }
         },
         {
@@ -132,7 +132,7 @@
           "name": "*",
           "declaration": {
             "name": "*",
-            "module": "src/mixins/withExitTransition.js"
+            "module": "src/controllers/exit-transition.js"
           }
         },
         {
@@ -140,7 +140,7 @@
           "name": "*",
           "declaration": {
             "name": "*",
-            "module": "src/mixins/withAnchoredPopover.js"
+            "module": "src/controllers/anchored-popover.js"
           }
         },
         {
@@ -148,7 +148,23 @@
           "name": "*",
           "declaration": {
             "name": "*",
-            "module": "src/mixins/withListbox.js"
+            "module": "src/controllers/listbox.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "*",
+          "declaration": {
+            "name": "*",
+            "module": "src/state/listbox.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "*",
+          "declaration": {
+            "name": "*",
+            "module": "src/state/combobox.js"
           }
         },
         {
@@ -273,6 +289,38 @@
         },
         {
           "kind": "js",
+          "name": "Catalog",
+          "declaration": {
+            "name": "Catalog",
+            "module": "./registry/catalog.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "CatalogEntry",
+          "declaration": {
+            "name": "CatalogEntry",
+            "module": "./registry/catalog.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "TagNameMap",
+          "declaration": {
+            "name": "TagNameMap",
+            "module": "./registry/catalog.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "baseVersion",
+          "declaration": {
+            "name": "baseVersion",
+            "module": "./version.js"
+          }
+        },
+        {
+          "kind": "js",
           "name": "defineComponents",
           "declaration": {
             "name": "defineComponents",
@@ -317,6 +365,31 @@
           "declaration": {
             "name": "DesignSystemOptions",
             "module": "./registry/design-system.js"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/version.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "baseVersion",
+          "type": {
+            "text": "string"
+          },
+          "default": "__UNICORNE_VERSION__",
+          "description": "The version of `@unicorne/components`. A registration carries it: two\ncopies of the base on a page can tell their versions apart (ADR 0012)."
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "baseVersion",
+          "declaration": {
+            "name": "baseVersion",
+            "module": "src/version.ts"
           }
         }
       ]
@@ -390,11 +463,521 @@
     },
     {
       "kind": "javascript-module",
+      "path": "src/controllers/anchored-popover.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "Reactive controller: shows a popover of the host's shadow root in the top\nlayer, below an element of the same shadow root, its anchor: the list of an\nautocomplete, a menu, a tooltip (ADR 0009, D2).\n\nEach `[popover]` of the shadow root is a `popover=\"manual\"`: the component\ndecides when it closes (Escape, a click outside, a choice). The controller\nsets `data-open` on it while it's open: the CSS writes its open state on\n`[data-open]`, not on `:popover-open`, which the oldest browsers of the\nmatrix lack. With an exit transition, the open state is\n`[data-open]:where(:not([data-closing]))`.\n\nThe popover sits below its anchor, aligned with its start edge, at least\nas wide, and flips when it would overflow the viewport. Its block margin\nis the space between them. Where CSS anchor positioning is missing, the\ncontroller loads Floating UI and positions it from script: the popover also\nshrinks to the space left, down to its `max-block-size`. Without the\nPopover API, there is no top layer: the popover is fixed above the page\n(`--u-z-index-overlay`), and an ancestor that clips its overflow clips it.\n\nOut of the document, a popover leaves the top layer: the controller closes\nthose it opened when the host disconnects.",
+          "name": "AnchoredPopoverController",
+          "members": [
+            {
+              "kind": "field",
+              "name": "#openings",
+              "privacy": "private",
+              "default": "new WeakMap<HTMLElement, object>()",
+              "description": "The opening under way of each popover: a closing meanwhile cancels it."
+            },
+            {
+              "kind": "field",
+              "name": "#opened",
+              "privacy": "private",
+              "default": "new Map<HTMLElement, (() => void) | undefined>()",
+              "description": "The open popovers, and what stops the fallback's updates of each."
+            },
+            {
+              "kind": "field",
+              "name": "#offsets",
+              "privacy": "private",
+              "default": "new WeakMap<HTMLElement, number>()",
+              "description": "The block margin of each popover: the fallback applies it as an offset."
+            },
+            {
+              "kind": "method",
+              "name": "hostConnected",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "hostDisconnected",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "isOpen",
+              "return": {
+                "type": {
+                  "text": "boolean"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "popover",
+                  "type": {
+                    "text": "HTMLElement"
+                  }
+                }
+              ],
+              "description": "Whether `popover` is open: shown, or about to be once positioned."
+            },
+            {
+              "kind": "method",
+              "name": "open",
+              "return": {
+                "type": {
+                  "text": "Promise<void>"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "popover",
+                  "type": {
+                    "text": "HTMLElement"
+                  }
+                },
+                {
+                  "name": "anchor",
+                  "type": {
+                    "text": "HTMLElement"
+                  }
+                }
+              ],
+              "description": "Shows `popover`, a `popover=\"manual\"` of the shadow root, in the top\nlayer, anchored below `anchor`, an element of the same shadow root.\nResolves once it's shown and positioned. Already open, it only follows\nthe new anchor."
+            },
+            {
+              "kind": "method",
+              "name": "close",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "popover",
+                  "type": {
+                    "text": "HTMLElement"
+                  }
+                }
+              ],
+              "description": "Hides `popover` at once: its exit transition, if any, runs before."
+            },
+            {
+              "kind": "method",
+              "name": "#follow",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "Promise<void>"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "floating",
+                  "type": {
+                    "text": "FloatingUI"
+                  }
+                },
+                {
+                  "name": "popover",
+                  "type": {
+                    "text": "HTMLElement"
+                  }
+                },
+                {
+                  "name": "anchor",
+                  "type": {
+                    "text": "HTMLElement"
+                  }
+                }
+              ],
+              "description": "Positions `popover` with Floating UI, then again on each scroll,\nresize or move of the anchor, until it closes. Resolves once\npositioned: before the next paint, so it never shows unpositioned."
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "anchoredPopoverStyles",
+          "declaration": {
+            "name": "anchoredPopoverStyles",
+            "module": "src/controllers/anchored-popover.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "AnchoredPopoverController",
+          "declaration": {
+            "name": "AnchoredPopoverController",
+            "module": "src/controllers/anchored-popover.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/controllers/commands.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "Reactive controller: lets a component take commands from invoker buttons\n(Invoker Commands, ADR 0008): a native `<button commandfor=\"id\"\ncommand=\"--name\">`, or a component with `withInvoker` (`button`).\n\nThe browser runs a built-in command (`show-modal`) only on a native\n`<dialog>` or popover, and never sends it to a custom element. A component\ntakes custom commands, prefixed with `--`.\n\n`handle` runs a command sent to the component: `event.command` is its\nname, `event.source` the button, retargeted to its host. Handle the\ncomponent's `--` commands and ignore the others: the polyfill also sends\nbuilt-in ones.\n\nWhere Invoker Commands are missing, the first connected component loads\ninvokers-polyfill: the page's native invoker buttons need it too.",
+          "name": "CommandsController",
+          "members": [
+            {
+              "kind": "method",
+              "name": "hostConnected",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "CommandsController",
+          "declaration": {
+            "name": "CommandsController",
+            "module": "src/controllers/commands.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/controllers/exit-transition.ts",
+      "declarations": [
+        {
+          "kind": "function",
+          "name": "closeWithTransition",
+          "return": {
+            "type": {
+              "text": "Promise<void>"
+            }
+          },
+          "parameters": [
+            {
+              "name": "element",
+              "type": {
+                "text": "HTMLElement"
+              }
+            },
+            {
+              "name": "close",
+              "type": {
+                "text": "() => void"
+              }
+            }
+          ],
+          "description": "Closes `element` once its exit transition ends: `close` closes it\n(`dialog.close()`, `hidePopover()`). Without transition, as with reduced\nmotion, it closes at once. Resolves when closed, or when\n`cancelExitTransition()` kept it open."
+        },
+        {
+          "kind": "function",
+          "name": "cancelExitTransition",
+          "return": {
+            "type": {
+              "text": "void"
+            }
+          },
+          "parameters": [
+            {
+              "name": "element",
+              "type": {
+                "text": "HTMLElement"
+              }
+            }
+          ],
+          "description": "Stops an exit transition under way: `element` stays open."
+        },
+        {
+          "kind": "function",
+          "name": "isClosing",
+          "return": {
+            "type": {
+              "text": "boolean"
+            }
+          },
+          "parameters": [
+            {
+              "name": "element",
+              "type": {
+                "text": "HTMLElement"
+              }
+            }
+          ],
+          "description": "Whether `element` is transitioning out: `closeWithTransition()` hasn't closed it yet."
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "closeWithTransition",
+          "declaration": {
+            "name": "closeWithTransition",
+            "module": "src/controllers/exit-transition.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "cancelExitTransition",
+          "declaration": {
+            "name": "cancelExitTransition",
+            "module": "src/controllers/exit-transition.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "isClosing",
+          "declaration": {
+            "name": "isClosing",
+            "module": "src/controllers/exit-transition.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/controllers/listbox.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "Reactive controller: a list of options in the host's shadow root,\n`role=\"listbox\"`, whose active option follows the keyboard while the focus\nstays on a control: the input of an autocomplete, the button of a select\n(ADR 0009). The control takes `activeDescendant` as its\n`aria-activedescendant`, and `id` as its `aria-controls`.\n\nThe controller connects a list to the DOM; it holds no state of its own.\nThe host owns the active index (`comboboxReducer()`, or\n`moveActiveIndex()` of `state/listbox.ts`) and the options.\n\nIt also reads the `<option>` children of the host, as data, in\n`childOptions`, and never changes them: a framework keeps rendering them.\nEither way, the list renders its own copies, in the shadow root of the\ncontrol: `aria-activedescendant` only reaches an element of its own tree\n(ADR 0007). `render()` also renders the hidden slot of these children.\n\nOn a server, the host has no children to read: a host rendered there\n(ADR 0014) reads them after its first render, which then matches the\nserver's.",
+          "name": "ListboxController",
+          "members": [
+            {
+              "kind": "field",
+              "name": "#host",
+              "privacy": "private",
+              "type": {
+                "text": "LitElement"
+              },
+              "readonly": true,
+              "default": "host"
+            },
+            {
+              "kind": "field",
+              "name": "#options",
+              "privacy": "private",
+              "type": {
+                "text": "ListboxControllerOptions"
+              },
+              "readonly": true,
+              "default": "options"
+            },
+            {
+              "kind": "field",
+              "name": "#childOptions",
+              "privacy": "private",
+              "type": {
+                "text": "readonly ListboxOption[]"
+              },
+              "default": "[]",
+              "description": "The `<option>` children of the host, as data."
+            },
+            {
+              "kind": "field",
+              "name": "#observer",
+              "privacy": "private",
+              "type": {
+                "text": "MutationObserver | undefined"
+              },
+              "description": "Reads the `<option>` children again when they change."
+            },
+            {
+              "kind": "field",
+              "name": "#rendered",
+              "privacy": "private",
+              "type": {
+                "text": "number"
+              },
+              "default": "-1",
+              "description": "The active index of the last render: the list scrolls when it changes."
+            },
+            {
+              "kind": "field",
+              "name": "id",
+              "type": {
+                "text": "string"
+              },
+              "description": "`id` of the list: the `aria-controls` of its control.",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "childOptions",
+              "type": {
+                "text": "readonly ListboxOption[]"
+              },
+              "description": "The `<option>` children of the host, as data: its options when it has no `options` property.",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "activeOption",
+              "type": {
+                "text": "ListboxOption | undefined"
+              },
+              "description": "The active option, `undefined` when none.",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "activeDescendant",
+              "type": {
+                "text": "string | typeof nothing"
+              },
+              "description": "For the control: its `aria-activedescendant`, the `id` of the active option.",
+              "readonly": true
+            },
+            {
+              "kind": "method",
+              "name": "hostConnected",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "hostDisconnected",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "hostUpdated",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "#optionId",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "string"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "index",
+                  "type": {
+                    "text": "number"
+                  }
+                }
+              ],
+              "description": "`option-<index>`, after the `id` of a list that has its own."
+            },
+            {
+              "kind": "method",
+              "name": "#readChildren",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "#indexAt",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "number"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "event",
+                  "type": {
+                    "text": "Event"
+                  }
+                }
+              ],
+              "description": "The index of the enabled option under the pointer, -1 when none."
+            },
+            {
+              "kind": "field",
+              "name": "#keepFocus",
+              "privacy": "private"
+            },
+            {
+              "kind": "field",
+              "name": "#activateUnderPointer",
+              "privacy": "private"
+            },
+            {
+              "kind": "field",
+              "name": "#selectUnderPointer",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "#scrollToActive",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "description": "Scrolls the list, not the page, to show the active option."
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "listboxStyles",
+          "declaration": {
+            "name": "listboxStyles",
+            "module": "src/controllers/listbox.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "listboxTokens",
+          "declaration": {
+            "name": "listboxTokens",
+            "module": "src/controllers/listbox.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "ListboxController",
+          "declaration": {
+            "name": "ListboxController",
+            "module": "src/controllers/listbox.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/events/listbox-select.ts",
       "declarations": [
         {
           "kind": "class",
-          "description": "Fired when the user picks an option of a list (`withListbox`), by a click\nor Enter: a suggestion of `autocomplete`, before the field takes its\nvalue. `preventDefault()` keeps the field as it is, to navigate to the\noption's page instead for instance.",
+          "description": "Fired when the user picks an option of a list (`ListboxController`), by a click\nor Enter: a suggestion of `autocomplete`, before the field takes its\nvalue. `preventDefault()` keeps the field as it is, to navigate to the\noption's page instead for instance.",
           "name": "ListboxSelectEvent",
           "members": [
             {
@@ -483,285 +1066,6 @@
           "declaration": {
             "name": "ModalCloseEvent",
             "module": "src/events/modal-close.ts"
-          }
-        }
-      ]
-    },
-    {
-      "kind": "javascript-module",
-      "path": "src/mixins/withAnchoredPopover.ts",
-      "declarations": [
-        {
-          "kind": "class",
-          "description": "",
-          "name": "AnchoredPopoverInterface",
-          "members": [
-            {
-              "kind": "method",
-              "name": "openPopover",
-              "privacy": "protected",
-              "return": {
-                "type": {
-                  "text": "Promise<void>"
-                }
-              },
-              "parameters": [
-                {
-                  "name": "popover",
-                  "type": {
-                    "text": "HTMLElement"
-                  }
-                },
-                {
-                  "name": "anchor",
-                  "type": {
-                    "text": "HTMLElement"
-                  }
-                }
-              ],
-              "description": "Shows `popover` in the top layer, anchored below `anchor`."
-            },
-            {
-              "kind": "method",
-              "name": "closePopover",
-              "privacy": "protected",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              },
-              "parameters": [
-                {
-                  "name": "popover",
-                  "type": {
-                    "text": "HTMLElement"
-                  }
-                }
-              ],
-              "description": "Hides `popover` at once."
-            }
-          ]
-        },
-        {
-          "kind": "mixin",
-          "description": "Mixin: shows a popover of the shadow root in the top layer, below an\nelement of the same shadow root, its anchor: the list of an autocomplete,\na menu, a tooltip.\n\nEach `[popover]` of the shadow root is a `popover=\"manual\"`: the component\ndecides when it closes (Escape, a click outside, a choice). The mixin sets\n`data-open` on it while it's open: the CSS writes its open state on\n`[data-open]`, not on `:popover-open`, which the oldest browsers of the\nmatrix lack. With `withExitTransition`, the open state is\n`[data-open]:where(:not([data-closing]))`.\n\nThe popover sits below its anchor, aligned with its start edge, at least\nas wide, and flips when it would overflow the viewport. Its block margin\nis the space between them. Where CSS anchor positioning is missing, the\nmixin loads Floating UI and positions it from script: the popover also\nshrinks to the space left, down to its `max-block-size`. Without the\nPopover API, there is no top layer: the popover is fixed above the page\n(`--u-z-index-overlay`), and an ancestor that clips its overflow clips it.",
-          "name": "withAnchoredPopover",
-          "members": [
-            {
-              "kind": "field",
-              "name": "styles",
-              "type": {
-                "text": "array"
-              },
-              "static": true,
-              "default": "[(Base as unknown as typeof LitElement).styles ?? [], anchoredPopoverStyles]"
-            },
-            {
-              "kind": "field",
-              "name": "#openings",
-              "privacy": "private",
-              "default": "new WeakMap<HTMLElement, object>()",
-              "description": "The opening under way of each popover: a closing meanwhile cancels it."
-            },
-            {
-              "kind": "field",
-              "name": "#cleanups",
-              "privacy": "private",
-              "default": "new Map<HTMLElement, () => void>()",
-              "description": "Stops the fallback's updates of each open popover."
-            },
-            {
-              "kind": "field",
-              "name": "#offsets",
-              "privacy": "private",
-              "default": "new WeakMap<HTMLElement, number>()",
-              "description": "The block margin of each popover: the fallback applies it as an offset."
-            },
-            {
-              "kind": "method",
-              "name": "openPopover",
-              "privacy": "protected",
-              "return": {
-                "type": {
-                  "text": "Promise<void>"
-                }
-              },
-              "parameters": [
-                {
-                  "name": "popover",
-                  "type": {
-                    "text": "HTMLElement"
-                  }
-                },
-                {
-                  "name": "anchor",
-                  "type": {
-                    "text": "HTMLElement"
-                  }
-                }
-              ],
-              "description": "Shows `popover`, a `popover=\"manual\"` of the shadow root, in the top\nlayer, anchored below `anchor`, an element of the same shadow root.\nResolves once it's shown and positioned. Already open, it only follows\nthe new anchor."
-            },
-            {
-              "kind": "method",
-              "name": "closePopover",
-              "privacy": "protected",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              },
-              "parameters": [
-                {
-                  "name": "popover",
-                  "type": {
-                    "text": "HTMLElement"
-                  }
-                }
-              ],
-              "description": "Hides `popover` at once: its exit transition, if any, runs after."
-            },
-            {
-              "kind": "method",
-              "name": "#follow",
-              "privacy": "private",
-              "return": {
-                "type": {
-                  "text": "Promise<void>"
-                }
-              },
-              "parameters": [
-                {
-                  "name": "floating",
-                  "type": {
-                    "text": "FloatingUI"
-                  }
-                },
-                {
-                  "name": "popover",
-                  "type": {
-                    "text": "HTMLElement"
-                  }
-                },
-                {
-                  "name": "anchor",
-                  "type": {
-                    "text": "HTMLElement"
-                  }
-                }
-              ],
-              "description": "Positions `popover` with Floating UI, then again on each scroll,\nresize or move of the anchor, until it closes. Resolves once\npositioned: before the next paint, so it never shows unpositioned."
-            }
-          ],
-          "parameters": [
-            {
-              "name": "Base",
-              "type": {
-                "text": "T"
-              }
-            }
-          ]
-        }
-      ],
-      "exports": [
-        {
-          "kind": "js",
-          "name": "AnchoredPopoverInterface",
-          "declaration": {
-            "name": "AnchoredPopoverInterface",
-            "module": "src/mixins/withAnchoredPopover.ts"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "withAnchoredPopover",
-          "declaration": {
-            "name": "withAnchoredPopover",
-            "module": "src/mixins/withAnchoredPopover.ts"
-          }
-        }
-      ]
-    },
-    {
-      "kind": "javascript-module",
-      "path": "src/mixins/withCommands.ts",
-      "declarations": [
-        {
-          "kind": "class",
-          "description": "",
-          "name": "CommandsInterface",
-          "members": [
-            {
-              "kind": "method",
-              "name": "handleCommand",
-              "privacy": "protected",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              },
-              "parameters": [
-                {
-                  "name": "event",
-                  "type": {
-                    "text": "CommandEvent"
-                  }
-                }
-              ],
-              "description": "Runs a command sent to the component."
-            }
-          ]
-        },
-        {
-          "kind": "mixin",
-          "description": "Mixin: lets a component take commands from invoker buttons (Invoker\nCommands): a native `<button commandfor=\"id\" command=\"--name\">`, or a\ncomponent with `withInvoker` (`button`).\n\nThe browser runs a built-in command (`show-modal`) only on a native\n`<dialog>` or popover, and never sends it to a custom element. A component\ntakes custom commands, prefixed with `--`.\n\nWhere Invoker Commands are missing, the first connected component loads\ninvokers-polyfill: the page's native invoker buttons need it too.",
-          "name": "withCommands",
-          "members": [
-            {
-              "kind": "method",
-              "name": "handleCommand",
-              "privacy": "protected",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              },
-              "parameters": [
-                {
-                  "name": "_event",
-                  "type": {
-                    "text": "CommandEvent"
-                  }
-                }
-              ],
-              "description": "Runs a command sent to the component: `event.command` is its name,\n`event.source` the button, retargeted to its host. Does nothing by\ndefault. Handle the component's `--` commands and ignore the others:\nthe polyfill also sends built-in ones."
-            }
-          ],
-          "parameters": [
-            {
-              "name": "Base",
-              "type": {
-                "text": "T"
-              }
-            }
-          ]
-        }
-      ],
-      "exports": [
-        {
-          "kind": "js",
-          "name": "CommandsInterface",
-          "declaration": {
-            "name": "CommandsInterface",
-            "module": "src/mixins/withCommands.ts"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "withCommands",
-          "declaration": {
-            "name": "withCommands",
-            "module": "src/mixins/withCommands.ts"
           }
         }
       ]
@@ -875,139 +1179,6 @@
           "declaration": {
             "name": "withDisabled",
             "module": "src/mixins/withDisabled.ts"
-          }
-        }
-      ]
-    },
-    {
-      "kind": "javascript-module",
-      "path": "src/mixins/withExitTransition.ts",
-      "declarations": [
-        {
-          "kind": "class",
-          "description": "",
-          "name": "ExitTransitionInterface",
-          "members": [
-            {
-              "kind": "method",
-              "name": "closeWithTransition",
-              "privacy": "protected",
-              "return": {
-                "type": {
-                  "text": "Promise<void>"
-                }
-              },
-              "parameters": [
-                {
-                  "name": "element",
-                  "type": {
-                    "text": "HTMLElement"
-                  }
-                },
-                {
-                  "name": "close",
-                  "type": {
-                    "text": "() => void"
-                  }
-                }
-              ],
-              "description": "Closes `element` once its exit transition ends."
-            },
-            {
-              "kind": "method",
-              "name": "cancelExitTransition",
-              "privacy": "protected",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              },
-              "parameters": [
-                {
-                  "name": "element",
-                  "type": {
-                    "text": "HTMLElement"
-                  }
-                }
-              ],
-              "description": "Stops an exit transition under way: `element` stays open."
-            }
-          ]
-        },
-        {
-          "kind": "mixin",
-          "description": "Mixin: animates the exit of a top-layer element of the shadow root, a\n`<dialog>` or a popover, in every browser.\n\nThe component's CSS writes the transition: the closed state on the\nelement, the open state on `[open]` or `:popover-open` followed by\n`:where(:not([data-closing]))`, the entry in `@starting-style`, and\n`display` and `overlay` among the transitioned properties. Where `overlay`\nis missing, `closeWithTransition()` sets `data-closing` first: the element\nreaches its closed state in the top layer, then closes.",
-          "name": "withExitTransition",
-          "members": [
-            {
-              "kind": "method",
-              "name": "closeWithTransition",
-              "privacy": "protected",
-              "return": {
-                "type": {
-                  "text": "Promise<void>"
-                }
-              },
-              "parameters": [
-                {
-                  "name": "element",
-                  "type": {
-                    "text": "HTMLElement"
-                  }
-                },
-                {
-                  "name": "close",
-                  "type": {
-                    "text": "() => void"
-                  }
-                }
-              ],
-              "description": "Closes `element` once its exit transition ends: `close` closes it\n(`dialog.close()`, `hidePopover()`). Without transition, as with\nreduced motion, it closes at once. Resolves when closed, or when\n`cancelExitTransition()` kept it open."
-            },
-            {
-              "kind": "method",
-              "name": "cancelExitTransition",
-              "privacy": "protected",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              },
-              "parameters": [
-                {
-                  "name": "element",
-                  "type": {
-                    "text": "HTMLElement"
-                  }
-                }
-              ]
-            }
-          ],
-          "parameters": [
-            {
-              "name": "Base",
-              "type": {
-                "text": "T"
-              }
-            }
-          ]
-        }
-      ],
-      "exports": [
-        {
-          "kind": "js",
-          "name": "ExitTransitionInterface",
-          "declaration": {
-            "name": "ExitTransitionInterface",
-            "module": "src/mixins/withExitTransition.ts"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "withExitTransition",
-          "declaration": {
-            "name": "withExitTransition",
-            "module": "src/mixins/withExitTransition.ts"
           }
         }
       ]
@@ -1253,431 +1424,6 @@
     },
     {
       "kind": "javascript-module",
-      "path": "src/mixins/withListbox.ts",
-      "declarations": [
-        {
-          "kind": "class",
-          "description": "",
-          "name": "ListboxInterface",
-          "members": [
-            {
-              "kind": "field",
-              "name": "options",
-              "type": {
-                "text": "readonly ListboxOption[] | undefined"
-              }
-            },
-            {
-              "kind": "field",
-              "name": "availableOptions",
-              "type": {
-                "text": "readonly ListboxOption[]"
-              },
-              "privacy": "protected",
-              "description": "The options: `options` when set, the `<option>` children otherwise.",
-              "readonly": true
-            },
-            {
-              "kind": "field",
-              "name": "listboxOptions",
-              "type": {
-                "text": "readonly ListboxOption[]"
-              },
-              "privacy": "protected",
-              "description": "The options the list shows and the keyboard moves through.",
-              "readonly": true
-            },
-            {
-              "kind": "field",
-              "name": "activeIndex",
-              "type": {
-                "text": "number"
-              },
-              "privacy": "protected",
-              "description": "Index of the active option in `listboxOptions`, -1 when none."
-            },
-            {
-              "kind": "field",
-              "name": "activeOption",
-              "type": {
-                "text": "ListboxOption | undefined"
-              },
-              "privacy": "protected",
-              "description": "The active option, `undefined` when none.",
-              "readonly": true
-            },
-            {
-              "kind": "field",
-              "name": "activeDescendant",
-              "type": {
-                "text": "string | typeof nothing"
-              },
-              "privacy": "protected",
-              "description": "For the control: its `aria-activedescendant`.",
-              "readonly": true
-            },
-            {
-              "kind": "method",
-              "name": "renderListbox",
-              "privacy": "protected",
-              "return": {
-                "type": {
-                  "text": "unknown"
-                }
-              },
-              "description": "Renders the list of `listboxOptions`."
-            },
-            {
-              "kind": "method",
-              "name": "renderOption",
-              "privacy": "protected",
-              "return": {
-                "type": {
-                  "text": "unknown"
-                }
-              },
-              "parameters": [
-                {
-                  "name": "option",
-                  "type": {
-                    "text": "ListboxOption"
-                  }
-                },
-                {
-                  "name": "index",
-                  "type": {
-                    "text": "number"
-                  }
-                }
-              ],
-              "description": "Renders the content of an option."
-            },
-            {
-              "kind": "method",
-              "name": "moveActive",
-              "privacy": "protected",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              },
-              "parameters": [
-                {
-                  "name": "to",
-                  "type": {
-                    "text": "ListboxMove"
-                  }
-                }
-              ],
-              "description": "Moves the active option."
-            },
-            {
-              "kind": "method",
-              "name": "handleListboxKeydown",
-              "privacy": "protected",
-              "return": {
-                "type": {
-                  "text": "boolean"
-                }
-              },
-              "parameters": [
-                {
-                  "name": "event",
-                  "type": {
-                    "text": "KeyboardEvent"
-                  }
-                }
-              ],
-              "description": "Handles the list's keys. Returns whether it handled `event`."
-            },
-            {
-              "kind": "method",
-              "name": "selectOption",
-              "privacy": "protected",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              },
-              "parameters": [
-                {
-                  "name": "option",
-                  "type": {
-                    "text": "ListboxOption"
-                  }
-                }
-              ],
-              "description": "Called when the user picks an option."
-            }
-          ]
-        },
-        {
-          "kind": "mixin",
-          "description": "Mixin: a list of options in the shadow root, `role=\"listbox\"`, whose\nactive option follows the arrow keys while the focus stays on a control:\nthe input of an autocomplete, the button of a select. The control gets\nthe list's `aria-activedescendant`.\n\nThe options are `options`, or else the `<option>` children of the host.\nThe mixin reads those children and never changes them: a framework keeps\nrendering them. Either way, the list renders its own copies, in the shadow\nroot of the control. `aria-activedescendant` only reaches an element of\nits own tree (ADR 0007, ADR 0009).\n\n`renderListbox()` renders the list with `id=\"listbox\"`, named by the\nelement `#label` of the shadow root (the label of `FieldBase`). Each option\nhas `id=\"option-<index>\"`.",
-          "name": "withListbox",
-          "members": [
-            {
-              "kind": "field",
-              "name": "styles",
-              "type": {
-                "text": "array"
-              },
-              "static": true,
-              "default": "[ (Base as unknown as typeof LitElement).styles ?? [], listboxTokens, listboxStyles, ]"
-            },
-            {
-              "kind": "field",
-              "name": "options",
-              "type": {
-                "text": "readonly ListboxOption[] | undefined"
-              },
-              "description": "The options, as data: `{ value, label?, disabled? }`. Takes precedence\nover the `<option>` children. Property only."
-            },
-            {
-              "kind": "field",
-              "name": "childOptions",
-              "type": {
-                "text": "readonly ListboxOption[]"
-              },
-              "privacy": "private",
-              "default": "[]",
-              "description": "The `<option>` children, as data."
-            },
-            {
-              "kind": "field",
-              "name": "activeIndex",
-              "type": {
-                "text": "number"
-              },
-              "privacy": "protected",
-              "default": "-1"
-            },
-            {
-              "kind": "field",
-              "name": "#observer",
-              "privacy": "private",
-              "type": {
-                "text": "MutationObserver | undefined"
-              },
-              "description": "Reads the `<option>` children again when they change."
-            },
-            {
-              "kind": "field",
-              "name": "availableOptions",
-              "type": {
-                "text": "readonly ListboxOption[]"
-              },
-              "privacy": "protected",
-              "readonly": true
-            },
-            {
-              "kind": "field",
-              "name": "listboxOptions",
-              "type": {
-                "text": "readonly ListboxOption[]"
-              },
-              "privacy": "protected",
-              "description": "The options the list shows and the keyboard moves through:\n`availableOptions`. Override it to filter them.",
-              "readonly": true
-            },
-            {
-              "kind": "field",
-              "name": "activeOption",
-              "type": {
-                "text": "ListboxOption | undefined"
-              },
-              "privacy": "protected",
-              "readonly": true
-            },
-            {
-              "kind": "field",
-              "name": "activeDescendant",
-              "type": {
-                "text": "string | typeof nothing"
-              },
-              "privacy": "protected",
-              "readonly": true
-            },
-            {
-              "kind": "method",
-              "name": "renderListbox",
-              "privacy": "protected",
-              "return": {
-                "type": {
-                  "text": "unknown"
-                }
-              },
-              "description": "Renders the list of `listboxOptions`, `role=\"listbox\"`, and the hidden\nslot of the `<option>` children. A press on the list keeps the focus\non the control; the pointer makes the option under it active."
-            },
-            {
-              "kind": "method",
-              "name": "renderOption",
-              "privacy": "protected",
-              "return": {
-                "type": {
-                  "text": "unknown"
-                }
-              },
-              "parameters": [
-                {
-                  "name": "option",
-                  "type": {
-                    "text": "ListboxOption"
-                  }
-                },
-                {
-                  "name": "_index",
-                  "type": {
-                    "text": "number"
-                  }
-                }
-              ],
-              "description": "Renders the content of an option: its label, or its value. Override it for a richer content."
-            },
-            {
-              "kind": "method",
-              "name": "moveActive",
-              "privacy": "protected",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              },
-              "parameters": [
-                {
-                  "name": "to",
-                  "type": {
-                    "text": "ListboxMove"
-                  }
-                }
-              ],
-              "description": "Moves the active option: to the next or previous enabled one, looping\nat the ends, to the first or last enabled one, or to none. Scrolls the\nlist to it."
-            },
-            {
-              "kind": "method",
-              "name": "handleListboxKeydown",
-              "privacy": "protected",
-              "return": {
-                "type": {
-                  "text": "boolean"
-                }
-              },
-              "parameters": [
-                {
-                  "name": "event",
-                  "type": {
-                    "text": "KeyboardEvent"
-                  }
-                }
-              ],
-              "description": "Handles ArrowDown and ArrowUp (the next and previous option) and\nEnter (picks the active option). Returns whether it handled `event`:\nthe caller then prevents its default."
-            },
-            {
-              "kind": "method",
-              "name": "selectOption",
-              "privacy": "protected",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              },
-              "parameters": [
-                {
-                  "name": "_option",
-                  "type": {
-                    "text": "ListboxOption"
-                  }
-                }
-              ],
-              "description": "Called when the user picks an enabled option, by a click or Enter.\nDoes nothing by default: the component gives it its meaning."
-            },
-            {
-              "kind": "method",
-              "name": "#readChildren",
-              "privacy": "private",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              }
-            },
-            {
-              "kind": "method",
-              "name": "#indexAt",
-              "privacy": "private",
-              "return": {
-                "type": {
-                  "text": "number"
-                }
-              },
-              "parameters": [
-                {
-                  "name": "event",
-                  "type": {
-                    "text": "Event"
-                  }
-                }
-              ],
-              "description": "The index of the option under the pointer, -1 when none."
-            },
-            {
-              "kind": "field",
-              "name": "#keepFocus",
-              "privacy": "private"
-            },
-            {
-              "kind": "field",
-              "name": "#activateUnderPointer",
-              "privacy": "private"
-            },
-            {
-              "kind": "field",
-              "name": "#selectUnderPointer",
-              "privacy": "private"
-            },
-            {
-              "kind": "method",
-              "name": "#scrollToActive",
-              "privacy": "private",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              },
-              "description": "Scrolls the list, not the page, to show the active option."
-            }
-          ],
-          "parameters": [
-            {
-              "name": "Base",
-              "type": {
-                "text": "T"
-              }
-            }
-          ]
-        }
-      ],
-      "exports": [
-        {
-          "kind": "js",
-          "name": "ListboxInterface",
-          "declaration": {
-            "name": "ListboxInterface",
-            "module": "src/mixins/withListbox.ts"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "withListbox",
-          "declaration": {
-            "name": "withListbox",
-            "module": "src/mixins/withListbox.ts"
-          }
-        }
-      ]
-    },
-    {
-      "kind": "javascript-module",
       "path": "src/polyfills/anchor-positioning.ts",
       "declarations": [
         {
@@ -1797,6 +1543,167 @@
     },
     {
       "kind": "javascript-module",
+      "path": "src/state/combobox.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "closedCombobox",
+          "type": {
+            "text": "ComboboxState"
+          },
+          "default": "{ open: false, activeIndex: -1, typed: false }",
+          "description": "A combobox at rest: closed, no active item."
+        },
+        {
+          "kind": "function",
+          "name": "comboboxReducer",
+          "return": {
+            "type": {
+              "text": "ComboboxState"
+            }
+          },
+          "parameters": [
+            {
+              "name": "state",
+              "type": {
+                "text": "ComboboxState"
+              }
+            },
+            {
+              "name": "event",
+              "type": {
+                "text": "ComboboxEvent"
+              }
+            },
+            {
+              "name": "context",
+              "type": {
+                "text": "ComboboxContext"
+              }
+            }
+          ],
+          "description": "The state after `event`. Returns `state` itself when nothing changes.\n\nThe popup opens only when the combobox is enabled and has content. Closed,\nit has no active item."
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "closedCombobox",
+          "declaration": {
+            "name": "closedCombobox",
+            "module": "src/state/combobox.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "comboboxReducer",
+          "declaration": {
+            "name": "comboboxReducer",
+            "module": "src/state/combobox.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/state/listbox.ts",
+      "declarations": [
+        {
+          "kind": "function",
+          "name": "enabledIndexes",
+          "return": {
+            "type": {
+              "text": "number[]"
+            }
+          },
+          "parameters": [
+            {
+              "name": "items",
+              "type": {
+                "text": "readonly ListboxItem[]"
+              }
+            }
+          ],
+          "description": "The indexes of the options the user can reach."
+        },
+        {
+          "kind": "function",
+          "name": "moveActiveIndex",
+          "return": {
+            "type": {
+              "text": "number"
+            }
+          },
+          "parameters": [
+            {
+              "name": "items",
+              "type": {
+                "text": "readonly ListboxItem[]"
+              }
+            },
+            {
+              "name": "activeIndex",
+              "type": {
+                "text": "number"
+              }
+            },
+            {
+              "name": "to",
+              "type": {
+                "text": "ListboxMove"
+              }
+            }
+          ],
+          "description": "The index of the active option after a move, -1 for none: the next or\nprevious enabled option, looping at the ends, or the first or last enabled\none. Without an enabled option, none is active."
+        },
+        {
+          "kind": "function",
+          "name": "listboxKeyMove",
+          "return": {
+            "type": {
+              "text": "ListboxMove | undefined"
+            }
+          },
+          "parameters": [
+            {
+              "name": "key",
+              "type": {
+                "text": "string"
+              }
+            }
+          ],
+          "description": "The move of a key in a list: ArrowDown and ArrowUp. `undefined` for the other keys."
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "enabledIndexes",
+          "declaration": {
+            "name": "enabledIndexes",
+            "module": "src/state/listbox.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "moveActiveIndex",
+          "declaration": {
+            "name": "moveActiveIndex",
+            "module": "src/state/listbox.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "listboxKeyMove",
+          "declaration": {
+            "name": "listboxKeyMove",
+            "module": "src/state/listbox.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/types/common.ts",
       "declarations": [],
       "exports": []
@@ -1807,7 +1714,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "An alert component that displays a message to the user.\n\nThe icon of its type comes first: the icon of the same name, from the\n`icon` component of its registration. It's decorative: the type is in the\nrole and the colors, and the message says it.\n\nIts container is a live region (`role=\"status\"` or `\"alert\"`, from\n`type`). Screen readers announce what is added to a live region, not what\nit already held when it appeared, so the message is revealed 100 ms after\nthe alert is first rendered: an alert inserted with its message is\nannounced too. Until then the message is laid out (nothing moves) but\ninvisible.",
+          "description": "An alert component that displays a message to the user.\n\nThe icon of its type comes first: the icon of the same name, from the\n`icon` component of its registration. It's decorative: the type is in the\nrole and the colors, and the message says it.\n\nIts container is a live region (`role=\"status\"` or `\"alert\"`, from\n`type`). Screen readers announce what is added to a live region, not what\nit already held when it appeared, so the message is revealed 100 ms after\nthe alert is first rendered: an alert inserted with its message is\nannounced too. Until then the message is laid out (nothing moves) but\ninvisible. An alert a server rendered shows its message at once.",
           "name": "Alert",
           "cssProperties": [
             {
@@ -1900,12 +1807,8 @@
             {
               "kind": "field",
               "name": "revealed",
-              "type": {
-                "text": "boolean"
-              },
               "privacy": "private",
-              "default": "false",
-              "description": "Whether the message has been revealed in the live region."
+              "description": "Whether the message has been revealed in the live region. A message a\nserver rendered (ADR 0014) is there when the page loads, and readable\nwithout script: revealing it later would add nothing to announce. The\nelement then has its shadow root before its first render."
             },
             {
               "kind": "field",
@@ -1984,7 +1887,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "A text field with suggestions: the list below the input shows the\nsuggestions that match the text, and the user picks one or keeps typing.\nThe value is the text, free: a suggestion only fills it, as `<input list>`\ndoes. The label, the hint, the error and the form behavior are those of\n`FieldBase`; the popup is that of `ComboboxBase`.\n\nThe suggestions are `options`, or else the `<option>` children of the\nfield. With `filter=\"none\"`, the application filters them itself: it\nlistens to `input` and sets `options`, from a server for instance. New\noptions open the list while the user types.\n\nKeys, list open: ArrowDown and ArrowUp move to the next and previous\nsuggestion, looping at the ends; Enter picks the active one; Escape closes\nthe list and keeps the text; Home, End and the other keys edit the text.\nEnter without an active suggestion closes the list.\n\nThe browser's own suggestions (`autocomplete`) are off by default: they\nwould cover the list. Give `autocomplete` to have both.",
+          "description": "A text field with suggestions: the list below the input shows the\nsuggestions that match the text, and the user picks one or keeps typing.\nThe value is the text, free: a suggestion only fills it, as `<input list>`\ndoes. The label, the hint, the error and the form behavior are those of\n`FieldBase`; the popup and its state are those of `ComboboxBase`; the list\nis that of a `ListboxController`.\n\nThe suggestions are `options`, or else the `<option>` children of the\nfield. With `filter=\"none\"`, the application filters them itself: it\nlistens to `input` and sets `options`, from a server for instance. New\noptions open the list while the user types.\n\nKeys, list open: ArrowDown and ArrowUp move to the next and previous\nsuggestion, looping at the ends; Enter picks the active one; Escape closes\nthe list and keeps the text; Home, End and the other keys edit the text.\nEnter without an active suggestion closes the list.\n\nWhile the user types, a live region announces the number of suggestions:\n`resultsMessage` writes it.\n\nThe browser's own suggestions (`autocomplete`) are off by default: they\nwould cover the list. Give `autocomplete` to have both.",
           "name": "Autocomplete",
           "cssProperties": [
             {
@@ -2329,6 +2232,14 @@
             },
             {
               "kind": "field",
+              "name": "options",
+              "type": {
+                "text": "readonly ListboxOption[] | undefined"
+              },
+              "description": "The suggestions, as data: `{ value, label?, disabled? }`. Takes\nprecedence over the `<option>` children. Property only."
+            },
+            {
+              "kind": "field",
               "name": "filter",
               "type": {
                 "text": "AutocompleteFilter"
@@ -2339,13 +2250,17 @@
             },
             {
               "kind": "field",
-              "name": "#typed",
-              "privacy": "private",
+              "name": "resultsMessage",
               "type": {
-                "text": "boolean"
+                "text": "(count: number) => string"
               },
-              "default": "false",
-              "description": "Whether the user has typed since the list last closed: new options open it."
+              "description": "Writes what assistive technologies hear while the user types: the\nnumber of suggestions that match the text. Give it in the page's\nlanguage. Property only."
+            },
+            {
+              "kind": "field",
+              "name": "#listbox",
+              "privacy": "private",
+              "default": "new ListboxController(this, { labelledBy: fieldIds.label, options: () => this.listboxOptions, activeIndex: () => this.comboboxState.activeIndex, activate: (index) => this.dispatch({ type: \"activate\", index }), select: (option) => this.selectOption(option), renderOption: (option, index) => this.renderOption(option, index), })"
             },
             {
               "kind": "field",
@@ -2358,6 +2273,15 @@
             },
             {
               "kind": "field",
+              "name": "#available",
+              "privacy": "private",
+              "type": {
+                "text": "readonly ListboxOption[] | undefined"
+              },
+              "description": "The options of the last render: other ones have no active option yet."
+            },
+            {
+              "kind": "field",
               "name": "#matching",
               "privacy": "private",
               "type": {
@@ -2367,17 +2291,33 @@
             },
             {
               "kind": "field",
+              "name": "availableOptions",
+              "type": {
+                "text": "readonly ListboxOption[]"
+              },
+              "privacy": "protected",
+              "description": "The suggestions: `options` when set, the `<option>` children otherwise.",
+              "readonly": true
+            },
+            {
+              "kind": "field",
               "name": "listboxOptions",
               "type": {
                 "text": "readonly ListboxOption[]"
               },
               "privacy": "protected",
               "description": "The suggestions that match the text: all of them while it's empty, or with `filter=\"none\"`.",
-              "readonly": true,
-              "inheritedFrom": {
-                "name": "withListbox",
-                "module": "src/mixins/withListbox.ts"
-              }
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "activeOption",
+              "type": {
+                "text": "ListboxOption | undefined"
+              },
+              "privacy": "protected",
+              "description": "The active suggestion, `undefined` when none.",
+              "readonly": true
             },
             {
               "kind": "method",
@@ -2419,6 +2359,48 @@
               }
             },
             {
+              "kind": "field",
+              "name": "popupItems",
+              "type": {
+                "text": "readonly ListboxItem[]"
+              },
+              "privacy": "protected",
+              "description": "The items of the popup the keyboard moves through, in order. None by default.",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "ComboboxBase",
+                "module": "src/components/combobox/combobox-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "comboboxControls",
+              "type": {
+                "text": "string"
+              },
+              "privacy": "protected",
+              "description": "For `renderCombobox()`: the `aria-controls` of the control, the `id` of the popup's content.",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "ComboboxBase",
+                "module": "src/components/combobox/combobox-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "popupStatus",
+              "type": {
+                "text": "string"
+              },
+              "privacy": "protected",
+              "description": "While the user types: the number of suggestions that match the text.",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "ComboboxBase",
+                "module": "src/components/combobox/combobox-base.ts"
+              }
+            },
+            {
               "kind": "method",
               "name": "renderCombobox",
               "privacy": "protected",
@@ -2447,6 +2429,31 @@
                 "name": "ComboboxBase",
                 "module": "src/components/combobox/combobox-base.ts"
               }
+            },
+            {
+              "kind": "method",
+              "name": "renderOption",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "unknown"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "option",
+                  "type": {
+                    "text": "ListboxOption"
+                  }
+                },
+                {
+                  "name": "_index",
+                  "type": {
+                    "text": "number"
+                  }
+                }
+              ],
+              "description": "Renders the content of a suggestion: its label, or its value. Override it for a richer content."
             },
             {
               "kind": "method",
@@ -2484,44 +2491,6 @@
               "inheritedFrom": {
                 "name": "FieldBase",
                 "module": "src/components/field/field-base.ts"
-              }
-            },
-            {
-              "kind": "method",
-              "name": "hidePopup",
-              "privacy": "protected",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              },
-              "description": "Closes the popup, after its exit transition.",
-              "inheritedFrom": {
-                "name": "ComboboxBase",
-                "module": "src/components/combobox/combobox-base.ts"
-              }
-            },
-            {
-              "kind": "method",
-              "name": "enterPopup",
-              "privacy": "protected",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              },
-              "parameters": [
-                {
-                  "name": "entry",
-                  "type": {
-                    "text": "ComboboxEntry"
-                  }
-                }
-              ],
-              "description": "Moves the keyboard into the popup, opened from the keyboard. Does nothing by default.",
-              "inheritedFrom": {
-                "name": "ComboboxBase",
-                "module": "src/components/combobox/combobox-base.ts"
               }
             },
             {
@@ -2564,464 +2533,29 @@
                   }
                 }
               ],
-              "description": "Fires `u-select`, then, unless canceled, fills the field with the\nsuggestion's value, as a user's change: `input`, then `change`. The\nlist closes; the focus stays in the input.",
-              "inheritedFrom": {
-                "name": "withListbox",
-                "module": "src/mixins/withListbox.ts"
-              }
+              "description": "Called when the user picks an enabled suggestion, by a click or Enter.\nFires `u-select`, then, unless canceled, fills the field with the\nsuggestion's value, as a user's change: `input`, then `change`. The\nlist closes; the focus stays in the input."
             },
             {
               "kind": "field",
-              "name": "#focused",
+              "name": "#state",
               "privacy": "private",
               "type": {
-                "text": "boolean"
+                "text": "ComboboxState"
               },
-              "description": "Whether the input has the focus.",
-              "readonly": true
-            },
-            {
-              "kind": "field",
-              "name": "styles",
-              "type": {
-                "text": "array"
-              },
-              "static": true,
-              "default": "[ (Base as unknown as typeof LitElement).styles ?? [], listboxTokens, listboxStyles, ]",
+              "default": "closedCombobox",
               "inheritedFrom": {
-                "name": "withDisabled",
-                "module": "src/mixins/withDisabled.ts"
+                "name": "ComboboxBase",
+                "module": "src/components/combobox/combobox-base.ts"
               }
             },
             {
               "kind": "field",
-              "name": "options",
-              "type": {
-                "text": "readonly ListboxOption[] | undefined"
-              },
-              "description": "The options, as data: `{ value, label?, disabled? }`. Takes precedence\nover the `<option>` children. Property only.",
-              "inheritedFrom": {
-                "name": "withListbox",
-                "module": "src/mixins/withListbox.ts"
-              }
-            },
-            {
-              "kind": "field",
-              "name": "childOptions",
-              "type": {
-                "text": "readonly ListboxOption[]"
-              },
+              "name": "#popover",
               "privacy": "private",
-              "default": "[]",
-              "description": "The `<option>` children, as data.",
+              "default": "new AnchoredPopoverController(this)",
               "inheritedFrom": {
-                "name": "withListbox",
-                "module": "src/mixins/withListbox.ts"
-              }
-            },
-            {
-              "kind": "field",
-              "name": "activeIndex",
-              "type": {
-                "text": "number"
-              },
-              "privacy": "protected",
-              "default": "-1",
-              "inheritedFrom": {
-                "name": "withListbox",
-                "module": "src/mixins/withListbox.ts"
-              }
-            },
-            {
-              "kind": "field",
-              "name": "#observer",
-              "privacy": "private",
-              "type": {
-                "text": "MutationObserver | undefined"
-              },
-              "description": "Reads the `<option>` children again when they change.",
-              "inheritedFrom": {
-                "name": "withListbox",
-                "module": "src/mixins/withListbox.ts"
-              }
-            },
-            {
-              "kind": "field",
-              "name": "availableOptions",
-              "type": {
-                "text": "readonly ListboxOption[]"
-              },
-              "privacy": "protected",
-              "readonly": true,
-              "inheritedFrom": {
-                "name": "withListbox",
-                "module": "src/mixins/withListbox.ts"
-              }
-            },
-            {
-              "kind": "field",
-              "name": "activeOption",
-              "type": {
-                "text": "ListboxOption | undefined"
-              },
-              "privacy": "protected",
-              "readonly": true,
-              "inheritedFrom": {
-                "name": "withListbox",
-                "module": "src/mixins/withListbox.ts"
-              }
-            },
-            {
-              "kind": "field",
-              "name": "activeDescendant",
-              "type": {
-                "text": "string | typeof nothing"
-              },
-              "privacy": "protected",
-              "readonly": true,
-              "inheritedFrom": {
-                "name": "withListbox",
-                "module": "src/mixins/withListbox.ts"
-              }
-            },
-            {
-              "kind": "method",
-              "name": "renderListbox",
-              "privacy": "protected",
-              "return": {
-                "type": {
-                  "text": "unknown"
-                }
-              },
-              "description": "Renders the list of `listboxOptions`, `role=\"listbox\"`, and the hidden\nslot of the `<option>` children. A press on the list keeps the focus\non the control; the pointer makes the option under it active.",
-              "inheritedFrom": {
-                "name": "withListbox",
-                "module": "src/mixins/withListbox.ts"
-              }
-            },
-            {
-              "kind": "method",
-              "name": "renderOption",
-              "privacy": "protected",
-              "return": {
-                "type": {
-                  "text": "unknown"
-                }
-              },
-              "parameters": [
-                {
-                  "name": "option",
-                  "type": {
-                    "text": "ListboxOption"
-                  }
-                },
-                {
-                  "name": "_index",
-                  "type": {
-                    "text": "number"
-                  }
-                }
-              ],
-              "description": "Renders the content of an option: its label, or its value. Override it for a richer content.",
-              "inheritedFrom": {
-                "name": "withListbox",
-                "module": "src/mixins/withListbox.ts"
-              }
-            },
-            {
-              "kind": "method",
-              "name": "moveActive",
-              "privacy": "protected",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              },
-              "parameters": [
-                {
-                  "name": "to",
-                  "type": {
-                    "text": "ListboxMove"
-                  }
-                }
-              ],
-              "description": "Moves the active option: to the next or previous enabled one, looping\nat the ends, to the first or last enabled one, or to none. Scrolls the\nlist to it.",
-              "inheritedFrom": {
-                "name": "withListbox",
-                "module": "src/mixins/withListbox.ts"
-              }
-            },
-            {
-              "kind": "method",
-              "name": "handleListboxKeydown",
-              "privacy": "protected",
-              "return": {
-                "type": {
-                  "text": "boolean"
-                }
-              },
-              "parameters": [
-                {
-                  "name": "event",
-                  "type": {
-                    "text": "KeyboardEvent"
-                  }
-                }
-              ],
-              "description": "Handles ArrowDown and ArrowUp (the next and previous option) and\nEnter (picks the active option). Returns whether it handled `event`:\nthe caller then prevents its default.",
-              "inheritedFrom": {
-                "name": "withListbox",
-                "module": "src/mixins/withListbox.ts"
-              }
-            },
-            {
-              "kind": "method",
-              "name": "#readChildren",
-              "privacy": "private",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              },
-              "inheritedFrom": {
-                "name": "withListbox",
-                "module": "src/mixins/withListbox.ts"
-              }
-            },
-            {
-              "kind": "method",
-              "name": "#indexAt",
-              "privacy": "private",
-              "return": {
-                "type": {
-                  "text": "number"
-                }
-              },
-              "parameters": [
-                {
-                  "name": "event",
-                  "type": {
-                    "text": "Event"
-                  }
-                }
-              ],
-              "description": "The index of the option under the pointer, -1 when none.",
-              "inheritedFrom": {
-                "name": "withListbox",
-                "module": "src/mixins/withListbox.ts"
-              }
-            },
-            {
-              "kind": "field",
-              "name": "#keepFocus",
-              "privacy": "private",
-              "inheritedFrom": {
-                "name": "withListbox",
-                "module": "src/mixins/withListbox.ts"
-              }
-            },
-            {
-              "kind": "field",
-              "name": "#activateUnderPointer",
-              "privacy": "private",
-              "inheritedFrom": {
-                "name": "withListbox",
-                "module": "src/mixins/withListbox.ts"
-              }
-            },
-            {
-              "kind": "field",
-              "name": "#selectUnderPointer",
-              "privacy": "private",
-              "inheritedFrom": {
-                "name": "withListbox",
-                "module": "src/mixins/withListbox.ts"
-              }
-            },
-            {
-              "kind": "method",
-              "name": "#scrollToActive",
-              "privacy": "private",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              },
-              "description": "Scrolls the list, not the page, to show the active option.",
-              "inheritedFrom": {
-                "name": "withListbox",
-                "module": "src/mixins/withListbox.ts"
-              }
-            },
-            {
-              "kind": "field",
-              "name": "#openings",
-              "privacy": "private",
-              "default": "new WeakMap<HTMLElement, object>()",
-              "description": "The opening under way of each popover: a closing meanwhile cancels it.",
-              "inheritedFrom": {
-                "name": "withAnchoredPopover",
-                "module": "src/mixins/withAnchoredPopover.ts"
-              }
-            },
-            {
-              "kind": "field",
-              "name": "#cleanups",
-              "privacy": "private",
-              "default": "new Map<HTMLElement, () => void>()",
-              "description": "Stops the fallback's updates of each open popover.",
-              "inheritedFrom": {
-                "name": "withAnchoredPopover",
-                "module": "src/mixins/withAnchoredPopover.ts"
-              }
-            },
-            {
-              "kind": "field",
-              "name": "#offsets",
-              "privacy": "private",
-              "default": "new WeakMap<HTMLElement, number>()",
-              "description": "The block margin of each popover: the fallback applies it as an offset.",
-              "inheritedFrom": {
-                "name": "withAnchoredPopover",
-                "module": "src/mixins/withAnchoredPopover.ts"
-              }
-            },
-            {
-              "kind": "method",
-              "name": "openPopover",
-              "privacy": "protected",
-              "return": {
-                "type": {
-                  "text": "Promise<void>"
-                }
-              },
-              "parameters": [
-                {
-                  "name": "popover",
-                  "type": {
-                    "text": "HTMLElement"
-                  }
-                },
-                {
-                  "name": "anchor",
-                  "type": {
-                    "text": "HTMLElement"
-                  }
-                }
-              ],
-              "description": "Shows `popover`, a `popover=\"manual\"` of the shadow root, in the top\nlayer, anchored below `anchor`, an element of the same shadow root.\nResolves once it's shown and positioned. Already open, it only follows\nthe new anchor.",
-              "inheritedFrom": {
-                "name": "withAnchoredPopover",
-                "module": "src/mixins/withAnchoredPopover.ts"
-              }
-            },
-            {
-              "kind": "method",
-              "name": "closePopover",
-              "privacy": "protected",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              },
-              "parameters": [
-                {
-                  "name": "popover",
-                  "type": {
-                    "text": "HTMLElement"
-                  }
-                }
-              ],
-              "description": "Hides `popover` at once: its exit transition, if any, runs after.",
-              "inheritedFrom": {
-                "name": "withAnchoredPopover",
-                "module": "src/mixins/withAnchoredPopover.ts"
-              }
-            },
-            {
-              "kind": "method",
-              "name": "#follow",
-              "privacy": "private",
-              "return": {
-                "type": {
-                  "text": "Promise<void>"
-                }
-              },
-              "parameters": [
-                {
-                  "name": "floating",
-                  "type": {
-                    "text": "FloatingUI"
-                  }
-                },
-                {
-                  "name": "popover",
-                  "type": {
-                    "text": "HTMLElement"
-                  }
-                },
-                {
-                  "name": "anchor",
-                  "type": {
-                    "text": "HTMLElement"
-                  }
-                }
-              ],
-              "description": "Positions `popover` with Floating UI, then again on each scroll,\nresize or move of the anchor, until it closes. Resolves once\npositioned: before the next paint, so it never shows unpositioned.",
-              "inheritedFrom": {
-                "name": "withAnchoredPopover",
-                "module": "src/mixins/withAnchoredPopover.ts"
-              }
-            },
-            {
-              "kind": "method",
-              "name": "closeWithTransition",
-              "privacy": "protected",
-              "return": {
-                "type": {
-                  "text": "Promise<void>"
-                }
-              },
-              "parameters": [
-                {
-                  "name": "element",
-                  "type": {
-                    "text": "HTMLElement"
-                  }
-                },
-                {
-                  "name": "close",
-                  "type": {
-                    "text": "() => void"
-                  }
-                }
-              ],
-              "description": "Closes `element` once its exit transition ends: `close` closes it\n(`dialog.close()`, `hidePopover()`). Without transition, as with\nreduced motion, it closes at once. Resolves when closed, or when\n`cancelExitTransition()` kept it open.",
-              "inheritedFrom": {
-                "name": "withExitTransition",
-                "module": "src/mixins/withExitTransition.ts"
-              }
-            },
-            {
-              "kind": "method",
-              "name": "cancelExitTransition",
-              "privacy": "protected",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              },
-              "parameters": [
-                {
-                  "name": "element",
-                  "type": {
-                    "text": "HTMLElement"
-                  }
-                }
-              ],
-              "inheritedFrom": {
-                "name": "withExitTransition",
-                "module": "src/mixins/withExitTransition.ts"
+                "name": "ComboboxBase",
+                "module": "src/components/combobox/combobox-base.ts"
               }
             },
             {
@@ -3030,7 +2564,6 @@
               "type": {
                 "text": "boolean"
               },
-              "default": "false",
               "description": "Whether the popup is open. Reflected. Follows the real state: it turns\n`false` when the user closes the popup. Set to `true`, it opens only\nwith some content to show.",
               "attribute": "open",
               "reflects": true,
@@ -3048,7 +2581,7 @@
                   "text": "unknown"
                 }
               },
-              "description": "Renders the control, from `renderCombobox()`, then the popup with the\ncontent of `renderPopup()`.",
+              "description": "Renders the control, from `renderCombobox()`, then the popup with the\ncontent of `renderPopup()`, then the live region of `popupStatus`.",
               "inheritedFrom": {
                 "name": "FieldBase",
                 "module": "src/components/field/field-base.ts"
@@ -3070,13 +2603,36 @@
             },
             {
               "kind": "field",
-              "name": "comboboxControls",
+              "name": "comboboxState",
               "type": {
-                "text": "string"
+                "text": "ComboboxState"
               },
               "privacy": "protected",
-              "description": "For `renderCombobox()`: the `aria-controls` of the control, the `id` of the popup's content.",
+              "description": "The state of the combobox: `open`, `activeIndex`, `typed`. Change it with `dispatch()`.",
               "readonly": true,
+              "inheritedFrom": {
+                "name": "ComboboxBase",
+                "module": "src/components/combobox/combobox-base.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "dispatch",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "event",
+                  "type": {
+                    "text": "ComboboxEvent"
+                  }
+                }
+              ],
+              "description": "Sends an event to `comboboxReducer()`, and renders again when the state changes.",
               "inheritedFrom": {
                 "name": "ComboboxBase",
                 "module": "src/components/combobox/combobox-base.ts"
@@ -3100,7 +2656,22 @@
                   }
                 }
               ],
-              "description": "Opens the popup, if it has content. The keyboard enters it at `entry`, through `enterPopup()`.",
+              "description": "Opens the popup, if it has content. The keyboard enters it at `entry`.",
+              "inheritedFrom": {
+                "name": "ComboboxBase",
+                "module": "src/components/combobox/combobox-base.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "hidePopup",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "description": "Closes the popup, after its exit transition.",
               "inheritedFrom": {
                 "name": "ComboboxBase",
                 "module": "src/components/combobox/combobox-base.ts"
@@ -3123,7 +2694,29 @@
                   }
                 }
               ],
-              "description": "For `renderCombobox()`: the `keydown` listener of the control.",
+              "description": "For `renderCombobox()`: the `keydown` listener of the control. A key\nneither the popup nor the base handles is the field's: Enter submits the\nform (`submitOnEnter()`).",
+              "inheritedFrom": {
+                "name": "ComboboxBase",
+                "module": "src/components/combobox/combobox-base.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "#handlePopupKeys",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "event",
+                  "type": {
+                    "text": "KeyboardEvent"
+                  }
+                }
+              ],
               "inheritedFrom": {
                 "name": "ComboboxBase",
                 "module": "src/components/combobox/combobox-base.ts"
@@ -3137,6 +2730,33 @@
               },
               "privacy": "protected",
               "description": "The popup, once rendered.",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "ComboboxBase",
+                "module": "src/components/combobox/combobox-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "#control",
+              "privacy": "private",
+              "type": {
+                "text": "FieldControl | null"
+              },
+              "description": "The native control, once rendered.",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "#context",
+              "privacy": "private",
+              "type": {
+                "text": "ComboboxContext"
+              },
               "readonly": true,
               "inheritedFrom": {
                 "name": "ComboboxBase",
@@ -3221,6 +2841,19 @@
               "privacy": "private",
               "default": "false",
               "description": "The browser's disabled state of a form-associated element.",
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "styles",
+              "type": {
+                "text": "array"
+              },
+              "static": true,
+              "default": "[(Base as unknown as typeof LitElement).styles ?? [], disabledStyles]",
               "inheritedFrom": {
                 "name": "withDisabled",
                 "module": "src/mixins/withDisabled.ts"
@@ -3565,14 +3198,23 @@
               }
             },
             {
-              "kind": "field",
-              "name": "#control",
-              "privacy": "private",
-              "type": {
-                "text": "FieldControl | null"
+              "kind": "method",
+              "name": "submitOnEnter",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
               },
-              "description": "The native control, once rendered.",
-              "readonly": true,
+              "parameters": [
+                {
+                  "name": "event",
+                  "type": {
+                    "text": "KeyboardEvent"
+                  }
+                }
+              ],
+              "description": "For the `keydown` listener of a single-line control: Enter submits the\nform, as HTML's implicit submission does for a native `<input>`. With a\nsubmit button in the form, the form is submitted unless the first one\nis disabled. Without any, it is submitted when this field is its only\nsingle-line one. Does nothing for a key another listener has handled,\nnor while an input method composes the text.",
               "inheritedFrom": {
                 "name": "FieldBase",
                 "module": "src/components/field/field-base.ts"
@@ -3700,7 +3342,6 @@
               "type": {
                 "text": "boolean"
               },
-              "default": "false",
               "description": "Whether the popup is open. Reflected. Follows the real state: it turns\n`false` when the user closes the popup. Set to `true`, it opens only\nwith some content to show.",
               "fieldName": "open",
               "inheritedFrom": {
@@ -3823,12 +3464,6 @@
                 "name": "FieldBase",
                 "module": "src/components/field/field-base.ts"
               }
-            }
-          ],
-          "mixins": [
-            {
-              "name": "withListbox",
-              "module": "/src/mixins/withListbox.js"
             }
           ],
           "superclass": {
@@ -5237,7 +4872,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "Shared base of the comboboxes: a form field whose control opens a popup\nbelow it, `autocomplete` for instance. Abstract: extend `Autocomplete`, or\nwrite a combobox with `renderCombobox()` and `renderPopup()`. The label,\nthe hint, the error and the form behavior are those of `FieldBase`.\n\nThe control keeps the focus while the popup is open, and names the\npopup's content with `aria-controls`: both are in the same shadow root\n(ADR 0009). The popup is a `popover=\"manual\"` in the top layer, anchored\nby `withAnchoredPopover`, with the entry and exit of `withExitTransition`.\n\nKeys of the control, popup closed: ArrowDown and ArrowUp open it and enter\nit at its first or last item, Alt+ArrowDown opens it without entering.\nPopup open: Escape and Alt+ArrowUp close it, Tab closes it and moves on;\nthe others go to `handlePopupKeydown()`. The popup also closes when the\nfocus leaves the field, when the field is disabled, and when its form is\nreset. Escape closes only the popup, not a modal around the field.",
+          "description": "Shared base of the comboboxes: a form field whose control opens a popup\nbelow it, `autocomplete` for instance. Abstract: extend `Autocomplete`, or\nwrite a combobox with `renderCombobox()` and `renderPopup()`. The label,\nthe hint, the error and the form behavior are those of `FieldBase`.\n\nIts state is that of `comboboxReducer()` (`state/combobox.ts`, ADR 0010):\nwhether the popup is open, which of its items is active, whether it follows\nwhat the user types. The base sends it the events of the control, and\nshows the popup it describes.\n\nThe control keeps the focus while the popup is open, and names the\npopup's content with `aria-controls`: both are in the same shadow root\n(ADR 0009). The popup is a `popover=\"manual\"` in the top layer, anchored\nby an `AnchoredPopoverController`, with an animated entry and exit.\n\nKeys of the control, popup closed: ArrowDown and ArrowUp open it and enter\nit at its first or last item, Alt+ArrowDown opens it without entering.\nPopup open: Escape and Alt+ArrowUp close it, Tab closes it and moves on;\nthe others go to `handlePopupKeydown()`. The popup also closes when the\nfocus leaves the field, when the field is disabled, and when its form is\nreset. Escape closes only the popup, not a modal around the field.\n\nA polite live region announces `popupStatus`, the number of suggestions\nfor instance: the popup's content changes without the focus moving.",
           "name": "ComboboxBase",
           "cssProperties": [
             {
@@ -5469,11 +5104,25 @@
           "members": [
             {
               "kind": "field",
+              "name": "#state",
+              "privacy": "private",
+              "type": {
+                "text": "ComboboxState"
+              },
+              "default": "closedCombobox"
+            },
+            {
+              "kind": "field",
+              "name": "#popover",
+              "privacy": "private",
+              "default": "new AnchoredPopoverController(this)"
+            },
+            {
+              "kind": "field",
               "name": "open",
               "type": {
                 "text": "boolean"
               },
-              "default": "false",
               "description": "Whether the popup is open. Reflected. Follows the real state: it turns\n`false` when the user closes the popup. Set to `true`, it opens only\nwith some content to show.",
               "attribute": "open",
               "reflects": true
@@ -5487,7 +5136,7 @@
                   "text": "unknown"
                 }
               },
-              "description": "Renders the control, from `renderCombobox()`, then the popup with the\ncontent of `renderPopup()`.",
+              "description": "Renders the control, from `renderCombobox()`, then the popup with the\ncontent of `renderPopup()`, then the live region of `popupStatus`.",
               "inheritedFrom": {
                 "name": "FieldBase",
                 "module": "src/components/field/field-base.ts"
@@ -5517,22 +5166,22 @@
             },
             {
               "kind": "field",
-              "name": "comboboxExpanded",
-              "type": {
-                "text": "\"true\" | \"false\""
-              },
-              "privacy": "protected",
-              "description": "For `renderCombobox()`: the `aria-expanded` of the control.",
-              "readonly": true
-            },
-            {
-              "kind": "field",
               "name": "comboboxControls",
               "type": {
                 "text": "string"
               },
               "privacy": "protected",
               "description": "For `renderCombobox()`: the `aria-controls` of the control, the `id` of the popup's content.",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "comboboxExpanded",
+              "type": {
+                "text": "\"true\" | \"false\""
+              },
+              "privacy": "protected",
+              "description": "For `renderCombobox()`: the `aria-expanded` of the control.",
               "readonly": true
             },
             {
@@ -5544,6 +5193,55 @@
               "privacy": "protected",
               "description": "Whether the popup has something to show: it doesn't open empty. `true` by default.",
               "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "popupItems",
+              "type": {
+                "text": "readonly ListboxItem[]"
+              },
+              "privacy": "protected",
+              "description": "The items of the popup the keyboard moves through, in order. None by default.",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "popupStatus",
+              "type": {
+                "text": "string"
+              },
+              "privacy": "protected",
+              "description": "What the live region announces: a change of the popup's content that\nthe user can't see coming, the number of suggestions for instance.\nNothing by default.",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "comboboxState",
+              "type": {
+                "text": "ComboboxState"
+              },
+              "privacy": "protected",
+              "description": "The state of the combobox: `open`, `activeIndex`, `typed`. Change it with `dispatch()`.",
+              "readonly": true
+            },
+            {
+              "kind": "method",
+              "name": "dispatch",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "event",
+                  "type": {
+                    "text": "ComboboxEvent"
+                  }
+                }
+              ],
+              "description": "Sends an event to `comboboxReducer()`, and renders again when the state changes."
             },
             {
               "kind": "method",
@@ -5563,7 +5261,7 @@
                   }
                 }
               ],
-              "description": "Opens the popup, if it has content. The keyboard enters it at `entry`, through `enterPopup()`."
+              "description": "Opens the popup, if it has content. The keyboard enters it at `entry`."
             },
             {
               "kind": "method",
@@ -5575,25 +5273,6 @@
                 }
               },
               "description": "Closes the popup, after its exit transition."
-            },
-            {
-              "kind": "method",
-              "name": "enterPopup",
-              "privacy": "protected",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              },
-              "parameters": [
-                {
-                  "name": "_entry",
-                  "type": {
-                    "text": "ComboboxEntry"
-                  }
-                }
-              ],
-              "description": "Moves the keyboard into the popup, opened from the keyboard. Does nothing by default."
             },
             {
               "kind": "method",
@@ -5631,7 +5310,25 @@
                   }
                 }
               ],
-              "description": "For `renderCombobox()`: the `keydown` listener of the control."
+              "description": "For `renderCombobox()`: the `keydown` listener of the control. A key\nneither the popup nor the base handles is the field's: Enter submits the\nform (`submitOnEnter()`)."
+            },
+            {
+              "kind": "method",
+              "name": "#handlePopupKeys",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "event",
+                  "type": {
+                    "text": "KeyboardEvent"
+                  }
+                }
+              ]
             },
             {
               "kind": "field",
@@ -5641,6 +5338,29 @@
               },
               "privacy": "protected",
               "description": "The popup, once rendered.",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "#control",
+              "privacy": "private",
+              "type": {
+                "text": "FieldControl | null"
+              },
+              "description": "The native control, once rendered.",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "#context",
+              "privacy": "private",
+              "type": {
+                "text": "ComboboxContext"
+              },
               "readonly": true
             },
             {
@@ -5661,190 +5381,6 @@
                 "type": {
                   "text": "void"
                 }
-              }
-            },
-            {
-              "kind": "field",
-              "name": "styles",
-              "type": {
-                "text": "array"
-              },
-              "static": true,
-              "default": "[(Base as unknown as typeof LitElement).styles ?? [], anchoredPopoverStyles]",
-              "inheritedFrom": {
-                "name": "withDisabled",
-                "module": "src/mixins/withDisabled.ts"
-              }
-            },
-            {
-              "kind": "field",
-              "name": "#openings",
-              "privacy": "private",
-              "default": "new WeakMap<HTMLElement, object>()",
-              "description": "The opening under way of each popover: a closing meanwhile cancels it.",
-              "inheritedFrom": {
-                "name": "withAnchoredPopover",
-                "module": "src/mixins/withAnchoredPopover.ts"
-              }
-            },
-            {
-              "kind": "field",
-              "name": "#cleanups",
-              "privacy": "private",
-              "default": "new Map<HTMLElement, () => void>()",
-              "description": "Stops the fallback's updates of each open popover.",
-              "inheritedFrom": {
-                "name": "withAnchoredPopover",
-                "module": "src/mixins/withAnchoredPopover.ts"
-              }
-            },
-            {
-              "kind": "field",
-              "name": "#offsets",
-              "privacy": "private",
-              "default": "new WeakMap<HTMLElement, number>()",
-              "description": "The block margin of each popover: the fallback applies it as an offset.",
-              "inheritedFrom": {
-                "name": "withAnchoredPopover",
-                "module": "src/mixins/withAnchoredPopover.ts"
-              }
-            },
-            {
-              "kind": "method",
-              "name": "openPopover",
-              "privacy": "protected",
-              "return": {
-                "type": {
-                  "text": "Promise<void>"
-                }
-              },
-              "parameters": [
-                {
-                  "name": "popover",
-                  "type": {
-                    "text": "HTMLElement"
-                  }
-                },
-                {
-                  "name": "anchor",
-                  "type": {
-                    "text": "HTMLElement"
-                  }
-                }
-              ],
-              "description": "Shows `popover`, a `popover=\"manual\"` of the shadow root, in the top\nlayer, anchored below `anchor`, an element of the same shadow root.\nResolves once it's shown and positioned. Already open, it only follows\nthe new anchor.",
-              "inheritedFrom": {
-                "name": "withAnchoredPopover",
-                "module": "src/mixins/withAnchoredPopover.ts"
-              }
-            },
-            {
-              "kind": "method",
-              "name": "closePopover",
-              "privacy": "protected",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              },
-              "parameters": [
-                {
-                  "name": "popover",
-                  "type": {
-                    "text": "HTMLElement"
-                  }
-                }
-              ],
-              "description": "Hides `popover` at once: its exit transition, if any, runs after.",
-              "inheritedFrom": {
-                "name": "withAnchoredPopover",
-                "module": "src/mixins/withAnchoredPopover.ts"
-              }
-            },
-            {
-              "kind": "method",
-              "name": "#follow",
-              "privacy": "private",
-              "return": {
-                "type": {
-                  "text": "Promise<void>"
-                }
-              },
-              "parameters": [
-                {
-                  "name": "floating",
-                  "type": {
-                    "text": "FloatingUI"
-                  }
-                },
-                {
-                  "name": "popover",
-                  "type": {
-                    "text": "HTMLElement"
-                  }
-                },
-                {
-                  "name": "anchor",
-                  "type": {
-                    "text": "HTMLElement"
-                  }
-                }
-              ],
-              "description": "Positions `popover` with Floating UI, then again on each scroll,\nresize or move of the anchor, until it closes. Resolves once\npositioned: before the next paint, so it never shows unpositioned.",
-              "inheritedFrom": {
-                "name": "withAnchoredPopover",
-                "module": "src/mixins/withAnchoredPopover.ts"
-              }
-            },
-            {
-              "kind": "method",
-              "name": "closeWithTransition",
-              "privacy": "protected",
-              "return": {
-                "type": {
-                  "text": "Promise<void>"
-                }
-              },
-              "parameters": [
-                {
-                  "name": "element",
-                  "type": {
-                    "text": "HTMLElement"
-                  }
-                },
-                {
-                  "name": "close",
-                  "type": {
-                    "text": "() => void"
-                  }
-                }
-              ],
-              "description": "Closes `element` once its exit transition ends: `close` closes it\n(`dialog.close()`, `hidePopover()`). Without transition, as with\nreduced motion, it closes at once. Resolves when closed, or when\n`cancelExitTransition()` kept it open.",
-              "inheritedFrom": {
-                "name": "withExitTransition",
-                "module": "src/mixins/withExitTransition.ts"
-              }
-            },
-            {
-              "kind": "method",
-              "name": "cancelExitTransition",
-              "privacy": "protected",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              },
-              "parameters": [
-                {
-                  "name": "element",
-                  "type": {
-                    "text": "HTMLElement"
-                  }
-                }
-              ],
-              "inheritedFrom": {
-                "name": "withExitTransition",
-                "module": "src/mixins/withExitTransition.ts"
               }
             },
             {
@@ -5897,6 +5433,19 @@
               "privacy": "private",
               "default": "false",
               "description": "The browser's disabled state of a form-associated element.",
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "styles",
+              "type": {
+                "text": "array"
+              },
+              "static": true,
+              "default": "[(Base as unknown as typeof LitElement).styles ?? [], disabledStyles]",
               "inheritedFrom": {
                 "name": "withDisabled",
                 "module": "src/mixins/withDisabled.ts"
@@ -6279,14 +5828,23 @@
               }
             },
             {
-              "kind": "field",
-              "name": "#control",
-              "privacy": "private",
-              "type": {
-                "text": "FieldControl | null"
+              "kind": "method",
+              "name": "submitOnEnter",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
               },
-              "description": "The native control, once rendered.",
-              "readonly": true,
+              "parameters": [
+                {
+                  "name": "event",
+                  "type": {
+                    "text": "KeyboardEvent"
+                  }
+                }
+              ],
+              "description": "For the `keydown` listener of a single-line control: Enter submits the\nform, as HTML's implicit submission does for a native `<input>`. With a\nsubmit button in the form, the form is submitted unless the first one\nis disabled. Without any, it is submitted when this field is its only\nsingle-line one. Does nothing for a key another listener has handled,\nnor while an input method composes the text.",
               "inheritedFrom": {
                 "name": "FieldBase",
                 "module": "src/components/field/field-base.ts"
@@ -6388,7 +5946,6 @@
               "type": {
                 "text": "boolean"
               },
-              "default": "false",
               "description": "Whether the popup is open. Reflected. Follows the real state: it turns\n`false` when the user closes the popup. Set to `true`, it opens only\nwith some content to show.",
               "fieldName": "open"
             },
@@ -6509,16 +6066,6 @@
               }
             }
           ],
-          "mixins": [
-            {
-              "name": "withAnchoredPopover",
-              "module": "/src/mixins/withAnchoredPopover.js"
-            },
-            {
-              "name": "withExitTransition",
-              "module": "/src/mixins/withExitTransition.js"
-            }
-          ],
           "superclass": {
             "name": "FieldBase",
             "module": "/src/components/field/field-base.js"
@@ -6561,15 +6108,57 @@
       "kind": "javascript-module",
       "path": "src/components/combobox/combobox.type.ts",
       "declarations": [],
-      "exports": []
+      "exports": [
+        {
+          "kind": "js",
+          "name": "ComboboxContext",
+          "declaration": {
+            "name": "ComboboxContext",
+            "module": "../../state/combobox.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "ComboboxEntry",
+          "declaration": {
+            "name": "ComboboxEntry",
+            "module": "../../state/combobox.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "ComboboxEvent",
+          "declaration": {
+            "name": "ComboboxEvent",
+            "module": "../../state/combobox.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "ComboboxState",
+          "declaration": {
+            "name": "ComboboxState",
+            "module": "../../state/combobox.js"
+          }
+        }
+      ]
     },
     {
       "kind": "javascript-module",
       "path": "src/components/field/field-base.ts",
       "declarations": [
         {
+          "kind": "variable",
+          "name": "fieldIds",
+          "type": {
+            "text": "{\n  label: \"label\",\n  hint: \"hint\",\n  control: \"control\",\n  error: \"error\",\n}"
+          },
+          "default": "{ label: \"label\", hint: \"hint\", control: \"control\", error: \"error\", }",
+          "description": "The `id` of the elements `FieldBase` renders in its shadow root, for what\nrefers to them: a list named by the label, a popup anchored to the control."
+        },
+        {
           "kind": "class",
-          "description": "Shared base of the form fields, `text-field` and `textarea`: a label, an\noptional hint, a native control and its error message. Abstract: extend\n`TextField` or `Textarea`, or write a field with `renderControl()`. The\nlabel stays in the shadow root of its control: an `id` doesn't cross a\nshadow root (ADR 0007).\n\nA field takes part in its form like a native control: it submits `value`\nunder `name`, blocks the submission while invalid, follows the form's\nreset and a `<fieldset disabled>`.\n\nValidation is the browser's, on the native control, plus\n`setCustomValidity()`. The error shows once the user has changed the value\nand left the field, or once validation has run (a submission attempt,\n`checkValidity()`, `reportValidity()`), then follows each keystroke. The\nmessage is the browser's, in the browser's language: give `error-message`\nto write it in the page's language. A message set with\n`setCustomValidity()` comes first.\n\nIts `input` and `change` events are those of a native control, on the\nhost: frameworks bind `value` as they would on an `<input>` (`v-model` in\nVue).",
+          "description": "Shared base of the form fields, `text-field` and `textarea`: a label, an\noptional hint, a native control and its error message. Abstract: extend\n`TextField` or `Textarea`, or write a field with `renderControl()`. The\nlabel stays in the shadow root of its control: an `id` doesn't cross a\nshadow root (ADR 0007).\n\nA field takes part in its form like a native control: it submits `value`\nunder `name`, blocks the submission while invalid, follows the form's\nreset and a `<fieldset disabled>`.\n\nValidation is the browser's, on the native control, plus\n`setCustomValidity()`. The error shows once the user has changed the value\nand left the field, or once validation has run (a submission attempt,\n`checkValidity()`, `reportValidity()`), then follows each keystroke. The\nmessage is the browser's, in the browser's language: give `error-message`\nto write it in the page's language. A message set with\n`setCustomValidity()` comes first.\n\nIts `input` and `change` events are those of a native control, on the\nhost: frameworks bind `value` as they would on an `<input>` (`v-model` in\nVue).\n\nIn a single-line field, Enter submits the form, as in a native `<input>`:\nthe inner control has no form of its own, so the field does it\n(`submitOnEnter()`).",
           "name": "FieldBase",
           "cssProperties": [
             {
@@ -6914,7 +6503,7 @@
                   "text": "unknown"
                 }
               },
-              "description": "Renders the native control, between the hint and the error message. It\nhas `id=\"control\"` (the label's `for`), `class=\"control\"` (the styles)\nand its own part. It binds `.value=${live(this.value)}`, `required`,\n`disabled` (`isDisabled`), `autocomplete`, its constraints,\n`controlInvalid`, `controlDescribedBy`, `handleInput` and\n`handleChange`."
+              "description": "Renders the native control, between the hint and the error message. It\nhas `id=\"control\"` (the label's `for`), `class=\"control\"` (the styles)\nand its own part. It binds `.value=${live(this.value)}`, `required`,\n`disabled` (`isDisabled`), `autocomplete`, its constraints,\n`controlInvalid`, `controlDescribedBy`, `handleInput` and\n`handleChange`. A single-line control also binds\n`@keydown=${this.submitOnEnter}`."
             },
             {
               "kind": "field",
@@ -6965,6 +6554,25 @@
                 }
               },
               "description": "For `renderControl()`: the `change` listener of the control."
+            },
+            {
+              "kind": "method",
+              "name": "submitOnEnter",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "event",
+                  "type": {
+                    "text": "KeyboardEvent"
+                  }
+                }
+              ],
+              "description": "For the `keydown` listener of a single-line control: Enter submits the\nform, as HTML's implicit submission does for a native `<input>`. With a\nsubmit button in the form, the form is submitted unless the first one\nis disabled. Without any, it is submitted when this field is its only\nsingle-line one. Does nothing for a key another listener has handled,\nnor while an input method composes the text."
             },
             {
               "kind": "field",
@@ -7253,6 +6861,14 @@
       "exports": [
         {
           "kind": "js",
+          "name": "fieldIds",
+          "declaration": {
+            "name": "fieldIds",
+            "module": "src/components/field/field-base.ts"
+          }
+        },
+        {
+          "kind": "js",
           "name": "FieldBase",
           "declaration": {
             "name": "FieldBase",
@@ -7343,6 +6959,12 @@
               },
               "privacy": "private",
               "description": "The load of the current `name`, until it settles."
+            },
+            {
+              "kind": "field",
+              "name": "serverRendered",
+              "privacy": "private",
+              "description": "Whether a server rendered the element (ADR 0014): it then has its shadow\nroot before its first render."
             },
             {
               "kind": "method",
@@ -7480,7 +7102,24 @@
       "kind": "javascript-module",
       "path": "src/components/listbox/listbox.type.ts",
       "declarations": [],
-      "exports": []
+      "exports": [
+        {
+          "kind": "js",
+          "name": "ListboxItem",
+          "declaration": {
+            "name": "ListboxItem",
+            "module": "../../state/listbox.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "ListboxMove",
+          "declaration": {
+            "name": "ListboxMove",
+            "module": "../../state/listbox.js"
+          }
+        }
+      ]
     },
     {
       "kind": "javascript-module",
@@ -7708,11 +7347,6 @@
               "kind": "method",
               "name": "handleCommand",
               "privacy": "protected",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              },
               "parameters": [
                 {
                   "name": "event",
@@ -7721,11 +7355,7 @@
                   }
                 }
               ],
-              "description": "Runs `--show-modal`, `--close` and `--request-close`.",
-              "inheritedFrom": {
-                "name": "withCommands",
-                "module": "src/mixins/withCommands.ts"
-              }
+              "description": "Runs a command sent to the modal by an invoker button: `--show-modal`,\n`--close` and `--request-close`. Override it to add commands, and call\n`super.handleCommand(event)` for these."
             },
             {
               "kind": "method",
@@ -7811,57 +7441,6 @@
             },
             {
               "kind": "method",
-              "name": "closeWithTransition",
-              "privacy": "protected",
-              "return": {
-                "type": {
-                  "text": "Promise<void>"
-                }
-              },
-              "parameters": [
-                {
-                  "name": "element",
-                  "type": {
-                    "text": "HTMLElement"
-                  }
-                },
-                {
-                  "name": "close",
-                  "type": {
-                    "text": "() => void"
-                  }
-                }
-              ],
-              "description": "Closes `element` once its exit transition ends: `close` closes it\n(`dialog.close()`, `hidePopover()`). Without transition, as with\nreduced motion, it closes at once. Resolves when closed, or when\n`cancelExitTransition()` kept it open.",
-              "inheritedFrom": {
-                "name": "withExitTransition",
-                "module": "src/mixins/withExitTransition.ts"
-              }
-            },
-            {
-              "kind": "method",
-              "name": "cancelExitTransition",
-              "privacy": "protected",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              },
-              "parameters": [
-                {
-                  "name": "element",
-                  "type": {
-                    "text": "HTMLElement"
-                  }
-                }
-              ],
-              "inheritedFrom": {
-                "name": "withExitTransition",
-                "module": "src/mixins/withExitTransition.ts"
-              }
-            },
-            {
-              "kind": "method",
               "name": "tagFor",
               "privacy": "protected",
               "return": {
@@ -7935,16 +7514,6 @@
               "default": "\"closerequest\"",
               "description": "What closes the modal besides its close button, commands and methods:\n`closerequest`, Escape and the back gesture; `any`, also a click outside;\n`none`, nothing else.",
               "fieldName": "closedBy"
-            }
-          ],
-          "mixins": [
-            {
-              "name": "withExitTransition",
-              "module": "/src/mixins/withExitTransition.js"
-            },
-            {
-              "name": "withCommands",
-              "module": "/src/mixins/withCommands.js"
             }
           ],
           "superclass": {
@@ -8072,7 +7641,7 @@
                   "text": "unknown"
                 }
               },
-              "description": "Renders the native control, between the hint and the error message. It\nhas `id=\"control\"` (the label's `for`), `class=\"control\"` (the styles)\nand its own part. It binds `.value=${live(this.value)}`, `required`,\n`disabled` (`isDisabled`), `autocomplete`, its constraints,\n`controlInvalid`, `controlDescribedBy`, `handleInput` and\n`handleChange`.",
+              "description": "Renders the native control, between the hint and the error message. It\nhas `id=\"control\"` (the label's `for`), `class=\"control\"` (the styles)\nand its own part. It binds `.value=${live(this.value)}`, `required`,\n`disabled` (`isDisabled`), `autocomplete`, its constraints,\n`controlInvalid`, `controlDescribedBy`, `handleInput` and\n`handleChange`. A single-line control also binds\n`@keydown=${this.submitOnEnter}`.",
               "inheritedFrom": {
                 "name": "FieldBase",
                 "module": "src/components/field/field-base.ts"
@@ -8517,6 +8086,29 @@
                 }
               },
               "description": "For `renderControl()`: the `change` listener of the control.",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "submitOnEnter",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "event",
+                  "type": {
+                    "text": "KeyboardEvent"
+                  }
+                }
+              ],
+              "description": "For the `keydown` listener of a single-line control: Enter submits the\nform, as HTML's implicit submission does for a native `<input>`. With a\nsubmit button in the form, the form is submitted unless the first one\nis disabled. Without any, it is submitted when this field is its only\nsingle-line one. Does nothing for a key another listener has handled,\nnor while an input method composes the text.",
               "inheritedFrom": {
                 "name": "FieldBase",
                 "module": "src/components/field/field-base.ts"
@@ -9081,7 +8673,7 @@
                   "text": "unknown"
                 }
               },
-              "description": "Renders the native control, between the hint and the error message. It\nhas `id=\"control\"` (the label's `for`), `class=\"control\"` (the styles)\nand its own part. It binds `.value=${live(this.value)}`, `required`,\n`disabled` (`isDisabled`), `autocomplete`, its constraints,\n`controlInvalid`, `controlDescribedBy`, `handleInput` and\n`handleChange`.",
+              "description": "Renders the native control, between the hint and the error message. It\nhas `id=\"control\"` (the label's `for`), `class=\"control\"` (the styles)\nand its own part. It binds `.value=${live(this.value)}`, `required`,\n`disabled` (`isDisabled`), `autocomplete`, its constraints,\n`controlInvalid`, `controlDescribedBy`, `handleInput` and\n`handleChange`. A single-line control also binds\n`@keydown=${this.submitOnEnter}`.",
               "inheritedFrom": {
                 "name": "FieldBase",
                 "module": "src/components/field/field-base.ts"
@@ -9526,6 +9118,29 @@
                 }
               },
               "description": "For `renderControl()`: the `change` listener of the control.",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "submitOnEnter",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "event",
+                  "type": {
+                    "text": "KeyboardEvent"
+                  }
+                }
+              ],
+              "description": "For the `keydown` listener of a single-line control: Enter submits the\nform, as HTML's implicit submission does for a native `<input>`. With a\nsubmit button in the form, the form is submitted unless the first one\nis disabled. Without any, it is submitted when this field is its only\nsingle-line one. Does nothing for a key another listener has handled,\nnor while an input method composes the text.",
               "inheritedFrom": {
                 "name": "FieldBase",
                 "module": "src/components/field/field-base.ts"
