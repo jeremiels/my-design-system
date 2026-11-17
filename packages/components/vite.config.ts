@@ -1,4 +1,5 @@
 import { defineConfig, defaultServerConditions } from "vite";
+import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import browserslistToEsbuild from "browserslist-to-esbuild";
 import { cssImportAttributes } from "./plugins/css-import-attributes.ts";
@@ -7,9 +8,15 @@ import { cssImportAttributes } from "./plugins/css-import-attributes.ts";
 // docs/reference/support-navigateurs.mdx); JS and CSS are lowered to them.
 const browserTargets = browserslistToEsbuild();
 
+// The version a registration carries (src/version.ts, ADR 0012).
+const { version } = JSON.parse(
+  readFileSync(resolve(import.meta.dirname, "package.json"), "utf8"),
+) as { version: string };
+
 export default defineConfig({
   // `import sheet from "./x.css" with { type: "css" }` in components/mixins.
   plugins: [cssImportAttributes()],
+  define: { __UNICORNE_VERSION__: JSON.stringify(version) },
   // `tz build` loads terrazzo.config.ts through Vite: it imports
   // @unicorne/tokens/terrazzo-plugin from its TypeScript sources, without
   // building @unicorne/tokens first (ADR 0003).

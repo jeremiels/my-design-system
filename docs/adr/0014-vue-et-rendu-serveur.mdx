@@ -1,0 +1,270 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Documentation/ADR/0014 Vue et rendu serveur" />
+
+# ADR 0014 — Vue et rendu serveur
+
+**Statut :** accepté · **Date :** 16 novembre 2026
+
+## Contexte
+
+Les applications des marques sont surtout en Vue. L'exemple `examples/acme-vue-app` déclare `isCustomElement`, attend `acme.define(…)`, puis lie ses champs par `v-model` ([guide](?path=/docs/documentation-guides-utiliser-une-marque-dans-une-application-vue--docs)).
+
+Le rendu serveur est un besoin de certains design systems, pas de tous. Il doit rester une option de chaque projet.
+
+Faits vérifiés le 16 novembre 2026 dans le dépôt :
+
+- `vue-tsc` ne vérifie ni les propriétés ni les événements d'une balise `acme-*`. Aucun type ne les déclare à Vue.
+- Chaque enregistrement recopie `HTMLElementTagNameMap` à la main (`packages/components/src/define.ts:22-33`, `examples/acme-design-system/src/define.ts:21-32`).
+- `v-model` écrit `value` et écoute `input`. Le test de l'application le vérifie sur 5 champs.
+- Le plugin `css-import-attributes` compile chaque feuille en `new CSSStyleSheet()`, exécuté à l'import du module (`css-import-attributes.ts:202`).
+
+Essai du 16 novembre 2026, avec `@lit-labs/ssr` 4.1.0, `lit` 3.3.3 et les archives du socle :
+
+<table>
+  <thead>
+    <tr>
+      <th>Étape</th>
+      <th>Résultat</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Importer `@unicorne/components` dans Node</td>
+      <td>Échec : `CSSStyleSheet is not defined`</td>
+    </tr>
+    <tr>
+      <td>
+        Même import, après avoir posé le `CSSStyleSheet` de `@lit-labs/ssr-dom-shim` sur
+        `globalThis`
+      </td>
+      <td>Succès</td>
+    </tr>
+    <tr>
+      <td>Rendre les 8 composants</td>
+      <td>
+        Succès : Declarative Shadow DOM, styles compris. `u-modal` rend `u-button` et `u-icon`, par
+        `tagFor()`
+      </td>
+    </tr>
+    <tr>
+      <td>Hydrater dans Chromium, Firefox et WebKit</td>
+      <td>7 composants sur 8 sans erreur</td>
+    </tr>
+    <tr>
+      <td>Hydrater `u-autocomplete` avec des enfants `option`</td>
+      <td>
+        Échec : `unexpected longer than expected iterable`. Dans Firefox et WebKit, la liste reste
+        vide
+      </td>
+    </tr>
+    <tr>
+      <td>Afficher `u-alert` sans JavaScript</td>
+      <td>Invisible : `.alert--pending` vaut `opacity: 0` (`alert.css:22`)</td>
+    </tr>
+    <tr>
+      <td>Rendre `u-icon`</td>
+      <td>Vide : le module de l'icône se charge par `import()`</td>
+    </tr>
+    <tr>
+      <td>Rendre 50 `u-button`</td>
+      <td>206 kB de HTML, 2,5 kB en gzip : chaque instance répète 3,8 kB de styles</td>
+    </tr>
+  </tbody>
+</table>
+
+La liste d'`autocomplete` diffère parce que `withListbox` lit les enfants dans `connectedCallback()` (`withListbox.ts:78-80`). Le serveur n'appelle pas cette méthode.
+
+Faits vérifiés le 16 novembre 2026, avec leurs sources en fin de page :
+
+- **Vue :** son guide recommande d'étendre `GlobalComponents` pour typer un custom element dans un template. Il déconseille d'exporter ces types depuis l'entrée principale d'un package.
+- **Lit SSR :** `@lit-labs/ssr` appartient à Lit Labs, la famille des packages expérimentaux. Il ne prend pas en charge le travail asynchrone.
+- **Cycle de vie sur le serveur :** le constructeur, `willUpdate()` et `render()` s'exécutent. `connectedCallback()`, `firstUpdated()` et `updated()` ne s'exécutent pas.
+- **Declarative Shadow DOM :** Chrome 111, Safari 16.4, Firefox 123. La matrice contient Firefox 115.
+- **Nuxt :** `nuxt-ssr-lit` 2.0.0 est un module communautaire pour Nuxt 3. Il rend les balises d'un préfixe avec `@lit-labs/ssr`.
+- **Web Awesome 3.14.0 :** il dépend de `@lit-labs/ssr` et publie des entrées `./dist/ssr/*`.
+- **Porsche Design System :** il publie un package de wrappers Vue, `@porsche-design-system/components-vue`.
+
+### Critères de décision
+
+1. `vue-tsc` vérifie les propriétés et les événements d'une balise, pour tout préfixe.
+2. Une marque n'écrit ni ne génère un fichier par composant.
+3. Une application sans rendu serveur ne télécharge et n'installe rien de plus.
+4. Une application avec rendu serveur importe la marque dans Node, sans préparation.
+5. Un composant rendu par le serveur est lisible sans JavaScript, et s'hydrate sans erreur.
+6. Le socle n'exige aucun framework (ADR 0001).
+
+## D1 — Les types pour Vue
+
+- **Option A — Aucun type (statu quo).** Une faute dans un attribut passe `vue-tsc` : le critère 1 échoue.
+- **Option B — Des wrappers Vue**, un composant Vue par composant, comme Porsche. Chaque marque les régénère pour son préfixe : le critère 2 échoue.
+- **Option C — Des déclarations générées depuis le manifest**, par marque. Une étape de build de plus, et un fichier généré par préfixe.
+- **Option D — Des types à gabarit, dérivés d'un type de catalogue.** Le socle exporte le type du catalogue et deux types d'aide. Une marque écrit une ligne par usage.
+
+**Décision : D.** L'essai compile avec TypeScript 6.
+
+```ts
+// @unicorne/components : le catalogue, et les types d'aide
+export interface Catalog {
+  modal: { element: Modal; events: { "u-close": ModalCloseEvent; "u-cancel": ModalCancelEvent } };
+  "text-field": { element: TextField; events: {} };
+  // …
+}
+type Entry = { element: HTMLElement; events: Record<string, Event> };
+export type TagNameMap<Prefix extends string, C extends { [Name in keyof C]: Entry }> = {
+  [Name in keyof C & string as `${Prefix}-${Name}`]: C[Name]["element"];
+};
+
+// @acme/design-system/vue : une entrée de types seulement
+declare module "vue" {
+  interface GlobalComponents extends VueElements<"acme", AcmeCatalog> {}
+}
+```
+
+- `TagNameMap` remplace les `HTMLElementTagNameMap` écrits à la main.
+- `VueElements` applique le type d'aide du guide de Vue à chaque entrée.
+- L'entrée `./vue` est séparée : une application sans Vue ne reçoit aucune augmentation de module.
+- Le design system de marque expose `isCustomElement`, déduit de son préfixe.
+- `v-model` reste celui d'un `input` : `value` et `input`. `modal` se lie par `:open` et `@u-close`.
+
+## D2 — Le rendu serveur
+
+### Option A — Pas de rendu serveur
+
+L'application rend les composants dans le navigateur, et stylise `:not(:defined)` en attendant.
+
+- **Pour :** rien à maintenir.
+- **Contre :** le contenu d'un composant arrive après le JavaScript. Les marques qui en ont besoin sortent du socle.
+- **Contre :** l'import échoue quand même dans Node : une application Nuxt ne peut pas importer la marque dans un module universel.
+
+### Option B — Lit SSR en option, sous un contrat
+
+Les composants respectent un contrat. Une application qui veut le rendu serveur installe `@lit-labs/ssr` et son intégration.
+
+- **Pour :** l'essai le montre proche : un correctif de build, et deux composants à corriger.
+- **Pour :** `tagFor()`, les templates statiques et les sous-classes de `defineComponents()` fonctionnent déjà.
+- **Contre :** `@lit-labs/ssr` est expérimental. Son API peut changer.
+- **Contre :** chaque instance répète ses styles dans le HTML.
+
+### Option C — Des composants sans shadow DOM pour le rendu serveur
+
+- **Contre :** deux implémentations par composant. Les parts, les slots et les tokens sur `:host` disparaissent.
+
+**Décision : B.**
+
+Le contrat d'un composant :
+
+1. Son module s'importe sans DOM.
+2. Son premier rendu dépend de ses propriétés seulement, pas de ses enfants ni du focus.
+3. Son contenu est lisible sans JavaScript.
+4. Il s'hydrate sans erreur dans les trois moteurs.
+5. Aucune entrée du socle n'importe `@lit-labs/ssr`.
+
+Un test rend chaque composant du catalogue avec `@lit-labs/ssr`, puis l'hydrate. Il échoue sur toute erreur d'hydratation.
+
+## D3 — Corrections que le contrat demande
+
+<table>
+  <thead>
+    <tr>
+      <th>Écart</th>
+      <th>Correction</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>`new CSSStyleSheet()` à l'import</td>
+      <td>
+        Le plugin compile la feuille en `CSSResult` (`unsafeCSS` de Lit). Lit la rend sur le serveur
+        et l'adopte dans le navigateur
+      </td>
+    </tr>
+    <tr>
+      <td>`withListbox` lit les enfants avant le premier rendu</td>
+      <td>La lecture passe après le premier rendu, dans `firstUpdated()`</td>
+    </tr>
+    <tr>
+      <td>`alert` masque son message jusqu'à `revealed`</td>
+      <td>Un message rendu par le serveur est révélé d'emblée</td>
+    </tr>
+    <tr>
+      <td>`icon` rend vide sur le serveur</td>
+      <td>Accepté : sa boîte garde sa taille, et l'icône arrive à l'hydratation</td>
+    </tr>
+    <tr>
+      <td>Firefox avant 123 n'a pas le Declarative Shadow DOM</td>
+      <td>
+        Le polyfill que cite la documentation de Lit, ou le plancher Popover API de l'[ADR
+        0011](?path=/docs/documentation-adr-0011-matrice-navigateurs--docs)
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+- L'import `with { type: "css" }` garde sa forme dans les sources. Son type devient celui que `static styles` accepte.
+- Essai : un composant dont la feuille est un `unsafeCSS(…)` s'importe dans Node sans préparation. `@lit-labs/ssr` rend ses styles.
+- Un message déjà présent au chargement n'est pas annoncé par une région live. Le révéler d'emblée ne retire donc aucune annonce.
+
+## Récapitulatif
+
+<table>
+  <thead>
+    <tr>
+      <th>Décision</th>
+      <th>Choix</th>
+      <th>Pourquoi</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>D1 — Types pour Vue</td>
+      <td>Des types à gabarit dérivés du catalogue, dans une entrée `./vue`</td>
+      <td>`vue-tsc` vérifie chaque balise, sans wrapper ni fichier généré</td>
+    </tr>
+    <tr>
+      <td>D2 — Rendu serveur</td>
+      <td>Lit SSR en option, sous un contrat testé</td>
+      <td>Les marques qui en ont besoin restent sur le socle ; les autres ne paient rien</td>
+    </tr>
+    <tr>
+      <td>D3 — Corrections</td>
+      <td>Feuilles en `CSSResult`, enfants lus après le premier rendu, alerte révélée</td>
+      <td>L'import fonctionne dans Node, et 8 composants sur 8 s'hydratent</td>
+    </tr>
+  </tbody>
+</table>
+
+Cet ADR ne remplace aucune décision. Il précise l'ADR 0001 (D6) pour la sortie du plugin `css-import-attributes`.
+
+## Conséquences
+
+- **Code :**
+  - `packages/components/plugins/css-import-attributes.ts` et `src/css-modules.d.ts` ;
+  - `packages/components/src/mixins/withListbox.ts` et `src/components/alert/alert.ts` ;
+  - `packages/components/src/vue.ts`, une entrée de types, et `Catalog` dans `src/registry/catalog.ts`.
+- **Exports :** `./vue` dans `@unicorne/components`, avec `vue` en peer dependency optionnelle.
+- **Tests :** un projet Vitest `ssr` dans Node, et un test d'hydratation dans les trois moteurs. L'application Vue ajoute une faute de frappe que `vue-tsc` doit refuser.
+- **Dépendances de développement :** `@lit-labs/ssr` et `@lit-labs/ssr-client`.
+- **Marques :** une entrée `./vue`, et `data-brand` sur `html` ([ADR 0013](?path=/docs/documentation-adr-0013-portées-de-marque-et-de-thème--docs)).
+- **Documentation :** le guide Vue, un guide « Rendre une marque sur le serveur », la référence des tokens et le skill `lit-component`.
+
+## Questions ouvertes
+
+- **Nuxt :** `nuxt-ssr-lit` n'a pas été essayé. Le premier projet avec rendu serveur le valide, avec `acme.define()` asynchrone.
+- **Styles répétés :** 50 boutons pèsent 206 kB avant compression. Une page de liste mesure son HTML avant d'adopter le rendu serveur.
+- **Icônes sur le serveur :** une marque peut fournir le markup des icônes visibles au chargement (ADR 0005, D2).
+- **Stabilité de Lit SSR :** si le package sort de Lit Labs avec une autre API, le contrat reste, et l'intégration change.
+- **`v-model` sur d'autres propriétés :** Vue ne configure pas `v-model` pour un custom element.
+
+## Sources
+
+Consultées le 16 novembre 2026.
+
+- [Vue and Web Components](https://vuejs.org/guide/extras/web-components.html) (Vue) : « the recommended way to enable type checking in SFC templates of Custom Elements that are not built with Vue ».
+- [Server-side rendering, overview](https://lit.dev/docs/ssr/overview/) (Lit) : « This package is part of the Lit Labs family of experimental packages », « Async component work is not supported ».
+- [Authoring components for Lit SSR](https://lit.dev/docs/ssr/authoring/) (Lit) : méthodes appelées sur le serveur.
+- `@lit-labs/ssr` 4.1.0, `@lit-labs/ssr-dom-shim` 1.6.0, `@lit-labs/ssr-client` et `lit` 3.3.3, installés pour l'essai.
+- [Declarative shadow DOM](https://web-platform-dx.github.io/web-features-explorer/features/declarative-shadow-dom/) (web-features explorer) : Chrome 111, Safari 16.4, Firefox 123.
+- [nuxt-ssr-lit](https://github.com/prashantpalikhe/nuxt-ssr-lit) (communauté), version 2.0.0 : « A Nuxt3 module for server-side rendering and client-side hydration of Lit custom elements ».
+- [@awesome.me/webawesome](https://registry.npmjs.org/@awesome.me/webawesome/latest) (npm), version 3.14.0 : dépendances `@lit-labs/ssr` et `@lit-labs/ssr-client`, entrées `./dist/ssr/*`.
+- [Porsche Design System, Vue](https://designsystem.porsche.com/v4/developing/vue/advanced/) (Porsche), version 4.10.1 : `@porsche-design-system/components-vue`.

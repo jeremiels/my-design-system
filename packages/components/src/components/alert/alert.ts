@@ -1,4 +1,4 @@
-import type { PropertyValues } from "lit";
+import { isServer, type PropertyValues } from "lit";
 import { property, state } from "lit/decorators.js";
 import { html } from "lit/static-html.js";
 import { DSBaseElement } from "../base-element.js";
@@ -26,7 +26,7 @@ const REVEAL_DELAY_MS = 100;
  * it already held when it appeared, so the message is revealed 100 ms after
  * the alert is first rendered: an alert inserted with its message is
  * announced too. Until then the message is laid out (nothing moves) but
- * invisible.
+ * invisible. An alert a server rendered shows its message at once.
  *
  * @element u-alert
  * @summary Displays a message, announced to assistive technologies.
@@ -47,9 +47,14 @@ export class Alert extends DSBaseElement {
 
   static styles = [DSBaseElement.styles ?? [], alertTokens, alertStyles];
 
-  /** Whether the message has been revealed in the live region. */
+  /**
+   * Whether the message has been revealed in the live region. A message a
+   * server rendered (ADR 0014) is there when the page loads, and readable
+   * without script: revealing it later would add nothing to announce. The
+   * element then has its shadow root before its first render.
+   */
   @state()
-  private revealed = false;
+  private revealed = isServer || this.shadowRoot !== null;
 
   /**
    * `danger`/`warning` interrupt immediately (role="alert", implicit

@@ -1,0 +1,307 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Documentation/ADR/0010 État, contrôleurs et mixins" />
+
+# ADR 0010 — État, contrôleurs et mixins
+
+**Statut :** accepté · **Date :** 16 novembre 2026
+
+## Contexte
+
+Le socle partage le comportement par des mixins `withX` et des classes de base ([ADR 0001](?path=/docs/documentation-adr-0001-architecture-multi-marque--docs), D3 ; [ADR 0009](?path=/docs/documentation-adr-0009-autocomplete-combobox-et-popovers-ancrés--docs), D3). L'état, sa connexion au DOM et le rendu vivent dans les mêmes classes.
+
+`Autocomplete` en montre la limite :
+
+- Sa chaîne d'héritage empile 5 mixins et 3 bases : `withListbox(ComboboxBase)`, `withAnchoredPopover(withExitTransition(FieldBase))`, `withInternals(withDisabled(DSBaseElement))`.
+- Son état tient dans 6 champs, sur 4 fichiers : `open`, `activeIndex`, `#typed`, `#changed`, `interacted` et `error`.
+- Deux attributs du DOM portent aussi de l'état : `data-open` et `data-closing`.
+- Ses transitions lisent le DOM : `Autocomplete.willUpdate()` ouvre la liste selon le focus du shadow root (`autocomplete.ts:115-123`).
+- Ses briques se lient par des `id` : `withListbox` nomme sa liste par `#label` (`withListbox.ts:141`), et `ComboboxBase` renvoie `listbox` (`combobox-base.ts:95`).
+
+Certaines architectures séparent trois couches :
+
+1. **L'état :** une fonction sans DOM ni framework.
+2. **La connexion :** elle relie l'état au DOM, à l'ARIA et aux événements.
+3. **Le composant :** il rend et stylise.
+
+Un select, un menu et un date picker arrivent. Chacun a au moins trois dimensions d'état.
+
+Faits vérifiés le 16 novembre 2026, avec leurs sources en fin de page :
+
+- **React Spectrum :** `react-stately` porte l'état, sans hypothèse sur la plateforme. `react-aria` porte le comportement et l'accessibilité. Les composants s'appuient sur les deux.
+- **Zag.js 1.48.0 :** une machine par composant, une fonction `connect`, et un adaptateur par framework. Les adaptateurs officiels sont React, Preact, Solid, Vue, Svelte et JavaScript sans framework.
+- **Zag.js et Lit :** aucun adaptateur officiel. `@zag-js/lit` n'existe pas sur npm. La discussion chakra-ui/zag#1210 liste trois obstacles : `getRootNode` à fournir dans un shadow root, machines initialisées avant le rendu, bug en mode contrôlé.
+- **Poids de Zag.js, mesuré (machine et `connect`, minifié, gzip) :** `combobox` 29,4 kB, `select` 28,2 kB, `menu` 29,0 kB, `dialog` 15,5 kB, `date-picker` 37,7 kB.
+- **Poids du socle, mesuré :** `autocomplete` entier pèse 7,0 kB, sans Lit.
+- **Floating UI :** `@zag-js/popper` l'importe de façon statique. Le socle le charge seulement là où l'ancrage CSS manque (ADR 0009, D2).
+- **Lit :** sa documentation conseille un contrôleur, sauf pour une API publique sur le composant ou un accès fin au cycle de vie.
+- **Spectrum Web Components :** 9 reactive controllers publiés, dont `RovingTabindexController`.
+- **Tests du socle :** les 155 tests du projet `browser` tournent dans Chromium. Aucun test ne vérifie la logique d'état dans Node.
+- **Forme des mixins :** chacun duplique ses membres dans une `declare class`, et se termine par `as unknown as Constructor<…>`. L'analyseur du manifest impose de les appliquer dans `extends`.
+
+### Critères de décision
+
+1. La logique d'état d'un composant composite se teste dans Node, sans navigateur.
+2. Une marque étend toujours un composant par sous-classe et membres `protected` (ADR 0001, D3).
+3. Une application ne télécharge que ce que ses navigateurs demandent (ADR 0009, critère 5).
+4. Le contrat entre deux briques est typé. Il ne repose ni sur un `id` ni sur un attribut du DOM.
+5. L'état initial se calcule sans DOM, pour le rendu serveur ([ADR 0014](?path=/docs/documentation-adr-0014-vue-et-rendu-serveur--docs)).
+6. Le manifest documente toujours l'API publique (ADR 0001, D5).
+7. C'est simple pour les équipes de marque comme pour les agents.
+
+## D1 — Où vit l'état d'un composant composite
+
+Un composant composite a plusieurs dimensions d'état qui interagissent : un popup, une option active, une saisie.
+
+### Option A — Statu quo : l'état dans les classes
+
+- **Pour :** une seule forme à connaître : des classes et des mixins.
+- **Contre :** chaque composant à popup ajoute ses champs et ses conditions dans `willUpdate()`. Les critères 1, 4 et 5 échouent.
+
+### Option B — Zag.js
+
+- **Pour :** des machines écrites et testées par d'autres, pour le combobox, le select, le menu et le date picker.
+- **Contre :** un combobox pèse 4 fois `autocomplete`. Floating UI se télécharge dans tous les navigateurs : le critère 3 échoue.
+- **Contre :** aucun adaptateur Lit. Le socle écrit et maintient le sien.
+- **Contre :** `connect` renvoie des sacs de propriétés à appliquer aux éléments. Une marque ne surcharge plus `renderOption()` ni `selectOption()` : le critère 2 échoue.
+
+### Option C — Un statechart maison
+
+Un interpréteur du socle : états hiérarchiques, états parallèles, gardes, actions.
+
+- **Pour :** aucune dépendance. Un modèle complet.
+- **Contre :** un interpréteur à écrire, à tester et à documenter. Aucun composant prévu n'a d'état hiérarchique.
+
+### Option D — Des fonctions d'état pures
+
+Un module par famille, dans `packages/components/src/state/`. Il exporte un type d'état, un type d'événement et une fonction de transition. Il n'importe ni Lit ni le DOM.
+
+```ts
+// state/combobox.ts
+export interface ComboboxState {
+  open: boolean;
+  activeIndex: number;
+  typed: boolean;
+  focused: boolean;
+}
+
+export type ComboboxEvent =
+  | { type: "input"; text: string; matches: number }
+  | { type: "options"; matches: number }
+  | { type: "move"; to: ListboxMove; enabled: readonly number[] }
+  | { type: "escape" }
+  | { type: "blur" };
+
+export function comboboxReducer(state: ComboboxState, event: ComboboxEvent): ComboboxState {
+  switch (event.type) {
+    case "input":
+      return {
+        ...state,
+        typed: true,
+        activeIndex: -1,
+        open: event.text !== "" && event.matches > 0,
+      };
+    case "escape":
+      return { ...state, open: false, typed: false, activeIndex: -1 };
+    // …
+  }
+}
+```
+
+- **Pour :** chaque transition est un cas d'un `switch`, testé dans Node en quelques millisecondes.
+- **Pour :** aucun poids de bibliothèque. Aucune dépendance.
+- **Pour :** l'état initial se calcule sur le serveur.
+- **Contre :** le socle écrit chaque fonction lui-même, date picker compris.
+
+**Décision : D**, pour les composants composites. Les composants simples gardent leur forme.
+
+<table>
+  <thead>
+    <tr>
+      <th>Composant</th>
+      <th>Dimensions d'état</th>
+      <th>Module d'état</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>`button`, `button-link`, `alert`, `icon`</td>
+      <td>Aucune ou une</td>
+      <td>Non</td>
+    </tr>
+    <tr>
+      <td>`text-field`, `textarea`</td>
+      <td>La validation</td>
+      <td>Non</td>
+    </tr>
+    <tr>
+      <td>`modal`</td>
+      <td>Ouvert, en sortie</td>
+      <td>Non : le `dialog` natif porte l'état</td>
+    </tr>
+    <tr>
+      <td>`autocomplete`</td>
+      <td>Ouvert, option active, saisie</td>
+      <td>Oui : `state/listbox.ts`, `state/combobox.ts`</td>
+    </tr>
+    <tr>
+      <td>Select, menu, date picker, onglets</td>
+      <td>Trois ou plus</td>
+      <td>Oui</td>
+    </tr>
+  </tbody>
+</table>
+
+## D2 — Mixin ou reactive controller
+
+### Option A — Tout en mixins (statu quo)
+
+- **Pour :** une seule forme. Les membres apparaissent dans le manifest de chaque composant.
+- **Contre :** un comportement sans API publique allonge la chaîne d'héritage. Chaque mixin demande une `declare class` et un cast.
+- **Contre :** deux mixins qui se connaissent se lient par des `id` : le critère 4 échoue.
+
+### Option B — Tout en contrôleurs
+
+- **Contre :** un contrôleur ne déclare ni propriété réactive, ni attribut, ni feuille. `disabled` et `commandfor` resteraient à écrire dans chaque composant.
+
+### Option C — Un mixin pour une API publique, un contrôleur sinon
+
+C'est le conseil de la documentation de Lit.
+
+- **Pour :** un contrôleur est un objet du composant. Il reçoit ses éléments et ses fonctions de rappel par son constructeur : le contrat est typé.
+- **Pour :** la règle de l'analyseur ne concerne plus que les mixins qui restent.
+- **Contre :** un contrôleur n'ajoute pas de feuille. Le composant liste la feuille du contrôleur dans `static styles`.
+- **Contre :** un contrôleur n'apparaît pas dans le manifest. Le composant réexpose à la main chaque point d'extension : `renderOption()`, `selectOption()`.
+- **Contre :** une équipe de marque connaît deux formes, et la règle qui choisit entre elles.
+
+**Décision : C.**
+
+<table>
+  <thead>
+    <tr>
+      <th>Brique actuelle</th>
+      <th>API publique</th>
+      <th>Forme cible</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>`withDisabled`</td>
+      <td>`disabled`, `formDisabledCallback()`</td>
+      <td>Mixin</td>
+    </tr>
+    <tr>
+      <td>`withInternals`</td>
+      <td>Aucune, mais `attachInternals()` s'appelle une seule fois, dans le constructeur</td>
+      <td>Mixin</td>
+    </tr>
+    <tr>
+      <td>`withInvoker`</td>
+      <td>`commandfor`, `command`, `commandForElement`</td>
+      <td>Mixin</td>
+    </tr>
+    <tr>
+      <td>`withCommands`</td>
+      <td>Aucune</td>
+      <td>`CommandsController`, avec une fonction de rappel</td>
+    </tr>
+    <tr>
+      <td>`withExitTransition`</td>
+      <td>Aucune</td>
+      <td>
+        Trois fonctions : `closeWithTransition()`, `cancelExitTransition()` et `isClosing()`. Elles
+        ne tiennent aucun état d'un hôte
+      </td>
+    </tr>
+    <tr>
+      <td>`withAnchoredPopover`</td>
+      <td>Aucune</td>
+      <td>`AnchoredPopoverController`, et la feuille `anchoredPopoverStyles` exportée</td>
+    </tr>
+    <tr>
+      <td>`withListbox`</td>
+      <td>`options`</td>
+      <td>
+        `ListboxController` : il rend la liste et lit les enfants `option`. L'hôte tient l'option
+        active, par `comboboxReducer()`. Le composant déclare `options` et garde les membres
+        `protected` de rendu
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+Un composant garde ses points d'extension. `Autocomplete` déclare `protected renderOption()` et `protected selectOption()`, et les passe à son contrôleur.
+
+## D3 — Le contrat entre deux briques
+
+- **Option A — Des `id` et des attributs convenus (statu quo).** `#label`, `#control`, `listbox`, `data-open`, `data-closing`.
+- **Option B — Des paramètres typés.** Un contrôleur reçoit des fonctions qui renvoient ses éléments, et expose son état par des accesseurs.
+
+**Décision : B.**
+
+- `ListboxController` reçoit l'`id` de l'élément qui le nomme. Il ne suppose plus `#label`.
+- `isClosing(element)` dit si un élément est en sortie. `Modal` et `ComboboxBase` ne lisent plus `data-closing`.
+- `AnchoredPopoverController` expose `isOpen(popover)`.
+- `ListboxController` expose son `id`, que `Autocomplete` donne à `aria-controls`.
+- `FieldBase` exporte les `id` de son template dans une constante typée, `fieldIds`.
+
+## Récapitulatif
+
+<table>
+  <thead>
+    <tr>
+      <th>Décision</th>
+      <th>Choix</th>
+      <th>Pourquoi</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>D1 — État</td>
+      <td>Des fonctions pures dans `src/state/`, pour les composants composites</td>
+      <td>Testable dans Node, sans poids de bibliothèque, calculable sur le serveur</td>
+    </tr>
+    <tr>
+      <td>D2 — Connexion</td>
+      <td>Un mixin pour une API publique, un contrôleur sinon</td>
+      <td>Moins d'héritage ; la règle de l'analyseur ne touche plus que 3 mixins</td>
+    </tr>
+    <tr>
+      <td>D3 — Contrat</td>
+      <td>Des paramètres typés et des accesseurs</td>
+      <td>Aucun `id` ni attribut convenu entre deux briques</td>
+    </tr>
+  </tbody>
+</table>
+
+Cet ADR remplace l'ADR 0008 (D4) pour `withCommands` et `withExitTransition`. Il remplace l'ADR 0009 (D3) pour `withAnchoredPopover` et `withListbox`. `ComboboxBase`, `FieldBase` et `ButtonBase` restent des bases abstraites.
+
+## Conséquences
+
+- **Code :**
+  - `packages/components/src/state/listbox.ts` et `state/combobox.ts` ;
+  - `packages/components/src/controllers/` : trois contrôleurs, et les fonctions de sortie animée ;
+  - `ComboboxBase`, `Autocomplete` et `Modal` les utilisent.
+- **Tests :** le projet Vitest `unit` inclut `packages/components/src/state/**/*.test.ts`. Les tests des contrôleurs restent dans le projet `browser`.
+- **API :** les membres `protected` de quatre mixins disparaissent des composants. `options` reste publique.
+- **Manifest :** un contrôleur n'y apparaît pas. Les membres `protected` du composant y restent.
+- **Marques :** un composant de marque crée un contrôleur dans son constructeur, au lieu d'appliquer un mixin.
+- **Documentation :** la référence [Mixins](?path=/docs/documentation-référence-mixins--docs), `AGENTS.md`, et les skills `lit-mixin` et `lit-component`.
+
+## Questions ouvertes
+
+- **Date picker :** si sa fonction d'état dépasse un `switch` lisible, l'option C redevient un choix.
+- **Adaptateur Lit de Zag.js :** un adaptateur officiel et un Floating UI chargé à la demande changeraient l'option B.
+- **Styles d'un contrôleur :** un test de contrat peut vérifier qu'un composant adopte la feuille de chaque contrôleur qu'il crée.
+- **`customStates` :** ce membre de `withInternals` n'a aucun appelant. Il est à retirer ou à utiliser.
+
+## Sources
+
+Consultées le 16 novembre 2026.
+
+- [React Spectrum, architecture](https://react-spectrum.adobe.com/architecture.html) et [React Aria Hooks](https://react-aria.adobe.com/hooks) (Adobe) : `react-stately`, `react-aria` et les composants.
+- [Zag.js, introduction](https://zagjs.com/overview/introduction) et [Framework adapters](https://zagjs.com/guides/framework-adapters) (Zag.js) : adaptateurs officiels, « Don't implement the machine interpreter from scratch ».
+- [@zag-js/combobox](https://registry.npmjs.org/@zag-js/combobox/latest) (npm), version 1.48.0 : ses dépendances, dont `@zag-js/popper`. Les poids sont mesurés avec esbuild, sur les versions 1.48.0.
+- [Integration with web components #1210](https://www.github.com/chakra-ui/zag/discussions/1210) (chakra-ui/zag, de février 2024 à septembre 2025) : `getRootNode`, initialisation, mode contrôlé.
+- [Component composition](https://lit.dev/docs/composition/overview/) (Lit) : « Any public fields or methods defined by the mixin are part of the component's API ».
+- [Reactive controllers](https://github.com/adobe/spectrum-web-components/tree/main/1st-gen/tools/reactive-controllers) (Adobe, Spectrum Web Components) : les 9 contrôleurs.

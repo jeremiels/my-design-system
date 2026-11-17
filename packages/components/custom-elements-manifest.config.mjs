@@ -13,6 +13,9 @@ export default {
     "src/**/*.stories.ts",
     "src/**/*.test.ts",
     "src/**/*.d.ts",
+    // The server's part of a test, and types for Vue: no API of a component.
+    "src/**/*.setup.ts",
+    "src/vue.ts",
     // Registration plumbing, not components (its anonymous subclass would be
     // reported as one).
     "src/registry/**",

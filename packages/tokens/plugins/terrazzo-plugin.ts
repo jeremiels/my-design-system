@@ -4,6 +4,7 @@ import type { Plugin, Resolver, ResolverInput, TokenNormalized } from "@terrazzo
 import { transformCSSValue } from "@terrazzo/token-tools/css";
 import {
   allDeclarations,
+  baseSourcesDirectory,
   checkLevels,
   levels,
   PAGE_MODIFIERS,
@@ -11,6 +12,8 @@ import {
   type Declaration,
   type ResolverSources,
 } from "./dtcg-sources.ts";
+
+export { brandResolver, type BrandResolverOptions } from "./dtcg-sources.ts";
 
 /**
  * Terrazzo plugin: the base's DTCG tokens (or a brand's) as CSS custom
@@ -20,24 +23,28 @@ import {
  * outputs the page sheet, `@unicorne/components` its components' sheets,
  * from the same resolver. A brand outputs both.
  *
- * - The page sheet (`page`), in the cascade layer `layer`:
- *   - primitives on `scope`;
- *   - semantic tokens on `scope`, and on every `[data-brand]` container when
- *     `scope` is `:root`: a container that redefines the primitives reaches
- *     them (ADR 0001, D4);
- *   - the `theme: dark` context under `prefers-color-scheme: dark` and on
- *     `:root[data-theme="dark"]`, the `motion: reduced` context under
+ * - The page sheet (`page`), in the cascade layer `layer` (ADR 0013):
+ *   - the base's primitives and semantic tokens on `:root` and on every
+ *     `[data-brand]` container: a brand's container starts again from the
+ *     base's values, not from those of a brand around it;
+ *   - a brand's tokens (`brand`) on `[data-brand="<brand>"]`: the page of the
+ *     brand sets the attribute on `<html>`, a page of another design system
+ *     on a container;
+ *   - the `theme` contexts on any `[data-theme]` element, and on the brand
+ *     containers inside it: a dark zone in a light page, a light zone in a
+ *     dark one. Without the attribute, `:root` follows
+ *     `prefers-color-scheme`. The `motion: reduced` context under
  *     `prefers-reduced-motion: reduce`;
- *   - `color-scheme`, on the same triggers as the dark context, when the sheet
- *     declares it: the browser's own UI (canvas, scrollbars, form controls)
- *     follows the theme.
+ *   - `color-scheme`, on the same triggers as the themes, when the sheet
+ *     declares the dark theme: the browser's own UI (canvas, scrollbars, form
+ *     controls) follows the theme.
  * - One sheet per component (`components`), adopted by its shadow root: its
  *   tokens on `:host`, then one `:host([attribute="context"])` rule per
  *   context of its modifiers.
  *
  * Aliases stay `var()` references, so a value redefined on a container
  * cascades. `emit` limits the output to the tokens of some files: a brand
- * outputs its own, on top of the base's sheets. The build fails when the
+ * outputs its own, on top of the base's sheets (the default with `brand`). The build fails when the
  * tokens break the three-level rule (`checkLevels()`).
  *
  * The resolver is the only token source in the Terrazzo config.
@@ -47,8 +54,11 @@ export interface TokensCssOptions {
   prefix?: string;
   /** Cascade layer of the page sheet: `u.tokens.base`, or `u.tokens.brand` for a brand. Required with `page`. */
   layer?: string;
-  /** The page sheet's root: `:root`, or `[data-brand="acme"]` for a theme scoped to a container. */
-  scope?: string;
+  /**
+   * The brand of the page sheet: `acme` puts its tokens on
+   * `[data-brand="acme"]`. Without it, the sheet is the base's.
+   */
+  brand?: string;
   /** The page sheet, relative to Terrazzo's `outDir`. Without it, no page sheet. */
   page?: string;
   /**
@@ -57,7 +67,10 @@ export interface TokensCssOptions {
    * and each context of their modifiers, then needs no selector here.
    */
   components?: Record<string, ComponentSheet>;
-  /** Whether to output the tokens a file declares (absolute path). Default: every file. */
+  /**
+   * Whether to output the tokens a file declares (absolute path). Default:
+   * every file, or with `brand`, every file outside `@unicorne/tokens`.
+   */
   emit?: (file: string) => boolean;
 }
 
@@ -99,10 +112,17 @@ export function tokensCssFiles(
   resolver: Resolver,
   options: TokensCssOptions,
 ): Map<string, string> {
-  const { prefix = "u", layer, scope = ":root", page, emit = () => true } = options;
+  const { prefix = "u", layer, brand, page } = options;
   if (page !== undefined && layer === undefined) {
     throw new Error(`${NAME}: set the cascade layer of the page sheet (option layer).`);
   }
+  if (brand !== undefined && !/^[a-z][a-z0-9-]*$/.test(brand)) {
+    throw new Error(`${NAME}: name the brand in lowercase letters, digits and hyphens.`);
+  }
+  const baseDirectory = brand === undefined ? undefined : baseSourcesDirectory();
+  const emit =
+    options.emit ??
+    (baseDirectory === undefined ? () => true : (file) => !file.startsWith(baseDirectory));
   // Without the option, this build leaves the component tokens to another one.
   const ownsComponents = options.components !== undefined;
   const components = options.components ?? {};
@@ -112,6 +132,13 @@ export function tokensCssFiles(
   const variable = (id: string) =>
     `--${components[group(id)]?.prefix ?? prefix}-${id.replaceAll(".", "-")}`;
 
+  // A build needs a selector for the tokens it outputs: a brand leaves the
+  // base's components and variants to the base's sheets.
+  const outputs = new Set(
+    allDeclarations(sources)
+      .filter(({ file }) => emit(file))
+      .map(({ id }) => id),
+  );
   const byVariable = new Map<string, string>();
   for (const id of levelOf.keys()) {
     const other = byVariable.get(variable(id));
@@ -119,14 +146,19 @@ export function tokensCssFiles(
       errors.push(`${id} and ${other}: both give ${variable(id)}.`);
     }
     byVariable.set(variable(id), id);
-    if (ownsComponents && levelOf.get(id) === "component" && !(group(id) in components)) {
+    if (
+      ownsComponents &&
+      outputs.has(id) &&
+      levelOf.get(id) === "component" &&
+      !(group(id) in components)
+    ) {
       errors.push(`${id}: no sheet for the component "${group(id)}" (option components).`);
     }
   }
   for (const [name, modifier] of sources.modifiers) {
     const pageContexts = PAGE_MODIFIERS[name];
-    for (const context of modifier.contexts.keys()) {
-      if (context === modifier.default) {
+    for (const [context, declarations] of modifier.contexts) {
+      if (context === modifier.default || !declarations.some(({ file }) => emit(file))) {
         continue;
       }
       const mapped = pageContexts
@@ -143,13 +175,8 @@ export function tokensCssFiles(
 
   // The output follows the order of the files.
   const ordered = [...new Set(allDeclarations(sources).map(({ id }) => id))];
-  const emitted = new Set(
-    allDeclarations(sources)
-      .filter(({ file }) => emit(file))
-      .map(({ id }) => id),
-  );
   const ids = (filter: (id: string) => boolean) =>
-    ordered.filter((id) => emitted.has(id) && filter(id));
+    ordered.filter((id) => outputs.has(id) && filter(id));
   const changedBy = (modifier: string, context: string) => {
     const declarations: Declaration[] =
       sources.modifiers.get(modifier)?.contexts.get(context) ?? [];
@@ -178,49 +205,47 @@ export function tokensCssFiles(
 
   // --- The page sheet
   if (page !== undefined) {
-    const semanticScope = scope === ":root" ? [":root", "[data-brand]"] : [scope];
-    const themed = (theme: string) =>
-      scope === ":root" ? [theme, `${theme} [data-brand]`] : [`${theme} ${scope}`];
-    const darkIds = ids(changedBy("theme", "dark"));
+    const selectors = pageSelectors(brand);
+    const themeIds = ids(changedBy("theme", "dark"));
     const reducedIds = ids(changedBy("motion", "reduced"));
-    const darkDeclarations = declarations(darkIds, { theme: "dark" });
+    const lightDeclarations = declarations(themeIds, { theme: "light" });
+    const darkDeclarations = declarations(themeIds, { theme: "dark" });
     // Only the sheet that declares the dark theme sets `color-scheme`: a brand
     // keeps the base's themes and writes no dark value (ADR 0001).
     const declaresDark = (sources.modifiers.get("theme")?.contexts.get("dark") ?? []).some(
       ({ file }) => emit(file),
     );
-    const onScope = (theme: string) => (scope === ":root" ? theme : `${theme} ${scope}`);
     const colorScheme = declaresDark
       ? [
-          rule([scope], ["color-scheme: light dark;"]),
-          rule([onScope(':root[data-theme="light"]')], ["color-scheme: light;"]),
-          rule([onScope(':root[data-theme="dark"]')], ["color-scheme: dark;"]),
+          rule([":root"], ["color-scheme: light dark;"]),
+          rule(['[data-theme="light"]'], ["color-scheme: light;"]),
+          rule(['[data-theme="dark"]'], ["color-scheme: dark;"]),
         ]
       : [];
     const pageRules = [
       rule(
-        [scope],
+        selectors.scope,
         declarations(
           ids((id) => levelOf.get(id) === "primitive"),
           {},
         ),
       ),
       rule(
-        semanticScope,
+        selectors.scope,
         declarations(
           ids((id) => levelOf.get(id) === "semantic"),
           {},
         ),
       ),
       ...colorScheme,
-      atRule(
-        "@media (prefers-color-scheme: dark)",
-        rule(themed(':root:not([data-theme="light"])'), darkDeclarations),
-      ),
-      rule(themed(':root[data-theme="dark"]'), darkDeclarations),
+      // After the default values, which are the light theme's: a light zone
+      // in a dark page declares them again.
+      rule(selectors.zone("light"), lightDeclarations),
+      atRule("@media (prefers-color-scheme: dark)", rule(selectors.systemDark, darkDeclarations)),
+      rule(selectors.zone("dark"), darkDeclarations),
       atRule(
         "@media (prefers-reduced-motion: reduce)",
-        rule(semanticScope, declarations(reducedIds, { motion: "reduced" })),
+        rule(selectors.scope, declarations(reducedIds, { motion: "reduced" })),
       ),
     ].filter(Boolean);
     if (pageRules.length > 0) {
@@ -254,6 +279,43 @@ export function tokensCssFiles(
     }
   }
   return files;
+}
+
+type Theme = "light" | "dark";
+
+/**
+ * The selectors of the page sheet (ADR 0013). A semantic token is a `var()`,
+ * resolved on the element that declares it: each element whose brand or theme
+ * differs from its parent's declares the tokens again.
+ *
+ * The theme of a brand container is that of its nearest `[data-theme]`
+ * ancestor, through two levels: a brand in a light zone of a dark page is
+ * light. Selectors can't tell which of three nested themes is the nearest.
+ */
+function pageSelectors(brand: string | undefined) {
+  // The base: the page and every brand container. A brand: its containers,
+  // the page among them (`<html data-brand="acme">`).
+  const container = brand === undefined ? "[data-brand]" : `[data-brand="${brand}"]`;
+  const other = (theme: Theme): Theme => (theme === "light" ? "dark" : "light");
+  return {
+    scope: brand === undefined ? [":root", container] : [container],
+    /** An element with `data-theme`, and the brand containers that follow it. */
+    zone: (theme: Theme) => [
+      brand === undefined ? `[data-theme="${theme}"]` : `${container}[data-theme="${theme}"]`,
+      `[data-theme="${theme}"] ${container}:not([data-theme]):not([data-theme="${theme}"] [data-theme="${other(theme)}"] *)`,
+      // A brand's own value of a themed token, in a theme zone of its container.
+      ...(brand === undefined
+        ? []
+        : [`${container} [data-theme="${theme}"]:not([data-brand], ${container} [data-brand] *)`]),
+    ],
+    /** The page that follows the system's preference, and its brand containers. */
+    systemDark: [
+      brand === undefined
+        ? ':root:not([data-theme="light"])'
+        : `${container}:root:not([data-theme="light"])`,
+      `:root:not([data-theme="light"]) ${container}:not([data-theme]):not([data-theme="light"] *)`,
+    ],
+  };
 }
 
 const indent = (text: string) => text.replace(/^(?=.)/gm, "  ");

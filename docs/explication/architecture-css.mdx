@@ -72,15 +72,31 @@ La feuille de tokens est donc une dépendance des composants, chargée une fois 
 
 `::backdrop` est l'exception : avant Chrome 122, Firefox 120 et Safari 17.4, aucun token ne l'atteint.
 
-## Les tokens sémantiques sont aussi déclarés sur `[data-brand]`
+## Les tokens du socle sont déclarés sur `:root` et sur `[data-brand]`
 
 Un `var()` est résolu sur l'élément qui déclare la custom property. L'élément enfant hérite de la valeur résolue.
 
-Déclarés sur `:root` seulement, les tokens sémantiques garderaient les primitives de `:root`. Un conteneur qui redéfinit les primitives n'aurait aucun effet sur les composants. Déclarés aussi sur `[data-brand]`, ils suivent les primitives de ce conteneur. Plusieurs marques peuvent ainsi cohabiter sur une page (ADR 0001, D4).
+Déclarés sur `:root` seulement, les tokens sémantiques garderaient les primitives de `:root`. Un conteneur qui redéfinit les primitives n'aurait aucun effet sur les composants. Déclarés aussi sur `[data-brand]`, ils suivent les primitives de ce conteneur.
+
+Les primitives du socle sont déclarées sur `[data-brand]` pour une autre raison. Une marque invitée dans la page d'une autre marque hériterait sinon des palettes de la marque hôte. Chaque conteneur de marque repart donc des valeurs du socle ([ADR 0013](?path=/docs/documentation-adr-0013-portées-de-marque-et-de-thème--docs), D2).
+
+## Le thème d'une marque vise toujours `[data-brand]`
+
+Une marque est tantôt celle de la page, tantôt celle d'une zone : sa carte produit dans la page d'un autre design system. Une feuille qui vise `:root` ne sert que le premier cas.
+
+La feuille d'une marque vise donc `[data-brand="<marque>"]`. L'application de la marque pose l'attribut sur `<html>`. Une page d'un autre design system le pose sur un conteneur. La même feuille sert les deux cas.
+
+## Un thème s'applique à une zone
+
+Une navigation sombre au-dessus d'un contenu clair est un besoin courant. Le thème n'est donc pas réservé à `<html>` : tout élément qui porte `data-theme` redéclare les couleurs sémantiques de son thème.
+
+Un conteneur de marque redéclare aussi ces couleurs, avec ses palettes. Il doit donc connaître son thème. Les sélecteurs lui donnent celui de la zone la plus proche, sur deux niveaux. `light-dark()` lèverait cette limite : il est absent avant Chrome 123 et Safari 17.5.
 
 ## Une feuille CSS par composant
 
-Un fichier `.css` voisin reste du CSS : `doiuse` l'analyse, et il se lit sans connaître Lit. Importé comme CSS module script, il donne une feuille constructible que Lit adopte directement.
+Un fichier `.css` voisin reste du CSS : `doiuse` l'analyse, et il se lit sans connaître Lit. Importé comme CSS module script, il donne à Lit une feuille constructible, partagée par toutes les instances.
+
+Le standard donnerait un `CSSStyleSheet`. Node n'en a pas : le socle ne s'importerait pas sur un serveur. Le plugin compile donc l'import en `CSSResult` de Lit, que Lit adopte dans le navigateur et rend en texte sur un serveur ([ADR 0014](?path=/docs/documentation-adr-0014-vue-et-rendu-serveur--docs)).
 
 Les navigateurs de la matrice ne savent pas tous importer un CSS module script. Le plugin `packages/components/plugins/css-import-attributes.ts` compile donc l'import dans le JS livré. L'application et les marques n'ont rien à configurer.
 

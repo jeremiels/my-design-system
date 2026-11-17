@@ -6,7 +6,7 @@ import { html, LitElement } from "lit";
 import { afterEach, describe, expect, it } from "vitest";
 import "../define.js";
 import type { Button } from "../components/button/button.js";
-import { withCommands } from "./withCommands.js";
+import { CommandsController } from "../controllers/commands.js";
 import { withInvoker } from "./withInvoker.js";
 
 class Invoker extends withInvoker(LitElement) {
@@ -16,11 +16,14 @@ class Invoker extends withInvoker(LitElement) {
 }
 customElements.define("t-invoker", Invoker);
 
-class Target extends withCommands(LitElement) {
+class Target extends LitElement {
   received: { command: string; source: Element | null }[] = [];
 
-  protected override handleCommand(event: CommandEvent) {
-    this.received.push({ command: event.command, source: event.source });
+  constructor() {
+    super();
+    new CommandsController(this, (event) =>
+      this.received.push({ command: event.command, source: event.source }),
+    );
   }
 }
 customElements.define("t-command-target", Target);
@@ -147,7 +150,7 @@ describe("withInvoker", () => {
   });
 });
 
-describe("withCommands", () => {
+describe("CommandsController", () => {
   it("receives the custom commands of a native invoker button", () => {
     const container = mount(`
       <button type="button" commandfor="target" command="--go">Go</button>

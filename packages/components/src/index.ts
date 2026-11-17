@@ -16,10 +16,12 @@ export * from "./components/autocomplete/autocomplete.js";
 export * from "./mixins/withDisabled.js";
 export * from "./mixins/withInternals.js";
 export * from "./mixins/withInvoker.js";
-export * from "./mixins/withCommands.js";
-export * from "./mixins/withExitTransition.js";
-export * from "./mixins/withAnchoredPopover.js";
-export * from "./mixins/withListbox.js";
+export * from "./controllers/commands.js";
+export * from "./controllers/exit-transition.js";
+export * from "./controllers/anchored-popover.js";
+export * from "./controllers/listbox.js";
+export * from "./state/listbox.js";
+export * from "./state/combobox.js";
 export * from "./events/modal-cancel.js";
 export * from "./events/modal-close.js";
 export * from "./events/listbox-select.js";
@@ -32,7 +34,13 @@ export type * from "./components/listbox/listbox.type.js";
 export type * from "./components/combobox/combobox.type.js";
 export type * from "./components/autocomplete/autocomplete.type.js";
 export type { IconLoader, IconSet, IconSource } from "@unicorne/icons";
-export { allComponents } from "./registry/catalog.js";
+export {
+  allComponents,
+  type Catalog,
+  type CatalogEntry,
+  type TagNameMap,
+} from "./registry/catalog.js";
+export { baseVersion } from "./version.js";
 export { defineComponents, type DefineComponentsOptions } from "./registry/define-components.js";
 export {
   designSystem,

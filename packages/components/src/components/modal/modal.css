@@ -4,7 +4,7 @@
 /* Closed: the state the entry starts from and the exit ends at. Opacity and
    scale run on the compositor. `display` and `overlay` keep the dialog
    visible and in the top layer until its exit ends (Chrome and Edge 117);
-   elsewhere, withExitTransition delays the closing with data-closing. With
+   elsewhere, closeWithTransition() delays the closing with data-closing. With
    reduced motion, the tokens give no duration and no scale. */
 dialog {
   border: none;

@@ -1,0 +1,206 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Documentation/ADR/0015 Versions et contrat API" />
+
+# ADR 0015 — Versions et contrat d'API
+
+**Statut :** proposé, mise en œuvre reportée à la version finale du socle · **Date :** 16 novembre 2026
+
+## Report
+
+Cet ADR n'est pas appliqué au POC. Les packages restent privés, en version `0.0.0`, sans outil de version.
+
+À mettre en place pour la version finale du socle, avant sa première publication :
+
+- Changesets, et une version par package (D1) ;
+- `api-diff`, la comparaison du manifest avec la dernière version publiée (D2) ;
+- la dépréciation par `@deprecated` et `$deprecated` (D3) ;
+- l'annonce des noms ajoutés au catalogue (D4) ;
+- le contrôle des archives par `publint` et `arethetypeswrong` (D5).
+
+## Contexte
+
+L'[ADR 0001](?path=/docs/documentation-adr-0001-architecture-multi-marque--docs) (D3) fixe la règle : aucune rupture d'un élément public hors version majeure. Il demande un versionnement semver et un changelog à la première publication (D6). L'[ADR 0003](?path=/docs/documentation-adr-0003-packages-tokens-et-composants--docs) (D4) donne une version à chaque package.
+
+Aucun outil n'applique encore ces règles. Plusieurs marques vont dépendre du socle : une rupture non signalée les casse toutes.
+
+Faits vérifiés le 16 novembre 2026 dans le dépôt :
+
+- Les trois packages sont privés, en version `0.0.0`.
+- `@unicorne/components` déclare ses pairs en `^0.0.0` (`packages/components/package.json:90-95`). Cette plage n'accepte que la version `0.0.0`.
+- `api:check` régénère le manifest et le compare à l'index git (`packages/components/package.json:80`). Il ne le compare à aucune version publiée.
+- Le manifest liste 63 entrées publiques et 57 entrées `protected`, mixins et interfaces compris.
+- `packages/components/src/api-contract.test.ts` vérifie les parts, les slots, les tokens et les attributs. Il ne lit aucun membre `protected`.
+- Une marque republie le socle par `export *` (`examples/acme-design-system/src/index.ts:5`).
+- Un composant de marque qui porte le nom d'un composant du socle fait échouer `defineComponents()`. Le guide de marque demande de vérifier le catalogue à chaque mise à jour.
+- Les archives de `@unicorne/tokens` et de `@unicorne/icons` publient la condition `@unicorne/source` vers 4 fichiers absents de l'archive.
+
+Faits vérifiés le 16 novembre 2026, avec leurs sources en fin de page :
+
+- **Spectrum Web Components :** ses packages partagent une version, 1.12.6.
+- **Format DTCG 2025.10 :** un token ou un groupe porte `$deprecated`, un booléen ou une explication.
+- **Porsche Design System :** son chargeur refuse un préfixe déjà enregistré par une autre version.
+
+### Critères de décision
+
+1. Une rupture de l'API publique ne passe pas la CI sans une version majeure.
+2. Les membres `protected` documentés sont dans ce contrôle, comme les tokens.
+3. Une marque sait quelles versions du socle elle accepte.
+4. Un élément retiré est annoncé une version majeure avant.
+5. Le web, iOS et Android gardent leur rythme (ADR 0003, D4).
+
+## D1 — Les versions
+
+- **Option A — Une version commune aux trois packages**, comme Spectrum Web Components. Un changement de valeur de token publie aussi les composants. L'ADR 0003 (D4) l'écarte pour les plateformes natives.
+- **Option B — Une version par package, avec Changesets.** Chaque PR décrit son changement et son niveau. La publication calcule les versions et écrit les changelogs.
+
+**Décision : B.** Elle confirme l'ADR 0003 (D4) et lui donne son outil.
+
+- La première publication est `1.0.0` pour les trois packages.
+- `@unicorne/components` déclare ses pairs par leur plage majeure : `^1.0.0`.
+- Une marque déclare le socle en `dependencies`, par sa plage majeure.
+- Une page utilise une seule version majeure de `@unicorne/tokens` ([ADR 0013](?path=/docs/documentation-adr-0013-portées-de-marque-et-de-thème--docs), D4).
+
+## D2 — La porte de rupture
+
+- **Option A — La relecture du diff du manifest (statu quo).** Un relecteur décide si un changement est une rupture. Le critère 1 dépend de lui.
+- **Option B — Une comparaison automatique avec la dernière version publiée.** Un script lit le manifest publié et le manifest courant. Il classe chaque différence, et la compare au niveau du changeset.
+
+**Décision : B.**
+
+<table>
+  <thead>
+    <tr>
+      <th>Différence</th>
+      <th>Niveau exigé</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        Retrait ou renommage : attribut, propriété, méthode, slot, part, token, événement, membre
+        `protected`
+      </td>
+      <td>Majeur</td>
+    </tr>
+    <tr>
+      <td>Changement du type d'une propriété ou de la signature d'une méthode</td>
+      <td>Majeur</td>
+    </tr>
+    <tr>
+      <td>Retrait d'un composant du catalogue, ou d'un export</td>
+      <td>Majeur</td>
+    </tr>
+    <tr>
+      <td>Ajout d'un composant au catalogue</td>
+      <td>Mineur, avec l'annonce de D4</td>
+    </tr>
+    <tr>
+      <td>Ajout d'un membre, d'une part, d'un token</td>
+      <td>Mineur</td>
+    </tr>
+    <tr>
+      <td>Changement de la valeur d'un token</td>
+      <td>Correctif (ADR 0003, D4)</td>
+    </tr>
+  </tbody>
+</table>
+
+- `scripts/api-diff.mjs` compare `custom-elements.json`, la carte `exports` et la liste des tokens.
+- La même commande compare les noms de tokens de `@unicorne/tokens`.
+- `api:check` reste : il vérifie que le manifest commité est à jour.
+- Avant la première publication, la référence est le manifest de la branche `master`.
+
+## D3 — La dépréciation
+
+- **Option A — Retirer à la version majeure, sans annonce.** Une marque découvre la rupture en montant de version : le critère 4 échoue.
+- **Option B — Annoncer une version majeure avant.**
+
+**Décision : B.**
+
+- Un membre déprécié porte `@deprecated` dans sa JSDoc, avec son remplaçant. Le manifest le publie.
+- Un token déprécié porte `$deprecated` dans sa source DTCG, avec son remplaçant. Il reste un alias du nouveau token.
+- Un composant avertit une fois, dans la console, quand une application utilise un membre déprécié.
+- `api-diff` refuse le retrait d'un élément qui n'était pas déprécié dans la version publiée.
+
+## D4 — Les noms du catalogue
+
+Le socle ajoute `card` à son catalogue. La marque qui avait déjà sa `card` échoue à l'enregistrement, dans une version mineure.
+
+- **Option A — Laisser les marques vérifier (statu quo).**
+- **Option B — Annoncer chaque nom une version mineure avant.** Le changelog liste les noms que la version suivante ajoute.
+- **Option C — Séparer les espaces de noms.** Un composant de marque porte toujours un nom à deux mots : `acme-product-card`.
+
+**Décision : B.** `api-diff` écrit cette liste dans le changelog. L'option C reste un conseil du guide de marque, pas une règle.
+
+Une marque qui étend ensuite le composant du socle garde son nom : `AcmeCard extends Card` passe par `overrides`.
+
+## D5 — Ce qu'une archive publie
+
+- La condition `@unicorne/source` sort des cartes `exports` publiées : un script d'empaquetage la retire.
+- `npm run example` lance `publint` et `arethetypeswrong` sur chaque archive.
+- Le `dist/` reste non minifié : l'application minifie.
+
+## Récapitulatif
+
+<table>
+  <thead>
+    <tr>
+      <th>Décision</th>
+      <th>Choix</th>
+      <th>Pourquoi</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>D1 — Versions</td>
+      <td>Une par package, avec Changesets ; pairs en plage majeure</td>
+      <td>Chaque plateforme garde son rythme ; une marque sait ce qu'elle accepte</td>
+    </tr>
+    <tr>
+      <td>D2 — Porte de rupture</td>
+      <td>`api-diff` contre la dernière version publiée</td>
+      <td>Une rupture exige un changeset majeur, membres `protected` compris</td>
+    </tr>
+    <tr>
+      <td>D3 — Dépréciation</td>
+      <td>`@deprecated` et `$deprecated`, une version majeure avant le retrait</td>
+      <td>Une marque voit venir chaque retrait</td>
+    </tr>
+    <tr>
+      <td>D4 — Noms du catalogue</td>
+      <td>Annoncés une version mineure avant</td>
+      <td>Un ajout du socle ne casse pas une marque par surprise</td>
+    </tr>
+    <tr>
+      <td>D5 — Archives</td>
+      <td>Sans condition de développement, vérifiées par `publint`</td>
+      <td>L'archive ne cite que des fichiers qu'elle contient</td>
+    </tr>
+  </tbody>
+</table>
+
+Cet ADR ne remplace aucune décision. Il outille l'ADR 0001 (D3, D6) et l'ADR 0003 (D4).
+
+## Conséquences
+
+- **Dépôt :** `.changeset/`, `scripts/api-diff.mjs`, et un job de publication dans `.github/workflows/`.
+- **Packages :** `"private": true` retiré à la première publication. Plages `^1.0.0`.
+- **CI :** `npm run check` lance `api:diff`. `npm run example` lance `publint` et `arethetypeswrong`.
+- **Marques :** ACME déclare une plage majeure, et lit la liste des noms annoncés.
+- **Documentation :** le skill `component-api-docs`, le guide de marque et `AGENTS.md`.
+
+## Questions ouvertes
+
+- **Types TypeScript :** le manifest ne porte pas tous les types exportés. Un contrôle des déclarations `.d.ts` le compléterait.
+- **Artifactory :** la publication y est configurée hors de ce dépôt (ADR 0001, D6).
+- **Versions natives :** un tag `@unicorne/tokens@x.y.z` publie aussi Maven et le registre Swift (ADR 0004, D6). Changesets doit produire ce tag.
+- **Marques en retard :** combien de versions majeures du socle reçoivent des correctifs.
+
+## Sources
+
+Consultées le 16 novembre 2026.
+
+- [@spectrum-web-components/button](https://registry.npmjs.org/@spectrum-web-components/button/latest) (npm), version 1.12.6 : ses dépendances internes sont toutes en 1.12.6.
+- [Design Tokens Format Module 2025.10](https://www.designtokens.org/tr/2025.10/format/) (DTCG), sections 5.2.4 et 6.3 : « The `$deprecated` property MAY be used to mark a token as deprecated, and optionally explain the reason ».
+- [Loader script](https://designsystem.porsche.com/v4/partials/loader-script) (Porsche Design System, version 4) : « prefix […] is already registered with version […] of the Porsche Design System. Please use a different one. »

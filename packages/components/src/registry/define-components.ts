@@ -1,6 +1,8 @@
 import type { DSBaseElement } from "../components/base-element.js";
+import { baseVersion } from "../version.js";
 
 type ComponentClass = typeof DSBaseElement;
+type Versions = NonNullable<ComponentClass["versions"]>;
 
 export interface DefineComponentsOptions {
   /**
@@ -19,6 +21,18 @@ export interface DefineComponentsOptions {
    * component of this registration that renders `button` gets the override.
    */
   overrides?: Readonly<Record<string, ComponentClass>>;
+  /**
+   * The default value of some properties, by property name, for every
+   * component of this registration that has the property: the texts of the
+   * page's language (`{ closeLabel: "Fermer", errorLabel: "Erreur :" }`).
+   * An attribute or a property set on an element still wins.
+   */
+  labels?: Readonly<Record<string, unknown>>;
+  /**
+   * The version of the design system that registers. It names the copy in
+   * the warning of a second registration of the prefix.
+   */
+  version?: string;
 }
 
 const PREFIX = /^[a-z][a-z0-9]*$/;
@@ -68,6 +82,7 @@ function extendsOrIs(candidate: ComponentClass, base: ComponentClass): boolean {
  * module re-run by HMR, or another copy of the design system bundled by
  * another app on the page (micro-frontends) — keeps its definition, with a
  * console warning when it isn't (a subclass of) the class this call wanted.
+ * The warning gives the versions of both copies (ADR 0012).
  * A tag defined by anything else is a conflict: the call throws, and since
  * every tag is checked first, registers nothing.
  *
@@ -88,6 +103,8 @@ export function defineComponents({
   prefix,
   components,
   overrides = {},
+  labels = {},
+  version,
 }: DefineComponentsOptions): Readonly<Record<string, string>> {
   assertPrefix(prefix);
 
@@ -132,8 +149,13 @@ export function defineComponents({
     Object.fromEntries([...resolved.keys()].map((name) => [name, `${prefix}-${name}`])),
   );
 
+  const versions: Versions = Object.freeze({ base: baseVersion, designSystem: version });
+  const describe = ({ base, designSystem }: Versions) =>
+    designSystem === undefined ? `base ${base}` : `version ${designSystem}, base ${base}`;
+
   const conflicts: string[] = [];
   const kept: string[] = [];
+  let keptVersions: Versions | undefined;
   const toDefine: [string, ComponentClass][] = [];
   for (const [name, component] of resolved) {
     const tag = tagNames[name];
@@ -145,6 +167,7 @@ export function defineComponents({
       conflicts.push(`<${tag}>`);
     } else if (!(existing.prototype instanceof component)) {
       kept.push(`<${tag}>`);
+      keptVersions ??= existing.versions;
     }
   }
 
@@ -157,17 +180,32 @@ export function defineComponents({
   if (kept.length > 0) {
     // oxlint-disable-next-line no-console -- the page works, but not as asked
     console.warn(
-      `defineComponents(): ${kept.join(", ")} already registered by another registration ` +
-        `(another copy or version of the design system?); keeping those definitions. ` +
-        `Apps sharing a page should share one copy of the design system.`,
+      `defineComponents(): ${kept.join(", ")} already registered by another copy of the design system` +
+        `${keptVersions ? ` (${describe(keptVersions)})` : ""}; keeping those definitions, ` +
+        `not those of this copy (${describe(versions)}). Apps sharing a page should share one copy ` +
+        `of the design system, or register theirs under their own prefix: withPrefix().`,
     );
   }
 
   for (const [tag, component] of toDefine) {
+    // Among `labels`, the reactive properties of this component: reading
+    // its attributes first makes Lit collect them.
+    void component.observedAttributes;
+    const defaults = Object.entries(labels).filter(([property]) =>
+      component.elementProperties.has(property),
+    );
     customElements.define(
       tag,
       class extends component {
         static override tagNames = tagNames;
+        static override versions = versions;
+
+        constructor() {
+          super();
+          // Before the attributes of the element and the properties a
+          // framework sets: both still win.
+          Object.assign(this, Object.fromEntries(defaults));
+        }
       },
     );
   }

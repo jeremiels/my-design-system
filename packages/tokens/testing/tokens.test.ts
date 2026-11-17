@@ -1,7 +1,7 @@
 // The default tokens are what every brand starts from: they must be
-// accessible in both themes (WCAG AA, measured by the helper brands use), and
-// a theme scoped to a container must reach the semantic tokens (ADR 0001, D4:
-// several brands on one page).
+// accessible in both themes (WCAG AA, measured by the helper brands use). A
+// container changes the brand or the theme of a zone of the page (ADR 0013):
+// its values must reach the semantic tokens, and stop at the next container.
 import { afterEach, describe, expect, it } from "vitest";
 import { contrastFailures } from "./contrast.js";
 import "../css/tokens.css";
@@ -70,4 +70,81 @@ it("gives the dark theme its own steps of the same palettes", () => {
   document.documentElement.dataset.theme = "dark";
   expect(resolve("var(--u-color-action-background)")).toBe(resolve("var(--u-palette-brand-300)"));
   expect(resolve("var(--u-color-action-background)")).not.toBe(light);
+});
+
+/** A container in `parent`, with these data attributes. */
+function zone(parent: Element, data: { theme?: string; brand?: string }): HTMLElement {
+  const element = document.createElement("div");
+  Object.assign(element.dataset, data);
+  parent.append(element);
+  return element;
+}
+
+describe("a theme zone (ADR 0013)", () => {
+  const surface = (parent?: Element) => resolve("var(--u-color-surface-default)", parent);
+  const lightSurface = () => resolve("var(--u-palette-neutral-0)");
+  const darkSurface = () => resolve("var(--u-palette-neutral-950)");
+
+  it("is dark in a light page, and light in a dark page", () => {
+    document.documentElement.dataset.theme = "light";
+    expect(surface(zone(document.body, { theme: "dark" }))).toBe(darkSurface());
+    expect(surface()).toBe(lightSurface());
+
+    document.documentElement.dataset.theme = "dark";
+    expect(surface(zone(document.body, { theme: "light" }))).toBe(lightSurface());
+    expect(surface()).toBe(darkSurface());
+  });
+
+  it("is accessible, whatever the theme of the page", () => {
+    for (const [page, inner] of [
+      ["light", "dark"],
+      ["dark", "light"],
+    ] as const) {
+      document.documentElement.dataset.theme = page;
+      expect(contrastFailures(zone(document.body, { theme: inner }))).toEqual([]);
+    }
+  });
+
+  it("gives its theme to the brand containers inside it", () => {
+    document.documentElement.dataset.theme = "light";
+    const brand = zone(zone(document.body, { theme: "dark" }), { brand: "acme" });
+    brand.style.setProperty("--u-palette-brand-300", "rgb(1, 2, 3)");
+    // The dark step of the brand's own palette.
+    expect(resolve("var(--u-color-action-background)", brand)).toBe("rgb(1, 2, 3)");
+    expect(surface(brand)).toBe(darkSurface());
+  });
+
+  it("gives a brand container the theme of the nearest of two zones", () => {
+    document.documentElement.dataset.theme = "dark";
+    expect(surface(zone(zone(document.body, { theme: "light" }), { brand: "acme" }))).toBe(
+      lightSurface(),
+    );
+    document.documentElement.dataset.theme = "light";
+    expect(surface(zone(zone(document.body, { theme: "dark" }), { brand: "acme" }))).toBe(
+      darkSurface(),
+    );
+  });
+
+  it("lets a brand container have its own theme", () => {
+    document.documentElement.dataset.theme = "dark";
+    expect(surface(zone(document.body, { theme: "light", brand: "acme" }))).toBe(lightSurface());
+    document.documentElement.dataset.theme = "light";
+    expect(surface(zone(document.body, { theme: "dark", brand: "acme" }))).toBe(darkSurface());
+  });
+
+  it("gives the browser's own UI the theme of the zone", () => {
+    document.documentElement.dataset.theme = "light";
+    expect(getComputedStyle(zone(document.body, { theme: "dark" })).colorScheme).toBe("dark");
+  });
+});
+
+it("starts a brand container again from the base's primitives, not from the brand around it", () => {
+  const host = zone(document.body, { brand: "host" });
+  host.style.setProperty("--u-palette-brand-600", "rgb(255, 0, 0)");
+  const guest = zone(host, { brand: "guest" });
+
+  expect(resolve("var(--u-color-action-background)", host)).toBe("rgb(255, 0, 0)");
+  expect(resolve("var(--u-color-action-background)", guest)).toBe(
+    resolve("var(--u-color-action-background)"),
+  );
 });

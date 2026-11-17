@@ -1,5 +1,5 @@
 import { icons, type IconLoader, type IconSet, type IconSource } from "@unicorne/icons";
-import { html, nothing, type PropertyValues } from "lit";
+import { html, isServer, nothing, type PropertyValues } from "lit";
 import { property, state } from "lit/decorators.js";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
 import { DSBaseElement } from "../base-element.js";
@@ -59,16 +59,30 @@ export class Icon extends DSBaseElement {
   /** The load of the current `name`, until it settles. */
   private loading?: Promise<void>;
 
+  /**
+   * Whether a server rendered the element (ADR 0014): it then has its shadow
+   * root before its first render.
+   */
+  private serverRendered = !isServer && this.shadowRoot !== null;
+
   protected willUpdate(changedProperties: PropertyValues<this>) {
     super.willUpdate(changedProperties);
     if (!changedProperties.has("name")) {
       return;
     }
     const source = this.sourceOf(this.name);
-    // A string, or an icon already loaded on the page: rendered at once.
-    this.markup = typeof source === "string" ? source : source && loaded.get(source);
     this.loading = undefined;
-    if (typeof source === "function" && this.markup === undefined) {
+    if (typeof source !== "function") {
+      // A string: rendered at once, on a server too.
+      this.markup = source;
+      return;
+    }
+    // A server renders an icon to load empty, whatever it has loaded before:
+    // it can't wait for a module. The first render after it matches it.
+    const matchesServer = isServer || (this.serverRendered && !this.hasUpdated);
+    const cached = matchesServer ? undefined : loaded.get(source);
+    this.markup = cached;
+    if (cached === undefined && !isServer) {
       const loading = this.load(this.name, source);
       this.loading = loading;
       void loading.finally(() => {
@@ -112,7 +126,9 @@ export class Icon extends DSBaseElement {
 
   private async load(name: string, loader: IconLoader): Promise<void> {
     try {
-      const { default: markup } = await loader();
+      // Awaited even when loaded already: the render that matches a
+      // server's comes first.
+      const markup = await (loaded.get(loader) ?? loader().then((module) => module.default));
       loaded.set(loader, markup);
       if (this.name === name) {
         this.markup = markup;

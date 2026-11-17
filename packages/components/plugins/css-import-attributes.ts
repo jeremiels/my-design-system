@@ -3,15 +3,19 @@ import { parseSync, Visitor, type ESTree, type Plugin } from "vite";
 /**
  * Vite plugin: CSS module scripts (`import sheet from "./x.css" with { type: "css" }`).
  *
- * The default export is a constructable `CSSStyleSheet`, as in the browser
- * standard, so it can go straight into Lit's `static styles`. Vite has no
- * native support for this import attribute yet (vitejs/vite#18534) and
- * Rolldown doesn't pass import attributes to plugin hooks, so the importer is
- * rewritten instead:
+ * The default export is a Lit `CSSResult`, for `static styles`: Lit adopts
+ * its constructable `CSSStyleSheet` in the browser, shared by every instance,
+ * and renders its text on a server (ADR 0014). Not the `CSSStyleSheet` of the
+ * browser standard: building one when the module loads throws in Node, where
+ * there is none. Vite has no native support for this import attribute yet
+ * (vitejs/vite#18534) and Rolldown doesn't pass import attributes to plugin
+ * hooks, so the importer is rewritten instead:
  *
  *   import styles from "./x.css" with { type: "css" };
  *   → import styles from "./x.css?css-sheet";
- *   → virtual module wrapping `./x.css?inline` in a `CSSStyleSheet`
+ *   → virtual module wrapping `./x.css?inline` in `unsafeCSS()` of `lit`
+ *
+ * The importing package needs `lit`: the base and the brands have it.
  *
  * Going through `?inline` keeps Vite's own CSS pipeline (PostCSS, Lightning
  * CSS lowering/minification at build time). The CSS ends up inlined in the JS
@@ -22,15 +26,13 @@ import { parseSync, Visitor, type ESTree, type Plugin } from "vite";
  * attribute. Rejected with an error rather than silently mis-built:
  * dynamic `import()` with the attribute, and a value import of a `.css` file
  * *without* it (Vite would inject the sheet globally and `x` would be
- * `undefined`, although `src/css-modules.d.ts` types it as a `CSSStyleSheet`).
+ * `undefined`, although `src/css-modules.d.ts` types it as a `CSSResult`).
  * Side-effect imports (`import "./main.css"`) and Vite's own query forms
  * (`?inline`, `?url`, `?raw`) are left alone.
  *
- * Exit strategy: once Vite supports `type: "css"` natively, delete this plugin
- * and check that `findUncompiledCssImports` still passes on the native build
- * output (the CSS must stay inlined for Safari) — keep that check as a plugin
- * of its own if needed. Drop `src/css-modules.d.ts` if `vite/client` then
- * types these imports.
+ * Exit strategy: once Vite supports `type: "css"` natively, the import gives
+ * a `CSSStyleSheet` again. Keep this plugin while a brand renders on a server,
+ * and keep `findUncompiledCssImports`: the CSS must stay inlined for Safari.
  */
 
 const QUERY = "?css-sheet";
@@ -195,29 +197,26 @@ export function findUncompiledCssImports(code: string, filename: string): string
 function sheetModule(cssFile: string, hmr: boolean): string {
   const inline = JSON.stringify(`${cssFile}?inline`);
   if (hmr) {
-    // Dev: a CSS edit swaps the rules inside the same sheet object, which every
-    // element instance has adopted, so styles update without a page reload.
+    // Dev: a CSS edit swaps the rules inside the sheet every element instance
+    // has adopted, so styles update without a page reload.
     return [
+      `import { unsafeCSS } from "lit";`,
       `import cssText from ${inline};`,
-      `const sheet = new CSSStyleSheet();`,
-      `sheet.replaceSync(cssText);`,
+      `const sheet = unsafeCSS(cssText);`,
       `export default sheet;`,
       `if (import.meta.hot) {`,
       `  import.meta.hot.accept(${inline}, (mod) => {`,
-      `    if (mod) sheet.replaceSync(mod.default);`,
+      `    if (mod) sheet.styleSheet?.replaceSync(mod.default);`,
       `  });`,
       `}`,
     ].join("\n");
   }
-  // Build: pure-annotated, since building a sheet has no observable side
-  // effect, so an imported-but-unused one can be tree-shaken.
+  // Build: pure-annotated, since wrapping the text has no observable side
+  // effect, so an imported-but-unused sheet can be tree-shaken.
   return [
+    `import { unsafeCSS } from "lit";`,
     `import cssText from ${inline};`,
-    `export default /* @__PURE__ */ (() => {`,
-    `  const sheet = new CSSStyleSheet();`,
-    `  sheet.replaceSync(cssText);`,
-    `  return sheet;`,
-    `})();`,
+    `export default /* @__PURE__ */ unsafeCSS(cssText);`,
   ].join("\n");
 }
 

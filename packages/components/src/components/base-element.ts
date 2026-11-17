@@ -43,6 +43,13 @@ export class DSBaseElement extends LitElement {
   static tagNames?: Readonly<Record<string, string>>;
 
   /**
+   * Set by `defineComponents()` on the subclass it registers: the version of
+   * the base, and that of the design system when it gives one (ADR 0012).
+   * @internal
+   */
+  static versions?: Readonly<{ base: string; designSystem?: string }>;
+
+  /**
    * The tag of a component declared in `static dependencies`, for templates
    * from `lit/static-html.js`: `` html`<${this.tagFor(Button)}>…</${…}>` ``.
    * It follows the registration of this element: `u-modal` renders

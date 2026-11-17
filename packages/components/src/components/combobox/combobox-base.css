@@ -2,12 +2,12 @@
    (ADR 0002), and shared by every combobox. These rules only read them. */
 
 /* The popup: below the control, at the distance of its block margin.
-   withAnchoredPopover positions it and hides it while closed. Its content
+   AnchoredPopoverController positions it and hides it while closed. Its content
    shrinks to the space the popup leaves it (a list scrolls).
 
    Closed: the state the entry starts from and the exit ends at. `display`
    and `overlay` keep it visible and in the top layer until its exit ends
-   (Chrome and Edge 117); elsewhere, withExitTransition delays the closing
+   (Chrome and Edge 117); elsewhere, closeWithTransition() delays the closing
    with data-closing. With reduced motion, the tokens give no duration. */
 .popup {
   display: flex;

@@ -4,8 +4,12 @@ import { ifDefined } from "lit/directives/if-defined.js";
 import { html } from "lit/static-html.js";
 import { ModalCancelEvent } from "../../events/modal-cancel.js";
 import { ModalCloseEvent } from "../../events/modal-close.js";
-import { withCommands } from "../../mixins/withCommands.js";
-import { withExitTransition } from "../../mixins/withExitTransition.js";
+import { CommandsController } from "../../controllers/commands.js";
+import {
+  cancelExitTransition,
+  closeWithTransition,
+  isClosing,
+} from "../../controllers/exit-transition.js";
 import { DSBaseElement } from "../base-element.js";
 import { Button } from "../button/button.js";
 import { Icon } from "../icon/icon.js";
@@ -42,7 +46,7 @@ const supportsClosedBy =
  * @fires {ModalCloseEvent} u-close - When the dialog closes, whatever the cause. Its `value` is the modal's `returnValue`.
  * @tokens modal - Its tokens (`@cssprop`), from `@unicorne/tokens` (`src/component/modal/`): `npm run analyze` documents them.
  */
-export class Modal extends withExitTransition(withCommands(DSBaseElement)) {
+export class Modal extends DSBaseElement {
   static override componentName = "modal";
 
   /**
@@ -95,6 +99,11 @@ export class Modal extends withExitTransition(withCommands(DSBaseElement)) {
   private pressedOutside = false;
 
   static styles = [DSBaseElement.styles ?? [], modalTokens, modalStyles];
+
+  constructor() {
+    super();
+    new CommandsController(this, (event) => this.handleCommand(event));
+  }
 
   connectedCallback() {
     super.connectedCallback();
@@ -187,8 +196,12 @@ export class Modal extends withExitTransition(withCommands(DSBaseElement)) {
     }
   }
 
-  /** Runs `--show-modal`, `--close` and `--request-close`. */
-  protected override handleCommand(event: CommandEvent) {
+  /**
+   * Runs a command sent to the modal by an invoker button: `--show-modal`,
+   * `--close` and `--request-close`. Override it to add commands, and call
+   * `super.handleCommand(event)` for these.
+   */
+  protected handleCommand(event: CommandEvent) {
     // `source` is the native button, or the host of a `button` component.
     const value = (event.source as { value?: unknown } | null)?.value;
     const returnValue = typeof value === "string" && value !== "" ? value : undefined;
@@ -208,7 +221,7 @@ export class Modal extends withExitTransition(withCommands(DSBaseElement)) {
   private showDialog() {
     const dialog = this.dialog;
     // Reopened during its exit transition: it never closed.
-    this.cancelExitTransition(dialog);
+    cancelExitTransition(dialog);
     if (!dialog.open) {
       this.returnValue = "";
       dialog.showModal();
@@ -242,8 +255,8 @@ export class Modal extends withExitTransition(withCommands(DSBaseElement)) {
 
   private closeDialog() {
     const dialog = this.dialog;
-    if (dialog.open && !dialog.hasAttribute("data-closing")) {
-      void this.closeWithTransition(dialog, () => dialog.close());
+    if (dialog.open && !isClosing(dialog)) {
+      void closeWithTransition(dialog, () => dialog.close());
     }
   }
 

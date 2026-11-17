@@ -73,6 +73,18 @@ record(
 );
 
 // --- ACME in a browser
+// ACME publishes its values alone too: a page of another design system loads
+// them for an ACME zone, without a second copy of the base's tokens (ADR 0013).
+const themeSheet = await readFile(join(root, "dist/theme.css"), "utf8");
+const stylesSheet = await readFile(join(root, "dist/styles.css"), "utf8");
+record(
+  "dist/theme.css has ACME's values only, on [data-brand=acme]",
+  /\[data-brand=["']?acme["']?\]/.test(themeSheet) &&
+    !themeSheet.includes("--u-palette-neutral-0:") &&
+    stylesSheet.includes("--u-palette-neutral-0:"),
+  `theme.css: ${themeSheet.length} bytes, styles.css: ${stylesSheet.length} bytes`,
+);
+
 /** The paths each page requested, by page. */
 let requested = new Set();
 const server = createServer(async (request, response) => {
@@ -144,6 +156,8 @@ try {
   );
 
   // `acme.define(Alert)`: the alert and its icon, without ACME's button.
+  await runPage("test/zones.html");
+
   const partial = await runPage("test/partial.html");
   record(
     "a partial registration doesn't download the overrides it doesn't use",

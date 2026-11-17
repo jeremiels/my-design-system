@@ -26,13 +26,15 @@ dist-ssr
 *storybook.log
 storybook-static
 
-# Vitest browser mode attachments (failure screenshots)
+# Vitest browser mode attachments (failure screenshots), and `npm run coverage`
 .vitest
+coverage
 
 # Example brand design system: packed base, generated manifest and token sheets
 examples/*/.base
 examples/*/custom-elements.json
 examples/*/src/theme.css
+examples/*/tokens/.*.resolver.json
 examples/*/src/**/*.tokens.css
 examples/*/src/icons/
 *.tgz

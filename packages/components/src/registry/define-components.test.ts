@@ -181,6 +181,25 @@ describe("defineComponents", () => {
     expect(customElements.get(`${prefix}-button`)?.prototype).not.toBeInstanceOf(OtherButton);
     expect(warn).toHaveBeenCalledOnce();
     expect(warn.mock.calls[0][0]).toContain(`<${prefix}-button>`);
+    // The base's version of both copies, and the way out (ADR 0012).
+    expect(warn.mock.calls[0][0]).toContain("base ");
+    expect(warn.mock.calls[0][0]).toContain("withPrefix()");
+  });
+
+  it("names the versions of both copies of a design system in the warning", () => {
+    const prefix = uniquePrefix();
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    class First extends Button {}
+    class Second extends Button {}
+    defineComponents({ prefix, components: [First], version: "1.2.0" });
+
+    defineComponents({ prefix, components: [Second], version: "2.0.0" });
+
+    expect(warn.mock.calls[0][0]).toContain("version 1.2.0");
+    expect(warn.mock.calls[0][0]).toContain("version 2.0.0");
+    expect((customElements.get(`${prefix}-button`) as typeof Button).versions?.designSystem).toBe(
+      "1.2.0",
+    );
   });
 
   it("registers the missing components next to an existing registration", async () => {

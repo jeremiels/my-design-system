@@ -36,6 +36,18 @@ export interface DesignSystemOptions {
    * component of the design system that renders an icon renders these.
    */
   icons?: IconSet;
+  /**
+   * The default value of some properties, by property name, for every
+   * component that has the property: the texts of the design system's
+   * language (`{ closeLabel: "Fermer", errorLabel: "Erreur :" }`). An
+   * attribute or a property set on an element still wins.
+   */
+  labels?: Readonly<Record<string, unknown>>;
+  /**
+   * The version of the design system's package. It names this copy when
+   * another one has registered the prefix first (ADR 0012).
+   */
+  version?: string;
 }
 
 export interface DesignSystem {
@@ -43,6 +55,21 @@ export interface DesignSystem {
   readonly prefix: string;
   /** The component names an application can register directly; `undefined`: all. */
   readonly catalog: readonly string[] | undefined;
+  /** The version of the design system's package, when it gives one. */
+  readonly version: string | undefined;
+  /**
+   * Whether `tag` is a tag of the design system: for the `isCustomElement`
+   * option of Vue's compiler.
+   */
+  isCustomElement(tag: string): boolean;
+  /**
+   * The same design system under another prefix: for an application that
+   * can't share its copy with the others of the page (ADR 0012).
+   * `acme.withPrefix("acme2").define(Alert)` registers `acme2-alert`, with
+   * the same overrides, icons and labels. Its theme stays that of the design
+   * system: `[data-brand="acme"]`.
+   */
+  withPrefix(prefix: string): DesignSystem;
   /**
    * Registers these components and the components they render, with the
    * design system's overrides and icons. Loads only the overrides they
@@ -83,8 +110,9 @@ export function designSystem({
   catalog,
   overrides = {},
   icons,
+  labels,
+  version,
 }: DesignSystemOptions): DesignSystem {
-  assertPrefix(prefix);
   const offered = catalog ? new Set(catalog) : undefined;
 
   const checkOverride = (name: string, override: unknown): ComponentClass => {
@@ -147,44 +175,52 @@ export function designSystem({
     return name === "icon" && icons ? iconsOn(chosen) : chosen;
   };
 
-  return {
-    prefix,
-    catalog,
-    async define(...components) {
-      if (components.length === 0) {
-        throw new Error(`${prefix}: define() needs the components to register.`);
-      }
-      for (const component of components) {
-        const name = nameOf(component);
-        if (offered && !offered.has(name)) {
-          // Not the class name: minified builds rename classes.
-          throw new Error(
-            `"${name}" isn't in the catalog of ${prefix}: ${[...offered].join(", ")}.`,
-          );
+  /** The design system under `prefix`: the loaded overrides are shared by every prefix. */
+  const under = (prefix: string): DesignSystem => {
+    assertPrefix(prefix);
+    return {
+      prefix,
+      catalog,
+      version,
+      isCustomElement: (tag) => tag.startsWith(`${prefix}-`),
+      withPrefix: under,
+      async define(...components) {
+        if (components.length === 0) {
+          throw new Error(`${prefix}: define() needs the components to register.`);
         }
-      }
-
-      // The components to register and those they render, each with the
-      // class of the design system: an override (loaded now) or the base's.
-      const visited = new Map<string, Promise<void>>();
-      const replaced: Record<string, ComponentClass> = {};
-      const visit = (component: ComponentClass): Promise<void> => {
-        const name = nameOf(component);
-        let visiting = visited.get(name);
-        if (!visiting) {
-          visiting = classFor(name, component).then((chosen) => {
-            if (chosen !== component) {
-              replaced[name] = chosen;
-            }
-            return Promise.all(chosen.dependencies.map(visit)).then(() => undefined);
-          });
-          visited.set(name, visiting);
+        for (const component of components) {
+          const name = nameOf(component);
+          if (offered && !offered.has(name)) {
+            // Not the class name: minified builds rename classes.
+            throw new Error(
+              `"${name}" isn't in the catalog of ${prefix}: ${[...offered].join(", ")}.`,
+            );
+          }
         }
-        return visiting;
-      };
-      await Promise.all(components.map(visit));
 
-      return defineComponents({ prefix, components, overrides: replaced });
-    },
+        // The components to register and those they render, each with the
+        // class of the design system: an override (loaded now) or the base's.
+        const visited = new Map<string, Promise<void>>();
+        const replaced: Record<string, ComponentClass> = {};
+        const visit = (component: ComponentClass): Promise<void> => {
+          const name = nameOf(component);
+          let visiting = visited.get(name);
+          if (!visiting) {
+            visiting = classFor(name, component).then((chosen) => {
+              if (chosen !== component) {
+                replaced[name] = chosen;
+              }
+              return Promise.all(chosen.dependencies.map(visit)).then(() => undefined);
+            });
+            visited.set(name, visiting);
+          }
+          return visiting;
+        };
+        await Promise.all(components.map(visit));
+
+        return defineComponents({ prefix, components, overrides: replaced, labels, version });
+      },
+    };
   };
+  return under(prefix);
 }

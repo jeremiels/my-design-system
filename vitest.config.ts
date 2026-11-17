@@ -5,6 +5,16 @@ import { playwright } from "@vitest/browser-playwright";
 import { storybookTest } from "@storybook/addon-vitest/vitest-plugin";
 import viteConfig from "./vite.config.ts";
 
+// Current versions of the three engines. The oldest supported versions are
+// only checked statically, by `npm run compat`. `npm run coverage` keeps
+// Chromium alone: @vitest/coverage-v8 measures one browser.
+// A new list for each project: Vitest names the instances it is given.
+const engines = () =>
+  (process.env.COVERAGE
+    ? (["chromium"] as const)
+    : (["chromium", "firefox", "webkit"] as const)
+  ).map((browser) => ({ browser }));
+
 // More info at: https://storybook.js.org/docs/next/writing-tests/integrations/vitest-addon
 // Inherit vite.config.ts (plugins such as the CSS import-attributes one,
 // aliases): Vitest doesn't load it on its own once vitest.config.ts exists.
@@ -12,12 +22,27 @@ export default mergeConfig(
   viteConfig,
   defineConfig({
     test: {
+      coverage: {
+        provider: "v8",
+        include: [
+          "packages/*/src/**/*.ts",
+          "packages/*/plugins/**/*.ts",
+          "packages/tokens/testing/**/*.ts",
+        ],
+        exclude: ["**/*.stories.ts", "**/*.test.ts", "**/*.setup.ts", "**/*.d.ts"],
+        reporter: ["text", "html"],
+        reportsDirectory: "coverage",
+      },
       projects: [
         {
           extends: true,
           test: {
             name: "unit",
-            include: ["packages/*/plugins/**/*.test.ts"],
+            // The plugins, and the components' state: functions without DOM (ADR 0010).
+            include: [
+              "packages/*/plugins/**/*.test.ts",
+              "packages/components/src/state/**/*.test.ts",
+            ],
             environment: "node",
           },
         },
@@ -32,11 +57,32 @@ export default mergeConfig(
               "packages/tokens/testing/**/*.test.ts",
               ".storybook/**/*.test.ts",
             ],
+            exclude: ["packages/components/src/state/**", "packages/components/src/ssr.test.ts"],
             browser: {
               enabled: true,
               headless: true,
               provider: playwright(),
               instances: [{ browser: "chromium" }],
+            },
+          },
+        },
+        {
+          // The rendering contract (ADR 0014): the catalog rendered by Lit SSR
+          // in Node (globalSetup), then hydrated in each engine.
+          extends: true,
+          optimizeDeps: {
+            // Imported first by src/ssr.test.ts: found mid-run otherwise.
+            include: ["@lit-labs/ssr-client/lit-element-hydrate-support.js"],
+          },
+          test: {
+            name: "ssr",
+            include: ["packages/components/src/ssr.test.ts"],
+            globalSetup: ["packages/components/src/ssr.setup.ts"],
+            browser: {
+              enabled: true,
+              headless: true,
+              provider: playwright(),
+              instances: engines(),
             },
           },
         },
@@ -59,9 +105,7 @@ export default mergeConfig(
               enabled: true,
               headless: true,
               provider: playwright(),
-              // Current versions of the three engines. The oldest supported
-              // versions are only checked statically, by `npm run compat`.
-              instances: [{ browser: "chromium" }, { browser: "firefox" }, { browser: "webkit" }],
+              instances: engines(),
             },
             setupFiles: [".storybook/vitest.setup.ts"],
           },

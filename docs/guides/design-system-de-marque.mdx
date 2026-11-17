@@ -96,79 +96,70 @@ Les règles des tokens et du format DTCG sont dans [Tokens et couches CSS](?path
    { "font": { "family": { "body": { "$value": "{font-family.serif}" } } } }
    ```
 
-3. Écrivez le resolver de la marque. Listez les fichiers du socle, puis les vôtres, dans chaque set.
-
-   ```json
-   {
-     "version": "2025.10",
-     "sets": {
-       "primitive": {
-         "sources": [
-           { "$ref": "../node_modules/@unicorne/tokens/src/primitive/palette.tokens.json" },
-           { "$ref": "primitive/palette.tokens.json" }
-         ]
-       }
-     }
-   }
-   ```
-
-   Reprenez les modifiers `theme` et `motion` du socle, avec ses fichiers. L'exemple complet est `examples/acme-design-system/tokens/acme.resolver.json`.
+3. Rangez vos fichiers comme ceux du socle. La place d'un fichier donne son set ou son modifier :
+   - `primitive/<nom>.tokens.json` : le set `primitive` ;
+   - `semantic/<nom>.tokens.json` : le set `semantic` ;
+   - `semantic/theme.dark.tokens.json` : le contexte `dark` du modifier `theme` ;
+   - `component/<composant>/<composant>.tokens.json` : le set `component` ;
+   - `component/<composant>/<attribut>.<valeur>.tokens.json` : le contexte `<valeur>` du modifier `<composant>-<attribut>`.
 
 4. Configurez Terrazzo avec le plugin du socle :
 
    ```ts
    // terrazzo.config.ts
    import { defineConfig } from "@terrazzo/cli";
-   import { tokensCss } from "@unicorne/tokens/terrazzo-plugin";
+   import { brandResolver, tokensCss } from "@unicorne/tokens/terrazzo-plugin";
 
    export default defineConfig({
-     tokens: ["./tokens/acme.resolver.json"],
+     tokens: [brandResolver({ name: "acme", sources: "./tokens" })],
      outDir: "./src/",
-     plugins: [
-       tokensCss({
-         layer: "u.tokens.brand",
-         page: "theme.css",
-         emit: (file) => !file.includes("/node_modules/"),
-       }),
-     ],
+     plugins: [tokensCss({ brand: "acme", layer: "u.tokens.brand", page: "theme.css" })],
    });
    ```
 
+   - `brandResolver()` écrit `tokens/.acme.resolver.json` : les sets et les modifiers du socle, puis vos fichiers. Vous ne listez aucun fichier du socle.
+   - `brand: "acme"` place vos tokens sur `[data-brand="acme"]`, et limite la sortie à vos fichiers.
    - `layer: "u.tokens.brand"` place les tokens de la marque après ceux du socle.
-   - `emit` limite la sortie aux fichiers de la marque : les feuilles du socle portent les autres tokens.
+   - Un modifier d'un composant de la marque se déclare dans `brandResolver()` : `modifiers: { "card-size": { default: "medium" } }`.
 
-5. Lancez `npx tz build`. Le plugin écrit `src/theme.css`, ou échoue si un token enfreint la règle de son niveau.
+5. Ignorez `tokens/.*.resolver.json` et `src/theme.css` dans git : le build les écrit.
 
-6. Importez `theme.css` après `tokens.css`. Importé avant, `u.tokens.brand` passe sous `u.tokens.base`.
+6. Lancez `npx tz build`. Le plugin écrit `src/theme.css`, ou échoue si un token enfreint la règle de son niveau.
+
+7. Importez `theme.css` après `tokens.css`. Importé avant, `u.tokens.brand` passe sous `u.tokens.base`.
 
    ```css
-   /* src/styles.css : la feuille que chargent les applications */
+   /* src/styles.css : la feuille que chargent les applications de la marque */
    @import "@unicorne/components/styles.css";
    @import "@unicorne/tokens/tokens.css";
    @import "./theme.css";
    ```
 
-7. Republiez le reset optionnel, pour que les applications ne dépendent que de la marque :
+8. Publiez aussi `theme.css` seul, dans une entrée `./theme.css`. Une page d'un autre design system le charge pour une zone de votre marque.
+
+9. Republiez le reset optionnel, pour que les applications ne dépendent que de la marque :
 
    ```css
    /* src/reset.css */
    @import "@unicorne/components/reset.css";
    ```
 
-8. Vérifiez le contraste dans les deux thèmes, avec `contrastFailures()` :
+10. Vérifiez le contraste dans les deux thèmes, avec `contrastFailures()` :
 
-   ```ts
-   import { contrastFailures } from "@unicorne/tokens/testing";
+```ts
+import { contrastFailures } from "@unicorne/tokens/testing";
 
-   for (const theme of ["light", "dark"]) {
-     document.documentElement.dataset.theme = theme;
-     expect(contrastFailures()).toEqual([]);
-   }
-   ```
+for (const theme of ["light", "dark"]) {
+  document.documentElement.dataset.theme = theme;
+  expect(contrastFailures()).toEqual([]);
+}
+```
 
-   Les paires mesurées et leurs minimums sont dans [Tokens et couches CSS](?path=/docs/documentation-référence-tokens-et-couches-css--docs).
+Les paires mesurées et leurs minimums sont dans [Tokens et couches CSS](?path=/docs/documentation-référence-tokens-et-couches-css--docs).
 
-- **Plusieurs marques sur une page :** passez `scope: '[data-brand="acme"]'` au plugin. Vérifiez le contraste avec `contrastFailures(conteneur)`.
+- **Application de la marque :** elle pose `data-brand="acme"` sur `<html>`. Sans cet attribut, la page affiche le socle.
+- **Zone de la marque dans une autre page :** la page charge votre `theme.css` et pose `data-brand="acme"` sur un conteneur. Vérifiez le contraste avec `contrastFailures(conteneur)`.
+- **Thème d'une zone :** `data-theme="dark"` ou `data-theme="light"` sur un conteneur. Les règles sont dans [Tokens et couches CSS](?path=/docs/documentation-référence-tokens-et-couches-css--docs).
 - **Composants propres à la marque :** ajoutez leurs paires à celles du socle : `contrastFailures(document.body, [...contrastPairs, { foreground, background, minimum }])`.
 
 ## 4. Étendez un composant du socle
@@ -179,9 +170,8 @@ Les règles des tokens et du format DTCG sont dans [Tokens et couches CSS](?path
    { "button": { "border-radius": { "$value": "{radius.full}" } } }
    ```
 
-2. Ajoutez le fichier au set `component` du resolver, après `component/button/button.tokens.json` du socle.
-3. Donnez au plugin la feuille du groupe : `components: { button: { file: "components/acme-button/acme-button.tokens.css" } }`.
-4. Étendez la classe, et adoptez la feuille générée après celles du socle :
+2. Donnez au plugin la feuille du groupe : `components: { button: { file: "components/acme-button/acme-button.tokens.css" } }`.
+3. Étendez la classe, et adoptez la feuille générée après celles du socle :
 
    ```ts
    import { Button } from "@unicorne/components";
@@ -197,7 +187,7 @@ Les règles des tokens et du format DTCG sont dans [Tokens et couches CSS](?path
    }
    ```
 
-5. Stylez les éléments internes par leurs parts, dans la feuille de la classe :
+4. Stylez les éléments internes par leurs parts, dans la feuille de la classe :
 
    ```css
    /* acme-button.css */
@@ -268,10 +258,14 @@ export const acme = designSystem({
       import("./components/acme-button/acme-button.js").then((module) => module.AcmeButton),
   },
   icons: acmeIcons,
+  labels: { closeLabel: "Fermer", errorLabel: "Erreur :" },
+  version: __ACME_VERSION__,
 });
 ```
 
 - `designSystem({ prefix: "acme" })` seul propose tout le socle, sans surcharge.
+- `labels` donne la valeur par défaut d'une propriété, par nom, à chaque composant qui a cette propriété : les textes de la langue de la marque. Un attribut de l'élément l'emporte.
+- `version` est la version du package de la marque. Votre build la remplace : `define: { __ACME_VERSION__: … }` dans `vite.config.ts`.
 - `catalog` liste les composants qu'une application peut demander. ACME ne propose pas `button-link`. Sans `catalog`, une application peut demander tout composant.
 - Un composant s'enregistre avec les composants qu'il rend, listés ou non : `acme-card` enregistre `acme-button`.
 - `overrides` remplace un composant dans tout l'enregistrement : `acme-modal` et `acme-card` rendent `AcmeButton`.
@@ -299,12 +293,36 @@ void acme.define(Button, Alert, Modal, Icon, TextField, Textarea, Autocomplete, 
 export * from "@unicorne/components";
 export type { AcmeButton } from "./components/acme-button/acme-button.js";
 export * from "./components/acme-card/acme-card.js";
+export type { AcmeCatalog } from "./catalog.js";
 export { acme } from "./design-system.js";
 ```
 
+```ts
+// src/catalog.ts : le catalogue de la marque, en types
+import type { Catalog } from "@unicorne/components";
+
+export interface AcmeCatalog extends Omit<Catalog, "button" | "button-link"> {
+  button: { element: AcmeButton; events: {} };
+  card: { element: AcmeCard; events: {} };
+}
+
+// src/define.ts : les types de `document.querySelector("acme-button")`
+declare global {
+  interface HTMLElementTagNameMap extends TagNameMap<"acme", AcmeCatalog> {}
+}
+
+// src/vue.ts : une entrée de types, pour les applications Vue
+declare module "vue" {
+  interface GlobalComponents extends VueElements<"acme", AcmeCatalog> {}
+}
+```
+
+- `AcmeCatalog` décrit chaque balise une fois : son élément et ses événements. Les types des balises en dérivent.
+- Publiez `src/vue.ts` dans une entrée `./vue`, de types seulement : `"./vue": { "types": "./dist/vue.d.ts" }`. `VueElements` vient de `@unicorne/components/vue`.
 - N'exportez pas depuis `index.ts` la classe d'une surcharge chargée par `import()` : `index.js` la contiendrait. Publiez-la dans sa propre entrée, comme `./acme-button`.
 - Déclarez `"sideEffects": ["**/*.css", "./dist/define.js"]` dans `package.json`. Le bundler d'une application retire alors les modules qu'elle n'importe pas.
-- Partagez une seule copie de la marque entre les applications d'une page. Un second enregistrement garde les balises déjà définies, avec un avertissement si la définition diffère.
+- Partagez une seule copie de la marque entre les applications d'une page. Un second enregistrement garde les balises déjà définies. Son avertissement cite les versions des deux copies.
+- Une application qui ne peut pas partager sa copie l'enregistre sous son propre préfixe : `acme.withPrefix("acme2").define(Alert)`. Ses balises sont `acme2-alert`, et son thème reste `[data-brand="acme"]`.
 
 Une application enregistre ce qu'elle utilise :
 
@@ -324,6 +342,7 @@ await acme.define(Alert); // acme-alert et acme-icon, sans le bouton d'ACME
 ```js
 // custom-elements-manifest.config.mjs
 import { tokensManifest } from "@unicorne/components/cem-plugin";
+import { brandResolver } from "@unicorne/tokens/dtcg-sources";
 
 export default {
   globs: ["src/**/*.ts"],
@@ -333,7 +352,7 @@ export default {
   dependencies: true,
   plugins: [
     tokensManifest({
-      resolver: "tokens/acme.resolver.json",
+      resolver: brandResolver({ name: "acme", sources: "tokens" }),
       components: { card: { prefix: "acme" } },
       emit: (file) => !file.includes("/node_modules/"),
     }),
@@ -350,6 +369,10 @@ export default {
 À la racine du dépôt du socle, lancez `npm run example`. La commande empaquette les trois packages du socle, puis installe, construit et teste ACME. Le test vérifie que :
 
 - le `dist/` d'ACME importe `@unicorne/components` au lieu de le copier ;
+- `dist/theme.css` contient les seules valeurs d'ACME, sur `[data-brand="acme"]` ;
+- dans une page du socle, une zone ACME affiche les valeurs d'ACME, et le reste de la page celles du socle ;
+- une zone sombre d'une page claire est sombre et garde un contraste AA, et une zone claire d'une page sombre est claire ;
+- une zone ACME dans une zone sombre affiche le pas sombre de la palette d'ACME ;
 - les tokens d'ACME atteignent les composants du socle, et gardent un contraste AA dans les deux thèmes ;
 - les styles d'`AcmeButton` s'ajoutent à ceux du socle ;
 - la carte d'ACME lit ses tokens `--acme-card-*` ;
@@ -365,5 +388,7 @@ export default {
 - la page ne télécharge pas Floating UI, car Chromium ancre les popovers en CSS ;
 - aucune balise `u-` n'est enregistrée ;
 - le manifest d'ACME documente ce qu'`AcmeButton` hérite du socle.
+
+Une marque dont une application rend ses pages sur un serveur suit le guide [Rendre une marque sur un serveur](?path=/docs/documentation-guides-rendre-une-marque-sur-un-serveur--docs).
 
 La commande empaquette ensuite ACME, puis installe, construit et teste l'application Vue `examples/acme-vue-app` ([Utiliser une marque dans une application Vue](?path=/docs/documentation-guides-utiliser-une-marque-dans-une-application-vue--docs)).

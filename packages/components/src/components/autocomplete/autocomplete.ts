@@ -1,10 +1,11 @@
 import { html, type PropertyValues } from "lit";
 import { property } from "lit/decorators.js";
 import { live } from "lit/directives/live.js";
+import { ListboxController, listboxStyles, listboxTokens } from "../../controllers/listbox.js";
 import { ListboxSelectEvent } from "../../events/listbox-select.js";
-import { withListbox } from "../../mixins/withListbox.js";
+import { listboxKeyMove } from "../../state/listbox.js";
 import { ComboboxBase } from "../combobox/combobox-base.js";
-import type { ComboboxEntry } from "../combobox/combobox.type.js";
+import { fieldIds } from "../field/field-base.js";
 import type { ListboxOption } from "../listbox/listbox.type.js";
 import type { AutocompleteFilter } from "./autocomplete.type.js";
 
@@ -21,7 +22,8 @@ function normalize(text: string): string {
  * suggestions that match the text, and the user picks one or keeps typing.
  * The value is the text, free: a suggestion only fills it, as `<input list>`
  * does. The label, the hint, the error and the form behavior are those of
- * `FieldBase`; the popup is that of `ComboboxBase`.
+ * `FieldBase`; the popup and its state are those of `ComboboxBase`; the list
+ * is that of a `ListboxController`.
  *
  * The suggestions are `options`, or else the `<option>` children of the
  * field. With `filter="none"`, the application filters them itself: it
@@ -32,6 +34,9 @@ function normalize(text: string): string {
  * suggestion, looping at the ends; Enter picks the active one; Escape closes
  * the list and keeps the text; Home, End and the other keys edit the text.
  * Enter without an active suggestion closes the list.
+ *
+ * While the user types, a live region announces the number of suggestions:
+ * `resultsMessage` writes it.
  *
  * The browser's own suggestions (`autocomplete`) are off by default: they
  * would cover the list. Give `autocomplete` to have both.
@@ -45,8 +50,17 @@ function normalize(text: string): string {
  * @fires {ListboxSelectEvent} u-select - When the user picks a suggestion, before the field takes its value. Its `option` is the suggestion. Cancelable: `preventDefault()` keeps the text.
  * @tokens listbox - Its list's tokens (`@cssprop`), shared by every list of options, from `@unicorne/tokens` (`src/component/listbox/`): `npm run analyze` documents them.
  */
-export class Autocomplete extends withListbox(ComboboxBase) {
+export class Autocomplete extends ComboboxBase {
   static override componentName = "autocomplete";
+
+  static styles = [super.styles ?? [], listboxTokens, listboxStyles];
+
+  /**
+   * The suggestions, as data: `{ value, label?, disabled? }`. Takes
+   * precedence over the `<option>` children. Property only.
+   */
+  @property({ attribute: false })
+  options?: readonly ListboxOption[];
 
   /**
    * Which suggestions match the text, without case nor accents: those that
@@ -56,11 +70,29 @@ export class Autocomplete extends withListbox(ComboboxBase) {
   @property({ type: String })
   filter: AutocompleteFilter = "contains";
 
-  /** Whether the user has typed since the list last closed: new options open it. */
-  #typed = false;
+  /**
+   * Writes what assistive technologies hear while the user types: the
+   * number of suggestions that match the text. Give it in the page's
+   * language. Property only.
+   */
+  @property({ attribute: false })
+  resultsMessage: (count: number) => string = (count) =>
+    count === 0 ? "No suggestions" : count === 1 ? "1 suggestion" : `${count} suggestions`;
+
+  #listbox = new ListboxController(this, {
+    labelledBy: fieldIds.label,
+    options: () => this.listboxOptions,
+    activeIndex: () => this.comboboxState.activeIndex,
+    activate: (index) => this.dispatch({ type: "activate", index }),
+    select: (option) => this.selectOption(option),
+    renderOption: (option, index) => this.renderOption(option, index),
+  });
 
   /** The value of the last `change`: the inner input may fire it again, on blur. */
   #changed?: string;
+
+  /** The options of the last render: other ones have no active option yet. */
+  #available?: readonly ListboxOption[];
 
   /** The last result of `listboxOptions`, computed again when its inputs change. */
   #matching?: {
@@ -70,8 +102,13 @@ export class Autocomplete extends withListbox(ComboboxBase) {
     result: readonly ListboxOption[];
   };
 
+  /** The suggestions: `options` when set, the `<option>` children otherwise. */
+  protected get availableOptions(): readonly ListboxOption[] {
+    return this.options ?? this.#listbox.childOptions;
+  }
+
   /** The suggestions that match the text: all of them while it's empty, or with `filter="none"`. */
-  protected override get listboxOptions(): readonly ListboxOption[] {
+  protected get listboxOptions(): readonly ListboxOption[] {
     const options = this.availableOptions;
     const cache = this.#matching;
     if (
@@ -91,6 +128,11 @@ export class Autocomplete extends withListbox(ComboboxBase) {
     return result;
   }
 
+  /** The active suggestion, `undefined` when none. */
+  protected get activeOption(): ListboxOption | undefined {
+    return this.#listbox.activeOption;
+  }
+
   /**
    * Whether `option` matches `query`, the trimmed text: its label contains
    * it, or starts with it, without case nor accents. Override it for
@@ -106,6 +148,19 @@ export class Autocomplete extends withListbox(ComboboxBase) {
     return this.listboxOptions.length > 0;
   }
 
+  protected override get popupItems(): readonly ListboxOption[] {
+    return this.listboxOptions;
+  }
+
+  protected override get comboboxControls(): string {
+    return this.#listbox.id;
+  }
+
+  /** While the user types: the number of suggestions that match the text. */
+  protected override get popupStatus(): string {
+    return this.comboboxState.typed ? this.resultsMessage(this.listboxOptions.length) : "";
+  }
+
   /** @internal */
   override formResetCallback(): void {
     super.formResetCallback();
@@ -113,13 +168,13 @@ export class Autocomplete extends withListbox(ComboboxBase) {
   }
 
   protected override willUpdate(changedProperties: PropertyValues<this>): void {
-    super.willUpdate(changedProperties);
-    // While the user types, the list follows the suggestions: it opens when
-    // some match, an answer from a server for instance, and closes when
-    // none does (ComboboxBase).
-    if (this.#typed && !this.open && this.value && this.#focused) {
-      this.showPopup();
+    // Other options: the active index would point at another one.
+    const available = this.availableOptions;
+    if (available !== this.#available) {
+      this.#available = available;
+      this.dispatch({ type: "items" });
     }
+    super.willUpdate(changedProperties);
   }
 
   protected renderCombobox() {
@@ -133,7 +188,7 @@ export class Autocomplete extends withListbox(ComboboxBase) {
         aria-autocomplete="list"
         aria-expanded=${this.comboboxExpanded}
         aria-controls=${this.comboboxControls}
-        aria-activedescendant=${this.activeDescendant}
+        aria-activedescendant=${this.#listbox.activeDescendant}
         .value=${live(this.value)}
         ?required=${this.required}
         ?disabled=${this.isDisabled}
@@ -148,16 +203,17 @@ export class Autocomplete extends withListbox(ComboboxBase) {
   }
 
   protected renderPopup() {
-    return this.renderListbox();
+    return this.#listbox.render();
+  }
+
+  /** Renders the content of a suggestion: its label, or its value. Override it for a richer content. */
+  protected renderOption(option: ListboxOption, _index: number): unknown {
+    return option.label || option.value;
   }
 
   protected override handleInput(event: Event): void {
     super.handleInput(event);
-    this.#typed = true;
-    this.moveActive("none");
-    if (!this.value) {
-      this.hidePopup();
-    }
+    this.dispatch({ type: "input" });
   }
 
   protected override handleChange(): void {
@@ -169,37 +225,34 @@ export class Autocomplete extends withListbox(ComboboxBase) {
     super.handleChange();
   }
 
-  protected override hidePopup(): void {
-    this.#typed = false;
-    // Closed, the list has no active option for aria-activedescendant.
-    this.moveActive("none");
-    super.hidePopup();
-  }
-
-  protected override enterPopup(entry: ComboboxEntry): void {
-    this.moveActive(entry);
-  }
-
   protected override handlePopupKeydown(event: KeyboardEvent): boolean {
-    if (this.handleListboxKeydown(event)) {
+    const move = listboxKeyMove(event.key);
+    if (move) {
+      this.dispatch({ type: "move", to: move });
       return true;
     }
     if (event.key === "Enter") {
+      const option = this.activeOption;
+      if (option && !option.disabled) {
+        this.selectOption(option);
+        return true;
+      }
       // No active suggestion: the text is the value, the form may submit.
       this.hidePopup();
     } else if (["Home", "End", "ArrowLeft", "ArrowRight"].includes(event.key)) {
       // Back to the text.
-      this.moveActive("none");
+      this.dispatch({ type: "activate", index: -1 });
     }
     return false;
   }
 
   /**
+   * Called when the user picks an enabled suggestion, by a click or Enter.
    * Fires `u-select`, then, unless canceled, fills the field with the
    * suggestion's value, as a user's change: `input`, then `change`. The
    * list closes; the focus stays in the input.
    */
-  protected override selectOption(option: ListboxOption): void {
+  protected selectOption(option: ListboxOption): void {
     const picked = this.dispatchEvent(new ListboxSelectEvent(option));
     this.hidePopup();
     if (!picked || option.value === this.value) {
@@ -215,10 +268,5 @@ export class Autocomplete extends withListbox(ComboboxBase) {
       }),
     );
     this.handleChange();
-  }
-
-  /** Whether the input has the focus. */
-  get #focused(): boolean {
-    return this.shadowRoot?.activeElement === this.renderRoot.querySelector("#control");
   }
 }

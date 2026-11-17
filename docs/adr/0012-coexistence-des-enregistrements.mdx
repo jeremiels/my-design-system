@@ -1,0 +1,167 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Documentation/ADR/0012 Coexistence des enregistrements" />
+
+# ADR 0012 — Coexistence des enregistrements
+
+**Statut :** accepté · **Date :** 16 novembre 2026
+
+## Contexte
+
+L'[ADR 0001](?path=/docs/documentation-adr-0001-architecture-multi-marque--docs) enregistre chaque marque sous son préfixe (D1), et résout les balises internes au rendu avec `tagFor()` (D2). Il écarte les scoped registries, hors de la matrice, et ne couvre pas deux versions d'une même marque sur une page.
+
+Le besoin est précisé depuis. Une page affiche les composants de deux design systems :
+
+- Courses U utilise un design system e-commerce, et affiche la carte produit d'une marque au milieu de sa page.
+- Une page spéciale, ou une opération, change de thème dans une zone.
+
+Le thème par zone relève de l'[ADR 0013](?path=/docs/documentation-adr-0013-portées-de-marque-et-de-thème--docs). Cet ADR traite l'enregistrement.
+
+Faits vérifiés le 16 novembre 2026, avec leurs sources en fin de page :
+
+- **Scoped registries :** Chrome et Edge 146, Safari 26, Firefox 159. Ils sont Baseline « newly available » depuis le 27 octobre 2026, et « widely available » le 27 avril 2029.
+- **Public :** ce plancher couvre 79,96 % du public en France, contre 94,53 % pour la matrice ([ADR 0011](?path=/docs/documentation-adr-0011-matrice-navigateurs--docs)).
+- **Polyfill :** `@open-wc/scoped-elements` exige le polyfill, chargé avant tout autre composant de la page.
+- **Lion :** il ne charge plus ce polyfill depuis le 5 avril 2022. Il le réserve à deux versions majeures d'un composant côte à côte.
+- **Porsche Design System :** un préfixe par instance ou par version. Son chargeur refuse un préfixe déjà enregistré par une autre version.
+- **Spectrum Web Components :** une classe sans enregistrement (`./src/Button.js`), et un module à préfixe fixe (`./sp-button.js`).
+- **Fluent UI Web Components :** `class.js`, `definition.js` et `define.js` par composant.
+- **Le socle, mesuré :** `defineComponents()` enregistre le catalogue en 1,0 ms dans Chromium. Un second préfixe prend 0,4 ms.
+- **Le socle, lu :** un second enregistrement du même préfixe garde les balises déjà définies et avertit, sans citer de version (`define-components.ts:157-164`).
+- **Le socle, lu :** `designSystem()` fixe le préfixe de la marque. Une application ne le change pas.
+
+### Critères de décision
+
+1. Deux design systems différents s'affichent sur une page (besoin confirmé).
+2. Un composant rend toujours la surcharge de son propre enregistrement (ADR 0001, critère 2).
+3. Tout fonctionne dans la matrice, sans polyfill des API globales (ADR 0001, critère 5).
+4. Un conflit de versions se voit, et se corrige sans modifier la marque.
+5. Un passage aux scoped registries reste un changement localisé (ADR 0001, D2).
+
+## D1 — Le registre
+
+### Option A — `tagFor()` et un préfixe par marque (statu quo)
+
+- **Pour :** deux design systems coexistent, chacun avec ses balises et ses surcharges. Le test d'ACME le vérifie pour un préfixe, et la mesure pour deux.
+- **Pour :** aucun coût mesurable à l'enregistrement.
+- **Contre :** un mécanisme propre au socle, et des templates statiques (`lit/static-html.js`).
+
+### Option B — Scoped registries, avec le polyfill
+
+- **Pour :** le standard. Deux versions d'une marque coexistent sans changer de balise.
+- **Contre :** le polyfill modifie des API globales, et se charge avant tout autre composant : le critère 3 échoue.
+
+### Option C — Scoped registries natifs, sans repli
+
+- **Contre :** 14,57 points de public exclus.
+
+### Option D — Scoped registries là où ils existent, `tagFor()` ailleurs
+
+- **Contre :** deux chemins de rendu à tester, pour un gain limité à 80 % du public.
+
+**Décision : A.** La réévaluation suit le plancher de la matrice, pas une date.
+
+Les deux règles de l'ADR 0001 (D2) restent en vigueur : toute dépendance est déclarée, et le branchement au registre vit dans `DSBaseElement`.
+
+## D2 — Deux versions d'une même marque
+
+Deux micro-frontends d'une page embarquent chacun leur copie d'une marque, dans deux versions.
+
+### Option A — Garder la première, avertir (statu quo)
+
+- **Contre :** le second micro-frontend tourne sur une version qu'il n'a pas testée. L'avertissement ne dit pas lesquelles : le critère 4 échoue.
+
+### Option B — Une seule copie par page, imposée
+
+- **Pour :** aucun code. L'import map ou le bundler de la page partage la marque.
+- **Contre :** deux équipes s'alignent sur une version. Ce n'est pas toujours possible.
+
+### Option C — Un préfixe au choix de l'application, et la version dans l'enregistrement
+
+- **Pour :** c'est le modèle de Porsche Design System. Une application isole sa copie sous `acme2`, sans modifier la marque.
+- **Pour :** l'avertissement cite les deux versions et le correctif.
+- **Contre :** l'application écrit ses balises avec son préfixe : `acme2-button`. Ses sélecteurs CSS suivent.
+
+**Décision : B par défaut, C pour l'application qui ne peut pas s'aligner.**
+
+```ts
+// Une application qui isole sa copie d'ACME
+import { acme, Alert } from "@acme/design-system";
+
+await acme.withPrefix("acme2").define(Alert); // acme2-alert, acme2-icon
+```
+
+- `designSystem()` reçoit `version`, la version du package de la marque.
+- `defineComponents()` pose sur chaque sous-classe la version de la marque et celle du socle.
+- Deux enregistrements du même préfixe et de versions différentes gardent le premier. L'avertissement cite les deux versions et `withPrefix()`.
+- Le thème ne change pas : `acme2-button` lit les mêmes tokens, sous `[data-brand="acme"]`.
+
+Cette décision remplace la section « Deux versions d'une même marque sur une page : non couvert » de l'ADR 0001 (D2), et sa question tranchée du même nom.
+
+## D3 — Le nom des événements
+
+- **Option A — `u-*` pour toute marque (statu quo).** `acme-modal` émet `u-close`.
+- **Option B — Le préfixe de la marque.** `acme-modal` émet `acme-close`.
+
+**Décision : A.**
+
+- Un nom d'événement n'est pas une ressource globale : deux marques qui émettent `u-close` n'entrent pas en conflit.
+- Le code d'une application et ses types restent identiques d'une marque à l'autre, comme les tokens `--u-` (ADR 0001, D4).
+- Avec `withPrefix()`, un préfixe de marque dans le nom changerait aussi les écouteurs de l'application.
+
+## Récapitulatif
+
+<table>
+  <thead>
+    <tr>
+      <th>Décision</th>
+      <th>Choix</th>
+      <th>Pourquoi</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>D1 — Registre</td>
+      <td>`tagFor()` et un préfixe par marque</td>
+      <td>
+        Deux design systems coexistent ; les scoped registries excluent 14,57 points de public
+      </td>
+    </tr>
+    <tr>
+      <td>D2 — Deux versions</td>
+      <td>Une copie par page ; sinon `withPrefix()`, et la version dans l'avertissement</td>
+      <td>Un conflit se voit et se corrige dans l'application</td>
+    </tr>
+    <tr>
+      <td>D3 — Événements</td>
+      <td>`u-*` pour toute marque</td>
+      <td>Aucun conflit possible ; le code de l'application ne dépend pas du préfixe</td>
+    </tr>
+  </tbody>
+</table>
+
+## Conséquences
+
+- **Code :** `withPrefix()` et `version` dans `packages/components/src/registry/design-system.ts`. Les versions et le message dans `define-components.ts`.
+- **Tests :** `design-system.test.ts` enregistre une marque sous deux préfixes. `define-components.test.ts` vérifie le message.
+- **Marques :** une ligne de plus dans `designSystem()` : `version`.
+- **Documentation :** le guide de marque, sa section sur le partage d'une copie, et le skill `create-component`.
+
+## Questions ouvertes
+
+- **Types :** `withPrefix("acme2")` demande les types de balises de ce préfixe. Le type à gabarit de l'[ADR 0014](?path=/docs/documentation-adr-0014-vue-et-rendu-serveur--docs) (D1) les donne.
+- **Icônes et polyfills :** deux copies du socle chargent deux fois les modules d'icônes. `loadInvokers()` teste déjà `isSupported()`.
+- **Version du socle :** deux marques sur deux versions majeures de `@unicorne/tokens` partagent `:root`. L'ADR 0013 (D4) fixe la règle.
+
+## Sources
+
+Consultées le 16 novembre 2026.
+
+- [Scoped custom element registries](https://web-platform-dx.github.io/web-features-explorer/features/scoped-custom-element-registries/) (web-features explorer) : versions, Baseline depuis le 27 octobre 2026.
+- [Scoped elements](https://open-wc.org/docs/development/scoped-elements/) (Open Web Components) : « This package requires using the Scoped Custom Element Registry polyfill », « Make sure to load it as the first thing in your application ».
+- [Lion without polyfills](https://lion.js.org/blog/lion-without-polyfills/) (ING, 5 avril 2022) : « From today on this polyfill became optional ».
+- [Porsche Design System, Vue](https://designsystem.porsche.com/v4/developing/vue/advanced/) (Porsche), version 4.10.1 : « A way of preventing those conflicts is by using a unique custom prefix for the components ».
+- [Loader script](https://designsystem.porsche.com/v4/partials/loader-script) (Porsche Design System, version 4) : l'option `prefix` accepte un tableau ; « prefix […] is already registered with version […] of the Porsche Design System. Please use a different one. »
+- [@spectrum-web-components/button](https://registry.npmjs.org/@spectrum-web-components/button/latest) (npm), version 1.12.6 : exports `./sp-button.js` et `./src/Button.js`.
+- [@fluentui/web-components](https://registry.npmjs.org/@fluentui/web-components/latest) (npm), version 3.2.1 : exports par composant.
+- `caniuse-lite` 1.0.30001826, installé dans le dépôt : parts de public en France.

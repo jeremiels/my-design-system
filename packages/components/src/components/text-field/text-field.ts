@@ -52,6 +52,7 @@ export class TextField extends FieldBase {
         aria-describedby=${this.controlDescribedBy}
         @input=${this.handleInput}
         @change=${this.handleChange}
+        @keydown=${this.submitOnEnter}
       />
     `;
   }

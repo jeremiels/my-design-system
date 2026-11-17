@@ -28,11 +28,12 @@ Les chemins partent de `packages/components/`, sauf ceux de `packages/tokens/` e
 ## 2. Enregistrez et publiez
 
 1. Ajoutez la classe à `allComponents` dans `src/registry/catalog.ts`. Les marques la reçoivent par `defineComponents({ components: [...allComponents, …] })`.
-2. Ajoutez `"u-<nom>": <Classe>` à `HTMLElementTagNameMap` dans `src/define.ts`.
+2. Ajoutez le composant au type `Catalog` de `src/registry/catalog.ts` : son élément et ses événements. `HTMLElementTagNameMap` et les types pour Vue en dérivent.
 3. Exportez la classe, ses événements et ses types depuis `src/index.ts`.
 4. Ajoutez une entrée `lib.entry` dans `vite.config.ts` : `"<nom>": resolve(import.meta.dirname, "src/components/<nom>/<nom>.ts")`.
 5. Ajoutez `"./<nom>"` aux `exports` de `packages/components/package.json`, avec `types` (`./dist/components/<nom>/<nom>.d.ts`) et `import` (`./dist/<nom>.js`).
 6. Ajoutez tout nouvel import `lit/...` à `optimizeDeps.include` dans le `vite.config.ts` de la racine.
+7. Ajoutez une page du composant à `src/ssr.setup.ts` : le test de rendu serveur échoue sans elle.
 
 ## 3. Générez les tokens et le manifest
 
@@ -67,7 +68,7 @@ Dans le design system de la marque (par exemple `examples/acme-design-system`) :
 
 - Appliquez les mêmes règles de classe, avec les imports du package du socle : `import { DSBaseElement, Button } from "@unicorne/components"`. Les dépendances vers les composants du socle donnent les surcharges de la marque.
 - Écrivez ses tokens dans les sources DTCG de la marque (`tokens/component/<nom>/`), en alias de tokens sémantiques. L'option `prefix` du plugin leur donne le préfixe de la marque (`--acme-card-padding`).
-- Ajoutez son nom au `catalog` de `designSystem()` (`src/design-system.ts`), sa classe à `acme.define(…)` dans `src/define.ts`, et sa balise à `HTMLElementTagNameMap`. Exportez-le depuis `src/index.ts`.
+- Ajoutez son nom au `catalog` de `designSystem()` (`src/design-system.ts`), sa classe à `acme.define(…)` dans `src/define.ts`, et son entrée au type `AcmeCatalog` (`src/catalog.ts`). Exportez-le depuis `src/index.ts`.
 - Pour étendre un composant du socle, créez une sous-classe (`class AcmeButton extends Button`, `static styles = [Button.styles ?? [], acmeButtonTokens, acmeButtonStyles]`). Passez-la dans `overrides` de `designSystem()`, par un `import()` : `button: () => import("…").then((module) => module.AcmeButton)`. Ses valeurs de tokens viennent des sources DTCG de la marque.
 - Publiez une surcharge chargée par `import()` dans sa propre entrée, jamais en valeur depuis `src/index.ts`.
 

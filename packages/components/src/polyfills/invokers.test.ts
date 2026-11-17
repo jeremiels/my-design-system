@@ -13,7 +13,7 @@ Reflect.deleteProperty(HTMLButtonElement.prototype, "command");
 Reflect.deleteProperty(globalThis, "CommandEvent");
 
 const { loadInvokers, nativeInvokers } = await import("./invokers.js");
-const { withCommands } = await import("../mixins/withCommands.js");
+const { CommandsController } = await import("../controllers/commands.js");
 const { withInvoker } = await import("../mixins/withInvoker.js");
 await import("../define.js");
 
@@ -24,11 +24,12 @@ class Invoker extends withInvoker(LitElement) {
 }
 customElements.define("t-polyfilled-invoker", Invoker);
 
-class Target extends withCommands(LitElement) {
+class Target extends LitElement {
   received: string[] = [];
 
-  protected override handleCommand(event: CommandEvent) {
-    this.received.push(event.command);
+  constructor() {
+    super();
+    new CommandsController(this, (event) => this.received.push(event.command));
   }
 }
 customElements.define("t-polyfilled-target", Target);

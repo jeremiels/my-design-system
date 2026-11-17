@@ -11,7 +11,8 @@ Reflect.deleteProperty(HTMLElement.prototype, "popover");
 vi.spyOn(CSS, "supports").mockReturnValue(false);
 
 const { cssAnchors, supportsPopover } = await import("./anchor-positioning.js");
-const { withAnchoredPopover } = await import("../mixins/withAnchoredPopover.js");
+const { AnchoredPopoverController, anchoredPopoverStyles } =
+  await import("../controllers/anchored-popover.js");
 
 /** A constructed sheet: Lit's `css` tag isn't used in the base. */
 function sheet(text: string) {
@@ -20,9 +21,9 @@ function sheet(text: string) {
   return styles;
 }
 
-class Anchored extends withAnchoredPopover(LitElement) {
+class Anchored extends LitElement {
   static styles = [
-    super.styles ?? [],
+    anchoredPopoverStyles,
     sheet(`
       :host {
         --u-z-index-overlay: 7;
@@ -33,6 +34,8 @@ class Anchored extends withAnchoredPopover(LitElement) {
       }
     `),
   ];
+
+  anchored = new AnchoredPopoverController(this);
 
   render() {
     return html`
@@ -50,11 +53,11 @@ class Anchored extends withAnchoredPopover(LitElement) {
   }
 
   open() {
-    return this.openPopover(this.panel, this.anchor);
+    return this.anchored.open(this.panel, this.anchor);
   }
 
   close() {
-    this.closePopover(this.panel);
+    this.anchored.close(this.panel);
   }
 }
 customElements.define("t-anchored-without-popover", Anchored);

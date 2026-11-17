@@ -1,5 +1,6 @@
-import { readFileSync } from "node:fs";
-import { dirname, resolve } from "node:path";
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { createRequire } from "node:module";
+import { basename, dirname, join, relative, resolve } from "node:path";
 
 /**
  * Reads a DTCG resolver (`*.resolver.json`, DTCG 2025.10) and its token files
@@ -273,4 +274,145 @@ export function checkLevels(sources: ResolverSources): string[] {
   }
 
   return [...new Set(errors)];
+}
+
+/** The base's resolver, `@unicorne/tokens/resolver.json`: absolute path. */
+function baseResolverFile(): string {
+  return createRequire(import.meta.url).resolve("@unicorne/tokens/resolver.json");
+}
+
+/** The directory of the base's token files: absolute path, with a trailing slash. */
+export function baseSourcesDirectory(): string {
+  return `${dirname(baseResolverFile())}/`;
+}
+
+export interface BrandResolverOptions {
+  /** The brand: names the resolver, `.<name>.resolver.json`. */
+  name: string;
+  /**
+   * The directory of the brand's token files, laid out as the base's:
+   * `primitive/`, `semantic/`, `component/<component>/`.
+   */
+  sources: string;
+  /**
+   * The modifiers of the brand's own components, with their default context:
+   * `{ "card-size": { default: "medium" } }` for
+   * `component/card/size.small.tokens.json`.
+   */
+  modifiers?: Record<string, { default: string }>;
+}
+
+/** `*.tokens.json` files of a directory, sorted; none when it doesn't exist. */
+function tokenFiles(directory: string): string[] {
+  return existsSync(directory)
+    ? readdirSync(directory)
+        .filter((file) => file.endsWith(".tokens.json"))
+        .sort()
+        .map((file) => join(directory, file))
+    : [];
+}
+
+/** `variant.danger.tokens.json` → `["variant", "danger"]`; `button.tokens.json` → undefined. */
+function contextOf(file: string): [string, string] | undefined {
+  const parts = basename(file, ".tokens.json").split(".");
+  return parts.length === 2 ? [parts[0]!, parts[1]!] : undefined;
+}
+
+/**
+ * Writes the resolver of a brand (ADR 0013, D5) and returns its path, for
+ * `tokens` in the Terrazzo config: the base's sets and modifiers, with the
+ * brand's files after the base's in each, so the brand's values win. The
+ * brand never lists the base's files: a file the base adds is there.
+ *
+ * Where a file of `sources` goes:
+ *
+ * - `primitive/*.tokens.json`: the `primitive` set;
+ * - `semantic/<name>.tokens.json`: the `semantic` set;
+ * - `semantic/<modifier>.<context>.tokens.json`: that context of a page
+ *   modifier (`theme.dark`, `motion.reduced`);
+ * - `component/<component>/<component>.tokens.json`: the `component` set;
+ * - `component/<component>/<attribute>.<value>.tokens.json`: the context
+ *   `<value>` of the modifier `<component>-<attribute>`, the base's or one
+ *   declared in `modifiers`.
+ *
+ * The resolver is written into `sources`, as `.<name>.resolver.json`: ignore
+ * it in git, the build writes it.
+ */
+export function brandResolver({ name, sources, modifiers = {} }: BrandResolverOptions): string {
+  const directory = resolve(sources);
+  const output = join(directory, `.${name}.resolver.json`);
+  const baseFile = baseResolverFile();
+  const base = JSON.parse(readFileSync(baseFile, "utf8")) as {
+    sets: Record<string, { sources: { $ref: string }[] }>;
+    modifiers: Record<string, { default?: string; contexts: Record<string, { $ref: string }[]> }>;
+    resolutionOrder: { $ref: string }[];
+  };
+  const ref = (file: string) => ({ $ref: relative(directory, file) });
+  const fromBase = ({ $ref }: { $ref: string }) => ref(resolve(dirname(baseFile), $ref));
+
+  const sets = Object.fromEntries(
+    Object.entries(base.sets).map(([set, { sources: files }]) => [
+      set,
+      { sources: files.map(fromBase) },
+    ]),
+  );
+  const contexts = Object.fromEntries(
+    Object.entries(base.modifiers).map(([modifier, { default: fallback, contexts }]) => [
+      modifier,
+      {
+        default: fallback,
+        contexts: Object.fromEntries(
+          Object.entries(contexts).map(([context, files]) => [context, files.map(fromBase)]),
+        ),
+      },
+    ]),
+  );
+  for (const [modifier, { default: fallback }] of Object.entries(modifiers)) {
+    contexts[modifier] ??= { default: fallback, contexts: { [fallback]: [] } };
+  }
+  const added: string[] = Object.keys(modifiers).filter(
+    (modifier) => !(modifier in base.modifiers),
+  );
+
+  const place = (file: string, set: string, modifierOf: (attribute: string) => string) => {
+    const context = contextOf(file);
+    if (context === undefined) {
+      sets[set]!.sources.push(ref(file));
+      return;
+    }
+    const modifier = contexts[modifierOf(context[0])];
+    if (modifier === undefined) {
+      throw new Error(
+        `${file}: no modifier "${modifierOf(context[0])}". Declare it in the modifiers option of brandResolver().`,
+      );
+    }
+    (modifier.contexts[context[1]] ??= []).push(ref(file));
+  };
+  for (const file of tokenFiles(join(directory, "primitive"))) {
+    sets.primitive!.sources.push(ref(file));
+  }
+  for (const file of tokenFiles(join(directory, "semantic"))) {
+    place(file, "semantic", (attribute) => attribute);
+  }
+  const components = join(directory, "component");
+  for (const component of existsSync(components) ? readdirSync(components).sort() : []) {
+    for (const file of tokenFiles(join(components, component))) {
+      place(file, "component", (attribute) => `${component}-${attribute}`);
+    }
+  }
+
+  const document = {
+    name,
+    version: "2025.10",
+    description: `Generated by brandResolver() of @unicorne/tokens: the base's tokens, then those of ${name}. Do not edit.`,
+    sets,
+    modifiers: contexts,
+    resolutionOrder: [
+      ...base.resolutionOrder,
+      ...added.map((modifier) => ({ $ref: `#/modifiers/${modifier}` })),
+    ],
+  };
+  mkdirSync(directory, { recursive: true });
+  writeFileSync(output, `${JSON.stringify(document, null, 2)}\n`);
+  return output;
 }

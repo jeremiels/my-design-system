@@ -1,7 +1,7 @@
 /**
  * Invoker Commands (`<button commandfor command>`): Chrome and Edge 135,
  * Firefox 144, Safari 26.2. The older browsers of the matrix get
- * invokers-polyfill, loaded on first use by `withInvoker` and `withCommands`:
+ * invokers-polyfill, loaded on first use by `withInvoker` and `CommandsController`:
  * an application that sends no command never downloads it.
  *
  * Its `fn` entry: the main one applies itself on import, and its types

@@ -1,0 +1,115 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Documentation/Guides/Rendre une marque sur un serveur" />
+
+# Rendre une marque sur un serveur
+
+Ce guide rend les composants d'une marque sur un serveur Node, puis les hydrate dans le navigateur. Le rendu serveur est une option de chaque application : une application qui rend dans le navigateur n'installe rien de plus. La décision est dans l'[ADR 0014](?path=/docs/documentation-adr-0014-vue-et-rendu-serveur--docs).
+
+Le rendu passe par Lit SSR (`@lit-labs/ssr`), un package expérimental de Lit Labs. Les exemples utilisent la marque ACME.
+
+## Prérequis
+
+- Une marque créée ([Créer un design system de marque](?path=/docs/documentation-guides-créer-un-design-system-de-marque--docs)).
+- Un serveur Node 26, ou une version plus récente.
+
+## 1. Installez Lit SSR
+
+```sh
+npm install @lit-labs/ssr @lit-labs/ssr-client
+```
+
+- `@lit-labs/ssr` 4.1.0 demande `@types/node` avant sa version 25. Avec les types de Node 26, ajoutez `"overrides": { "@lit-labs/ssr": { "@types/node": "$@types/node" } }` à `package.json`.
+
+## 2. Rendez une page sur le serveur
+
+```ts
+// Le premier import : il installe le DOM minimal dont les composants ont besoin.
+import { render } from "@lit-labs/ssr";
+import { collectResult } from "@lit-labs/ssr/lib/render-result.js";
+import { html } from "lit";
+import { acme, Alert, TextField } from "@acme/design-system";
+
+await acme.define(Alert, TextField);
+
+const body = await collectResult(
+  render(html`
+    <acme-alert type="success">Compte créé</acme-alert>
+    <acme-text-field label="Nom" name="name" required></acme-text-field>
+  `),
+);
+```
+
+1. Importez `@lit-labs/ssr` avant la marque.
+2. Enregistrez les composants de la page avec `define()`, avant le rendu.
+3. Rendez le template de la page avec `render()`, et envoyez le résultat dans le `<body>`.
+4. Chargez la feuille de la marque dans le `<head>`, et posez `data-brand` sur `<html>`.
+
+- Chaque composant sort avec un Declarative Shadow DOM : son contenu et ses styles s'affichent avant tout script.
+- Un composant rend aussi les composants qu'il contient : `acme-modal` rend `acme-button` et `acme-icon`.
+
+## 3. Hydratez dans le navigateur
+
+```ts
+// Le premier import : Lit lit ce module au chargement du sien.
+import "@lit-labs/ssr-client/lit-element-hydrate-support.js";
+import { acme, Alert, TextField } from "@acme/design-system";
+
+await acme.define(Alert, TextField);
+```
+
+1. Importez le module d'hydratation avant la marque et avant Lit.
+2. Enregistrez les mêmes composants que sur le serveur.
+
+- Un composant hydraté garde les éléments rendus par le serveur, et devient interactif.
+- Firefox avant sa version 123 n'a pas le Declarative Shadow DOM. Chargez-y le polyfill que cite la [documentation de Lit](https://lit.dev/docs/ssr/client-usage/), avant le module d'hydratation.
+
+## 4. Tenez compte des limites
+
+<table>
+  <thead>
+    <tr>
+      <th>Composant</th>
+      <th>Sur le serveur</th>
+      <th>Après l'hydratation</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>`icon`</td>
+      <td>Sa boîte, vide : le module de l'icône se charge par `import()`</td>
+      <td>L'icône s'affiche, sans déplacer la page</td>
+    </tr>
+    <tr>
+      <td>`autocomplete`</td>
+      <td>Une liste vide : le serveur ne lit pas les enfants `<option>`</td>
+      <td>La liste lit ses enfants. La propriété `options` n'a pas cette limite</td>
+    </tr>
+    <tr>
+      <td>`alert`</td>
+      <td>Son message, visible</td>
+      <td>Le message reste affiché. Un lecteur d'écran ne l'annonce pas une seconde fois</td>
+    </tr>
+    <tr>
+      <td>`modal`</td>
+      <td>Fermée : `showModal()` demande le navigateur</td>
+      <td>Elle s'ouvre par une commande, une méthode ou `open`</td>
+    </tr>
+  </tbody>
+</table>
+
+- Chaque instance répète ses styles dans le HTML : un bouton rendu pèse environ 4 kB. Mesurez le HTML d'une longue liste, compression comprise, avant d'y rendre chaque composant.
+- Lit SSR n'attend aucun travail asynchrone d'un composant. Chargez les données avant le rendu, et passez-les en propriétés.
+- Nuxt a un module communautaire, `nuxt-ssr-lit`. Le socle ne le teste pas.
+
+## 5. Vérifiez
+
+Dans le dépôt du socle, lancez `npx vitest run --project ssr`. La commande rend chaque composant du catalogue dans Node, puis l'hydrate dans Chromium, Firefox et WebKit. Le test vérifie que :
+
+- le socle s'importe dans Node ;
+- chaque composant a son shadow root et ses styles avant tout script ;
+- chaque composant s'hydrate sans erreur, et garde les éléments du serveur ;
+- le message d'une alerte reste visible ;
+- `autocomplete` liste ses enfants `<option>` après l'hydratation.
+
+Une marque applique le même test à ses propres composants. Le modèle est `packages/components/src/ssr.setup.ts` et `packages/components/src/ssr.test.ts`.

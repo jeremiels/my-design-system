@@ -134,14 +134,14 @@ Le socle supporte les canaux étendus des entreprises (Firefox ESR, Chrome et Ed
       <td>Invoker Commands (`commandfor`, `command`)</td>
       <td>
         Natifs depuis Chrome et Edge 135, Firefox 144 et Safari 26.2. Ailleurs, `withInvoker` et
-        `withCommands` chargent `invokers-polyfill` à la demande ([ADR
+        `CommandsController` chargent `invokers-polyfill` à la demande ([ADR
         0008](?path=/docs/documentation-adr-0008-commandes-et-modale--docs)).
       </td>
     </tr>
     <tr>
       <td>Popover API (`popover`, `showPopover()`)</td>
       <td>
-        Depuis Chrome et Edge 114, Firefox 125 et Safari 17. Ailleurs, `withAnchoredPopover` fixe le
+        Depuis Chrome et Edge 114, Firefox 125 et Safari 17. Ailleurs, `AnchoredPopoverController` fixe le
         popover au-dessus de la page, hors du top layer ([ADR
         0009](?path=/docs/documentation-adr-0009-autocomplete-combobox-et-popovers-ancrés--docs)).
       </td>
@@ -149,7 +149,7 @@ Le socle supporte les canaux étendus des entreprises (Firefox ESR, Chrome et Ed
     <tr>
       <td>CSS anchor positioning (`position-area`, `position-try-fallbacks`, `anchor-size()`)</td>
       <td>
-        Depuis Chrome et Edge 129, Firefox 147 et Safari 26. Ailleurs, `withAnchoredPopover` charge
+        Depuis Chrome et Edge 129, Firefox 147 et Safari 26. Ailleurs, `AnchoredPopoverController` charge
         Floating UI à la demande ([ADR
         0009](?path=/docs/documentation-adr-0009-autocomplete-combobox-et-popovers-ancrés--docs)).
       </td>
@@ -158,8 +158,23 @@ Le socle supporte les canaux étendus des entreprises (Firefox ESR, Chrome et Ed
       <td>`@starting-style`, `transition-behavior`, `overlay`</td>
       <td>
         Amélioration progressive. Avant Chrome 117, Firefox 129 et Safari 17.5, l'entrée est
-        instantanée. Sans `overlay` (Firefox, Safari), `withExitTransition` retarde la
+        instantanée. Sans `overlay` (Firefox, Safari), `closeWithTransition()` retarde la
         fermeture.
+      </td>
+    </tr>
+    <tr>
+      <td>Declarative Shadow DOM</td>
+      <td>
+        Depuis Chrome et Edge 111, Safari 16.4 et Firefox 123. Seul le rendu serveur l'utilise
+        ([Rendre une marque sur un serveur](?path=/docs/documentation-guides-rendre-une-marque-sur-un-serveur--docs)) :
+        Firefox avant 123 y demande un polyfill.
+      </td>
+    </tr>
+    <tr>
+      <td>`:not()` avec un sélecteur complexe</td>
+      <td>
+        Depuis Chrome et Edge 88, Firefox 84 et Safari 9. Les sélecteurs des zones de thème de
+        `tokens.css` l'utilisent.
       </td>
     </tr>
     <tr>
@@ -194,7 +209,8 @@ Toute autre fonctionnalité récente se vérifie contre la matrice (MDN, caniuse
     <tr>
       <td>`npx vitest run`</td>
       <td>
-        Stories et tests, dans les versions récentes de Chromium, Firefox et WebKit (Playwright)
+        Stories, tests, rendu serveur et hydratation, dans les versions récentes de Chromium,
+        Firefox et WebKit (Playwright)
       </td>
     </tr>
     <tr>

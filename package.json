@@ -18,6 +18,7 @@
     "icons": "npm run icons -w @unicorne/icons",
     "analyze": "npm run analyze -w @unicorne/components",
     "check": "oxlint packages/components/src packages/tokens/testing .storybook && oxfmt --check && tsc -p tsconfig.json --noEmit && npm run tokens:check --workspaces --if-present && npm run icons:check -w @unicorne/icons && npm run api:check -w @unicorne/components && npm run dsds && vitest run",
+    "coverage": "COVERAGE=1 vitest run --coverage",
     "lint": "oxlint packages/components/src packages/tokens/testing .storybook --fix",
     "fmt": "oxfmt",
     "fmt:check": "oxfmt --check",
@@ -28,6 +29,8 @@
   "devDependencies": {
     "@chromatic-com/storybook": "^5.6.0",
     "@custom-elements-manifest/analyzer": "^0.11.0",
+    "@lit-labs/ssr": "^4.1.0",
+    "@lit-labs/ssr-client": "^1.1.8",
     "@storybook/addon-a11y": "^10.6.7",
     "@storybook/addon-docs": "^10.6.7",
     "@storybook/addon-vitest": "^10.6.7",
@@ -56,7 +59,13 @@
     "typescript": "~7.0.2",
     "vite": "^8.3.8",
     "vitest": "^5.1.0",
+    "vue": "^3.5.45",
     "yaml": "^2.9.1"
+  },
+  "overrides": {
+    "@lit-labs/ssr": {
+      "@types/node": "$@types/node"
+    }
   },
   "browserslist": [
     "chrome >= 111",

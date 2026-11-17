@@ -1,0 +1,213 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Documentation/ADR/0013 Portées de marque et de thème" />
+
+# ADR 0013 — Portées de marque et de thème
+
+**Statut :** accepté · **Date :** 16 novembre 2026
+
+## Contexte
+
+L'[ADR 0001](?path=/docs/documentation-adr-0001-architecture-multi-marque--docs) (D4) prévoit qu'un thème s'applique à `:root`, ou à un conteneur quand plusieurs marques partagent une page. L'[ADR 0002](?path=/docs/documentation-adr-0002-tokens-au-format-dtcg--docs) (D7) fait écrire à chaque marque un resolver qui liste les fichiers du socle.
+
+Trois cas sont confirmés :
+
+- La carte produit d'une marque s'affiche dans la page d'un autre design system.
+- Le contenu principal d'une page a un autre thème que sa navigation.
+- Une opération change le thème d'une page ou d'une zone.
+
+Les tokens servent aussi iOS et Android ([ADR 0004](?path=/docs/documentation-adr-0004-plateformes-natives-et-figma--docs)). L'entreprise n'a pas le plan Enterprise de Figma : ni collections étendues, ni API REST des variables.
+
+Faits vérifiés le 16 novembre 2026 dans le dépôt :
+
+- Les primitives sont déclarées sur `:root` seul (`packages/tokens/css/tokens.css:3`).
+- Les tokens sémantiques sont déclarés sur `:root` et sur tout `[data-brand]` (`tokens.css:108-109`).
+- Le thème sombre vise `:root[data-theme="dark"]` et ses `[data-brand]` (`tokens.css:226-227`).
+- Mesuré dans Chromium : un conteneur `data-theme="dark"` d'une page claire garde `--u-color-surface-default` à `#fff`.
+- L'option `scope` du plugin choisit `:root` ou un conteneur, au build (`terrazzo-plugin.ts:181-183`).
+- La feuille d'ACME importe les couches du socle, ses tokens, puis son thème (`examples/acme-design-system/src/styles.css:5-7`).
+- Le resolver d'ACME cite 10 fichiers du socle par leur chemin (`examples/acme-design-system/tokens/acme.resolver.json`).
+- Le lecteur du resolver exige un fichier de tokens entier par `$ref` (`packages/tokens/plugins/dtcg-sources.ts:99`).
+
+Faits vérifiés le 16 novembre 2026, avec leurs sources en fin de page :
+
+- **Spectrum Web Components :** l'élément `sp-theme` donne ses tokens à son sous-arbre. Il s'imbrique : une zone claire dans une page sombre.
+- **Carbon :** sa documentation prévoit des sections dans le thème opposé.
+- **Web Awesome :** sa documentation place les classes de thème sur l'élément `html`.
+- **`light-dark()` :** Chrome 123, Firefox 120, Safari 17.5. Il est hors de la matrice.
+- **Resolver DTCG 2025.10 :** un `$ref` vise un autre document, ou une partie de ce document. La spec ne définit pas l'extension d'un resolver par un autre.
+- **Terrazzo 2.10, essayé :** un `$ref` vers `u.resolver.json#/sets/primitive` échoue. Les chemins relatifs du resolver référencé sont mal résolus.
+
+### Critères de décision
+
+1. Un conteneur change de marque.
+2. Un conteneur change de thème, clair ou sombre, quel que soit le thème de la page.
+3. Une marque invitée ne reçoit aucune valeur de la marque hôte.
+4. Une page charge les tokens du socle une seule fois.
+5. Les sources DTCG restent sans sélecteur ni attribut du web (ADR 0003).
+6. Le flux Figma fonctionne sans le plan Enterprise (ADR 0004, D2).
+7. Tout fonctionne dans la [matrice](?path=/docs/documentation-référence-support-navigateurs--docs).
+
+## D1 — La portée du thème d'une marque
+
+- **Option A — `:root` ou un conteneur, choisi au build (statu quo).** Une marque hôte et invitée publie deux feuilles, de deux builds.
+- **Option B — Toujours `[data-brand="<marque>"]`.** L'application hôte pose l'attribut sur `html`. Une zone invitée le pose sur son conteneur.
+
+**Décision : B.**
+
+- Une seule feuille sert les deux cas.
+- L'option `scope` du plugin disparaît. Le plugin déduit le sélecteur d'une option `brand`.
+- Sans `data-brand`, une page affiche le socle.
+
+## D2 — L'isolation d'une marque invitée
+
+Un `var()` se résout sur l'élément qui déclare la custom property. Un conteneur `[data-brand]` redéclare les tokens sémantiques, mais hérite des primitives de son parent.
+
+- **Option A — Hériter (statu quo).** Une marque invitée reçoit les palettes et les polices que la marque hôte change, et qu'elle ne change pas elle-même : le critère 3 échoue.
+- **Option B — Chaque marque émet tous les tokens.** Sa feuille grossit de toute la feuille du socle, et fige une version des valeurs du socle.
+- **Option C — Le socle redéclare ses primitives sur `[data-brand]`.** Chaque conteneur de marque repart des valeurs du socle, puis applique les siennes.
+
+**Décision : C.** La feuille garde sa taille : le sélecteur des primitives devient `:root, [data-brand]`.
+
+## D3 — Le thème clair ou sombre sur un conteneur
+
+### Option A — Sur `html` seul (statu quo)
+
+- **Contre :** le critère 2 échoue.
+
+### Option B — `data-theme` sur tout élément
+
+Le plugin émet le contexte `dark` sur `[data-theme="dark"]`, et le contexte `light` sur `[data-theme="light"]`.
+
+- **Pour :** fonctionne dans toute la matrice. Les sources DTCG ne changent pas.
+- **Contre :** la feuille déclare aussi les couleurs claires une seconde fois, pour une zone claire dans une page sombre.
+- **Contre :** les sélecteurs distinguent deux niveaux de thème, pas trois. Un conteneur `[data-brand]` sous trois thèmes alternés garde le thème clair.
+
+### Option C — `light-dark()` et `color-scheme`
+
+Chaque couleur sémantique vaut `light-dark(clair, sombre)`. Un conteneur change de thème par `color-scheme`.
+
+- **Pour :** l'emboîtement est illimité, et la feuille ne répète rien.
+- **Contre :** absent avant Chrome 123 et Safari 17.5 : le critère 7 échoue.
+
+**Décision : B**, et C quand la matrice atteint Safari 17.5 ([ADR 0011](?path=/docs/documentation-adr-0011-matrice-navigateurs--docs)).
+
+- `color-scheme` suit `data-theme` sur le conteneur, comme sur `html`.
+- Sans attribut, une zone suit son parent. La préférence du système s'applique à `html`.
+- Un conteneur `[data-brand]` prend le thème de la zone la plus proche, sur deux niveaux : une marque dans une zone claire d'une page sombre est claire.
+- Un conteneur `[data-brand]` porte aussi `data-theme`, quand il a son propre thème.
+
+Sur iOS et Android, une zone injecte un autre objet de tokens dans son sous-arbre (ADR 0004, D5). Les sources ne changent pas.
+
+## D4 — Les feuilles qu'une marque publie
+
+- **Option A — Une feuille complète (statu quo).** Une marque invitée recharge les couches et les tokens du socle : le critère 4 échoue.
+- **Option B — Deux feuilles.** `styles.css` reste la feuille complète de l'application hôte. `theme.css` contient les seules valeurs de la marque.
+
+**Décision : B.**
+
+- L'application hôte charge `styles.css` de sa marque.
+- Une zone invitée ajoute le `theme.css` de sa marque, rien d'autre.
+- Une page utilise une seule version majeure de `@unicorne/tokens`. Le nom d'un token est son API (ADR 0003, D4).
+- Une opération est un thème de marque dérivé : `[data-brand="courses-u-noel"]`, avec les seules valeurs qu'elle change.
+
+## D5 — Le resolver d'une marque
+
+- **Option A — La marque liste les fichiers du socle (statu quo).** L'arborescence de `packages/tokens/src/` devient une API. Un fichier ajouté au socle manque dans chaque marque, sans erreur.
+- **Option B — Un `$ref` vers les sets du resolver du socle.** La spec le permet. Terrazzo 2.10 échoue, et `dtcg-sources.ts` le refuse.
+- **Option C — Le socle génère le resolver de la marque.** Une fonction de `@unicorne/tokens` lit `u.resolver.json` et ajoute les fichiers de la marque à chaque set.
+
+**Décision : C.**
+
+```ts
+// terrazzo.config.ts d'une marque
+import { brandResolver, tokensCss } from "@unicorne/tokens/terrazzo-plugin";
+
+export default defineConfig({
+  // Écrit tokens/.acme.resolver.json : les sets et modifiers du socle, puis les fichiers de la marque.
+  tokens: [brandResolver({ name: "acme", sources: "./tokens" })],
+  plugins: [tokensCss({ brand: "acme", page: "theme.css", emit: brandOnly })],
+});
+```
+
+- La marque range ses fichiers comme le socle : `primitive/`, `semantic/`, `component/<composant>/`.
+- Le resolver généré est ignoré par git, comme `theme.css`.
+- L'option B la remplace quand Terrazzo résout ces références.
+
+## Figma sans le plan Enterprise
+
+Cette section applique l'ADR 0004 (D2). Elle ne le modifie pas.
+
+- Git reste la source. Le build écrit un fichier DTCG par mode Figma.
+- Chaque marque a son fichier Figma, une copie de celui du socle. Elle y importe ses fichiers à la main, ou avec un plugin.
+- Une opération est un mode de plus dans la collection de la marque.
+- Aucune étape ne demande une collection étendue ni l'API REST.
+
+## Récapitulatif
+
+<table>
+  <thead>
+    <tr>
+      <th>Décision</th>
+      <th>Choix</th>
+      <th>Pourquoi</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>D1 — Portée d'une marque</td>
+      <td>Toujours `[data-brand="<marque>"]`</td>
+      <td>Une feuille pour une marque hôte et pour une marque invitée</td>
+    </tr>
+    <tr>
+      <td>D2 — Isolation</td>
+      <td>Les primitives du socle sur `:root, [data-brand]`</td>
+      <td>Une marque invitée repart du socle, pas de la marque hôte</td>
+    </tr>
+    <tr>
+      <td>D3 — Thème sur un conteneur</td>
+      <td>`data-theme` sur tout élément ; `light-dark()` plus tard</td>
+      <td>Une zone sombre dans une page claire, dans toute la matrice</td>
+    </tr>
+    <tr>
+      <td>D4 — Feuilles</td>
+      <td>`styles.css` pour l'hôte, `theme.css` pour une zone invitée</td>
+      <td>Les tokens du socle une seule fois par page</td>
+    </tr>
+    <tr>
+      <td>D5 — Resolver</td>
+      <td>`brandResolver()`, généré depuis celui du socle</td>
+      <td>L'arborescence du socle n'est pas une API</td>
+    </tr>
+  </tbody>
+</table>
+
+Cet ADR remplace la dernière phrase de l'ADR 0001 (D4) sur l'application des thèmes. Il remplace l'ADR 0002 (D7) pour l'écriture du resolver d'une marque.
+
+## Conséquences
+
+- **Code :** `packages/tokens/plugins/terrazzo-plugin.ts` (sélecteurs, option `brand`, `brandResolver()`), `dtcg-sources.ts`, et `packages/tokens/css/tokens.css` régénéré.
+- **Tests :** `terrazzo-plugin.test.ts` couvre les nouveaux sélecteurs. `tokens.test.ts` mesure le contraste dans une zone sombre d'une page claire.
+- **ACME :** `tokens/acme.resolver.json` disparaît. Le package exporte `./theme.css`. Son test affiche une zone ACME dans une page du socle.
+- **Applications :** l'application hôte pose `data-brand` sur `html`. C'est une rupture pour l'application Vue d'exemple.
+- **Contraste :** `contrastFailures(conteneur)` vérifie chaque zone.
+- **Documentation :** [Tokens et couches CSS](?path=/docs/documentation-référence-tokens-et-couches-css--docs), [Architecture CSS](?path=/docs/documentation-explication-architecture-css--docs), le guide de marque et le skill `design-tokens`.
+
+## Questions ouvertes
+
+- **Triple emboîtement :** une marque sous deux changements de thème. `light-dark()` ou `@scope` le résolvent, hors de la matrice.
+- **Deux versions majeures de tokens sur une page :** une marque invitée en retard d'une version majeure lit des noms que l'hôte ne déclare pas. La règle de D4 l'interdit, sans le détecter.
+- **Tokens de composant d'une marque invitée :** ils vivent dans le shadow root de ses composants. Ils ne demandent aucune feuille de page.
+- **Modes Figma :** le nombre de modes par collection dépend du plan. Il borne le nombre d'opérations d'une marque.
+- **`color-scheme` d'une zone :** les champs natifs d'une zone sombre suivent `color-scheme`. Le rendu est à vérifier dans les trois moteurs.
+
+## Sources
+
+Consultées le 16 novembre 2026.
+
+- [sp-theme](https://opensource.adobe.com/spectrum-web-components/tools/theme/) (Adobe, Spectrum Web Components) : « provides Spectrum design tokens (CSS custom properties) to everything in its DOM scope », « it is necessary to embed one theme within another ».
+- [Themes, code](https://carbondesignsystem.com/elements/themes/code/) (IBM, Carbon) : « Some designs include a sections in the opposite theme ».
+- [Themes](https://webawesome.com/docs/themes/) (Web Awesome), version 3.14.0 : « Then apply the following classes to the `<html>` element ».
+- [light-dark()](https://web-platform-dx.github.io/web-features-explorer/features/light-dark/) (web-features explorer) : Chrome 123, Firefox 120, Safari 17.5.
+- [Design Tokens Resolver Module 2025.10](https://www.designtokens.org/tr/2025.10/resolver/) (DTCG), section 4.2 : cibles d'un `$ref`.
+- `@terrazzo/cli` 2.10, installé dans le dépôt : essai d'un `$ref` vers un set d'un autre resolver.

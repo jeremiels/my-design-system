@@ -97,6 +97,7 @@ Les raisons de ces règles sont dans [Architecture CSS](?path=/docs/documentatio
 - Les styles de l'application hors couche l'emportent sur toutes les couches du socle.
 - Les styles internes des composants vivent dans leur shadow DOM. Les couches de la page ne les atteignent pas.
 - L'ordre de `u.tokens.base` et `u.tokens.brand` est celui de leurs blocs. Une marque importe sa feuille après `tokens.css`.
+- Les tokens d'une marque visent `[data-brand="<marque>"]`. Sans cet attribut, une page affiche le socle.
 - `order.css` ne déclare pas ces deux sous-couches. La raison est dans [Architecture CSS](?path=/docs/documentation-explication-architecture-css--docs).
 
 ## Sources DTCG
@@ -287,18 +288,13 @@ Les intentions sont `action` (palette `brand`), `secondary` (`accent`), `success
   <tbody>
     <tr>
       <td>`packages/tokens/css/tokens.css`</td>
-      <td>`:root`</td>
-      <td>Les primitives</td>
-    </tr>
-    <tr>
-      <td>`packages/tokens/css/tokens.css`</td>
       <td>`:root, [data-brand]`</td>
-      <td>Les tokens sémantiques, dans le contexte par défaut</td>
+      <td>Les primitives, puis les tokens sémantiques dans le contexte par défaut</td>
     </tr>
     <tr>
       <td>`packages/tokens/css/tokens.css`</td>
-      <td>Les sélecteurs sombres de la section Thèmes</td>
-      <td>Les tokens que change le contexte `theme: dark`</td>
+      <td>Les sélecteurs de la section Thèmes</td>
+      <td>Les tokens que changent les contextes `theme: light` et `theme: dark`</td>
     </tr>
     <tr>
       <td>`packages/tokens/css/tokens.css`</td>
@@ -347,6 +343,8 @@ Un `var()` n'a pas de valeur de repli littérale : la feuille de tokens est une 
 
 ## Thèmes
 
+Une zone de la page change de thème ou de marque par un attribut ([ADR 0013](?path=/docs/documentation-adr-0013-portées-de-marque-et-de-thème--docs)).
+
 <table>
   <thead>
     <tr>
@@ -358,36 +356,50 @@ Un `var()` n'a pas de valeur de repli littérale : la feuille de tokens est une 
   <tbody>
     <tr>
       <td>Sombre, selon la préférence du système</td>
-      <td>Aucun attribut</td>
+      <td>Aucun attribut sur `<html>`</td>
       <td>
         `@media (prefers-color-scheme: dark)` sur `:root:not([data-theme="light"])` et ses
         `[data-brand]`
       </td>
     </tr>
     <tr>
-      <td>Sombre, choisi par l'application</td>
-      <td>`data-theme="dark"` sur `<html>`</td>
-      <td>`:root[data-theme="dark"]` et ses `[data-brand]`</td>
+      <td>Sombre ou clair, pour la page</td>
+      <td>`data-theme="dark"` ou `data-theme="light"` sur `<html>`</td>
+      <td>`[data-theme="dark"]` ou `[data-theme="light"]`, et leurs `[data-brand]`</td>
     </tr>
     <tr>
-      <td>Clair, choisi par l'application</td>
-      <td>`data-theme="light"` sur `<html>`</td>
-      <td>Exclu de la media query sombre</td>
+      <td>Sombre ou clair, pour une zone</td>
+      <td>`data-theme` sur le conteneur de la zone</td>
+      <td>Les mêmes sélecteurs : une zone sombre dans une page claire, ou l'inverse</td>
     </tr>
     <tr>
-      <td>Marque limitée à un conteneur</td>
-      <td>`data-brand` sur le conteneur</td>
-      <td>`[data-brand="acme"]`, l'option `scope` du plugin de la marque</td>
+      <td>Marque de la page</td>
+      <td>`data-brand="acme"` sur `<html>`</td>
+      <td>`[data-brand="acme"]`, l'option `brand` du plugin de la marque</td>
+    </tr>
+    <tr>
+      <td>Marque d'une zone</td>
+      <td>`data-brand="acme"` sur le conteneur de la zone</td>
+      <td>Le même sélecteur, avec la feuille `theme.css` de la marque</td>
     </tr>
   </tbody>
 </table>
 
 - Un thème change les tokens sémantiques de couleur. Les primitives sont les mêmes dans les deux thèmes.
-- La feuille de page déclare aussi `color-scheme`, avec les mêmes déclencheurs : `light dark` sur `:root`, puis `light` ou `dark` selon `data-theme`.
+- La feuille de page déclare aussi `color-scheme`, avec les mêmes déclencheurs : `light dark` sur `:root`, puis `light` ou `dark` sur chaque `[data-theme]`.
 - `color-scheme` donne le thème à l'interface du navigateur : canevas, barres de défilement, champs natifs.
 - L'application ajoute `<meta name="color-scheme" content="light dark">` à son `<head>`. Le navigateur connaît les thèmes avant de charger les feuilles.
 - Une marque change ses palettes et garde les deux thèmes du socle. Elle n'écrit aucune valeur sombre, et sa feuille ne déclare pas `color-scheme`.
 - Un composant ne contient aucune logique de thème.
+
+### Zones
+
+- Un conteneur `[data-brand]` repart des primitives du socle, puis applique celles de sa marque. Il ne reçoit aucune valeur d'une marque qui l'entoure.
+- Un conteneur `[data-brand]` prend le thème de la zone `[data-theme]` la plus proche, sur deux niveaux. Une marque dans une zone claire d'une page sombre est claire.
+- Un conteneur porte les deux attributs quand il a sa marque et son thème.
+- Trois thèmes alternés ne sont pas pris en charge : un conteneur `[data-brand]` y garde le thème clair.
+- Une page charge `styles.css` et `tokens.css` une seule fois. Une zone d'une autre marque ajoute la feuille `theme.css` de cette marque.
+- Une page utilise une seule version majeure de `@unicorne/tokens`.
 
 ## Mouvement réduit
 
@@ -439,6 +451,6 @@ import alertTokens from "./alert.tokens.css" with { type: "css" };
 static styles = [DSBaseElement.styles ?? [], alertTokens, alertStyles];
 ```
 
-- L'import donne un `CSSStyleSheet` constructible, que Lit adopte.
+- L'import donne un `CSSResult` de Lit. Dans le navigateur, Lit en adopte la feuille constructible, partagée par toutes les instances. Sur un serveur, Lit en rend le texte ([ADR 0014](?path=/docs/documentation-adr-0014-vue-et-rendu-serveur--docs)).
 - Le plugin `packages/components/plugins/css-import-attributes.ts` compile cet import pour Vite, Storybook, Vitest et le build.
 - Les classes internes (`.button`) ne sont pas une API. Une marque style les éléments internes par leurs parts : `[part~="button"]`.

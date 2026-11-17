@@ -39,6 +39,9 @@
     "./css-modules": {
       "types": "./dist/css-modules.d.ts"
     },
+    "./vue": {
+      "types": "./dist/vue.d.ts"
+    },
     "./button": {
       "types": "./dist/components/button/button.d.ts",
       "import": "./dist/button.js"
@@ -91,10 +94,14 @@
     "@unicorne/icons": "^0.0.0",
     "@unicorne/tokens": "^0.0.0",
     "lit": "^3.3.3",
-    "vite": "^8.3.0"
+    "vite": "^8.3.0",
+    "vue": "^3.5.0"
   },
   "peerDependenciesMeta": {
     "vite": {
+      "optional": true
+    },
+    "vue": {
       "optional": true
     }
   },

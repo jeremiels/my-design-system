@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="fr" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <title>ACME design system — zones in a page of the base</title>
+    <!-- A page of another design system, here the base's: its layers and its
+         tokens, once. ACME adds its values alone, for its zone (ADR 0013). -->
+    <link rel="stylesheet" href="/node_modules/@unicorne/components/dist/styles.css" />
+    <link rel="stylesheet" href="/node_modules/@unicorne/tokens/css/tokens.css" />
+    <link rel="stylesheet" href="/dist/theme.css" />
+    <script type="importmap">
+      {
+        "imports": {
+          "@unicorne/components": "/node_modules/@unicorne/components/dist/index.js",
+          "@unicorne/icons": "/node_modules/@unicorne/icons/js/index.js",
+          "@unicorne/tokens/testing": "/node_modules/@unicorne/tokens/dist/testing/contrast.js",
+          "lit": "/node_modules/lit/index.js",
+          "lit/": "/node_modules/lit/",
+          "lit-html": "/node_modules/lit-html/lit-html.js",
+          "lit-html/": "/node_modules/lit-html/",
+          "lit-element/": "/node_modules/lit-element/",
+          "@lit/reactive-element": "/node_modules/@lit/reactive-element/reactive-element.js",
+          "@lit/reactive-element/": "/node_modules/@lit/reactive-element/"
+        }
+      }
+    </script>
+    <script>
+      window.__errors = [];
+      addEventListener("error", (event) => window.__errors.push(String(event.message)));
+      addEventListener("unhandledrejection", (event) => window.__errors.push(String(event.reason)));
+    </script>
+    <script
+      type="module"
+      src="./zones.js"
+      onerror="window.__errors.push('zones.js failed to load')"
+    ></script>
+  </head>
+  <body>
+    <acme-button id="host">Hôte</acme-button>
+    <div id="acme" data-brand="acme">
+      <acme-button id="guest">Invité</acme-button>
+    </div>
+    <div id="dark" data-theme="dark">
+      <acme-button id="dark-host">Sombre</acme-button>
+      <div id="dark-acme" data-brand="acme">
+        <acme-button id="dark-guest">Invité sombre</acme-button>
+      </div>
+    </div>
+  </body>
+</html>

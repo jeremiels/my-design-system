@@ -1,7 +1,7 @@
 import type { ListboxOption } from "../components/listbox/listbox.type.js";
 
 /**
- * Fired when the user picks an option of a list (`withListbox`), by a click
+ * Fired when the user picks an option of a list (`ListboxController`), by a click
  * or Enter: a suggestion of `autocomplete`, before the field takes its
  * value. `preventDefault()` keeps the field as it is, to navigate to the
  * option's page instead for instance.

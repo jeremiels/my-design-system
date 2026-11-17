@@ -12,6 +12,42 @@ import fieldTokens from "./field.tokens.css" with { type: "css" };
 type FieldControl = HTMLInputElement | HTMLTextAreaElement;
 
 /**
+ * The `type` of the native inputs where Enter submits the form (HTML's
+ * "fields that block implicit submission").
+ */
+const SINGLE_LINE_TYPES = new Set([
+  "text",
+  "search",
+  "url",
+  "tel",
+  "email",
+  "password",
+  "date",
+  "month",
+  "week",
+  "time",
+  "datetime-local",
+  "number",
+]);
+
+/** A submit button of a form: a native one, or a component with `type="submit"` (`button`). */
+function isSubmitButton(element: Element): element is HTMLElement & { disabled?: boolean } {
+  const type = (element as { type?: unknown }).type;
+  return type === "submit" || (element instanceof HTMLInputElement && type === "image");
+}
+
+/**
+ * The `id` of the elements `FieldBase` renders in its shadow root, for what
+ * refers to them: a list named by the label, a popup anchored to the control.
+ */
+export const fieldIds = {
+  label: "label",
+  hint: "hint",
+  control: "control",
+  error: "error",
+} as const;
+
+/**
  * Shared base of the form fields, `text-field` and `textarea`: a label, an
  * optional hint, a native control and its error message. Abstract: extend
  * `TextField` or `Textarea`, or write a field with `renderControl()`. The
@@ -33,6 +69,10 @@ type FieldControl = HTMLInputElement | HTMLTextAreaElement;
  * Its `input` and `change` events are those of a native control, on the
  * host: frameworks bind `value` as they would on an `<input>` (`v-model` in
  * Vue).
+ *
+ * In a single-line field, Enter submits the form, as in a native `<input>`:
+ * the inner control has no form of its own, so the field does it
+ * (`submitOnEnter()`).
  *
  * @csspart label - The native `<label>`.
  * @csspart hint - The hint, between the label and the control. Hidden without `hint`.
@@ -188,13 +228,17 @@ export abstract class FieldBase extends withInternals(withDisabled(DSBaseElement
    * and its own part. It binds `.value=${live(this.value)}`, `required`,
    * `disabled` (`isDisabled`), `autocomplete`, its constraints,
    * `controlInvalid`, `controlDescribedBy`, `handleInput` and
-   * `handleChange`.
+   * `handleChange`. A single-line control also binds
+   * `@keydown=${this.submitOnEnter}`.
    */
   protected abstract renderControl(): unknown;
 
   /** For `renderControl()`: the `aria-describedby` of the control, the hint and the error shown. */
   protected get controlDescribedBy(): string | typeof nothing {
-    return [this.hint && "hint", this.error && "error"].filter(Boolean).join(" ") || nothing;
+    return (
+      [this.hint && fieldIds.hint, this.error && fieldIds.error].filter(Boolean).join(" ") ||
+      nothing
+    );
   }
 
   /** For `renderControl()`: the `aria-invalid` of the control, `"true"` while an error shows. */
@@ -216,9 +260,51 @@ export abstract class FieldBase extends withInternals(withDisabled(DSBaseElement
     this.dispatchEvent(new Event("change", { bubbles: true }));
   }
 
+  /**
+   * For the `keydown` listener of a single-line control: Enter submits the
+   * form, as HTML's implicit submission does for a native `<input>`. With a
+   * submit button in the form, the form is submitted unless the first one
+   * is disabled. Without any, it is submitted when this field is its only
+   * single-line one. Does nothing for a key another listener has handled,
+   * nor while an input method composes the text.
+   */
+  protected submitOnEnter(event: KeyboardEvent): void {
+    const form = this.form;
+    if (
+      event.key !== "Enter" ||
+      event.defaultPrevented ||
+      event.isComposing ||
+      event.keyCode === 229 ||
+      !form
+    ) {
+      return;
+    }
+    const controls = Array.from(form.elements);
+    const submitter = controls.find(isSubmitButton);
+    if (submitter) {
+      if (!submitter.disabled) {
+        // Only a native button can be the submitter of requestSubmit().
+        form.requestSubmit(
+          submitter instanceof HTMLButtonElement || submitter instanceof HTMLInputElement
+            ? submitter
+            : undefined,
+        );
+      }
+      return;
+    }
+    const singleLine = controls.filter(
+      (control) =>
+        (control instanceof HTMLInputElement && SINGLE_LINE_TYPES.has(control.type)) ||
+        (control instanceof FieldBase && control.#control instanceof HTMLInputElement),
+    );
+    if (singleLine.length === 1) {
+      form.requestSubmit();
+    }
+  }
+
   /** The native control, once rendered. */
   get #control(): FieldControl | null {
-    return this.renderRoot.querySelector<FieldControl>("#control");
+    return this.renderRoot.querySelector<FieldControl>(`#${fieldIds.control}`);
   }
 
   /** The message of the control's error, `""` while valid. */
@@ -260,10 +346,12 @@ export abstract class FieldBase extends withInternals(withDisabled(DSBaseElement
     const icon = this.tagFor(Icon);
     return html`
       <div class="field${this.error ? " field--invalid" : ""}">
-        <label part="label" class="label" id="label" for="control">${this.label}</label>
-        <div part="hint" class="hint" id="hint" ?hidden=${!this.hint}>${this.hint}</div>
+        <label part="label" class="label" id=${fieldIds.label} for=${fieldIds.control}
+          >${this.label}</label
+        >
+        <div part="hint" class="hint" id=${fieldIds.hint} ?hidden=${!this.hint}>${this.hint}</div>
         ${this.renderControl()}
-        <div part="error" class="error" id="error" ?hidden=${!this.error}>
+        <div part="error" class="error" id=${fieldIds.error} ?hidden=${!this.error}>
           ${
             this.error
               ? html`<${icon} class="error-icon" name="danger"></${icon}>

@@ -1,6 +1,7 @@
 // The development environment of the monorepo: the demo (index.html),
 // Storybook and Vitest. Each package builds with its own config
 // (packages/components/vite.config.ts).
+import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { defaultClientConditions, defaultServerConditions, defineConfig } from "vite";
 import { cssImportAttributes } from "./packages/components/plugins/css-import-attributes.ts";
@@ -9,9 +10,15 @@ import { cssImportAttributes } from "./packages/components/plugins/css-import-at
 // first (ADR 0003): the exports maps of the packages have this condition.
 const SOURCE = "@unicorne/source";
 
+// The version a registration carries (src/version.ts, ADR 0012).
+const { version } = JSON.parse(
+  readFileSync(resolve(import.meta.dirname, "packages/components/package.json"), "utf8"),
+) as { version: string };
+
 export default defineConfig({
   // `import sheet from "./x.css" with { type: "css" }` in components/mixins.
   plugins: [cssImportAttributes()],
+  define: { __UNICORNE_VERSION__: JSON.stringify(version) },
   resolve: {
     conditions: [SOURCE, ...defaultClientConditions],
     // The stories import the Storybook preview (CSF Factories).

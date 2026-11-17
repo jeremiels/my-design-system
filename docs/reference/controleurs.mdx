@@ -1,0 +1,451 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Documentation/Référence/Contrôleurs et état" />
+
+# Contrôleurs et état
+
+Un composant composite sépare trois couches ([ADR 0010](?path=/docs/documentation-adr-0010-état-contrôleurs-et-mixins--docs)) :
+
+<table>
+  <thead>
+    <tr>
+      <th>Couche</th>
+      <th>Emplacement</th>
+      <th>Contenu</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>État</td>
+      <td>`packages/components/src/state/`</td>
+      <td>Des fonctions pures, sans DOM ni Lit, testées dans Node</td>
+    </tr>
+    <tr>
+      <td>Connexion</td>
+      <td>`packages/components/src/controllers/`</td>
+      <td>Des reactive controllers de Lit : le DOM, l'ARIA, les événements</td>
+    </tr>
+    <tr>
+      <td>Composant</td>
+      <td>`packages/components/src/components/`</td>
+      <td>Les propriétés publiques, le rendu, les styles</td>
+    </tr>
+  </tbody>
+</table>
+
+- Un contrôleur est un objet que le composant crée. Il n'ajoute ni propriété ni attribut au composant.
+- Un comportement qui a une API publique est un mixin : voir [Mixins](?path=/docs/documentation-référence-mixins--docs).
+- `@unicorne/components` exporte les contrôleurs, leurs feuilles et les fonctions d'état. Les marques les utilisent dans leurs propres composants.
+
+```ts
+import {
+  AnchoredPopoverController,
+  anchoredPopoverStyles,
+  DSBaseElement,
+} from "@unicorne/components";
+
+export class AcmeMenu extends DSBaseElement {
+  static styles = [DSBaseElement.styles ?? [], anchoredPopoverStyles, acmeMenuStyles];
+
+  #popover = new AnchoredPopoverController(this);
+}
+```
+
+- Créez un contrôleur dans un champ de la classe, ou dans son constructeur.
+- Un contrôleur n'adopte aucune feuille. Ajoutez la feuille qu'il exporte à `static styles`.
+- Un contrôleur n'apparaît pas dans le manifest. Le composant déclare les membres `protected` qu'une marque surcharge, et les passe au contrôleur.
+
+## CommandsController
+
+Permet à un composant de recevoir des commandes : d'un `<button commandfor command>` natif, ou d'un composant avec `withInvoker`. `Modal` le crée.
+
+```ts
+export class AcmeDrawer extends DSBaseElement {
+  constructor() {
+    super();
+    new CommandsController(this, (event) => this.handleCommand(event));
+  }
+
+  protected handleCommand(event: CommandEvent) {
+    if (event.command === "--toggle-drawer") {
+      this.open = !this.open;
+    }
+  }
+}
+```
+
+- Le second argument reçoit chaque commande : `event.command` est son nom, `event.source` le bouton.
+- Nommez les commandes d'un composant avec le préfixe `--`. Le navigateur n'envoie jamais une commande intégrée (`show-modal`) à un custom element.
+- Ignorez les commandes inconnues : le polyfill envoie aussi les commandes intégrées.
+- Là où Invoker Commands manquent, le premier composant connecté charge le polyfill. Les boutons natifs de la page en ont besoin.
+
+## AnchoredPopoverController
+
+Affiche un popover du shadow root dans le top layer, ancré sous un autre élément du même shadow root : la liste d'un autocomplete, un menu, une infobulle. `ComboboxBase` le crée.
+
+<table>
+  <thead>
+    <tr>
+      <th>Membre</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>`open(popover, ancre)`</td>
+      <td>
+        Affiche `popover` dans le top layer, sous `ancre`. La promesse se résout une fois le popover
+        affiché et positionné.
+      </td>
+    </tr>
+    <tr>
+      <td>`close(popover)`</td>
+      <td>Masque `popover` tout de suite</td>
+    </tr>
+    <tr>
+      <td>`isOpen(popover)`</td>
+      <td>Dit si `popover` est ouvert</td>
+    </tr>
+    <tr>
+      <td>`anchoredPopoverStyles`</td>
+      <td>La feuille du contrôleur, exportée à part : le composant l'ajoute à `static styles`</td>
+    </tr>
+  </tbody>
+</table>
+
+```ts
+export class AcmeMenu extends DSBaseElement {
+  static styles = [DSBaseElement.styles ?? [], anchoredPopoverStyles, acmeMenuStyles];
+
+  #popover = new AnchoredPopoverController(this);
+
+  render() {
+    return html`
+      <button id="trigger" type="button" @click=${this.#toggle}>Actions</button>
+      <div class="menu" popover="manual"><slot></slot></div>
+    `;
+  }
+
+  #toggle = () => {
+    const menu = this.renderRoot.querySelector<HTMLElement>(".menu")!;
+    const trigger = this.renderRoot.querySelector<HTMLElement>("#trigger")!;
+    if (this.#popover.isOpen(menu)) {
+      this.#popover.close(menu);
+    } else {
+      void this.#popover.open(menu, trigger);
+    }
+  };
+}
+```
+
+- Chaque `[popover]` du shadow root est un `popover="manual"` ancré. Le composant décide de sa fermeture : Escape, un clic à l'extérieur, un choix.
+- Le contrôleur pose `data-open` sur le popover ouvert, dans tous les navigateurs. La feuille du composant écrit l'état ouvert sur `[data-open]`, pas sur `:popover-open`.
+- Un popover fermé est masqué par `display: none !important`. Ni le `display` du composant ni un `::part()` de marque ne l'affichent.
+- Le popover se place sous son ancre, aligné sur son bord de début, au moins aussi large. Il se retourne au-dessus quand il déborderait du viewport.
+- Sa marge de bloc est l'espace entre l'ancre et lui.
+- Le contrôleur ferme les popovers qu'il a ouverts quand le composant quitte le document.
+- Le contrôleur ne fournit aucun token : la feuille du composant peint le popover.
+
+### Support navigateurs
+
+<table>
+  <thead>
+    <tr>
+      <th>Navigateurs</th>
+      <th>Placement</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Chrome et Edge 129, Firefox 147, Safari 26</td>
+      <td>CSS anchor positioning : `position-area`, `position-try-fallbacks` et `anchor-size()`</td>
+    </tr>
+    <tr>
+      <td>Chrome et Edge 114 à 128, Firefox 125 à 146, Safari 17 à 18</td>
+      <td>
+        Top layer, et Floating UI (`@floating-ui/dom`) chargé avec `import()` au premier composant
+        connecté. Le popover se réduit aussi à l'espace disponible.
+      </td>
+    </tr>
+    <tr>
+      <td>Chrome et Edge 111 à 113, Firefox 115 à 124, Safari 16.4 à 16.x</td>
+      <td>
+        Pas de top layer : le popover est fixé au-dessus de la page (`--u-z-index-overlay`), et
+        Floating UI le positionne. Un ancêtre qui coupe son débordement le coupe aussi.
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+- `src/polyfills/anchor-positioning.ts` détecte les deux API à chaque appel : `cssAnchors()` et `supportsPopover()`.
+- Une application dont les navigateurs ancrent en CSS ne télécharge jamais Floating UI.
+
+## ListboxController
+
+Rend une liste d'options dans le shadow root, `role="listbox"`. Son option active suit le clavier, et le focus reste sur un contrôle : l'input d'un autocomplete, le bouton d'un select. `Autocomplete` le crée.
+
+Le contrôleur relie la liste au DOM. Il ne tient aucun état : le composant lui donne les options et l'index de l'option active.
+
+<table>
+  <thead>
+    <tr>
+      <th>Option du constructeur</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>`labelledBy`</td>
+      <td>
+        L'`id` de l'élément du shadow root qui nomme la liste : `fieldIds.label` pour un champ
+      </td>
+    </tr>
+    <tr>
+      <td>`options()`</td>
+      <td>Les options que la liste affiche, dans l'ordre</td>
+    </tr>
+    <tr>
+      <td>`activeIndex()`</td>
+      <td>L'index de l'option active, -1 sans option active</td>
+    </tr>
+    <tr>
+      <td>`activate(index)`</td>
+      <td>Appelé quand le pointeur passe sur une option activée</td>
+    </tr>
+    <tr>
+      <td>`select(option)`</td>
+      <td>Appelé quand l'utilisateur clique une option activée</td>
+    </tr>
+    <tr>
+      <td>`renderOption(option, index)`</td>
+      <td>Optionnel : rend le contenu d'une option. Par défaut, son `label` ou sa `value`</td>
+    </tr>
+    <tr>
+      <td>`id`</td>
+      <td>Optionnel : l'`id` de la liste. Par défaut, `listbox`</td>
+    </tr>
+  </tbody>
+</table>
+
+<table>
+  <thead>
+    <tr>
+      <th>Membre</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>`render()`</td>
+      <td>Rend la liste et le slot masqué des enfants `<option>`</td>
+    </tr>
+    <tr>
+      <td>`id`</td>
+      <td>L'`id` de la liste, pour l'`aria-controls` du contrôle</td>
+    </tr>
+    <tr>
+      <td>`activeDescendant`</td>
+      <td>Pour le contrôle : son `aria-activedescendant`, l'`id` de l'option active ou `nothing`</td>
+    </tr>
+    <tr>
+      <td>`activeOption`</td>
+      <td>L'option active, ou `undefined`</td>
+    </tr>
+    <tr>
+      <td>`childOptions`</td>
+      <td>Les enfants `<option>` de l'hôte, en données</td>
+    </tr>
+    <tr>
+      <td>`listboxStyles`, `listboxTokens`</td>
+      <td>Les feuilles du contrôleur, exportées à part : les tokens d'abord dans `static styles`</td>
+    </tr>
+  </tbody>
+</table>
+
+- `aria-activedescendant` ne vise qu'un élément de son arbre ([ADR 0007](?path=/docs/documentation-adr-0007-champs-de-formulaire--docs)). La liste rend donc ses propres copies des options, dans le shadow root du contrôle.
+- Le contrôleur lit les enfants `<option>` et suit leurs changements. Il ne les modifie jamais : un framework continue de les rendre.
+- Un hôte rendu par un serveur lit ses enfants après son premier rendu. Ce rendu est alors celui du serveur ([ADR 0014](?path=/docs/documentation-adr-0014-vue-et-rendu-serveur--docs)).
+- Un appui du pointeur sur la liste garde le focus sur le contrôle.
+- La liste défile jusqu'à l'option active quand son index change.
+- Les tokens `--u-listbox-*` viennent de `@unicorne/tokens` (`src/component/listbox/`). Le composant les documente avec `@tokens listbox`.
+
+## Sortie animée
+
+Trois fonctions animent la sortie d'un élément du top layer, un `<dialog>` ou un popover, dans toute la matrice. `Modal` et `ComboboxBase` les appellent. Ce ne sont pas des contrôleurs : elles ne tiennent aucun état d'un composant.
+
+<table>
+  <thead>
+    <tr>
+      <th>Fonction</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>`closeWithTransition(élément, fermer)`</td>
+      <td>
+        Appelle `fermer` (`dialog.close()`, `hidePopover()`) à la fin de la transition de sortie de
+        l'élément
+      </td>
+    </tr>
+    <tr>
+      <td>`cancelExitTransition(élément)`</td>
+      <td>Arrête une sortie en cours : l'élément reste ouvert</td>
+    </tr>
+    <tr>
+      <td>`isClosing(élément)`</td>
+      <td>Dit si l'élément est en sortie</td>
+    </tr>
+  </tbody>
+</table>
+
+La feuille du composant écrit la transition :
+
+```css
+dialog {
+  opacity: 0;
+  transition-property: opacity, display, overlay;
+  transition-duration: var(--u-modal-transition-duration);
+  transition-behavior: allow-discrete;
+}
+dialog[open]:where(:not([data-closing])) {
+  opacity: 1;
+}
+@starting-style {
+  dialog[open]:where(:not([data-closing])) {
+    opacity: 0;
+  }
+}
+```
+
+- L'état fermé est sur l'élément. L'état ouvert est sur `[open]`, `:popover-open` ou le `[data-open]` d'`AnchoredPopoverController`, suivi de `:where(:not([data-closing]))`.
+- L'entrée part de l'état fermé, écrit dans `@starting-style`.
+- `display` et `overlay` sont dans `transition-property`, avec `transition-behavior: allow-discrete` dans sa propre déclaration.
+- `closeWithTransition()` attend les animations finies de l'élément et de son `::backdrop`, pas celles de son contenu. Elle attend 2 secondes au plus.
+- Sans transition, en mouvement réduit par exemple, l'élément se ferme tout de suite.
+
+### Support navigateurs
+
+- Chrome et Edge 117 ont `overlay` : la fonction ferme l'élément tout de suite, et le CSS anime la sortie.
+- Firefox et Safari n'ont pas `overlay`. La fonction pose `data-closing` : l'élément rejoint son état fermé dans le top layer, puis se ferme.
+- Sans `@starting-style` (Chrome avant 117, Firefox avant 129, Safari avant 17.5), l'entrée est instantanée.
+
+## État d'une liste
+
+`packages/components/src/state/listbox.ts` calcule l'option active d'une liste.
+
+<table>
+  <thead>
+    <tr>
+      <th>Fonction</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>`moveActiveIndex(options, index, déplacement)`</td>
+      <td>
+        L'index de l'option active après un déplacement : `next`, `previous`, `first`, `last` ou
+        `none`
+      </td>
+    </tr>
+    <tr>
+      <td>`enabledIndexes(options)`</td>
+      <td>Les index des options activées</td>
+    </tr>
+    <tr>
+      <td>`listboxKeyMove(touche)`</td>
+      <td>Le déplacement d'une touche : `ArrowDown` et `ArrowUp`</td>
+    </tr>
+  </tbody>
+</table>
+
+- Un déplacement boucle aux extrémités et saute les options désactivées.
+- Sans option activée, aucune option n'est active : l'index vaut -1.
+
+## État d'un combobox
+
+`packages/components/src/state/combobox.ts` décrit le popup d'un combobox. `comboboxReducer(état, événement, contexte)` renvoie l'état suivant. `ComboboxBase` tient cet état et envoie les événements par `dispatch()`.
+
+<table>
+  <thead>
+    <tr>
+      <th>Champ de l'état</th>
+      <th>Sens</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>`open`</td>
+      <td>Le popup est ouvert</td>
+    </tr>
+    <tr>
+      <td>`activeIndex`</td>
+      <td>L'index de l'élément actif du popup, -1 sans élément actif</td>
+    </tr>
+    <tr>
+      <td>`typed`</td>
+      <td>
+        L'utilisateur a saisi du texte depuis la dernière fermeture : le popup suit son contenu
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table>
+  <thead>
+    <tr>
+      <th>Événement</th>
+      <th>Origine</th>
+      <th>Effet</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>`open`</td>
+      <td>ArrowDown, ArrowUp, `showPopup()`</td>
+      <td>Ouvre le popup s'il a du contenu, et y entre au premier ou au dernier élément</td>
+    </tr>
+    <tr>
+      <td>`request`</td>
+      <td>La propriété `open`, écrite par l'application</td>
+      <td>Ouvre au prochain rendu si le popup a du contenu, ou ferme</td>
+    </tr>
+    <tr>
+      <td>`close`</td>
+      <td>Escape, Tab, un choix, la perte du focus, un reset</td>
+      <td>Ferme le popup, sans élément actif</td>
+    </tr>
+    <tr>
+      <td>`input`</td>
+      <td>Une saisie</td>
+      <td>Ouvre le popup s'il a du contenu. Un texte vide le ferme</td>
+    </tr>
+    <tr>
+      <td>`items`</td>
+      <td>D'autres options</td>
+      <td>Retire l'élément actif</td>
+    </tr>
+    <tr>
+      <td>`sync`</td>
+      <td>Chaque rendu</td>
+      <td>
+        Ferme un popup vide ou désactivé. Ouvre un popup qui reçoit du contenu pendant la saisie
+      </td>
+    </tr>
+    <tr>
+      <td>`move`</td>
+      <td>Les flèches, popup ouvert</td>
+      <td>Déplace l'élément actif</td>
+    </tr>
+    <tr>
+      <td>`activate`</td>
+      <td>Le pointeur, Home, End</td>
+      <td>Active un élément. Un élément désactivé ne change rien. -1 retire l'élément actif</td>
+    </tr>
+  </tbody>
+</table>
+
+- Le contexte donne ce que la fonction ne peut pas lire : `disabled`, `hasContent`, `items`, `hasText` et `focused`.
+- La fonction renvoie le même objet quand rien ne change. Le composant compare les références.
+- Les tests de ces fonctions tournent dans Node : `npx vitest run --project unit packages/components/src/state`.

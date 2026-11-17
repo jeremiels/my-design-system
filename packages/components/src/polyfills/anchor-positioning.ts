@@ -2,7 +2,7 @@
  * CSS anchor positioning (`position-area`, `position-try-fallbacks`): Chrome
  * and Edge 129, Firefox 147, Safari 26. The Popover API: Chrome and Edge 114,
  * Firefox 125, Safari 17. The older browsers of the matrix get Floating UI,
- * loaded on first use by `withAnchoredPopover`: an application whose
+ * loaded on first use by `AnchoredPopoverController`: an application whose
  * browsers anchor in CSS never downloads it (ADR 0009).
  *
  * Read at each call, so tests can stub `CSS.supports()` or mock this module.

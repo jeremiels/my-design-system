@@ -18,4 +18,13 @@ export const acme = designSystem({
       import("./components/acme-button/acme-button.js").then((module) => module.AcmeButton),
   },
   icons: acmeIcons,
+  // The texts of ACME's language, for every component that has the property.
+  labels: {
+    closeLabel: "Fermer",
+    errorLabel: "Erreur :",
+    resultsMessage: (count: number) =>
+      count === 0 ? "Aucune suggestion" : count === 1 ? "1 suggestion" : `${count} suggestions`,
+  },
+  // Names this copy of ACME when another one registers the prefix (ADR 0012 of the base).
+  version: __ACME_VERSION__,
 });

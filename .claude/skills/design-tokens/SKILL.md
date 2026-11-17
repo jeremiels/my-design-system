@@ -62,4 +62,10 @@ npm run example                        # ACME, construit sur les sources du socl
 
 ## Tokens d'une marque
 
-Une marque a son resolver, qui liste les fichiers du socle (`node_modules/@unicorne/tokens/src/…`) puis les siens (`examples/acme-design-system/tokens/acme.resolver.json`). Sa config Terrazzo utilise `@unicorne/tokens/terrazzo-plugin` avec `layer: "u.tokens.brand"` et `emit`, qui limite la sortie à ses fichiers. Le guide est `docs/guides/design-system-de-marque.mdx`.
+Une marque range ses fichiers comme le socle : `primitive/`, `semantic/`, `component/<composant>/`. `brandResolver()` (`@unicorne/tokens/terrazzo-plugin`) écrit son resolver : les sets et les modifiers du socle, puis ses fichiers. Sa config Terrazzo passe `brand: "<marque>"` et `layer: "u.tokens.brand"` à `tokensCss()` : la sortie vise `[data-brand="<marque>"]` et se limite à ses fichiers. Le guide est `docs/guides/design-system-de-marque.mdx`.
+
+## Thèmes et zones
+
+- N'écrivez aucun sélecteur de thème dans une feuille : le plugin émet les contextes `theme` sur `[data-theme]` et sur les conteneurs `[data-brand]` (`pageSelectors()` de `packages/tokens/plugins/terrazzo-plugin.ts`).
+- Un token sémantique de couleur a une valeur par thème. Le plugin la déclare dans la zone claire comme dans la zone sombre.
+- Les règles des zones sont dans `docs/reference/tokens-et-couches.mdx`, section Thèmes. Leur test est `packages/tokens/testing/tokens.test.ts`.

@@ -1,0 +1,269 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Documentation/ADR/0011 Matrice navigateurs" />
+
+# ADR 0011 — Matrice navigateurs
+
+**Statut :** proposé, mise en œuvre reportée à la version finale du socle · **Date :** 16 novembre 2026
+
+## Report
+
+Cet ADR n'est pas appliqué au POC. Le socle garde sa matrice, et aucun test ne tourne sur ses planchers.
+
+À mettre en place pour la version finale du socle :
+
+- la révision de la matrice, avec les statistiques de Courses U (D1) ;
+- le job `compat-runtime`, qui lance les tests d'ACME sous d'anciens navigateurs de Playwright (D2).
+
+## Contexte
+
+La [matrice](?path=/docs/documentation-référence-support-navigateurs--docs) exige Chrome 111, Firefox 115 et Safari 16.4. Elle explique quatre décisions :
+
+- le polyfill des Invoker Commands ([ADR 0008](?path=/docs/documentation-adr-0008-commandes-et-modale--docs), D2) ;
+- le repli sur Floating UI et la branche sans top layer ([ADR 0009](?path=/docs/documentation-adr-0009-autocomplete-combobox-et-popovers-ancrés--docs), D2) ;
+- le rejet des scoped registries ([ADR 0001](?path=/docs/documentation-adr-0001-architecture-multi-marque--docs), D2) ;
+- le libellé dans le shadow root du contrôle ([ADR 0007](?path=/docs/documentation-adr-0007-champs-de-formulaire--docs)).
+
+Le plus grand site prévu est Courses U, un site grand public. Il n'a pas de statistiques de navigateurs.
+
+Faits vérifiés le 16 novembre 2026, avec leurs sources en fin de page :
+
+<table>
+  <thead>
+    <tr>
+      <th>Fonctionnalité</th>
+      <th>Chrome et Edge</th>
+      <th>Firefox</th>
+      <th>Safari</th>
+      <th>Baseline</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Declarative Shadow DOM</td>
+      <td>111</td>
+      <td>123</td>
+      <td>16.4</td>
+      <td>Largement disponible depuis le 20 août 2026</td>
+    </tr>
+    <tr>
+      <td>Popover API</td>
+      <td>114 (116 pour web-features)</td>
+      <td>125</td>
+      <td>17 (iOS 18.3 pour web-features)</td>
+      <td>Depuis le 27 janvier 2025</td>
+    </tr>
+    <tr>
+      <td>`light-dark()`</td>
+      <td>123</td>
+      <td>120</td>
+      <td>17.5</td>
+      <td>Depuis le 13 mai 2024</td>
+    </tr>
+    <tr>
+      <td>`position-area`</td>
+      <td>129</td>
+      <td>147</td>
+      <td>26</td>
+      <td>Depuis janvier 2026</td>
+    </tr>
+    <tr>
+      <td>Invoker Commands</td>
+      <td>135</td>
+      <td>144</td>
+      <td>26.2</td>
+      <td>Depuis le 12 décembre 2025</td>
+    </tr>
+    <tr>
+      <td>Scoped custom element registries</td>
+      <td>146</td>
+      <td>159</td>
+      <td>26</td>
+      <td>Depuis le 27 octobre 2026</td>
+    </tr>
+    <tr>
+      <td>Reference Target</td>
+      <td>152</td>
+      <td>Aucune</td>
+      <td>Aucune</td>
+      <td>Disponibilité limitée</td>
+    </tr>
+  </tbody>
+</table>
+
+- **Firefox ESR 115 :** Mozilla le maintient jusqu'à la version 115.53.0, publiée avec Firefox 168 le 23 mars 2027. Firefox ESR 153 est l'ESR courant.
+- **Tests :** aucun test ne tourne sur un plancher de la matrice. Playwright 1.33 embarque Chromium 113 et WebKit 16.4. Playwright 1.37 embarque Firefox 115.
+- **Poids des replis :** Floating UI pèse 8,3 kB en gzip, `invokers-polyfill` 2,0 kB. Un navigateur récent ne télécharge ni l'un ni l'autre : le test d'ACME le vérifie.
+
+Part de public couverte en France, selon `caniuse-lite` 1.0.30001826 (StatCounter, tous sites) :
+
+<table>
+  <thead>
+    <tr>
+      <th>Plancher</th>
+      <th>Chrome</th>
+      <th>Firefox</th>
+      <th>Safari</th>
+      <th>Couverture</th>
+      <th>Écart</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Matrice actuelle</td>
+      <td>111</td>
+      <td>115</td>
+      <td>16.4</td>
+      <td>94,53 %</td>
+      <td>—</td>
+    </tr>
+    <tr>
+      <td>Popover API</td>
+      <td>114</td>
+      <td>125</td>
+      <td>17</td>
+      <td>93,28 %</td>
+      <td>−1,25 pt</td>
+    </tr>
+    <tr>
+      <td>Ancrage CSS</td>
+      <td>129</td>
+      <td>147</td>
+      <td>26</td>
+      <td>87,14 %</td>
+      <td>−7,39 pts</td>
+    </tr>
+    <tr>
+      <td>Invoker Commands</td>
+      <td>135</td>
+      <td>144</td>
+      <td>26.2</td>
+      <td>86,13 %</td>
+      <td>−8,40 pts</td>
+    </tr>
+    <tr>
+      <td>Scoped registries</td>
+      <td>146</td>
+      <td>159</td>
+      <td>26</td>
+      <td>79,96 %</td>
+      <td>−14,57 pts</td>
+    </tr>
+  </tbody>
+</table>
+
+Détail de l'écart du plancher Popover API : Safari iOS 16.4 à 16.x pèse 0,31 %, Safari 16.4 à 16.x 0,19 %, Chrome 111 à 113 0,25 %, Firefox 115 0,31 %, Firefox 116 à 124 0,16 %.
+
+### Critères de décision
+
+1. Un plancher plus haut que le public est une décision chiffrée (règle de la matrice).
+2. Le code supprimé justifie la part de public exclue.
+3. Un navigateur récent ne paie pas pour un navigateur ancien.
+4. Chaque plancher est testé à l'exécution.
+5. La matrice change à une date connue, pas au fil de l'eau.
+
+## D1 — Le plancher
+
+### Option A — La matrice actuelle
+
+- **Pour :** 94,53 % du public. Les replis se chargent à la demande : le critère 3 tient déjà.
+- **Contre :** trois replis à maintenir, et la branche sans top layer, où un ancêtre coupe le popup (ADR 0009, limites).
+- **Contre :** Firefox ESR 115 n'a pas le Declarative Shadow DOM. Le rendu serveur y demande un polyfill ([ADR 0014](?path=/docs/documentation-adr-0014-vue-et-rendu-serveur--docs)).
+
+### Option B — Le plancher Popover API : Chrome 114, Firefox 125, Safari 17
+
+- **Pour :** la branche sans top layer disparaît (`withAnchoredPopover.ts:97`, `:111`, `anchor-positioning.ts:22-24`), avec la limite de l'ADR 0009.
+- **Pour :** le Declarative Shadow DOM et l'ARIA par `ElementInternals` existent dans toute la matrice.
+- **Contre :** 1,25 point de public exclu, dont les iPhone bloqués sur iOS 16.
+- **Contre :** Mozilla maintient encore Firefox ESR 115.
+
+### Option C — Le plancher ancrage CSS : Chrome 129, Firefox 147, Safari 26
+
+- **Pour :** `@floating-ui/dom`, `#follow()` (`withAnchoredPopover.ts:121-156`) et `anchor-positioning.ts` disparaissent.
+- **Contre :** 7,39 points de public exclus, dont tout iOS 18 (2,62 %).
+- **Contre :** le gain pour un navigateur récent est nul : il ne télécharge pas Floating UI.
+
+### Option D — Le plancher Invoker Commands : Chrome 135, Firefox 144, Safari 26.2
+
+- **Pour :** `invokers-polyfill`, `polyfills/invokers.ts` et le repli de `withInvoker` (`withInvoker.ts:109-131`) disparaissent.
+- **Contre :** 8,40 points de public exclus, pour un chunk de 2,0 kB que les navigateurs récents ne téléchargent pas.
+
+### Option E — Une requête glissante : `baseline widely available`
+
+- **Pour :** aucune décision à reprendre.
+- **Contre :** elle couvre 87,51 % du public aujourd'hui, et change à chaque mise à jour des données. Le critère 5 échoue.
+
+**Décision : A, jusqu'à une révision datée.**
+
+- La révision a lieu en mars 2027, à la fin de Firefox ESR 115.
+- Elle passe au plancher de l'option B si Courses U mesure moins de 0,5 % de sessions sous ce plancher.
+- Sans mesure de Courses U à cette date, la matrice reste celle de l'option A.
+- Les options C et D attendent une mesure sous 1 % : leur gain est du code du socle, pas du poids pour l'application.
+
+Cette décision est à prendre par le produit, pas par le socle. Le compromis est le suivant : l'option B retire une branche et une limite, et exclut des iPhone anciens d'un site de courses.
+
+## D2 — Tester les planchers
+
+- **Option A — `npm run compat` seul (statu quo).** Il vérifie la syntaxe JS et les fonctionnalités CSS connues de caniuse. Il ne lance aucun composant.
+- **Option B — Les tests d'ACME sur d'anciens navigateurs de Playwright.** Un job installe Playwright 1.33 et 1.37 dans un dossier à part, et lance `examples/acme-design-system/test/smoke.mjs`.
+- **Option C — Un service de navigateurs réels.** Il couvre aussi Samsung Internet et les vrais iPhone, avec un abonnement.
+
+**Décision : B.**
+
+- Chromium 113 et WebKit 16.4 n'ont ni Popover API ni ancrage CSS : ils exercent Floating UI et la branche sans top layer.
+- Firefox 115 exerce aussi `invokers-polyfill` et `withExitTransition`.
+- L'option C reste ouverte pour Samsung Internet, que rien ne teste.
+
+## Récapitulatif
+
+<table>
+  <thead>
+    <tr>
+      <th>Décision</th>
+      <th>Choix</th>
+      <th>Pourquoi</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>D1 — Plancher</td>
+      <td>Chrome 111, Firefox 115, Safari 16.4, avec une révision en mars 2027</td>
+      <td>
+        Les replis ne coûtent rien aux navigateurs récents ; aucune statistique ne justifie une
+        exclusion
+      </td>
+    </tr>
+    <tr>
+      <td>D2 — Tests</td>
+      <td>Les tests d'ACME sous Playwright 1.33 et 1.37</td>
+      <td>Les replis sont exercés par de vrais moteurs anciens</td>
+    </tr>
+  </tbody>
+</table>
+
+Cet ADR ne remplace aucune décision. Il confirme les replis de l'ADR 0008 (D2) et de l'ADR 0009 (D2), et date leur réexamen.
+
+## Conséquences
+
+- **CI :** un job `compat-runtime` dans `.github/workflows/ci.yml`, après `example`.
+- **Documentation :** [Support navigateurs](?path=/docs/documentation-référence-support-navigateurs--docs) cite la date de révision et le seuil. Sa ligne Popover API cite Chrome 116 et Safari iOS 18.3 pour le groupe entier.
+- **Produit :** Courses U mesure ses sessions par version de navigateur avant mars 2027.
+- **Code :** aucun changement avant la révision.
+
+## Questions ouvertes
+
+- **Seuil :** 0,5 % est une proposition. Le produit fixe le sien, en sessions ou en chiffre d'affaires.
+- **Samsung Internet :** aucun test ne le couvre. Sa part est de 2,6 % en France.
+- **`overlay` :** `withExitTransition` existe pour Firefox et Safari. Sa suppression dépend de leur prise en charge, non vérifiée ici.
+- **`light-dark()` :** dans toute la matrice à partir de Safari 17.5. Il simplifierait les thèmes par conteneur ([ADR 0013](?path=/docs/documentation-adr-0013-portées-de-marque-et-de-thème--docs)).
+
+## Sources
+
+Consultées le 16 novembre 2026.
+
+- [Declarative shadow DOM](https://web-platform-dx.github.io/web-features-explorer/features/declarative-shadow-dom/), [Popover](https://web-platform-dx.github.io/web-features-explorer/features/popover/), [light-dark()](https://web-platform-dx.github.io/web-features-explorer/features/light-dark/), [Invoker commands](https://web-platform-dx.github.io/web-features-explorer/features/invoker-commands/), [Scoped custom element registries](https://web-platform-dx.github.io/web-features-explorer/features/scoped-custom-element-registries/) et [Reference target](https://web-platform-dx.github.io/web-features-explorer/features/referencetarget/) (web-features explorer) : versions et dates Baseline.
+- [Anchor positioning](https://web-platform-dx.github.io/web-features-explorer/features/anchor-positioning/) (web-features explorer) : le groupe entier est en disponibilité limitée.
+- [position-area](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/position-area) (MDN) : « Baseline 2026, newly available since January 2026 ».
+- [Firefox release calendar](https://whattrainisitnow.com/calendar/) (Mozilla) : ESR 115.53.0 avec Firefox 168, le 23 mars 2027 ; ESR 153 et ESR 175.
+- [Playwright release notes](https://playwright.dev/docs/release-notes) (Microsoft) : version 1.33, Chromium 113 et WebKit 16.4 ; version 1.37, Firefox 115.
+- `caniuse-lite` 1.0.30001826 et `browserslist` 4.29.5, installés dans le dépôt : parts de public en France.

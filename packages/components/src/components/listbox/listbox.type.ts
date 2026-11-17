@@ -1,6 +1,6 @@
 /**
- * An option of a list (`withListbox`): a suggestion of `autocomplete`. The
- * component passes the same object back in `u-select`: the application's
+ * An option of a list (`ListboxController`): a suggestion of `autocomplete`.
+ * The component passes the same object back in `u-select`: the application's
  * own fields (an id, a code) come with it.
  */
 export interface ListboxOption {
@@ -12,5 +12,4 @@ export interface ListboxOption {
   disabled?: boolean;
 }
 
-/** Where `moveActive()` moves the active option. `none`: no option is active. */
-export type ListboxMove = "next" | "previous" | "first" | "last" | "none";
+export type { ListboxItem, ListboxMove } from "../../state/listbox.js";

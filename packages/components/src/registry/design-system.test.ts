@@ -178,4 +178,65 @@ describe("designSystem", () => {
     );
     expect(() => designSystem({ prefix: "My-DS" })).toThrow("Invalid prefix");
   });
+
+  it("registers under another prefix, with the same overrides, icons and labels (ADR 0012)", async () => {
+    class BrandButton extends Button {}
+    const first = uniquePrefix();
+    const second = uniquePrefix();
+    const brand = designSystem({
+      prefix: first,
+      overrides: { button: BrandButton },
+      icons: { close: BRAND_SVG },
+      labels: { closeLabel: "Fermer" },
+    });
+
+    await brand.define(Modal);
+    const isolated = brand.withPrefix(second);
+    const tags = await isolated.define(Modal);
+
+    expect(isolated.prefix).toBe(second);
+    expect(tags).toMatchObject({ modal: `${second}-modal`, button: `${second}-button` });
+    for (const prefix of [first, second]) {
+      const modal = await render<Modal>(`${prefix}-modal`);
+      const button = modal.shadowRoot!.querySelector(`${prefix}-button`)!;
+      expect(button).toBeInstanceOf(BrandButton);
+      expect(modal.closeLabel).toBe("Fermer");
+      const icon = button.querySelector<Icon>(`${prefix}-icon`)!;
+      await icon.updateComplete;
+      expect(icon.shadowRoot!.querySelector("svg#brand")).not.toBeNull();
+    }
+  });
+
+  it("gives its labels as defaults: an attribute or a property of the element wins", async () => {
+    const prefix = uniquePrefix();
+    await designSystem({ prefix, labels: { closeLabel: "Fermer", unknownLabel: "x" } }).define(
+      Modal,
+      Alert,
+    );
+
+    expect((await render<Modal>(`${prefix}-modal`)).closeLabel).toBe("Fermer");
+
+    document.body.innerHTML = `<${prefix}-modal close-label="Quitter"></${prefix}-modal>`;
+    expect(document.querySelector<Modal>(`${prefix}-modal`)!.closeLabel).toBe("Quitter");
+
+    const set = document.createElement(`${prefix}-modal`) as Modal;
+    set.closeLabel = "Annuler";
+    document.body.append(set);
+    await set.updateComplete;
+    expect(set.closeLabel).toBe("Annuler");
+
+    // A component without the property ignores the label.
+    const alert = await render<Alert>(`${prefix}-alert`);
+    expect("closeLabel" in alert).toBe(false);
+    expect("unknownLabel" in alert).toBe(false);
+  });
+
+  it("tells its tags from the others, for Vue's isCustomElement", () => {
+    const brand = designSystem({ prefix: "acme", version: "2.1.0" });
+    expect(brand.version).toBe("2.1.0");
+    expect(brand.isCustomElement("acme-button")).toBe(true);
+    expect(brand.isCustomElement("acmebutton")).toBe(false);
+    expect(brand.isCustomElement("u-button")).toBe(false);
+    expect(brand.withPrefix("acme2").isCustomElement("acme2-button")).toBe(true);
+  });
 });

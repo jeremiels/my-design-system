@@ -26,6 +26,10 @@
       "import": "./dist/acme-button.js"
     },
     "./styles.css": "./dist/styles.css",
+    "./theme.css": "./dist/theme.css",
+    "./vue": {
+      "types": "./dist/vue.d.ts"
+    },
     "./reset.css": "./dist/reset.css",
     "./custom-elements.json": "./custom-elements.json"
   },
@@ -38,8 +42,17 @@
     "@unicorne/icons": "file:.base/unicorne-icons-0.0.0.tgz",
     "@unicorne/tokens": "file:.base/unicorne-tokens-0.0.0.tgz"
   },
+  "devDependencies": {
+    "vue": "^3.5.45"
+  },
   "peerDependencies": {
-    "lit": "^3.3.3"
+    "lit": "^3.3.3",
+    "vue": "^3.5.0"
+  },
+  "peerDependenciesMeta": {
+    "vue": {
+      "optional": true
+    }
   },
   "customElements": "custom-elements.json"
 }

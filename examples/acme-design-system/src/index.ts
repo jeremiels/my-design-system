@@ -5,4 +5,5 @@
 export * from "@unicorne/components";
 export type { AcmeButton } from "./components/acme-button/acme-button.js";
 export * from "./components/acme-card/acme-card.js";
+export type { AcmeCatalog } from "./catalog.js";
 export { acme } from "./design-system.js";

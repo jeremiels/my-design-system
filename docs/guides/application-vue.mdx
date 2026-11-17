@@ -40,20 +40,38 @@ L'exemple complet est `examples/acme-vue-app` : un formulaire d'inscription sur 
 
 ```ts
 // vite.config.ts
+import { acme } from "@acme/design-system";
+
 export default defineConfig({
   plugins: [
     vue({
       template: {
-        compilerOptions: { isCustomElement: (tag) => tag.startsWith("acme-") },
+        compilerOptions: { isCustomElement: acme.isCustomElement },
       },
     }),
   ],
 });
 ```
 
-- Vue rend les balises `acme-` comme des éléments du DOM. Il ne cherche pas de composant Vue de ce nom.
+- `acme.isCustomElement` reconnaît les balises de la marque à son préfixe.
+- Vue rend ces balises comme des éléments du DOM. Il ne cherche pas de composant Vue de ce nom.
 - Vue écrit une propriété quand l'élément l'a, un attribut sinon.
 - Vue compile `v-model` sur un custom element comme sur un `<input>`.
+
+```ts
+// src/env.d.ts
+/// <reference types="@acme/design-system/vue" />
+```
+
+- Cette référence donne à `vue-tsc` les propriétés et les événements de chaque balise de la marque.
+- `vue-tsc` refuse alors une valeur du mauvais type : `:required="'oui'"`, ou `rows="4"` au lieu de `:rows="4"`.
+
+```html
+<!-- index.html -->
+<html lang="fr" data-brand="acme"></html>
+```
+
+- `data-brand` applique le thème de la marque à la page. Sans lui, la page affiche le socle.
 
 ## 3. Enregistrez les composants avant de monter l'application
 
@@ -82,7 +100,6 @@ createApp(App).mount("#app");
   name="name"
   autocomplete="name"
   required
-  error-label="Erreur :"
   error-message="Saisissez votre nom."
 ></acme-text-field>
 ```
@@ -90,7 +107,9 @@ createApp(App).mount("#app");
 - `v-model` écrit la propriété `value` et écoute l'événement `input` du champ. `v-model.lazy` écoute `change`.
 - `v-model.trim` écoute aussi `change`. Le champ émet `change` quand l'utilisateur quitte le champ après une modification.
 - Donnez `name` à chaque champ : le formulaire soumet la valeur sous ce nom.
-- Écrivez `error-label` et `error-message` dans la langue de la page. Le message du navigateur est dans la langue du navigateur.
+- Écrivez `error-message` dans la langue de la page. Le message du navigateur est dans la langue du navigateur.
+- La marque donne `error-label` par défaut, dans sa langue (`labels` de `designSystem()`).
+- Entrée dans un champ d'une ligne soumet le formulaire, comme dans un `<input>` natif.
 
 ```vue
 <acme-textarea
@@ -159,6 +178,7 @@ watch(
 
 À la racine du dépôt, lancez `npm run example`. Après ACME, la commande installe l'application, vérifie ses types avec `vue-tsc`, la construit et la teste dans Chromium. Le test vérifie que :
 
+- `vue-tsc` vérifie les propriétés et les événements des balises `acme-`, et refuse trois fautes de `src/TypeCheck.vue` ;
 - l'application enregistre seulement les composants qu'elle utilise, sous le préfixe `acme` ;
 - aucune erreur ne s'affiche avant une interaction ;
 - un formulaire invalide n'est pas soumis : les erreurs s'affichent, et le premier champ a le focus ;

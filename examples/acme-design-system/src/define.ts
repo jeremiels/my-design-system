@@ -12,21 +12,13 @@ import {
   Textarea,
   TextField,
 } from "@unicorne/components";
-import type { AcmeButton } from "./components/acme-button/acme-button.js";
+import type { TagNameMap } from "@unicorne/components";
+import type { AcmeCatalog } from "./catalog.js";
 import { AcmeCard } from "./components/acme-card/acme-card.js";
 import { acme } from "./design-system.js";
 
 void acme.define(Button, Alert, Modal, Icon, TextField, Textarea, Autocomplete, AcmeCard);
 
 declare global {
-  interface HTMLElementTagNameMap {
-    "acme-alert": Alert;
-    "acme-autocomplete": Autocomplete;
-    "acme-button": AcmeButton;
-    "acme-card": AcmeCard;
-    "acme-icon": Icon;
-    "acme-modal": Modal;
-    "acme-text-field": TextField;
-    "acme-textarea": Textarea;
-  }
+  interface HTMLElementTagNameMap extends TagNameMap<"acme", AcmeCatalog> {}
 }

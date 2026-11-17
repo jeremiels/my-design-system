@@ -1,0 +1,309 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Documentation/ADR/0009 Autocomplete, combobox et popovers ancrés" />
+
+# ADR 0009 — Autocomplete, combobox et popovers ancrés
+
+**Statut :** accepté · **Date :** 14 novembre 2026
+
+## Contexte
+
+Une application a besoin d'un champ texte qui propose des valeurs pendant la saisie : une ville, un produit. Le socle n'a aucun popup attaché à un élément. Un select, un multi-select, un date picker, un menu et une infobulle en demandent un aussi.
+
+- `<input list>` et `<datalist>` proposent des valeurs nativement. Leur liste n'est pas stylable, et son filtrage appartient au navigateur.
+- Le pattern ARIA est le combobox : le focus reste dans l'input, `aria-activedescendant` désigne l'option active et `aria-controls` désigne le listbox.
+- `aria-activedescendant` et `aria-controls` cherchent leur `id` dans l'arbre de l'input ([ADR 0007](?path=/docs/documentation-adr-0007-champs-de-formulaire--docs)).
+- `ariaActiveDescendantElement` vise seulement un élément d'un arbre ancêtre. Il existe depuis Chrome et Edge 135, Firefox 136 et Safari 16.4.
+- Aucun polyfill ne crée de relation dans l'arbre d'accessibilité : le navigateur le construit seul.
+- Au 14 novembre 2026, le Popover API existe depuis Chrome et Edge 114, Firefox 125 et Safari 17.
+- Au 14 novembre 2026, CSS anchor positioning (`position-area`, `position-try-fallbacks`) existe depuis Chrome et Edge 129, Firefox 147 et Safari 26.
+- La [matrice](?path=/docs/documentation-référence-support-navigateurs--docs) exige Chrome 111, Firefox 115 et Safari 16.4.
+
+### Ce que font les bibliothèques
+
+<table>
+  <thead>
+    <tr>
+      <th>Composant</th>
+      <th>Options</th>
+      <th>Input et option active</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Spectrum, `sp-combobox`</td>
+      <td>
+        Une propriété `options`, ou des `sp-menu-item` slottés. La propriété est prioritaire. Le
+        slot est masqué, et des copies des options sont rendues dans le shadow root.
+      </td>
+      <td>Dans le même shadow root : `aria-activedescendant` y fonctionne</td>
+    </tr>
+    <tr>
+      <td>Web Awesome, `wa-select`</td>
+      <td>Des `wa-option` dans le light DOM</td>
+      <td>Le vrai focus passe sur l'option : impossible dans un champ où l'on tape</td>
+    </tr>
+    <tr>
+      <td>Web Awesome, `wa-combobox` (Pro)</td>
+      <td>Des `wa-option` dans le light DOM, ou une fonction `dataSource`</td>
+      <td>Une live region annonce l'option active</td>
+    </tr>
+    <tr>
+      <td>Vaadin, `vaadin-combo-box`</td>
+      <td>Une propriété `items`, ou une fonction `dataProvider`</td>
+      <td>L'input natif est dans le light DOM (`slot="input"`)</td>
+    </tr>
+  </tbody>
+</table>
+
+- `wa-popup`, le popup de Web Awesome, est un `popover="manual"`. Floating UI le positionne.
+- Lion place aussi ses options, des `lion-option`, dans le light DOM.
+
+### Critères de décision
+
+1. Le combobox est accessible dans toute la matrice : nom, liste contrôlée, option active.
+2. Une application donne les suggestions en HTML ou en données, d'un serveur par exemple.
+3. Un composant ne modifie pas les enfants que le framework de l'application gère ([ADR 0007](?path=/docs/documentation-adr-0007-champs-de-formulaire--docs), critère 4).
+4. Le popup reste sous son champ et au-dessus de la page, dans toute la matrice.
+5. Une application ne télécharge que ce que ses navigateurs demandent.
+6. Les futurs composants à popup reprennent les mêmes briques.
+
+## D1 — Les sources des options
+
+- **Option A — Une propriété `options` seule :** des données. Une page HTML sans script ne donne pas de suggestions : le critère 2 échoue en partie.
+- **Option B — Des enfants `<option>` du light DOM, désignés tels quels :** `aria-activedescendant` ne les atteint pas avant Chrome 135 et Firefox 136. Le critère 1 échoue.
+- **Option C — L'input dans le light DOM, comme Vaadin :** le composant crée un enfant que le framework ne connaît pas. Le critère 3 échoue.
+- **Option D — La propriété `options` et les enfants `<option>`, lus comme données :** la liste rend ses propres copies, dans le shadow root de l'input. C'est le choix de Spectrum.
+
+**Décision : D.**
+
+- `options` est prioritaire. Sans elle, les options sont les enfants `<option>` de l'hôte : leur `value`, leur `label` ou leur texte, et `disabled`.
+- Le composant lit ces enfants par un `<slot hidden>` et un `MutationObserver`. Il ne les modifie jamais.
+- `<option>` est l'élément natif : aucun composant `option` à enregistrer.
+- Une option choisie revient dans `u-select`, avec les champs propres à l'application.
+
+## D2 — Le popup et son placement
+
+- **Option A — `popover="auto"` :** un clic dans l'input, hors du popover, le ferme. L'ouverture ferme aussi les autres popovers `auto` de la page.
+- **Option B — `popover="manual"` et CSS anchor positioning seul :** sans ancrage CSS, le popover reste au centre du viewport. Le critère 4 échoue dans Firefox avant 147 et Safari avant 26.
+- **Option C — `@oddbird/css-anchor-positioning` :** ce polyfill ne gère pas `position-area` avec `position-try-fallbacks`.
+- **Option D — `popover="manual"`, CSS anchor positioning, et Floating UI chargé à la demande là où l'ancrage manque.**
+
+**Décision : D.**
+
+<table>
+  <thead>
+    <tr>
+      <th>Navigateurs</th>
+      <th>Top layer</th>
+      <th>Placement</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Chrome et Edge 129, Firefox 147, Safari 26</td>
+      <td>Popover API</td>
+      <td>CSS : `position-area`, `position-try-fallbacks`, `anchor-size()`</td>
+    </tr>
+    <tr>
+      <td>Chrome et Edge 114 à 128, Firefox 125 à 146, Safari 17 à 18</td>
+      <td>Popover API</td>
+      <td>Floating UI (`@floating-ui/dom`), chargé avec `import()`</td>
+    </tr>
+    <tr>
+      <td>Chrome et Edge 111 à 113, Firefox 115 à 124, Safari 16.4 à 16.x</td>
+      <td>Aucun : `position: fixed` et `--u-z-index-overlay`</td>
+      <td>Floating UI, chargé avec `import()`</td>
+    </tr>
+  </tbody>
+</table>
+
+- Le composant décide de la fermeture : Escape, le focus qui quitte le champ, un choix.
+- Escape ferme seulement le popup. Son `keydown` annulé laisse ouverte une `u-modal` autour du champ.
+- `@floating-ui/dom` est une dépendance de `@unicorne/components`, hors du build. Le bundler de l'application en fait un chunk, comme `invokers-polyfill` ([ADR 0008](?path=/docs/documentation-adr-0008-commandes-et-modale--docs), D2).
+- Le premier composant connecté charge Floating UI, là où l'ancrage manque. Le popup s'affiche une fois positionné.
+- Un popover fermé est masqué par `display: none !important`. Ni un `display` du composant ni un `::part()` de marque ne l'affichent.
+
+## D3 — Les briques
+
+```ts
+export abstract class ComboboxBase extends withAnchoredPopover(withExitTransition(FieldBase)) {
+  protected abstract renderCombobox(): unknown; // the control, role="combobox"
+  protected abstract renderPopup(): unknown; // the popup's content
+}
+
+export class Autocomplete extends withListbox(ComboboxBase) {
+  static override componentName = "autocomplete";
+}
+```
+
+<table>
+  <thead>
+    <tr>
+      <th>Brique</th>
+      <th>Rôle</th>
+      <th>Composants à venir</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>`withAnchoredPopover`, mixin</td>
+      <td>Le popover dans le top layer, ancré sous un élément, et ses replis</td>
+      <td>Select, date picker, menu, infobulle</td>
+    </tr>
+    <tr>
+      <td>`withListbox`, mixin</td>
+      <td>Les options, leur rendu, l'option active, `aria-activedescendant`</td>
+      <td>Select, multi-select, listbox autonome</td>
+    </tr>
+    <tr>
+      <td>`ComboboxBase`, base abstraite</td>
+      <td>
+        Un champ dont le contrôle ouvre un popup : ARIA du combobox, ouverture, fermeture, clavier
+        commun
+      </td>
+      <td>Select, date picker</td>
+    </tr>
+    <tr>
+      <td>`Autocomplete`, composant</td>
+      <td>Le texte libre et le filtrage des suggestions</td>
+      <td>—</td>
+    </tr>
+  </tbody>
+</table>
+
+- Un comportement de plusieurs familles est un mixin. Le comportement d'une famille est une base abstraite, comme `FieldBase` et `ButtonBase`.
+- `ComboboxBase` étend `FieldBase` : un combobox a le libellé, l'indice, l'erreur et le comportement de formulaire d'un champ.
+- Le contenu du popup reste libre : une liste d'options pour `withListbox`, une grille pour un date picker.
+- Les tokens suivent le même découpage : le groupe `combobox` pour le popup, le groupe `listbox` pour les options.
+
+## D4 — La valeur de l'autocomplete
+
+- La valeur est le texte de l'input, libre, comme avec `<input list>`. Une suggestion choisie remplit la valeur.
+- Le choix envoie `u-select` (`ListboxSelectEvent`), annulable, puis `input` et `change`, comme une saisie.
+- `filter` choisit les suggestions affichées : `contains` (par défaut), `starts-with`, ou `none` quand l'application filtre elle-même.
+- La comparaison ignore la casse et les accents : « evry » trouve « Évry ».
+- Les suggestions du navigateur (`autocomplete`) sont désactivées par défaut : elles couvriraient la liste.
+
+## Récapitulatif
+
+<table>
+  <thead>
+    <tr>
+      <th>Option</th>
+      <th>1. Accessible dans la matrice</th>
+      <th>2. HTML ou données</th>
+      <th>3. Enfants du framework intacts</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>D1 A — `options` seule</td>
+      <td>Oui</td>
+      <td>En partie : pas de HTML</td>
+      <td>Oui</td>
+    </tr>
+    <tr>
+      <td>D1 B — `<option>` désignés tels quels</td>
+      <td>Non</td>
+      <td>Oui</td>
+      <td>Oui</td>
+    </tr>
+    <tr>
+      <td>D1 C — input dans le light DOM</td>
+      <td>Oui</td>
+      <td>Oui</td>
+      <td>Non</td>
+    </tr>
+    <tr>
+      <td>**D1 D — `options` et `<option>` copiés**</td>
+      <td>Oui</td>
+      <td>Oui</td>
+      <td>Oui</td>
+    </tr>
+  </tbody>
+</table>
+
+<table>
+  <thead>
+    <tr>
+      <th>Option</th>
+      <th>4. Sous le champ, au-dessus de la page</th>
+      <th>5. Téléchargé seulement si nécessaire</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>D2 A — `popover="auto"`</td>
+      <td>Se ferme au clic dans l'input</td>
+      <td>Oui</td>
+    </tr>
+    <tr>
+      <td>D2 B — ancrage CSS seul</td>
+      <td>Non, avant Firefox 147 et Safari 26</td>
+      <td>Oui</td>
+    </tr>
+    <tr>
+      <td>D2 C — polyfill d'anchor positioning</td>
+      <td>En partie : sans `position-try-fallbacks`</td>
+      <td>Oui</td>
+    </tr>
+    <tr>
+      <td>**D2 D — ancrage CSS et Floating UI**</td>
+      <td>Oui, hors du top layer avant Chrome 114, Firefox 125 et Safari 17</td>
+      <td>Oui</td>
+    </tr>
+  </tbody>
+</table>
+
+## Conséquences
+
+- **Code :**
+  - `withAnchoredPopover` et `withListbox`, dans `packages/components/src/mixins/` ;
+  - `packages/components/src/polyfills/anchor-positioning.ts` ;
+  - `ComboboxBase` (`src/components/combobox/`), `Autocomplete` (`src/components/autocomplete/`) et `ListboxSelectEvent` (`src/events/listbox-select.ts`).
+- **API :**
+  - `u-autocomplete` rejoint le catalogue ; ACME le propose.
+  - Le `<label>` de `FieldBase` reçoit `id="label"`, qui nomme le listbox.
+  - L'événement `u-select` porte l'option choisie dans `option`.
+- **Tokens :**
+  - les groupes `combobox` et `listbox` ;
+  - les tokens sémantiques `size.popup` et `z-index.overlay` ;
+  - les primitives `dimension.6400` et `z-index.1000`.
+- **Dépendance :** `@floating-ui/dom` (MIT).
+- **Tests :**
+  - les stories de `autocomplete` dans les trois moteurs ;
+  - les tests des deux mixins ;
+  - `src/polyfills/anchor-positioning.test.ts`, sans Popover API ni ancrage CSS ;
+  - `src/components/autocomplete/autocomplete.test.ts`, qui presse le vrai Escape dans une modale ;
+  - le test d'ACME et celui de l'application Vue `examples/acme-vue-app`.
+- **Limites :**
+  - Avant Chrome 114, Firefox 125 et Safari 17, un ancêtre qui coupe son débordement coupe le popup : le `<dialog>` de `u-modal`, par exemple.
+  - L'analyseur du manifest lit `@tokens` sur une classe, pas sur un mixin. Un composant qui applique `withListbox` écrit `@tokens listbox`.
+- **Documentation :** cet ADR, la référence [Mixins](?path=/docs/documentation-référence-mixins--docs), la matrice, `AGENTS.md` et les skills `lit-mixin` et `lit-component`.
+
+## Questions ouvertes
+
+- **Annonces :** une live region pour le nombre de suggestions, l'absence de résultat et le chargement, comme `wa-combobox`.
+- **Suggestions asynchrones :** un état `loading`, un anti-rebond, une fonction `dataSource` avec un `AbortSignal`.
+- **Affichage :** la mise en évidence du texte trouvé, l'autocomplétion dans l'input, les `<optgroup>`.
+- **Valeur imposée :** un `select` et un `combobox` sur `ComboboxBase`, dont la valeur est une option. Le `<select>` personnalisable (`appearance: base-select`) les remplace une fois dans toute la matrice.
+- **Reference Target dans toute la matrice :** des options du light DOM deviennent possibles sans copie.
+- **Soumission implicite :** Enter dans un champ du socle n'envoie pas le formulaire, car l'input interne n'a pas de formulaire. La question concerne `FieldBase`.
+
+## Sources
+
+Consultées le 14 novembre 2026.
+
+- [Combobox Pattern](https://www.w3.org/WAI/ARIA/apg/patterns/combobox/) (W3C, ARIA Authoring Practices Guide) : le focus dans l'input, `aria-activedescendant`, le clavier.
+- [Combobox.ts](https://github.com/adobe/spectrum-web-components/blob/main/1st-gen/packages/combobox/src/Combobox.ts) (Adobe, Spectrum Web Components) : `this.availableOptions = this.options || this.optionEls`, et un `<slot hidden>`.
+- [Combobox](https://webawesome.com/docs/components/combobox) (Web Awesome) : les `wa-option` du light DOM, `dataSource`, une live region polie.
+- [select.ts](https://github.com/shoelace-style/webawesome/blob/next/packages/webawesome/src/components/select/select.ts) et [popup.ts](https://github.com/shoelace-style/webawesome/blob/next/packages/webawesome/src/components/popup/popup.ts) (Web Awesome) : le focus sur l'option, Floating UI et `popover="manual"`.
+- [vaadin-combo-box.js](https://github.com/vaadin/web-components/blob/main/packages/combo-box/src/vaadin-combo-box.js) (Vaadin) : `<slot name="input">`.
+- [Combobox](https://lion.js.org/components/combobox/overview/) (Lion) : les `lion-option` enfants.
+- [How Shadow DOM and accessibility are in conflict](https://alice.pages.igalia.com/blog/how-shadow-dom-and-accessibility-are-in-conflict/) (Igalia) : un listbox dans un shadow root, hors d'atteinte d'un input extérieur.
+- [Reference target explainer](https://github.com/WICG/webcomponents/blob/gh-pages/proposals/reference-target-explainer.md) (WICG) : `aria-activedescendant` vers un shadow root, le cas du combobox.
+- [New to the web platform in January](https://web.dev/blog/web-platform-01-2026) (web.dev) : CSS anchor positioning dans Firefox 147.
+- [Anchor positioning](https://web-platform-dx.github.io/web-features-explorer/features/anchor-positioning) (web-features explorer).
+- [@floating-ui/dom](https://www.npmjs.com/package/@floating-ui/dom) (Floating UI, licence MIT), version 1.8.0.
+- `viewport-aware-dropdowns`, `menu` et `ime-safe-enter-submit` (skill `modern-web-guidance`) : le Popover API et l'anchor positioning détectés avant tout repli, `inset: auto` et `margin: 0` sur un popover ancré, les limites du polyfill, `isComposing` et `keyCode` 229.

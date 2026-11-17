@@ -81,7 +81,6 @@ function prefill() {
         name="name"
         autocomplete="name"
         required
-        error-label="Erreur :"
         error-message="Saisissez votre nom."
       ></acme-text-field>
       <acme-text-field
@@ -92,7 +91,6 @@ function prefill() {
         autocomplete="email"
         required
         hint="Format : nom@exemple.fr"
-        error-label="Erreur :"
         error-message="Saisissez une adresse e-mail au format nom@exemple.fr."
       ></acme-text-field>
       <acme-text-field
@@ -104,7 +102,6 @@ function prefill() {
         required
         minlength="3"
         hint="3 caractères au moins"
-        error-label="Erreur :"
         error-message="Choisissez un identifiant de 3 caractères au moins."
       ></acme-text-field>
       <acme-autocomplete
@@ -118,7 +115,7 @@ function prefill() {
         v-model="account.bio"
         label="Présentation (facultatif)"
         name="bio"
-        rows="4"
+        :rows="4"
         :maxlength="BIO_MAX"
         :hint="bioHint"
       ></acme-textarea>

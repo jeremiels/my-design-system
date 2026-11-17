@@ -4,7 +4,7 @@ import { dirname, join } from "node:path";
 import { pathToFileURL } from "node:url";
 import { build, defineConfig, parse } from "@terrazzo/parser";
 import { afterEach, describe, expect, it } from "vitest";
-import { tokensCss, type TokensCssOptions } from "./terrazzo-plugin.ts";
+import { brandResolver, tokensCss, type TokensCssOptions } from "./terrazzo-plugin.ts";
 
 const color = (hex: string) => ({
   $type: "color",
@@ -147,40 +147,55 @@ function block(css: string, selectors: string): string[] {
 }
 
 describe("the base's sheets", () => {
-  it("puts primitives on :root and semantic tokens on :root and [data-brand], in the layer", async () => {
+  it("puts primitives and semantic tokens on :root and [data-brand], in the layer", async () => {
     const { "tokens.css": css } = await run({ ...BASE, "test.resolver.json": BASE_RESOLVER });
     expect(css).toMatch(/^\/\* Generated from .*\*\/\n@layer u\.tokens\.base \{\n/);
-    expect(block(css!, "  :root")).toEqual([
+    // A brand container starts again from the base's primitives (ADR 0013).
+    expect(block(css!, "  :root,\n  [data-brand]")).toEqual([
       "--u-palette-brand-300: #9cc6ff;",
       "--u-palette-brand-600: #1c65c8;",
       "--u-palette-danger-600: #b6322d;",
       "--u-duration-0: 0ms;",
       "--u-duration-150: 150ms;",
     ]);
-    expect(block(css!, "  :root,\n  [data-brand]")).toEqual([
+    const afterPrimitives = css!.slice(css!.indexOf("--u-duration-150"));
+    expect(block(afterPrimitives, "  :root,\n  [data-brand]")).toEqual([
       "--u-motion-duration-fast: var(--u-duration-150);",
       "--u-color-action: var(--u-palette-brand-600);",
       "--u-color-danger: var(--u-palette-danger-600);",
     ]);
   });
 
-  it("gives the dark context its two selectors, and reduced motion its media query", async () => {
+  it("gives each theme its zones, the system's preference the page, and reduced motion its media query", async () => {
     const { "tokens.css": css } = await run({ ...BASE, "test.resolver.json": BASE_RESOLVER });
+    const light = [
+      "--u-color-action: var(--u-palette-brand-600);",
+      "--u-color-danger: var(--u-palette-danger-600);",
+    ];
     const dark = [
       "--u-color-action: var(--u-palette-brand-300);",
       "--u-color-danger: var(--u-palette-danger-600);",
     ];
-    expect(css).toContain(
-      '  @media (prefers-color-scheme: dark) {\n    :root:not([data-theme="light"]),\n    :root:not([data-theme="light"]) [data-brand] {',
-    );
+    // Any element with data-theme, and the brand containers that follow it:
+    // not those with their own theme, nor those in a zone of the other theme.
     expect(
       block(
         css!,
-        '    :root:not([data-theme="light"]),\n    :root:not([data-theme="light"]) [data-brand]',
+        '  [data-theme="light"],\n  [data-theme="light"] [data-brand]:not([data-theme]):not([data-theme="light"] [data-theme="dark"] *)',
+      ),
+    ).toEqual(light);
+    expect(
+      block(
+        css!,
+        '  [data-theme="dark"],\n  [data-theme="dark"] [data-brand]:not([data-theme]):not([data-theme="dark"] [data-theme="light"] *)',
       ),
     ).toEqual(dark);
+    expect(css).toContain("  @media (prefers-color-scheme: dark) {\n");
     expect(
-      block(css!, '  :root[data-theme="dark"],\n  :root[data-theme="dark"] [data-brand]'),
+      block(
+        css!,
+        '    :root:not([data-theme="light"]),\n    :root:not([data-theme="light"]) [data-brand]:not([data-theme]):not([data-theme="light"] *)',
+      ),
     ).toEqual(dark);
     expect(css).toContain(
       "  @media (prefers-reduced-motion: reduce) {\n    :root,\n    [data-brand] {",
@@ -190,11 +205,21 @@ describe("the base's sheets", () => {
     ]);
   });
 
-  it("gives color-scheme the triggers of the dark context", async () => {
+  it("writes the light zone before the dark ones: a zone's own theme wins by order", async () => {
+    const { "tokens.css": css } = await run({ ...BASE, "test.resolver.json": BASE_RESOLVER });
+    const at = (text: string) => css!.indexOf(text);
+    expect(at('  [data-theme="light"],')).toBeGreaterThan(at("--u-motion-duration-fast"));
+    expect(at("@media (prefers-color-scheme: dark)")).toBeGreaterThan(
+      at('  [data-theme="light"],'),
+    );
+    expect(at('  [data-theme="dark"],')).toBeGreaterThan(at("@media (prefers-color-scheme: dark)"));
+  });
+
+  it("gives color-scheme the triggers of the themes", async () => {
     const { "tokens.css": css } = await run({ ...BASE, "test.resolver.json": BASE_RESOLVER });
     expect(css).toContain("  :root {\n    color-scheme: light dark;\n  }");
-    expect(block(css!, '  :root[data-theme="light"]')).toEqual(["color-scheme: light;"]);
-    expect(block(css!, '  :root[data-theme="dark"]')).toEqual(["color-scheme: dark;"]);
+    expect(block(css!, '  [data-theme="light"]')).toEqual(["color-scheme: light;"]);
+    expect(block(css!, '  [data-theme="dark"]')).toEqual(["color-scheme: dark;"]);
   });
 
   it("gives a component its tokens on :host, and each variant only the tokens it changes", async () => {
@@ -259,7 +284,7 @@ describe("a brand's sheets", () => {
   });
   const BRAND_OPTIONS: TokensCssOptions = {
     layer: "u.tokens.brand",
-    scope: '[data-brand="acme"]',
+    brand: "acme",
     page: "theme.css",
     components: {
       button: { file: "acme-button.tokens.css", attributes: { "button-variant": "variant" } },
@@ -268,7 +293,7 @@ describe("a brand's sheets", () => {
     emit: (file) => file.includes("/brand/"),
   };
 
-  it("outputs only the brand's tokens, on its scope", async () => {
+  it("outputs only the brand's tokens, on its containers", async () => {
     const files = await run({ ...BRAND, "test.resolver.json": BRAND_RESOLVER }, BRAND_OPTIONS);
     const css = files["theme.css"]!;
     expect(css).toContain("@layer u.tokens.brand {");
@@ -285,9 +310,44 @@ describe("a brand's sheets", () => {
     const css = (await run({ ...BRAND, "test.resolver.json": BRAND_RESOLVER }, BRAND_OPTIONS))[
       "theme.css"
     ]!;
-    expect(block(css, '  :root[data-theme="dark"] [data-brand="acme"]')).toEqual([
-      "--u-color-action: var(--u-palette-brand-300);",
-    ]);
+    const dark = ["--u-color-action: var(--u-palette-brand-300);"];
+    // The brand's container with a theme, the container in a zone, and a zone
+    // in the container.
+    expect(
+      block(
+        css,
+        [
+          '  [data-brand="acme"][data-theme="dark"]',
+          '  [data-theme="dark"] [data-brand="acme"]:not([data-theme]):not([data-theme="dark"] [data-theme="light"] *)',
+          '  [data-brand="acme"] [data-theme="dark"]:not([data-brand], [data-brand="acme"] [data-brand] *)',
+        ].join(",\n"),
+      ),
+    ).toEqual(dark);
+    // The page of the brand, when it follows the system's preference.
+    expect(
+      block(
+        css,
+        [
+          '    [data-brand="acme"]:root:not([data-theme="light"])',
+          '    :root:not([data-theme="light"]) [data-brand="acme"]:not([data-theme]):not([data-theme="light"] *)',
+        ].join(",\n"),
+      ),
+    ).toEqual(dark);
+  });
+
+  it("outputs the tokens of every file outside the base's package, without emit", async () => {
+    const { emit: _emit, ...options } = BRAND_OPTIONS;
+    // The files of this test are outside @unicorne/tokens: all of them are the brand's.
+    const css = (await run({ ...BRAND, "test.resolver.json": BRAND_RESOLVER }, options))[
+      "theme.css"
+    ]!;
+    expect(css).toContain("--u-palette-danger-600");
+  });
+
+  it("refuses a brand name that can't be an attribute value", async () => {
+    await expect(
+      run({ ...BRAND, "test.resolver.json": BRAND_RESOLVER }, { ...BRAND_OPTIONS, brand: "Acme!" }),
+    ).rejects.toThrow("name the brand in lowercase");
   });
 
   it("leaves color-scheme to the base, whose themes it keeps", async () => {
@@ -373,5 +433,77 @@ describe("the three-level rule", () => {
     await expect(
       broken({}, { ...BASE_OPTIONS, components: { button: { file: "button.tokens.css" } } }),
     ).rejects.toThrow('Context "button-variant: danger" has no selector');
+  });
+});
+
+describe("a brand's resolver (ADR 0013)", () => {
+  function brandDirectory(files: Record<string, unknown>): string {
+    const directory = mkdtempSync(join(tmpdir(), "brand-resolver-"));
+    directories.push(directory);
+    for (const [name, content] of Object.entries(files)) {
+      mkdirSync(dirname(join(directory, name)), { recursive: true });
+      writeFileSync(join(directory, name), JSON.stringify(content));
+    }
+    return directory;
+  }
+  const read = (file: string) =>
+    JSON.parse(readFileSync(file, "utf8")) as {
+      sets: Record<string, { sources: { $ref: string }[] }>;
+      modifiers: Record<string, { default: string; contexts: Record<string, { $ref: string }[]> }>;
+      resolutionOrder: { $ref: string }[];
+    };
+  const refs = (sources: { $ref: string }[]) => sources.map(({ $ref }) => $ref);
+
+  it("puts the brand's files after the base's, in the base's sets and contexts", () => {
+    const directory = brandDirectory({
+      "primitive/palette.tokens.json": {},
+      "semantic/semantic.tokens.json": {},
+      "semantic/theme.dark.tokens.json": {},
+      "component/button/button.tokens.json": {},
+      "component/button/variant.danger.tokens.json": {},
+    });
+    const file = brandResolver({ name: "acme", sources: directory });
+    expect(file).toBe(join(directory, ".acme.resolver.json"));
+    const { sets, modifiers } = read(file);
+
+    const primitive = refs(sets.primitive!.sources);
+    expect(primitive.at(-1)).toBe("primitive/palette.tokens.json");
+    // The base's files, without the brand listing them.
+    expect(
+      primitive.filter((ref) => ref.endsWith("src/primitive/palette.tokens.json")),
+    ).toHaveLength(1);
+    expect(primitive.length).toBeGreaterThan(2);
+    expect(refs(sets.semantic!.sources).at(-1)).toBe("semantic/semantic.tokens.json");
+    expect(refs(sets.component!.sources).at(-1)).toBe("component/button/button.tokens.json");
+    expect(refs(modifiers.theme!.contexts.dark!).at(-1)).toBe("semantic/theme.dark.tokens.json");
+    expect(refs(modifiers["button-variant"]!.contexts.danger!).at(-1)).toBe(
+      "component/button/variant.danger.tokens.json",
+    );
+  });
+
+  it("adds the modifiers of the brand's own components", () => {
+    const directory = brandDirectory({
+      "component/card/card.tokens.json": {},
+      "component/card/size.small.tokens.json": {},
+    });
+    const { modifiers, resolutionOrder } = read(
+      brandResolver({
+        name: "acme",
+        sources: directory,
+        modifiers: { "card-size": { default: "medium" } },
+      }),
+    );
+    expect(modifiers["card-size"]).toEqual({
+      default: "medium",
+      contexts: { medium: [], small: [{ $ref: "component/card/size.small.tokens.json" }] },
+    });
+    expect(resolutionOrder.at(-1)).toEqual({ $ref: "#/modifiers/card-size" });
+  });
+
+  it("fails for a context file of an unknown modifier", () => {
+    const directory = brandDirectory({ "component/card/size.small.tokens.json": {} });
+    expect(() => brandResolver({ name: "acme", sources: directory })).toThrow(
+      'no modifier "card-size"',
+    );
   });
 });
