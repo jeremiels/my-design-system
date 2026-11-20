@@ -6,6 +6,8 @@
   --u-field-line-height: var(--u-font-line-height-body);
   --u-field-text-color: var(--u-color-text-default);
   --u-field-label-font-weight: var(--u-font-weight-medium);
+  --u-field-required-indicator-color: var(--u-color-text-danger);
+  --u-field-required-indicator-gap: var(--u-spacing-2xs);
   --u-field-hint-font-size: var(--u-font-size-sm);
   --u-field-background-color: var(--u-color-surface-default);
   --u-field-border-color: var(--u-color-border-control);

@@ -425,6 +425,31 @@
             },
             {
               "kind": "method",
+              "name": "forDesignSystem",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "T"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "this",
+                  "type": {
+                    "text": "T"
+                  }
+                },
+                {
+                  "name": "_settings",
+                  "type": {
+                    "text": "DesignSystemSettings"
+                  }
+                }
+              ],
+              "description": "The class a design system registers for this component, given its\nsettings: this class by default. A component that depends on a setting\nreturns a subclass that applies it, and leaves this class unchanged:\n`Icon` returns a subclass with the design system's `icons` over its own.\n`designSystem()` calls it once per class, after choosing the brand's\noverride, so the subclass extends the override."
+            },
+            {
+              "kind": "method",
               "name": "tagFor",
               "privacy": "protected",
               "return": {
@@ -1822,6 +1847,35 @@
             },
             {
               "kind": "method",
+              "name": "forDesignSystem",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "T"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "this",
+                  "type": {
+                    "text": "T"
+                  }
+                },
+                {
+                  "name": "_settings",
+                  "type": {
+                    "text": "DesignSystemSettings"
+                  }
+                }
+              ],
+              "description": "The class a design system registers for this component, given its\nsettings: this class by default. A component that depends on a setting\nreturns a subclass that applies it, and leaves this class unchanged:\n`Icon` returns a subclass with the design system's `icons` over its own.\n`designSystem()` calls it once per class, after choosing the brand's\noverride, so the subclass extends the override.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/components/base-element.ts"
+              }
+            },
+            {
+              "kind": "method",
               "name": "tagFor",
               "privacy": "protected",
               "return": {
@@ -2037,6 +2091,24 @@
               }
             },
             {
+              "description": "Color of the indicator after the label of a required field.",
+              "name": "--u-field-required-indicator-color",
+              "default": "var(--u-color-text-danger)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Space between the label and the indicator of a required field.",
+              "name": "--u-field-required-indicator-gap",
+              "default": "var(--u-spacing-2xs)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
               "description": "Font size of the hint.",
               "name": "--u-field-hint-font-size",
               "default": "var(--u-font-size-sm)",
@@ -2187,6 +2259,14 @@
             {
               "description": "The native `<label>`.",
               "name": "label",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "The indicator after the label, hidden from assistive technologies. Hidden unless the field is `required` and has a `requiredIndicator`.",
+              "name": "required-indicator",
               "inheritedFrom": {
                 "name": "FieldBase",
                 "module": "src/components/field/field-base.ts"
@@ -2986,6 +3066,20 @@
             },
             {
               "kind": "field",
+              "name": "requiredIndicator",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"*\"",
+              "description": "Shown after the label of a required field, and hidden from assistive\ntechnologies: they announce the control as required. `\"\"` shows none.",
+              "attribute": "required-indicator",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
               "name": "autocomplete",
               "type": {
                 "text": "string | undefined"
@@ -3214,7 +3308,7 @@
                   }
                 }
               ],
-              "description": "For the `keydown` listener of a single-line control: Enter submits the\nform, as HTML's implicit submission does for a native `<input>`. With a\nsubmit button in the form, the form is submitted unless the first one\nis disabled. Without any, it is submitted when this field is its only\nsingle-line one. Does nothing for a key another listener has handled,\nnor while an input method composes the text.",
+              "description": "For the `keydown` listener of a single-line control: Enter submits the\nform, as HTML's implicit submission does for a native `<input>`. With a\nsubmit button in the form, the first one is clicked, unless it is\ndisabled: a component submit button submits on `click()`. Without any, it is submitted when this field is its only\nsingle-line one. Does nothing for a key another listener has handled,\nnor while an input method composes the text.",
               "inheritedFrom": {
                 "name": "FieldBase",
                 "module": "src/components/field/field-base.ts"
@@ -3270,6 +3364,35 @@
               "inheritedFrom": {
                 "name": "FieldBase",
                 "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "forDesignSystem",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "T"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "this",
+                  "type": {
+                    "text": "T"
+                  }
+                },
+                {
+                  "name": "_settings",
+                  "type": {
+                    "text": "DesignSystemSettings"
+                  }
+                }
+              ],
+              "description": "The class a design system registers for this component, given its\nsettings: this class by default. A component that depends on a setting\nreturns a subclass that applies it, and leaves this class unchanged:\n`Icon` returns a subclass with the design system's `icons` over its own.\n`designSystem()` calls it once per class, after choosing the brand's\noverride, so the subclass extends the override.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/components/base-element.ts"
               }
             },
             {
@@ -3428,6 +3551,19 @@
               }
             },
             {
+              "name": "required-indicator",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"*\"",
+              "description": "Shown after the label of a required field, and hidden from assistive\ntechnologies: they announce the control as required. `\"\"` shows none.",
+              "fieldName": "requiredIndicator",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
               "name": "autocomplete",
               "type": {
                 "text": "string | undefined"
@@ -3472,7 +3608,17 @@
           },
           "tagName": "u-autocomplete",
           "customElement": true,
-          "summary": "A labelled text input that suggests values as the user types."
+          "summary": "A labelled text input that suggests values as the user types.",
+          "cssStates": [
+            {
+              "description": "The error shows: the user has changed the value and left the field, or validation has run.",
+              "name": "user-invalid",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            }
+          ]
         }
       ],
       "exports": [
@@ -3713,6 +3859,35 @@
               "static": true,
               "default": "[]",
               "description": "Components this one renders (ADR 0001, D2): `defineComponents()`\nregisters them too, and `tagFor()` resolves their tag. Never hard-code\nanother component's tag in a template, nor create one with\n`document.createElement` — a brand's override would be bypassed.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/components/base-element.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "forDesignSystem",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "T"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "this",
+                  "type": {
+                    "text": "T"
+                  }
+                },
+                {
+                  "name": "_settings",
+                  "type": {
+                    "text": "DesignSystemSettings"
+                  }
+                }
+              ],
+              "description": "The class a design system registers for this component, given its\nsettings: this class by default. A component that depends on a setting\nreturns a subclass that applies it, and leaves this class unchanged:\n`Icon` returns a subclass with the design system's `icons` over its own.\n`designSystem()` calls it once per class, after choosing the brand's\noverride, so the subclass extends the override.",
               "inheritedFrom": {
                 "name": "DSBaseElement",
                 "module": "src/components/base-element.ts"
@@ -3981,6 +4156,35 @@
               "static": true,
               "default": "[]",
               "description": "Components this one renders (ADR 0001, D2): `defineComponents()`\nregisters them too, and `tagFor()` resolves their tag. Never hard-code\nanother component's tag in a template, nor create one with\n`document.createElement` — a brand's override would be bypassed.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/components/base-element.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "forDesignSystem",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "T"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "this",
+                  "type": {
+                    "text": "T"
+                  }
+                },
+                {
+                  "name": "_settings",
+                  "type": {
+                    "text": "DesignSystemSettings"
+                  }
+                }
+              ],
+              "description": "The class a design system registers for this component, given its\nsettings: this class by default. A component that depends on a setting\nreturns a subclass that applies it, and leaves this class unchanged:\n`Icon` returns a subclass with the design system's `icons` over its own.\n`designSystem()` calls it once per class, after choosing the brand's\noverride, so the subclass extends the override.",
               "inheritedFrom": {
                 "name": "DSBaseElement",
                 "module": "src/components/base-element.ts"
@@ -4261,7 +4465,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "A button that triggers an action, or submits or resets its form (`type`).\nWith `commandfor` and `command`, it controls another element without\nscript, like a native invoker button: it opens a `modal` with\n`command=\"--show-modal\"`.",
+          "description": "A button that triggers an action, or submits or resets its form (`type`).\nWith `commandfor` and `command`, it controls another element without\nscript, like a native invoker button: it opens a `modal` with\n`command=\"--show-modal\"`.\n\nA submit button sends its `name` and `value` with the form data, as a\nnative one does. The `submitter` of the `submit` event is a hidden native\n`<button>` that carries them, removed once the event has run: a button of\na shadow root can't be the submitter of its host's form.\n\n`click()` acts as a click on the inner button: it submits, resets or\nsends the command. Implicit submission relies on it: Enter in a field\nclicks the form's first submit button (`FieldBase.submitOnEnter()`).",
           "name": "Button",
           "members": [
             {
@@ -4300,12 +4504,22 @@
             },
             {
               "kind": "field",
+              "name": "name",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "Name of `value` in the form's data, when this button submits the form.\nTells the server which button submitted it.",
+              "attribute": "name"
+            },
+            {
+              "kind": "field",
               "name": "value",
               "type": {
                 "text": "string"
               },
               "default": "\"\"",
-              "description": "Value of the button. A `modal` closed by this button (`--close`,\n`--request-close`) takes it as its `returnValue`.",
+              "description": "Value of the button, submitted under `name`. A `modal` closed by this button (`--close`,\n`--request-close`) takes it as its `returnValue`.",
               "attribute": "value"
             },
             {
@@ -4325,6 +4539,20 @@
                 "name": "ButtonBase",
                 "module": "src/components/button/button-base.ts"
               }
+            },
+            {
+              "kind": "method",
+              "name": "#submit",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "form",
+                  "type": {
+                    "text": "HTMLFormElement"
+                  }
+                }
+              ],
+              "description": "Submits `form` with a hidden native button as its submitter: the form's\nvalidation, `submit` event and data are those of a native submit button\nnamed `name`."
             },
             {
               "kind": "field",
@@ -4558,6 +4786,35 @@
             },
             {
               "kind": "method",
+              "name": "forDesignSystem",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "T"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "this",
+                  "type": {
+                    "text": "T"
+                  }
+                },
+                {
+                  "name": "_settings",
+                  "type": {
+                    "text": "DesignSystemSettings"
+                  }
+                }
+              ],
+              "description": "The class a design system registers for this component, given its\nsettings: this class by default. A component that depends on a setting\nreturns a subclass that applies it, and leaves this class unchanged:\n`Icon` returns a subclass with the design system's `icons` over its own.\n`designSystem()` calls it once per class, after choosing the brand's\noverride, so the subclass extends the override.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/components/base-element.ts"
+              }
+            },
+            {
+              "kind": "method",
               "name": "tagFor",
               "privacy": "protected",
               "return": {
@@ -4591,12 +4848,21 @@
               "fieldName": "type"
             },
             {
+              "name": "name",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "Name of `value` in the form's data, when this button submits the form.\nTells the server which button submitted it.",
+              "fieldName": "name"
+            },
+            {
               "name": "value",
               "type": {
                 "text": "string"
               },
               "default": "\"\"",
-              "description": "Value of the button. A `modal` closed by this button (`--close`,\n`--request-close`) takes it as its `returnValue`.",
+              "description": "Value of the button, submitted under `name`. A `modal` closed by this button (`--close`,\n`--request-close`) takes it as its `returnValue`.",
               "fieldName": "value"
             },
             {
@@ -4945,6 +5211,24 @@
               }
             },
             {
+              "description": "Color of the indicator after the label of a required field.",
+              "name": "--u-field-required-indicator-color",
+              "default": "var(--u-color-text-danger)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Space between the label and the indicator of a required field.",
+              "name": "--u-field-required-indicator-gap",
+              "default": "var(--u-spacing-2xs)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
               "description": "Font size of the hint.",
               "name": "--u-field-hint-font-size",
               "default": "var(--u-font-size-sm)",
@@ -5079,6 +5363,14 @@
             {
               "description": "The native `<label>`.",
               "name": "label",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "The indicator after the label, hidden from assistive technologies. Hidden unless the field is `required` and has a `requiredIndicator`.",
+              "name": "required-indicator",
               "inheritedFrom": {
                 "name": "FieldBase",
                 "module": "src/components/field/field-base.ts"
@@ -5578,6 +5870,20 @@
             },
             {
               "kind": "field",
+              "name": "requiredIndicator",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"*\"",
+              "description": "Shown after the label of a required field, and hidden from assistive\ntechnologies: they announce the control as required. `\"\"` shows none.",
+              "attribute": "required-indicator",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
               "name": "autocomplete",
               "type": {
                 "text": "string | undefined"
@@ -5844,7 +6150,7 @@
                   }
                 }
               ],
-              "description": "For the `keydown` listener of a single-line control: Enter submits the\nform, as HTML's implicit submission does for a native `<input>`. With a\nsubmit button in the form, the form is submitted unless the first one\nis disabled. Without any, it is submitted when this field is its only\nsingle-line one. Does nothing for a key another listener has handled,\nnor while an input method composes the text.",
+              "description": "For the `keydown` listener of a single-line control: Enter submits the\nform, as HTML's implicit submission does for a native `<input>`. With a\nsubmit button in the form, the first one is clicked, unless it is\ndisabled: a component submit button submits on `click()`. Without any, it is submitted when this field is its only\nsingle-line one. Does nothing for a key another listener has handled,\nnor while an input method composes the text.",
               "inheritedFrom": {
                 "name": "FieldBase",
                 "module": "src/components/field/field-base.ts"
@@ -5911,6 +6217,35 @@
               "static": true,
               "default": "\"\"",
               "description": "Name of the component in the catalog, without any tag prefix: the\nregistered tag is `<prefix>-<componentName>`. Every concrete component\nsets it; abstract bases (e.g. `ButtonBase`) don't.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/components/base-element.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "forDesignSystem",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "T"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "this",
+                  "type": {
+                    "text": "T"
+                  }
+                },
+                {
+                  "name": "_settings",
+                  "type": {
+                    "text": "DesignSystemSettings"
+                  }
+                }
+              ],
+              "description": "The class a design system registers for this component, given its\nsettings: this class by default. A component that depends on a setting\nreturns a subclass that applies it, and leaves this class unchanged:\n`Icon` returns a subclass with the design system's `icons` over its own.\n`designSystem()` calls it once per class, after choosing the brand's\noverride, so the subclass extends the override.",
               "inheritedFrom": {
                 "name": "DSBaseElement",
                 "module": "src/components/base-element.ts"
@@ -6028,6 +6363,19 @@
               }
             },
             {
+              "name": "required-indicator",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"*\"",
+              "description": "Shown after the label of a required field, and hidden from assistive\ntechnologies: they announce the control as required. `\"\"` shows none.",
+              "fieldName": "requiredIndicator",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
               "name": "autocomplete",
               "type": {
                 "text": "string | undefined"
@@ -6085,6 +6433,16 @@
             {
               "description": "The native `input` event of the inner control, on each change of the value by the user.",
               "name": "input",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            }
+          ],
+          "cssStates": [
+            {
+              "description": "The error shows: the user has changed the value and left the field, or validation has run.",
+              "name": "user-invalid",
               "inheritedFrom": {
                 "name": "FieldBase",
                 "module": "src/components/field/field-base.ts"
@@ -6158,7 +6516,7 @@
         },
         {
           "kind": "class",
-          "description": "Shared base of the form fields, `text-field` and `textarea`: a label, an\noptional hint, a native control and its error message. Abstract: extend\n`TextField` or `Textarea`, or write a field with `renderControl()`. The\nlabel stays in the shadow root of its control: an `id` doesn't cross a\nshadow root (ADR 0007).\n\nA field takes part in its form like a native control: it submits `value`\nunder `name`, blocks the submission while invalid, follows the form's\nreset and a `<fieldset disabled>`.\n\nValidation is the browser's, on the native control, plus\n`setCustomValidity()`. The error shows once the user has changed the value\nand left the field, or once validation has run (a submission attempt,\n`checkValidity()`, `reportValidity()`), then follows each keystroke. The\nmessage is the browser's, in the browser's language: give `error-message`\nto write it in the page's language. A message set with\n`setCustomValidity()` comes first.\n\nIts `input` and `change` events are those of a native control, on the\nhost: frameworks bind `value` as they would on an `<input>` (`v-model` in\nVue).\n\nIn a single-line field, Enter submits the form, as in a native `<input>`:\nthe inner control has no form of its own, so the field does it\n(`submitOnEnter()`).",
+          "description": "Shared base of the form fields, `text-field` and `textarea`: a label, an\noptional hint, a native control and its error message. Abstract: extend\n`TextField` or `Textarea`, or write a field with `renderControl()`. The\nlabel stays in the shadow root of its control: an `id` doesn't cross a\nshadow root (ADR 0007).\n\nA field takes part in its form like a native control: it submits `value`\nunder `name`, blocks the submission while invalid, follows the form's\nreset and a `<fieldset disabled>`.\n\nValidation is the browser's, on the native control, plus\n`setCustomValidity()`. The error shows once the user has changed the value\nand left the field, or once validation has run (a submission attempt,\n`checkValidity()`, `reportValidity()`), then follows each keystroke. The\nmessage is the browser's, in the browser's language: give `error-message`\nto write it in the page's language. A message set with\n`setCustomValidity()` comes first.\n\nIts `input` and `change` events are those of a native control, on the\nhost: frameworks bind `value` as they would on an `<input>` (`v-model` in\nVue).\n\nIn a single-line field, Enter submits the form, as in a native `<input>`:\nthe inner control has no form of its own, so the field does it\n(`submitOnEnter()`).\n\nA required field shows `requiredIndicator` after its label, and the\ncontrol is announced as required. Where every field of a form is\nrequired, set `required-indicator=\"\"` and say it once above the form.\n\nOnce the error shows, the host matches `:state(user-invalid)`, as a\nnative control matches `:user-invalid`: style the layout around the field\nwith it. An enhancement: browsers without `:state()` (Chrome before 125,\nFirefox before 126, Safari before 17.4) don't match it, and the field\nshows its error without it.",
           "name": "FieldBase",
           "cssProperties": [
             {
@@ -6190,6 +6548,16 @@
               "description": "Font weight of the label.",
               "name": "--u-field-label-font-weight",
               "default": "var(--u-font-weight-medium)"
+            },
+            {
+              "description": "Color of the indicator after the label of a required field.",
+              "name": "--u-field-required-indicator-color",
+              "default": "var(--u-color-text-danger)"
+            },
+            {
+              "description": "Space between the label and the indicator of a required field.",
+              "name": "--u-field-required-indicator-gap",
+              "default": "var(--u-spacing-2xs)"
             },
             {
               "description": "Font size of the hint.",
@@ -6266,6 +6634,10 @@
             {
               "description": "The native `<label>`.",
               "name": "label"
+            },
+            {
+              "description": "The indicator after the label, hidden from assistive technologies. Hidden unless the field is `required` and has a `requiredIndicator`.",
+              "name": "required-indicator"
             },
             {
               "description": "The hint, between the label and the control. Hidden without `hint`.",
@@ -6360,6 +6732,16 @@
               "default": "false",
               "description": "The form can't be submitted while the field is empty.",
               "attribute": "required"
+            },
+            {
+              "kind": "field",
+              "name": "requiredIndicator",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"*\"",
+              "description": "Shown after the label of a required field, and hidden from assistive\ntechnologies: they announce the control as required. `\"\"` shows none.",
+              "attribute": "required-indicator"
             },
             {
               "kind": "field",
@@ -6572,7 +6954,7 @@
                   }
                 }
               ],
-              "description": "For the `keydown` listener of a single-line control: Enter submits the\nform, as HTML's implicit submission does for a native `<input>`. With a\nsubmit button in the form, the form is submitted unless the first one\nis disabled. Without any, it is submitted when this field is its only\nsingle-line one. Does nothing for a key another listener has handled,\nnor while an input method composes the text."
+              "description": "For the `keydown` listener of a single-line control: Enter submits the\nform, as HTML's implicit submission does for a native `<input>`. With a\nsubmit button in the form, the first one is clicked, unless it is\ndisabled: a component submit button submits on `click()`. Without any, it is submitted when this field is its only\nsingle-line one. Does nothing for a key another listener has handled,\nnor while an input method composes the text."
             },
             {
               "kind": "field",
@@ -6721,6 +7103,35 @@
             },
             {
               "kind": "method",
+              "name": "forDesignSystem",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "T"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "this",
+                  "type": {
+                    "text": "T"
+                  }
+                },
+                {
+                  "name": "_settings",
+                  "type": {
+                    "text": "DesignSystemSettings"
+                  }
+                }
+              ],
+              "description": "The class a design system registers for this component, given its\nsettings: this class by default. A component that depends on a setting\nreturns a subclass that applies it, and leaves this class unchanged:\n`Icon` returns a subclass with the design system's `icons` over its own.\n`designSystem()` calls it once per class, after choosing the brand's\noverride, so the subclass extends the override.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/components/base-element.ts"
+              }
+            },
+            {
+              "kind": "method",
               "name": "tagFor",
               "privacy": "protected",
               "return": {
@@ -6803,6 +7214,15 @@
               "fieldName": "required"
             },
             {
+              "name": "required-indicator",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"*\"",
+              "description": "Shown after the label of a required field, and hidden from assistive\ntechnologies: they announce the control as required. `\"\"` shows none.",
+              "fieldName": "requiredIndicator"
+            },
+            {
               "name": "autocomplete",
               "type": {
                 "text": "string | undefined"
@@ -6840,6 +7260,12 @@
                 "name": "withDisabled",
                 "module": "src/mixins/withDisabled.ts"
               }
+            }
+          ],
+          "cssStates": [
+            {
+              "description": "The error shows: the user has changed the value and left the field, or validation has run.",
+              "name": "user-invalid"
             }
           ],
           "mixins": [
@@ -6922,6 +7348,35 @@
               "static": true,
               "default": "icons",
               "description": "The icon set: icon name → its SVG markup, or a loader of its module.\nThe default is the set of `@unicorne/icons`. A brand adds or replaces\nicons by name in a subclass, registered with `overrides: { icon: … }`,\nso every component of the registration renders them:\n`static override icons = { ...Icon.icons, ...brandIcons }`.\nRendered as HTML: trusted markup only, such as the output of `unicorne-icons`."
+            },
+            {
+              "kind": "method",
+              "name": "forDesignSystem",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "T"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "this",
+                  "type": {
+                    "text": "T"
+                  }
+                },
+                {
+                  "name": "{ icons: designSystemIcons }",
+                  "type": {
+                    "text": "DesignSystemSettings"
+                  }
+                }
+              ],
+              "description": "A subclass with the design system's `icons` over the set of this class,\nor this class when the design system has none.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/components/base-element.ts"
+              }
             },
             {
               "kind": "field",
@@ -7441,6 +7896,35 @@
             },
             {
               "kind": "method",
+              "name": "forDesignSystem",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "T"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "this",
+                  "type": {
+                    "text": "T"
+                  }
+                },
+                {
+                  "name": "_settings",
+                  "type": {
+                    "text": "DesignSystemSettings"
+                  }
+                }
+              ],
+              "description": "The class a design system registers for this component, given its\nsettings: this class by default. A component that depends on a setting\nreturns a subclass that applies it, and leaves this class unchanged:\n`Icon` returns a subclass with the design system's `icons` over its own.\n`designSystem()` calls it once per class, after choosing the brand's\noverride, so the subclass extends the override.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/components/base-element.ts"
+              }
+            },
+            {
+              "kind": "method",
               "name": "tagFor",
               "privacy": "protected",
               "return": {
@@ -7558,6 +8042,14 @@
             {
               "description": "The native `<label>`.",
               "name": "label",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "The indicator after the label, hidden from assistive technologies. Hidden unless the field is `required` and has a `requiredIndicator`.",
+              "name": "required-indicator",
               "inheritedFrom": {
                 "name": "FieldBase",
                 "module": "src/components/field/field-base.ts"
@@ -7842,6 +8334,20 @@
             },
             {
               "kind": "field",
+              "name": "requiredIndicator",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"*\"",
+              "description": "Shown after the label of a required field, and hidden from assistive\ntechnologies: they announce the control as required. `\"\"` shows none.",
+              "attribute": "required-indicator",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
               "name": "autocomplete",
               "type": {
                 "text": "string | undefined"
@@ -8108,7 +8614,7 @@
                   }
                 }
               ],
-              "description": "For the `keydown` listener of a single-line control: Enter submits the\nform, as HTML's implicit submission does for a native `<input>`. With a\nsubmit button in the form, the form is submitted unless the first one\nis disabled. Without any, it is submitted when this field is its only\nsingle-line one. Does nothing for a key another listener has handled,\nnor while an input method composes the text.",
+              "description": "For the `keydown` listener of a single-line control: Enter submits the\nform, as HTML's implicit submission does for a native `<input>`. With a\nsubmit button in the form, the first one is clicked, unless it is\ndisabled: a component submit button submits on `click()`. Without any, it is submitted when this field is its only\nsingle-line one. Does nothing for a key another listener has handled,\nnor while an input method composes the text.",
               "inheritedFrom": {
                 "name": "FieldBase",
                 "module": "src/components/field/field-base.ts"
@@ -8178,6 +8684,35 @@
               "inheritedFrom": {
                 "name": "FieldBase",
                 "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "forDesignSystem",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "T"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "this",
+                  "type": {
+                    "text": "T"
+                  }
+                },
+                {
+                  "name": "_settings",
+                  "type": {
+                    "text": "DesignSystemSettings"
+                  }
+                }
+              ],
+              "description": "The class a design system registers for this component, given its\nsettings: this class by default. A component that depends on a setting\nreturns a subclass that applies it, and leaves this class unchanged:\n`Icon` returns a subclass with the design system's `icons` over its own.\n`designSystem()` calls it once per class, after choosing the brand's\noverride, so the subclass extends the override.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/components/base-element.ts"
               }
             },
             {
@@ -8317,6 +8852,19 @@
               }
             },
             {
+              "name": "required-indicator",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"*\"",
+              "description": "Shown after the label of a required field, and hidden from assistive\ntechnologies: they announce the control as required. `\"\"` shows none.",
+              "fieldName": "requiredIndicator",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
               "name": "autocomplete",
               "type": {
                 "text": "string | undefined"
@@ -8412,6 +8960,24 @@
               "description": "Font weight of the label.",
               "name": "--u-field-label-font-weight",
               "default": "var(--u-font-weight-medium)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Color of the indicator after the label of a required field.",
+              "name": "--u-field-required-indicator-color",
+              "default": "var(--u-color-text-danger)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Space between the label and the indicator of a required field.",
+              "name": "--u-field-required-indicator-gap",
+              "default": "var(--u-spacing-2xs)",
               "inheritedFrom": {
                 "name": "FieldBase",
                 "module": "src/components/field/field-base.ts"
@@ -8564,6 +9130,16 @@
                 "module": "src/components/field/field-base.ts"
               }
             }
+          ],
+          "cssStates": [
+            {
+              "description": "The error shows: the user has changed the value and left the field, or validation has run.",
+              "name": "user-invalid",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            }
           ]
         }
       ],
@@ -8600,6 +9176,14 @@
             {
               "description": "The native `<label>`.",
               "name": "label",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "The indicator after the label, hidden from assistive technologies. Hidden unless the field is `required` and has a `requiredIndicator`.",
+              "name": "required-indicator",
               "inheritedFrom": {
                 "name": "FieldBase",
                 "module": "src/components/field/field-base.ts"
@@ -8874,6 +9458,20 @@
             },
             {
               "kind": "field",
+              "name": "requiredIndicator",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"*\"",
+              "description": "Shown after the label of a required field, and hidden from assistive\ntechnologies: they announce the control as required. `\"\"` shows none.",
+              "attribute": "required-indicator",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
               "name": "autocomplete",
               "type": {
                 "text": "string | undefined"
@@ -9140,7 +9738,7 @@
                   }
                 }
               ],
-              "description": "For the `keydown` listener of a single-line control: Enter submits the\nform, as HTML's implicit submission does for a native `<input>`. With a\nsubmit button in the form, the form is submitted unless the first one\nis disabled. Without any, it is submitted when this field is its only\nsingle-line one. Does nothing for a key another listener has handled,\nnor while an input method composes the text.",
+              "description": "For the `keydown` listener of a single-line control: Enter submits the\nform, as HTML's implicit submission does for a native `<input>`. With a\nsubmit button in the form, the first one is clicked, unless it is\ndisabled: a component submit button submits on `click()`. Without any, it is submitted when this field is its only\nsingle-line one. Does nothing for a key another listener has handled,\nnor while an input method composes the text.",
               "inheritedFrom": {
                 "name": "FieldBase",
                 "module": "src/components/field/field-base.ts"
@@ -9210,6 +9808,35 @@
               "inheritedFrom": {
                 "name": "FieldBase",
                 "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "forDesignSystem",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "T"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "this",
+                  "type": {
+                    "text": "T"
+                  }
+                },
+                {
+                  "name": "_settings",
+                  "type": {
+                    "text": "DesignSystemSettings"
+                  }
+                }
+              ],
+              "description": "The class a design system registers for this component, given its\nsettings: this class by default. A component that depends on a setting\nreturns a subclass that applies it, and leaves this class unchanged:\n`Icon` returns a subclass with the design system's `icons` over its own.\n`designSystem()` calls it once per class, after choosing the brand's\noverride, so the subclass extends the override.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/components/base-element.ts"
               }
             },
             {
@@ -9340,6 +9967,19 @@
               }
             },
             {
+              "name": "required-indicator",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"*\"",
+              "description": "Shown after the label of a required field, and hidden from assistive\ntechnologies: they announce the control as required. `\"\"` shows none.",
+              "fieldName": "requiredIndicator",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
               "name": "autocomplete",
               "type": {
                 "text": "string | undefined"
@@ -9435,6 +10075,24 @@
               "description": "Font weight of the label.",
               "name": "--u-field-label-font-weight",
               "default": "var(--u-font-weight-medium)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Color of the indicator after the label of a required field.",
+              "name": "--u-field-required-indicator-color",
+              "default": "var(--u-color-text-danger)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Space between the label and the indicator of a required field.",
+              "name": "--u-field-required-indicator-gap",
+              "default": "var(--u-spacing-2xs)",
               "inheritedFrom": {
                 "name": "FieldBase",
                 "module": "src/components/field/field-base.ts"
@@ -9582,6 +10240,16 @@
             {
               "description": "The native `input` event of the inner control, on each change of the value by the user.",
               "name": "input",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/components/field/field-base.ts"
+              }
+            }
+          ],
+          "cssStates": [
+            {
+              "description": "The error shows: the user has changed the value and left the field, or validation has run.",
+              "name": "user-invalid",
               "inheritedFrom": {
                 "name": "FieldBase",
                 "module": "src/components/field/field-base.ts"
