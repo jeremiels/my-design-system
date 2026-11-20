@@ -1,8 +1,8 @@
 import { icons, type IconLoader, type IconSet, type IconSource } from "@unicorne/icons";
 import { html, isServer, nothing, type PropertyValues } from "lit";
 import { property, state } from "lit/decorators.js";
-import { unsafeHTML } from "lit/directives/unsafe-html.js";
-import { DSBaseElement } from "../base-element.js";
+import { html as staticHtml, unsafeStatic } from "lit/static-html.js";
+import { DSBaseElement, type DesignSystemSettings } from "../base-element.js";
 import iconStyles from "./icon.css" with { type: "css" };
 import iconTokens from "./icon.tokens.css" with { type: "css" };
 
@@ -41,6 +41,24 @@ export class Icon extends DSBaseElement {
    * Rendered as HTML: trusted markup only, such as the output of `unicorne-icons`.
    */
   static icons: IconSet = icons;
+
+  /**
+   * A subclass with the design system's `icons` over the set of this class,
+   * or this class when the design system has none.
+   */
+  static override forDesignSystem<T extends typeof DSBaseElement>(
+    this: T,
+    { icons: designSystemIcons }: DesignSystemSettings,
+  ): T {
+    if (!designSystemIcons) {
+      return this;
+    }
+    const set: IconSet = { ...(this as unknown as typeof Icon).icons, ...designSystemIcons };
+    const base = this as unknown as typeof Icon;
+    return class extends base {
+      static override icons = set;
+    } as unknown as T;
+  }
 
   /** Name of the icon in the set. */
   @property({ type: String })
@@ -107,7 +125,9 @@ export class Icon extends DSBaseElement {
   }
 
   render() {
-    const svg = this.markup ? unsafeHTML(this.markup) : nothing;
+    // A static template: Lit caches it by its markup, so the page parses
+    // each icon once, then clones it for every element that shows it.
+    const svg = this.markup ? staticHtml`${unsafeStatic(this.markup)}` : nothing;
     return this.label
       ? html`<span part="icon" class="icon" role="img" aria-label=${this.label}>${svg}</span>`
       : html`<span part="icon" class="icon" aria-hidden="true">${svg}</span>`;

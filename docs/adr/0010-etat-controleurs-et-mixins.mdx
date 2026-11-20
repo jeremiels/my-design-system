@@ -287,13 +287,13 @@ Cet ADR remplace l'ADR 0008 (D4) pour `withCommands` et `withExitTransition`. Il
 - **Manifest :** un contrôleur n'y apparaît pas. Les membres `protected` du composant y restent.
 - **Marques :** un composant de marque crée un contrôleur dans son constructeur, au lieu d'appliquer un mixin.
 - **Documentation :** la référence [Mixins](?path=/docs/documentation-référence-mixins--docs), `AGENTS.md`, et les skills `lit-mixin` et `lit-component`.
+- **`customStates` :** `withInternals` le garde. `FieldBase` l'utilise pour l'état `user-invalid` (17 novembre 2026).
 
 ## Questions ouvertes
 
 - **Date picker :** si sa fonction d'état dépasse un `switch` lisible, l'option C redevient un choix.
 - **Adaptateur Lit de Zag.js :** un adaptateur officiel et un Floating UI chargé à la demande changeraient l'option B.
 - **Styles d'un contrôleur :** un test de contrat peut vérifier qu'un composant adopte la feuille de chaque contrôleur qu'il crée.
-- **`customStates` :** ce membre de `withInternals` n'a aucun appelant. Il est à retirer ou à utiliser.
 
 ## Sources
 

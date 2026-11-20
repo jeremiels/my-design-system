@@ -28,7 +28,8 @@ jobs:
       # Vitest runs the stories in all three engines.
       - run: npx playwright install --with-deps chromium firefox webkit
       # oxlint, oxfmt --check, tsc, api:check (committed manifest up to
-      # date), Vitest: unit, browser (registry, tokens) and stories with axe.
+      # date), Vitest: unit, browser (registry, tokens), and stories with axe
+      # and, in Chromium, against their reference screenshots.
       - run: npm run check
       - name: Upload Vitest failure screenshots
         if: failure()

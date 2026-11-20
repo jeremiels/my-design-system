@@ -1,5 +1,5 @@
 import type { IconSet } from "@unicorne/icons";
-import type { DSBaseElement } from "../components/base-element.js";
+import type { DesignSystemSettings, DSBaseElement } from "../components/base-element.js";
 import { assertPrefix, defineComponents, nameOf } from "./define-components.js";
 
 type ComponentClass = typeof DSBaseElement;
@@ -134,7 +134,10 @@ export function designSystem({
   // is registered with the same class each time — a second registration of
   // the same classes is silent (defineComponents()).
   const loaded = new Map<string, Promise<ComponentClass>>();
-  const withIcons = new WeakMap<ComponentClass, ComponentClass>();
+  // One class per component class: forDesignSystem() returns a new
+  // subclass each call, and a tag is defined with one class.
+  const settings: DesignSystemSettings = { icons };
+  const configured = new WeakMap<ComponentClass, ComponentClass>();
 
   const load = (name: string, loader: () => Promise<ComponentClass>): Promise<ComponentClass> => {
     let loading = loaded.get(name);
@@ -152,17 +155,14 @@ export function designSystem({
     return loading;
   };
 
-  /** The icon component with the design system's icons over its own. */
-  const iconsOn = (base: ComponentClass): ComponentClass => {
-    let withSet = withIcons.get(base);
-    if (!withSet) {
-      const set: IconSet = { ...(base as ComponentClass & { icons?: IconSet }).icons, ...icons };
-      withSet = class extends base {
-        static icons = set;
-      };
-      withIcons.set(base, withSet);
+  /** The class `forDesignSystem()` gives for `base` with the settings of the design system. */
+  const configure = (base: ComponentClass): ComponentClass => {
+    let chosen = configured.get(base);
+    if (!chosen) {
+      chosen = base.forDesignSystem(settings);
+      configured.set(base, chosen);
     }
-    return withSet;
+    return chosen;
   };
 
   /** The class the design system registers for `name`, `component` without an override. */
@@ -172,7 +172,7 @@ export function designSystem({
     if (source) {
       chosen = isComponentClass(source) ? source : await load(name, source);
     }
-    return name === "icon" && icons ? iconsOn(chosen) : chosen;
+    return configure(chosen);
   };
 
   /** The design system under `prefix`: the loaded overrides are shared by every prefix. */

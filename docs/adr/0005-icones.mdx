@@ -93,6 +93,35 @@ defineComponents({ prefix: "acme", components, overrides: { icon: AcmeIcon } });
 
 **Décision : B.** Les règles des sources et la liste des optimisations sont dans [Icônes](?path=/docs/documentation-référence-icônes--docs).
 
+## D6 — Technique de rendu
+
+**Amendement du 18 novembre 2026.** Un [article de Burton Smith](https://dev.to/stuffbreaker/using-css-masks-to-improve-icons-in-design-systems-bja) dessine les icônes d'un design system par un masque CSS. Cette décision compare les techniques de rendu d'une icône dans un shadow DOM.
+
+Faits vérifiés le 18 novembre 2026 :
+
+- **Temps de rendu :** Cloud Four rend 1 000 icônes dans six navigateurs. Le masque est la technique la plus lente : 145 à 149 ms, contre 75 ms pour le SVG inline optimisé.
+- **Chromium 151 :** le benchmark de MorevM classe le SVG inline à ×1,39 du meilleur score, le masque par custom property à ×1,45 et le sprite externe à ×1,93.
+- **URL dans une custom property :** elle se résout là où `var()` la substitue (CSSWG, issue 757). Les feuilles construites d'un shadow root ont l'URL de base du document.
+- **Masque d'une autre origine :** le navigateur le charge en mode CORS. Sans en-tête `Access-Control-Allow-Origin`, l'icône est vide.
+- **`unsafeHTML()` de Lit :** chaque instance de la directive crée son tableau `strings`. Le cache des templates de Lit ne le retrouve pas, et chaque élément analyse son markup.
+- **Mesure sur `u-icon` :** 1 000 icônes `close` dans Chromium, Lit en mode développement. `unsafeHTML()` crée 1 000 templates en 125 à 175 ms. `unsafeStatic()` n'en crée aucun après la première icône, en 50 à 97 ms.
+
+Options :
+
+- **Option A — Le SVG inline, avec un template partagé.** `unsafeStatic()` de `lit/static-html.js` met le markup dans la clé du template. La page analyse une icône une fois, puis la clone.
+- **Option B — Un masque, et une custom property par icône en data URI.** La feuille contient tout le set (critère 3). L'icône a une seule couleur. Un nom absent ne se voit pas.
+- **Option C — Un masque, et une custom property par icône en URL.** Une URL relative du package se résout contre le document. Une icône d'une autre origine exige CORS. Vite intègre en data URI un fichier de moins de 4 Ko : l'option B revient.
+- **Option D — Un sprite externe** (`<use href="sprite.svg#nom">`). `<use>` exige la même origine. Un `#nom` du document n'est pas visible depuis un shadow root. Chromium le rend le plus lentement.
+- **Option E — Une image** (`<img>`). L'icône ne prend pas la couleur du texte (critère 5).
+
+**Décision : A.** La décision D4 (B) reste valide.
+
+- `u-icon` rend son markup par `` staticHtml`${unsafeStatic(markup)}` ``, jamais par `unsafeHTML()`.
+- Un test vérifie que trois éléments d'une même icône créent un seul template.
+- Le rendu serveur d'une icône donnée en markup s'hydrate dans trois moteurs (`src/ssr.test.ts`).
+- Le masque ne donne aucun gain mesuré sur le SVG inline. Il enfreint les critères 3 et 5, et complique le remplacement par une marque (critère 1).
+- **Condition de révision :** une page qui affiche plusieurs milliers d'icônes monochromes, ou une icône visible avant l'hydratation sans markup dans le set.
+
 ## Récapitulatif
 
 <table>
@@ -129,6 +158,11 @@ defineComponents({ prefix: "acme", components, overrides: { icon: AcmeIcon } });
       <td>`unicorne-icons` : vérifications, puis SVGO</td>
       <td>Des icônes légères, sans code exécutable</td>
     </tr>
+    <tr>
+      <td>D6 — Rendu</td>
+      <td>SVG inline, analysé une fois par page (`unsafeStatic()`)</td>
+      <td>Aucun gain mesuré du masque ; le masque enfreint les critères 3 et 5</td>
+    </tr>
   </tbody>
 </table>
 
@@ -157,3 +191,15 @@ Consultées le 13 novembre 2026.
 - [Chrome 120 beta](https://developer.chrome.com/blog/chrome-120-beta) (Chrome for Developers) : propriétés `mask-*` sans préfixe.
 - [CSS property: mask-image](https://caniuse.com/mask-image) (Can I use) : support partiel jusqu'à Chrome 119.
 - [ElementInternals API: ariaLabel](https://caniuse.com/mdn-api_elementinternals_arialabel) (Can I use, données de MDN) : Firefox 119.
+
+Consultées le 18 novembre 2026, pour D6.
+
+- [Using CSS Masks to Improve Icons in Design Systems](https://dev.to/stuffbreaker/using-css-masks-to-improve-icons-in-design-systems-bja) (Burton Smith, DEV) : le masque par custom property.
+- [SVG Icon Stress Test](https://cloudfour.com/thinks/svg-icon-stress-test/) (Cloud Four, 2021) : 1 000 icônes, onze techniques, six navigateurs.
+- [SVG icon performance benchmark](https://morevm.github.io/svg-icon-performance-benchmark/) (MorevM, Chromium 151, octobre 2026) : Lighthouse et TBT, 1 000 icônes.
+- [Relative URL resolution in var() references](https://lists.w3.org/Archives/Public/public-css-archive/2016Nov/0598.html) (CSSWG, issue 757) : l'URL se résout à la substitution.
+- [mask-image-cors-001](https://searchfox.org/firefox-main/source/testing/web-platform/tests/css/css-masking/mask-image/mask-image-cors-001.sub.html) (Web Platform Tests) et [bug 1965469](https://bugzilla.mozilla.org/show_bug.cgi?id=1965469) (Mozilla) : le masque est chargé en mode CORS.
+- [icon.css](https://chromium.googlesource.com/devtools/devtools-frontend/+/HEAD/front_end/ui/kit/icons/icon.css) (Chromium DevTools) : un masque, avec `forced-color-adjust: none` en couleurs forcées.
+- [Breaking Up with SVG-in-JS](https://kurtextrem.de/posts/svg-in-js) (Kurt Extrem) : le coût d'un SVG compilé dans le bundle JS.
+- [@spectrum-web-components/iconset](https://cdn.jsdelivr.net/npm/@spectrum-web-components/iconset@1.12.0/README.md) (Adobe) : les iconsets sont dépréciés au profit d'un module par icône.
+- `lit-html/directives/unsafe-html.js` et `lit-html/static.js` (Lit 3) : le tableau `strings` de chaque directive, le cache des chaînes statiques.

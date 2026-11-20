@@ -140,7 +140,7 @@ try {
     `danger icon downloaded: ${dangerIconLoaded()}`,
   ]);
 
-  const name = page.getByLabel("Nom", { exact: true });
+  const name = page.getByRole("textbox", { name: "Nom", exact: true });
   await name.fill("  Ada  ");
   await check("v-model: typing updates the model, and the error follows", async () => {
     const text = await greeting();
@@ -157,7 +157,7 @@ try {
     return [state.value === "Ada" && state.input === "Ada", JSON.stringify(state)];
   });
 
-  await page.getByLabel("Identifiant", { exact: true }).fill("admin");
+  await page.getByRole("textbox", { name: "Identifiant", exact: true }).fill("admin");
   await check("the app's own check shows its message, through setCustomValidity()", async () => {
     const state = await field("username");
     return [
@@ -191,7 +191,7 @@ try {
   });
 
   const bio = "Mathématicienne.\nPremière programmeuse.";
-  await page.getByLabel("Présentation (facultatif)", { exact: true }).fill(bio);
+  await page.getByRole("textbox", { name: "Présentation (facultatif)", exact: true }).fill(bio);
   await check(
     "v-model on a textarea: the lines reach the model, and the hint follows",
     async () => {

@@ -17,6 +17,11 @@
   font-weight: var(--u-field-label-font-weight);
 }
 
+.required-indicator {
+  margin-inline-start: var(--u-field-required-indicator-gap);
+  color: var(--u-field-required-indicator-color);
+}
+
 .hint {
   font-size: var(--u-field-hint-font-size);
 }
@@ -53,6 +58,7 @@
   color: var(--u-field-error-text-color);
 }
 
+.required-indicator[hidden],
 .hint[hidden],
 .error[hidden] {
   display: none;

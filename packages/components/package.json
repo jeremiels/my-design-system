@@ -80,7 +80,9 @@
     "analyze": "NODE_OPTIONS=--conditions=@unicorne/source cem analyze",
     "tokens": "tz build && oxfmt src/components/*/*.tokens.css",
     "tokens:check": "npm run tokens && git diff --exit-code -- 'src/components/*/*.tokens.css'",
-    "api:check": "npm run analyze && git diff --exit-code -- custom-elements.json"
+    "api:check": "npm run analyze && git diff --exit-code -- custom-elements.json",
+    "prepack": "node ../../scripts/pack-manifest.mjs prepack",
+    "postpack": "node ../../scripts/pack-manifest.mjs postpack"
   },
   "dependencies": {
     "@floating-ui/dom": "^1.8.0",

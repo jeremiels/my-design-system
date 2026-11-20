@@ -78,7 +78,8 @@ Attache les `ElementInternals` du composant.
       <td>`customStates`</td>
       <td>`protected`</td>
       <td>
-        `set(nom, actif)` et `has(nom)` : activent et lisent les états `:state(nom)` du composant
+        `set(nom, actif)` et `has(nom)` : activent et lisent les états `:state(nom)` du composant.
+        `FieldBase` active `user-invalid` pendant qu'une erreur s'affiche
       </td>
     </tr>
   </tbody>
@@ -95,7 +96,7 @@ Attache les `ElementInternals` du composant.
 
 ### Support navigateurs
 
-`customStates` est sans effet là où `:state()` standard n'existe pas : Chrome 90–124, Firefox avant 126 et Safari avant 17.4. Ces versions sont dans la [matrice](?path=/docs/documentation-référence-support-navigateurs--docs). Un état nécessaire au rendu se reflète donc aussi en attribut.
+`customStates` est sans effet là où `:state()` standard n'existe pas : Chrome 90–124, Firefox avant 126 et Safari avant 17.4. Ces versions sont dans la [matrice](?path=/docs/documentation-référence-support-navigateurs--docs). Un état nécessaire au rendu se reflète donc aussi en attribut. Un champ affiche son erreur sans `:state(user-invalid)`.
 
 ## withInvoker
 

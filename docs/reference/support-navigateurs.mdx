@@ -109,7 +109,8 @@ Le socle supporte les canaux étendus des entreprises (Firefox ESR, Chrome et Ed
       <td>`:state()`</td>
       <td>
         Amélioration progressive : `customStates` est sans effet sur Chrome 90–124, Firefox avant
-        126 et Safari avant 17.4. Un état nécessaire au rendu se reflète aussi en attribut.
+        126 et Safari avant 17.4. Un état nécessaire au rendu se reflète aussi en attribut. Les
+        champs exposent `:state(user-invalid)`, sans en dépendre.
       </td>
     </tr>
     <tr>
@@ -211,6 +212,13 @@ Toute autre fonctionnalité récente se vérifie contre la matrice (MDN, caniuse
       <td>
         Stories, tests, rendu serveur et hydratation, dans les versions récentes de Chromium,
         Firefox et WebKit (Playwright)
+      </td>
+    </tr>
+    <tr>
+      <td>`npx vitest run`, dans Chromium sous Linux</td>
+      <td>
+        Chaque story comparée à sa capture de référence, dans `__screenshots__/` à côté de ses
+        stories
       </td>
     </tr>
     <tr>

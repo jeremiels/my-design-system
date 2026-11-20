@@ -100,6 +100,8 @@ Un bouton contrôle un autre élément sans script : `<u-button commandfor="id" 
 - Ne séparez pas le libellé du contrôle dans deux shadow roots : un `id` ne traverse pas un shadow root, et `ariaLabelledByElements` ne va que vers l'extérieur. Rendez le `<label>` dans le même arbre que le contrôle (ADR 0007, `docs/adr/0007-champs-de-formulaire.mdx`).
 - Avec `withDisabled`, rendez et gérez les interactions à partir de `this.isDisabled`, pas de `this.disabled`.
 - `this.internals` et `this.customStates` sont `protected` : jamais exposés à l'application.
+- Un état que l'application peut cibler en CSS passe par `this.customStates`, et se documente avec `@cssstate` (`user-invalid` de `FieldBase`). Le composant s'affiche bien sans lui.
+- Un bouton de soumission d'un shadow root n'a pas de formulaire : `Button` soumet par un `<button>` natif masqué, qui porte son `name` et sa `value`.
 - Les détails des deux mixins sont dans `docs/reference/mixins.mdx`.
 
 ## Extension par les marques
@@ -108,6 +110,7 @@ L'API publique est ce que la JSDoc documente : propriétés, attributs, slots, p
 
 - Gardez `protected` et documentés les helpers qu'une marque peut surcharger (`ButtonBase.handleClick`). Le reste est `private` ou `#private`.
 - Découpez `render()` en parties `protected` documentées quand une marque doit changer une région.
+- Un composant qui dépend d'un réglage du design system (ses `icons`) surcharge `static forDesignSystem()`. Il renvoie une sous-classe qui applique le réglage, comme `Icon`. Le registre ne connaît aucun composant par son nom.
 - Renommer ou retirer un élément public est une rupture pour les marques.
 
 ## Rendu serveur

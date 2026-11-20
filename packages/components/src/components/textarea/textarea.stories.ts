@@ -64,7 +64,8 @@ export const Default = meta.story({
     // Focus is delegated to the native <textarea>: focus() and the label work on the host.
     field.focus();
     expect(field.shadowRoot!.activeElement).toBe(textarea);
-    expect(textarea.labels?.[0]?.textContent).toBe("Message");
+    expect(textarea.labels?.[0]?.id).toBe("label");
+    expect(textarea).toHaveAccessibleName("Message");
     expect(textarea.rows).toBe(4);
 
     const onInput = fn();

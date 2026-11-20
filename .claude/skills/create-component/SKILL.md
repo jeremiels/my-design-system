@@ -47,6 +47,7 @@ Lancez `npm run tokens`, puis `npm run analyze`. Relisez le diff de `custom-elem
 - Le panneau Actions affiche les événements `@fires` du composant de la story (`.storybook/actions.ts`). N'écrivez aucun écouteur pour lui.
 - Une story par état utile.
 - Des fonctions `play` qui vérifient le comportement et le rendu : feuilles adoptées, rôles, événements. Elles tournent dans Chromium, Firefox et WebKit.
+- Chaque story a une capture de référence, dans Chromium sous Linux (`.storybook/vitest.setup.ts`). Une story sans capture échoue : lancez `npm run screenshots`, puis relisez et commitez les images de `__screenshots__/`.
 
 La preview (`.storybook/preview.ts`, à la racine) enregistre déjà le catalogue (`src/define.ts`). Une page MDX suit le skill `storybook-documentation`.
 

@@ -6,7 +6,7 @@
 // manifest analyzer for ACME, Playwright for both) is resolved from the
 // repository's node_modules.
 import { execFileSync } from "node:child_process";
-import { copyFileSync, mkdirSync, readdirSync, rmSync } from "node:fs";
+import { copyFileSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync } from "node:fs";
 import { join } from "node:path";
 
 const root = join(import.meta.dirname, "..");
@@ -21,6 +21,35 @@ function emptyBase(dir) {
   rmSync(base, { recursive: true, force: true });
   mkdirSync(base);
   return base;
+}
+
+/**
+ * Fails when a published package.json keeps the `@unicorne/source`
+ * condition, or when the repository's one wasn't put back
+ * (scripts/pack-manifest.mjs).
+ */
+function checkManifests(dir) {
+  for (const tarball of readdirSync(dir)) {
+    const manifest = execFileSync("tar", ["-xOzf", join(dir, tarball), "package/package.json"], {
+      encoding: "utf8",
+    });
+    if (manifest.includes('"@unicorne/source"')) {
+      throw new Error(`${tarball}: its package.json keeps the @unicorne/source condition.`);
+    }
+  }
+  for (const name of ["tokens", "icons", "components"]) {
+    const dir = join(root, "packages", name);
+    if (existsSync(join(dir, ".package.json.packing"))) {
+      throw new Error(`packages/${name}: package.json wasn't put back after npm pack.`);
+    }
+  }
+  if (
+    !readFileSync(join(root, "packages/tokens/package.json"), "utf8").includes('"@unicorne/source"')
+  ) {
+    throw new Error(
+      "packages/tokens: npm pack removed the @unicorne/source condition from the repository.",
+    );
+  }
 }
 
 /** Installs from the tarballs in .base, then builds and tests. */
@@ -38,6 +67,7 @@ function installBuildTest(dir, scopes) {
 run(["run", "build"]);
 const exampleBase = emptyBase(example);
 run(["pack", ...packages.flatMap((name) => ["-w", name]), "--pack-destination", exampleBase]);
+checkManifests(exampleBase);
 installBuildTest(example, ["@unicorne"]);
 
 // ACME and the base → the Vue app.

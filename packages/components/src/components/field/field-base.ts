@@ -74,9 +74,21 @@ export const fieldIds = {
  * the inner control has no form of its own, so the field does it
  * (`submitOnEnter()`).
  *
+ * A required field shows `requiredIndicator` after its label, and the
+ * control is announced as required. Where every field of a form is
+ * required, set `required-indicator=""` and say it once above the form.
+ *
+ * Once the error shows, the host matches `:state(user-invalid)`, as a
+ * native control matches `:user-invalid`: style the layout around the field
+ * with it. An enhancement: browsers without `:state()` (Chrome before 125,
+ * Firefox before 126, Safari before 17.4) don't match it, and the field
+ * shows its error without it.
+ *
  * @csspart label - The native `<label>`.
+ * @csspart required-indicator - The indicator after the label, hidden from assistive technologies. Hidden unless the field is `required` and has a `requiredIndicator`.
  * @csspart hint - The hint, between the label and the control. Hidden without `hint`.
  * @csspart error - The error message, after the control. Hidden while no error shows.
+ * @cssstate user-invalid - The error shows: the user has changed the value and left the field, or validation has run.
  * @fires input - The native `input` event of the inner control, on each change of the value by the user.
  * @fires change - When the user commits a change of the value, as on a native control (the inner `change` doesn't leave the shadow root: the host fires its own).
  * @tokens field - Its tokens (`@cssprop`), shared by every field, from `@unicorne/tokens` (`src/component/field/`): `npm run analyze` documents them.
@@ -122,6 +134,13 @@ export abstract class FieldBase extends withInternals(withDisabled(DSBaseElement
   /** The form can't be submitted while the field is empty. */
   @property({ type: Boolean })
   required = false;
+
+  /**
+   * Shown after the label of a required field, and hidden from assistive
+   * technologies: they announce the control as required. `""` shows none.
+   */
+  @property({ type: String, attribute: "required-indicator" })
+  requiredIndicator = "*";
 
   /** The `autocomplete` of the control: what the browser can fill in (`email`, `name`…). */
   @property({ type: String })
@@ -220,6 +239,8 @@ export abstract class FieldBase extends withInternals(withDisabled(DSBaseElement
     super.updated(changedProperties);
     this.internals?.setFormValue(this.value);
     this.#syncValidity();
+    // After #syncValidity(): it may show the error, which updates again.
+    this.customStates.set("user-invalid", this.error !== "");
   }
 
   /**
@@ -263,8 +284,8 @@ export abstract class FieldBase extends withInternals(withDisabled(DSBaseElement
   /**
    * For the `keydown` listener of a single-line control: Enter submits the
    * form, as HTML's implicit submission does for a native `<input>`. With a
-   * submit button in the form, the form is submitted unless the first one
-   * is disabled. Without any, it is submitted when this field is its only
+   * submit button in the form, the first one is clicked, unless it is
+   * disabled: a component submit button submits on `click()`. Without any, it is submitted when this field is its only
    * single-line one. Does nothing for a key another listener has handled,
    * nor while an input method composes the text.
    */
@@ -282,13 +303,14 @@ export abstract class FieldBase extends withInternals(withDisabled(DSBaseElement
     const controls = Array.from(form.elements);
     const submitter = controls.find(isSubmitButton);
     if (submitter) {
-      if (!submitter.disabled) {
-        // Only a native button can be the submitter of requestSubmit().
-        form.requestSubmit(
-          submitter instanceof HTMLButtonElement || submitter instanceof HTMLInputElement
-            ? submitter
-            : undefined,
-        );
+      if (submitter instanceof HTMLButtonElement || submitter instanceof HTMLInputElement) {
+        if (!submitter.disabled) {
+          form.requestSubmit(submitter);
+        }
+      } else {
+        // A component: its click() submits with its name and value, unless
+        // it is disabled (`button`).
+        submitter.click();
       }
       return;
     }
@@ -347,7 +369,13 @@ export abstract class FieldBase extends withInternals(withDisabled(DSBaseElement
     return html`
       <div class="field${this.error ? " field--invalid" : ""}">
         <label part="label" class="label" id=${fieldIds.label} for=${fieldIds.control}
-          >${this.label}</label
+          >${this.label}<span
+            part="required-indicator"
+            class="required-indicator"
+            aria-hidden="true"
+            ?hidden=${!this.required || !this.requiredIndicator}
+            >${this.requiredIndicator}</span
+          ></label
         >
         <div part="hint" class="hint" id=${fieldIds.hint} ?hidden=${!this.hint}>${this.hint}</div>
         ${this.renderControl()}

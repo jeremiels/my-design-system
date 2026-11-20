@@ -32,7 +32,9 @@
   "scripts": {
     "icons": "node plugins/cli.ts src --out js --svg-out svg && oxfmt js",
     "icons:check": "npm run icons && git diff --exit-code -- js svg",
-    "build": "npm run icons && tsc -p tsconfig.build.json"
+    "build": "npm run icons && tsc -p tsconfig.build.json",
+    "prepack": "node ../../scripts/pack-manifest.mjs prepack",
+    "postpack": "node ../../scripts/pack-manifest.mjs postpack"
   },
   "peerDependencies": {
     "svgo": "^4.1.0"

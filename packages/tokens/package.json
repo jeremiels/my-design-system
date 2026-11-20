@@ -35,7 +35,9 @@
   "scripts": {
     "tokens": "tz build && oxfmt css/tokens.css",
     "tokens:check": "npm run tokens && git diff --exit-code -- css/tokens.css",
-    "build": "npm run tokens && tsc -p tsconfig.build.json"
+    "build": "npm run tokens && tsc -p tsconfig.build.json",
+    "prepack": "node ../../scripts/pack-manifest.mjs prepack",
+    "postpack": "node ../../scripts/pack-manifest.mjs postpack"
   },
   "peerDependencies": {
     "@terrazzo/cli": "^2.10.0",

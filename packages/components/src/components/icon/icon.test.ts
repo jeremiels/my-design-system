@@ -51,6 +51,26 @@ describe("Icon", () => {
     expect(loader).toHaveBeenCalledOnce();
   });
 
+  it("parses an icon once, whatever the number of elements that show it", async () => {
+    const tag = iconWith({ star: SVG, heart: '<svg id="heart" viewBox="0 0 24 24"></svg>' });
+    // The template of the element itself is parsed by the first one.
+    await create(tag, "star").updateComplete;
+
+    const createElement = document.createElement.bind(document);
+    const parsed = vi
+      .spyOn(document, "createElement")
+      .mockImplementation((tagName: string, options?: ElementCreationOptions) =>
+        createElement(tagName, options),
+      );
+    const hearts = [create(tag, "heart"), create(tag, "heart"), create(tag, "heart")];
+    await Promise.all(hearts.map((icon) => icon.updateComplete));
+
+    expect(parsed.mock.calls.filter(([tagName]) => tagName === "template")).toHaveLength(1);
+    for (const icon of hearts) {
+      expect(box(icon).querySelector("svg")?.id).toBe("heart");
+    }
+  });
+
   it("renders a string source at once", async () => {
     const icon = create(iconWith({ star: SVG }), "star");
     await new Promise(requestAnimationFrame);

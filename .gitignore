@@ -38,3 +38,6 @@ examples/*/tokens/.*.resolver.json
 examples/*/src/**/*.tokens.css
 examples/*/src/icons/
 *.tgz
+
+# package.json of a package during npm pack (scripts/pack-manifest.mjs)
+.package.json.packing

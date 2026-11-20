@@ -30,7 +30,19 @@ Les ADR 0010, 0012, 0013 et 0014 sont acceptés et appliqués. Les ADR 0011 et 0
 - **Poids d'`autocomplete` :** 7,8 kB en gzip sans Lit, au-dessus du budget de 7,5 kB. L'écart vient de la soumission par Entrée, de l'annonce des suggestions et du réducteur. `text-field` passe de 3,4 à 3,8 kB.
 - **Étape 9 :** les tests manuels avec lecteurs d'écran ne sont pas tracés dans DSDS. Aucun n'a été fait.
 
-Restent ouverts, parmi les constats du rapport : A1 (`customStates` sans appelant), A2 (condition `@unicorne/source` publiée), A3 (le registre connaît `icon`), A4 (bouton `submit` sans déclencheur), A6 (régression visuelle), A7 (indication d'un champ obligatoire).
+Constats mineurs traités le 17 novembre 2026 :
+
+| Id  | Correction                                                                                                                  | Vérification                                                    |
+| --- | --------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
+| A1  | `FieldBase` active `:state(user-invalid)` par `customStates`, pendant qu'une erreur s'affiche, comme `:user-invalid`        | `packages/components/src/components/field/field-base.test.ts`   |
+| A2  | `scripts/pack-manifest.mjs` retire la condition `@unicorne/source` au `prepack`, et rend le `package.json` au `postpack`    | `npm run example` refuse une archive qui la garde               |
+| A3  | `designSystem()` appelle `forDesignSystem()` sur chaque classe. `Icon` la surcharge : le registre ne nomme aucun composant  | `packages/components/src/registry/design-system.test.ts`        |
+| A4  | `button` soumet par un `<button>` natif masqué, qui porte son `name` et sa `value`. `click()` sur l'hôte agit comme un clic | `packages/components/src/components/button/button.test.ts`      |
+| A6  | Chaque story est comparée à sa capture de référence, dans Chromium sous Linux. `npm run screenshots` les régénère           | `npx vitest run --project "storybook (chromium)"` : 45 captures |
+| A7  | Un champ obligatoire affiche `required-indicator` (`*`) après son libellé, masqué aux technologies d'assistance             | Story `Required` de `text-field`, et `field-base.test.ts`       |
+
+- **A6 :** les captures dépendent des polices du système. Elles sont faites sous WSL, avec Liberation Sans à la place de Helvetica Neue. Le premier passage de la CI sur `ubuntu-latest` les confirme ou les remplace.
+- **A4 :** le `submitter` de l'événement `submit` est le bouton natif masqué, pas `u-button`. Il quitte le formulaire après l'événement.
 
 ## Architecture cible
 

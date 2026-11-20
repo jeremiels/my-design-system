@@ -130,9 +130,11 @@ SVGO optimise chaque source en plusieurs passes :
 
 - Une page télécharge seulement les modules des icônes qu'elle affiche.
 - La boîte de l'icône a sa taille avant le chargement.
+- La page analyse le markup d'une icône une fois, puis le clone pour chaque élément ([ADR 0005](?path=/docs/documentation-adr-0005-icônes--docs), D6).
 - `updateComplete` se résout quand l'icône est rendue.
 - Un nom absent du set, ou un module qui ne se charge pas, rend une boîte vide et un avertissement dans la console.
 - Pour un rendu immédiat, un design system donne le markup dans son option `icons` : `icons: { close }`, avec `import close from "@unicorne/icons/close"`.
+- `designSystem()` passe son option `icons` à `Icon.forDesignSystem()`. La méthode renvoie une sous-classe dont le set ajoute ces icônes au sien, surcharge de la marque comprise.
 
 ## Commande `unicorne-icons`
 

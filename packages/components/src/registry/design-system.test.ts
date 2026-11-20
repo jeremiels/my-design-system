@@ -93,6 +93,40 @@ describe("designSystem", () => {
     expect(registered.icons).toMatchObject({ star: BRAND_SVG, information: BRAND_SVG });
   });
 
+  it("registers the class each component gives for its settings, by no name (A3)", async () => {
+    const received: unknown[] = [];
+    class Badge extends DSBaseElement {
+      static override componentName = "badge";
+      static override forDesignSystem<T extends typeof DSBaseElement>(
+        this: T,
+        settings: Parameters<typeof DSBaseElement.forDesignSystem>[0],
+      ): T {
+        received.push(settings);
+        return class extends (this as typeof DSBaseElement) {} as unknown as T;
+      }
+    }
+    const prefix = uniquePrefix();
+    const brand = designSystem({ prefix, icons: { star: BRAND_SVG } });
+    await brand.define(Badge);
+    await brand.withPrefix(`${prefix}y`).define(Badge);
+
+    // Called once: both prefixes register the same class.
+    expect(received).toEqual([{ icons: { star: BRAND_SVG } }]);
+    const registered = customElements.get(`${prefix}-badge`)!;
+    expect(registered.prototype).toBeInstanceOf(Badge);
+    expect(Object.getPrototypeOf(customElements.get(`${prefix}y-badge`))).toBe(
+      Object.getPrototypeOf(registered),
+    );
+  });
+
+  it("registers a component as is when it takes no setting", async () => {
+    const prefix = uniquePrefix();
+    await designSystem({ prefix }).define(Icon);
+    const registered = customElements.get(`${prefix}-icon`) as unknown as typeof Icon;
+    expect(registered.icons).toBe(Icon.icons);
+    expect(Object.getPrototypeOf(registered)).toBe(Icon);
+  });
+
   it("refuses a component outside its catalog", async () => {
     const brand = designSystem({ prefix: uniquePrefix(), catalog: ["button", "alert"] });
     await expect(brand.define(ButtonLink)).rejects.toThrow(

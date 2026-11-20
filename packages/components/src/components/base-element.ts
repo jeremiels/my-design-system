@@ -1,6 +1,17 @@
+import type { IconSet } from "@unicorne/icons";
 import { LitElement, type CSSResultGroup } from "lit";
 import { unsafeStatic, type StaticValue } from "lit/static-html.js";
 import baseStyles from "./base-element.css" with { type: "css" };
+
+/**
+ * The settings of a design system that its component classes take
+ * (`forDesignSystem()`): those of `designSystem()` that change a class
+ * rather than a property.
+ */
+export interface DesignSystemSettings {
+  /** Icons replacing or adding to the base's icons, by name (ADR 0005). */
+  readonly icons?: IconSet;
+}
 
 /**
  * Base class every component extends.
@@ -48,6 +59,21 @@ export class DSBaseElement extends LitElement {
    * @internal
    */
   static versions?: Readonly<{ base: string; designSystem?: string }>;
+
+  /**
+   * The class a design system registers for this component, given its
+   * settings: this class by default. A component that depends on a setting
+   * returns a subclass that applies it, and leaves this class unchanged:
+   * `Icon` returns a subclass with the design system's `icons` over its own.
+   * `designSystem()` calls it once per class, after choosing the brand's
+   * override, so the subclass extends the override.
+   */
+  static forDesignSystem<T extends typeof DSBaseElement>(
+    this: T,
+    _settings: DesignSystemSettings,
+  ): T {
+    return this;
+  }
 
   /**
    * The tag of a component declared in `static dependencies`, for templates

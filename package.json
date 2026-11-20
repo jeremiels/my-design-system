@@ -19,6 +19,7 @@
     "analyze": "npm run analyze -w @unicorne/components",
     "check": "oxlint packages/components/src packages/tokens/testing .storybook && oxfmt --check && tsc -p tsconfig.json --noEmit && npm run tokens:check --workspaces --if-present && npm run icons:check -w @unicorne/icons && npm run api:check -w @unicorne/components && npm run dsds && vitest run",
     "coverage": "COVERAGE=1 vitest run --coverage",
+    "screenshots": "vitest run --project 'storybook (chromium)' --update",
     "lint": "oxlint packages/components/src packages/tokens/testing .storybook --fix",
     "fmt": "oxfmt",
     "fmt:check": "oxfmt --check",

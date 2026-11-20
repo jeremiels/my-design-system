@@ -11,6 +11,8 @@ const pages: Record<string, string> = {
   alert: `<u-alert type="success">Saved</u-alert>`,
   modal: `<u-modal label="Delivery">Content</u-modal>`,
   icon: `<u-icon name="close" label="Close"></u-icon>`,
+  // An icon given as markup renders on the server too (src/ssr.test.ts).
+  "icon-markup": `<ssrmarkup-icon name="close" label="Close"></ssrmarkup-icon>`,
   "text-field": `<u-text-field label="Name" hint="As on your card" required></u-text-field>`,
   textarea: `<u-textarea label="Message"></u-textarea>`,
   autocomplete: `<u-autocomplete label="City"><option>Paris</option><option>Pau</option></u-autocomplete>`,
@@ -23,6 +25,15 @@ export default async function setup(project: TestProject): Promise<void> {
   const { html, unsafeStatic } = await import("lit/static-html.js");
   const { allComponents } = await import("./registry/catalog.js");
   await import("./define.js");
+  // The icons of the base as markup, not as modules to load: rendered here.
+  // src/ssr.test.ts registers the same set.
+  const { Icon } = await import("./components/icon/icon.js");
+  const { defineComponents } = await import("./registry/define-components.js");
+  const { default: close } = await import("@unicorne/icons/close");
+  class MarkupIcon extends Icon {
+    static override icons = { close };
+  }
+  defineComponents({ prefix: "ssrmarkup", components: [MarkupIcon] });
 
   const missing = allComponents
     .map(({ componentName }) => componentName)

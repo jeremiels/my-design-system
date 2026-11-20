@@ -68,7 +68,8 @@ export const Default = meta.story({
     // Focus is delegated to the native <input>: focus() and the label work on the host.
     field.focus();
     expect(field.shadowRoot!.activeElement).toBe(input);
-    expect(input.labels?.[0]?.textContent).toBe("Name");
+    expect(input.labels?.[0]?.id).toBe("label");
+    expect(input).toHaveAccessibleName("Name");
 
     const onInput = fn();
     const onChange = fn();
@@ -113,6 +114,26 @@ export const WithHint = meta.story({
     expect(hint.hidden).toBe(false);
     expect(input.getAttribute("aria-describedby")).toBe(hint.id);
     expect(input.getAttribute("autocomplete")).toBe("email");
+  },
+});
+
+export const Required = meta.story({
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'A required field shows `required-indicator` (`*` by default) after its label. Assistive technologies don\'t read it: they announce the input as required. Where every field of the form is required, set `required-indicator=""` and say it once above the form.',
+      },
+    },
+  },
+  render: () => html`
+    <u-text-field label="Name" required></u-text-field>
+    <u-text-field label="City" required required-indicator="(required)"></u-text-field>
+  `,
+  play: async ({ canvasElement }) => {
+    const { input } = await fieldIn(canvasElement);
+    expect(input).toHaveAccessibleName("Name");
+    expect(input.required).toBe(true);
   },
 });
 

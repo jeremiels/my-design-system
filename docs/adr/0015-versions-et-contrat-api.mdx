@@ -18,6 +18,8 @@ Cet ADR n'est pas appliqué au POC. Les packages restent privés, en version `0.
 - l'annonce des noms ajoutés au catalogue (D4) ;
 - le contrôle des archives par `publint` et `arethetypeswrong` (D5).
 
+Déjà appliqué au POC, le 17 novembre 2026 : `scripts/pack-manifest.mjs` retire la condition `@unicorne/source` des archives (D5). `npm run example` le vérifie.
+
 ## Contexte
 
 L'[ADR 0001](?path=/docs/documentation-adr-0001-architecture-multi-marque--docs) (D3) fixe la règle : aucune rupture d'un élément public hors version majeure. Il demande un versionnement semver et un changelog à la première publication (D6). L'[ADR 0003](?path=/docs/documentation-adr-0003-packages-tokens-et-composants--docs) (D4) donne une version à chaque package.

@@ -31,6 +31,16 @@
       "$value": "{font.weight.medium}",
       "$description": "Font weight of the label."
     },
+    "required-indicator-color": {
+      "$type": "color",
+      "$value": "{color.text.danger}",
+      "$description": "Color of the indicator after the label of a required field."
+    },
+    "required-indicator-gap": {
+      "$type": "dimension",
+      "$value": "{spacing.2xs}",
+      "$description": "Space between the label and the indicator of a required field."
+    },
     "hint-font-size": {
       "$type": "dimension",
       "$value": "{font.size.sm}",

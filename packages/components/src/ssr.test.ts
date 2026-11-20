@@ -7,7 +7,16 @@ import "@lit-labs/ssr-client/lit-element-hydrate-support.js";
 import { afterEach, describe, expect, inject, it } from "vitest";
 import type { DSBaseElement } from "./components/base-element.js";
 import "./define.js";
+import close from "@unicorne/icons/close";
+import { Icon } from "./components/icon/icon.js";
 import { allComponents } from "./registry/catalog.js";
+import { defineComponents } from "./registry/define-components.js";
+
+// The icons of the base as markup: the set src/ssr.setup.ts renders.
+class MarkupIcon extends Icon {
+  static override icons = { close };
+}
+defineComponents({ prefix: "ssrmarkup", components: [MarkupIcon] });
 
 const pages = inject("serverRendered");
 
@@ -92,4 +101,15 @@ it("renders the components a component renders, with their own shadow roots", ()
   const button = modal.shadowRoot!.querySelector("u-button")!;
   expect(button.shadowRoot!.querySelector("button")).not.toBeNull();
   expect(button.querySelector("u-icon")!.shadowRoot).not.toBeNull();
+});
+
+it("renders an icon given as markup on the server, and hydrates it", async () => {
+  const icon = parse("icon-markup");
+  const svg = icon.shadowRoot!.querySelector("svg");
+  expect(svg, "the <svg> before any script").not.toBeNull();
+
+  await hydrate(icon);
+
+  expect(errors).toEqual([]);
+  expect(icon.shadowRoot!.querySelector("svg")).toBe(svg);
 });

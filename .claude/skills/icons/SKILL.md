@@ -35,6 +35,7 @@ render() {
 ```
 
 - Rendez l'icône avec `tagFor(Icon)`, jamais avec `<u-icon>` en dur : l'icône d'une marque serait ignorée.
+- Rendez une icône par `Icon`, jamais par `unsafeHTML()` ni par un masque CSS (ADR 0005, D6).
 - Une icône décorative n'a pas de `label`. Une icône seule porteuse de sens, comme un bouton sans texte, a un `label` traduisible : une propriété avec une valeur par défaut.
 - Documentez la part de l'icône avec `@csspart` (skill `component-api-docs`).
 - Vérifiez dans une story que l'icône rend un `<svg>`, après `await icon.updateComplete`.

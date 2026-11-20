@@ -11,9 +11,11 @@ async function mount(content: string) {
   const form = document.createElement("form");
   form.innerHTML = content;
   const submitters: (HTMLElement | null)[] = [];
+  const data: FormData[] = [];
   form.addEventListener("submit", (event) => {
     event.preventDefault();
     submitters.push(event.submitter);
+    data.push(new FormData(form, event.submitter));
   });
   document.body.append(form);
   await Promise.all(
@@ -21,7 +23,7 @@ async function mount(content: string) {
       "updateComplete" in element ? element.updateComplete : undefined,
     ),
   );
-  return { form, submitters };
+  return { form, submitters, data };
 }
 
 /** Presses Enter in the native control of a field. */
@@ -43,6 +45,21 @@ describe("Enter in a text field", () => {
     `);
     await enterIn(form, "u-text-field");
     expect(submitters).toHaveLength(1);
+  });
+
+  it("submits with the name and value of the first submit button of the base", async () => {
+    const { form, data } = await mount(`
+      <u-text-field label="Name" name="name" value="Ada"></u-text-field>
+      <u-button type="submit" name="action" value="save">Save</u-button>
+      <u-button type="submit" name="action" value="delete">Delete</u-button>
+    `);
+    await enterIn(form, "u-text-field");
+    expect(data.map((entries) => [...entries])).toEqual([
+      [
+        ["name", "Ada"],
+        ["action", "save"],
+      ],
+    ]);
   });
 
   it("submits with a native submit button as the submitter", async () => {
@@ -150,4 +167,56 @@ it("announces the number of suggestions while the user types", async () => {
   // The focus leaves the field: nothing left to announce.
   root.querySelector("input")!.blur();
   await expect.poll(() => status.textContent).toBe("");
+});
+
+describe("a required field (A7)", () => {
+  it("shows an indicator after its label, hidden from assistive technologies", async () => {
+    const { form } = await mount(`<u-text-field label="Name" required></u-text-field>`);
+    const root = form.querySelector("u-text-field")!.shadowRoot!;
+    const indicator = root.querySelector('[part="required-indicator"]')!;
+    expect(indicator.textContent).toBe("*");
+    expect(indicator.checkVisibility()).toBe(true);
+    expect(indicator.getAttribute("aria-hidden")).toBe("true");
+    expect(indicator.parentElement).toBe(root.querySelector("label"));
+    await expect.element(root.querySelector("input")!).toHaveAccessibleName("Name");
+  });
+
+  it("shows another indicator, or none", async () => {
+    const { form } = await mount(`
+      <u-text-field label="Name" required required-indicator="(required)"></u-text-field>
+      <u-textarea label="Notes" required required-indicator=""></u-textarea>
+      <u-text-field label="City"></u-text-field>
+    `);
+    const [name, notes, city] = Array.from(form.children, (field) =>
+      field.shadowRoot!.querySelector('[part="required-indicator"]'),
+    );
+    expect(name!.textContent).toBe("(required)");
+    expect(name!.checkVisibility()).toBe(true);
+    expect(notes!.checkVisibility()).toBe(false);
+    expect(city!.checkVisibility()).toBe(false);
+  });
+});
+
+// `:state()` is missing before Chrome 125, Firefox 126 and Safari 17.4.
+const supportsStates = CSS.supports("selector(:state(x))");
+
+describe.runIf(supportsStates)("the user-invalid state (A1)", () => {
+  it("follows the error shown, as :user-invalid does", async () => {
+    const { form } = await mount(`<u-text-field label="Name" name="name" required></u-text-field>`);
+    const field = form.querySelector<DSBaseElement>("u-text-field")!;
+    expect(field.matches(":state(user-invalid)")).toBe(false);
+
+    form.requestSubmit();
+    await field.updateComplete;
+    expect(field.matches(":state(user-invalid)")).toBe(true);
+
+    field.shadowRoot!.querySelector("input")!.focus();
+    await userEvent.keyboard("Ada");
+    await field.updateComplete;
+    expect(field.matches(":state(user-invalid)")).toBe(false);
+
+    form.reset();
+    await field.updateComplete;
+    expect(field.matches(":state(user-invalid)")).toBe(false);
+  });
 });
