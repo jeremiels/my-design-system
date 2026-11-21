@@ -3,7 +3,7 @@ import { html } from "lit";
 import { expect, userEvent, waitFor } from "storybook/test";
 import type { Drawer } from "./drawer";
 
-/** Waits for the dialog's transitions: axe and the capture see its final state. */
+/** Waits for the dialog's transitions: axe sees its final state. */
 async function settled(drawer: Drawer) {
   const dialog = drawer.shadowRoot!.querySelector("dialog")!;
   for (;;) {

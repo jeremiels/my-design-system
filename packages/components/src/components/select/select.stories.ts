@@ -18,7 +18,7 @@ async function selectIn(canvasElement: HTMLElement, selector = "u-select") {
   };
 }
 
-/** Waits for the popup's transitions, as the autocomplete stories do: axe and the capture see its final state. */
+/** Waits for the popup's transitions, as the autocomplete stories do: axe sees its final state. */
 async function popupSettled(popup: HTMLElement) {
   for (;;) {
     // The callback of the next frame runs before its rendering: wait for two.

@@ -3,7 +3,7 @@ import { html } from "lit";
 import { expect, userEvent, waitFor } from "storybook/test";
 import type { Tooltip } from "./tooltip";
 
-/** Waits for the bubble's transitions: axe and the capture see its final state. */
+/** Waits for the bubble's transitions: axe sees its final state. */
 async function settled(bubble: HTMLElement) {
   for (;;) {
     await new Promise(requestAnimationFrame);
