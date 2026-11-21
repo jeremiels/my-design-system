@@ -3,6 +3,7 @@ import { afterEach, expect, it } from "vitest";
 import { userEvent } from "vitest/browser";
 import "../../define.js";
 import type { TableSortEvent } from "../../events/table-sort.js";
+import type { TableRow } from "../table-row/table-row.js";
 import type { Table } from "./table.js";
 
 afterEach(() => {
@@ -67,10 +68,23 @@ it("keeps the sort shown when the application cancels u-sort", async () => {
   expect(cell.shadowRoot!.querySelector("th")!.hasAttribute("aria-sort")).toBe(false);
 });
 
-it("drops from the selection the rows that go", async () => {
+it("keeps the choice of the rows that go, another page, and shows it when they come back", async () => {
   const table = await mount();
-  table.values = ["a", "g"];
+  table.values = ["a"];
   await table.updateComplete;
-  table.querySelector('u-table-row[value="a"]')!.remove();
-  await expect.poll(() => table.values).toEqual(["g"]);
+  const row = table.querySelector<TableRow>('u-table-row[value="a"]')!;
+  row.remove();
+  await table.updateComplete;
+  expect(table.values).toEqual(["a"]);
+
+  // The head's box chooses the rows shown, and keeps the others.
+  const head = table.querySelector<TableRow>('u-table-row[slot="head"]')!;
+  await userEvent.click(head.shadowRoot!.querySelector<HTMLElement>('[part~="select"]')!);
+  await table.updateComplete;
+  expect(table.values).toEqual(["a", "g"]);
+
+  table.append(row);
+  await table.updateComplete;
+  await row.updateComplete;
+  expect(row.selected).toBe(true);
 });

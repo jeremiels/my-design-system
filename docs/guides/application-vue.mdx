@@ -174,7 +174,45 @@ watch(
 - Le champ affiche ce message comme celui du navigateur, et bloque la soumission.
 - Le type `TextField` vient de la marque : `vue-tsc` vérifie la ref.
 
-## 7. Vérifiez
+## 7. Écrivez une liste
+
+La page `requests.html` de l'exemple liste des demandes : des filtres, un tableau trié et sélectionnable, une pagination et un tiroir d'édition ([ADR 0033](?path=/docs/documentation-adr-0033-retours-d-un-écran-d-application--docs)).
+
+```vue
+<acme-table
+  label="Demandes"
+  selectable
+  :sort-key="sort.key"
+  :sort-direction="sort.direction"
+  :values="selection"
+  @u-sort="onSort"
+  @change="onSelect"
+>
+  <acme-table-row slot="head">
+    <acme-table-header-cell sort-key="amount" align="end">Montant</acme-table-header-cell>
+  </acme-table-row>
+  <acme-table-row v-for="request in shown" :key="request.id" :value="request.id">
+    <acme-table-cell align="end">{{ request.amount }}</acme-table-cell>
+  </acme-table-row>
+</acme-table>
+```
+
+- `acme.define(Table)` enregistre aussi les lignes et les cellules. `Stepper` enregistre ses étapes, `TagGroup` ses tags.
+- `u-sort` donne la clé et le sens. L'application trie ses données avec `sortRows()`, puis Vue rend les lignes.
+- `change` du tableau donne la sélection dans `values`. Elle garde les lignes des autres pages. Vérifiez que `event.target` est le tableau : un contrôle d'une cellule émet aussi `change`.
+- Un attribut nombre s'écrit sans `:` : `<acme-table-cell colspan="7">`.
+- Un bouton par ligne a un nom propre à sa ligne. Ajoutez le reste en texte caché, l'espace hors du `<span>` : Vue retire l'espace au début d'un élément.
+
+```vue
+<acme-button
+  @click="edit(request)"
+>Modifier <span class="visually-hidden">{{ request.id }}</span></acme-button>
+```
+
+- Une option « Tous » de valeur `""` vaut « rien de choisi » dans un `select`. Donnez au champ un `placeholder` qui l'affiche : `placeholder="Tous les états"`.
+- `toggle-button` émet `change` : lisez `pressed` dans `$event.target`.
+
+## 8. Vérifiez
 
 À la racine du dépôt, lancez `npm run example`. Après ACME, la commande installe l'application, vérifie ses types avec `vue-tsc`, la construit et la teste dans Chromium. Le test vérifie que :
 
@@ -189,6 +227,7 @@ watch(
 - `v-model.trim` nettoie la valeur quand l'utilisateur quitte le champ ;
 - le message de `setCustomValidity()` s'affiche ;
 - un formulaire valide soumet les valeurs des champs ;
-- le reset vide les champs et le modèle.
+- le reset vide les champs et le modèle ;
+- sur la page des demandes : le tri, la sélection sur deux pages, le bouton réactivé, les filtres et leurs tags, la ligne de détail, l'enregistrement dans le tiroir, puis le focus rendu au bouton qui l'a ouvert.
 
-Pour essayer le formulaire dans un navigateur, lancez `npm run dev` dans `examples/acme-vue-app`, après `npm run example`.
+Pour essayer les deux pages dans un navigateur, lancez `npm run dev` dans `examples/acme-vue-app`, après `npm run example`.

@@ -47,7 +47,31 @@ export function withDisabled<T extends Constructor<LitElement>>(Base: T) {
      * @internal
      */
     formDisabledCallback(disabled: boolean): void {
+      const updating = this.isUpdatePending;
       this.formDisabled = disabled;
+      if (updating) {
+        // Called while an update reflects `disabled`: Lit keeps the value,
+        // but renders nothing for it, and the native control would keep its
+        // former state. Render again once this update ends.
+        this.#formDisabledRender = Promise.resolve().then(() =>
+          this.requestUpdate("formDisabled", !disabled),
+        );
+      }
+    }
+
+    /** The render of a disabled state the browser gave during an update. */
+    #formDisabledRender?: Promise<void>;
+
+    /** Also waits for the render of `formDisabledCallback()`. */
+    protected override async getUpdateComplete(): Promise<boolean> {
+      let complete = await super.getUpdateComplete();
+      while (this.#formDisabledRender) {
+        const render = this.#formDisabledRender;
+        this.#formDisabledRender = undefined;
+        await render;
+        complete = await super.getUpdateComplete();
+      }
+      return complete;
     }
 
     protected updated(changedProperties: PropertyValues): void {

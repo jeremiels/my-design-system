@@ -57,12 +57,12 @@ export class Pagination extends DSBaseElement {
   label = "Pagination";
 
   /** The accessible name of the previous button, in the page's language. */
-  @property({ type: String, attribute: "previous-label" })
-  previousLabel = "Previous page";
+  @property({ type: String, attribute: "previous-page-label" })
+  previousPageLabel = "Previous page";
 
   /** The accessible name of the next button, in the page's language. */
-  @property({ type: String, attribute: "next-label" })
-  nextLabel = "Next page";
+  @property({ type: String, attribute: "next-page-label" })
+  nextPageLabel = "Next page";
 
   /** Writes the accessible name of a page's button, in the page's language. Property only. */
   @property({ attribute: false })
@@ -106,7 +106,7 @@ export class Pagination extends DSBaseElement {
               class="button button--previous"
               variant="neutral"
               appearance="plain"
-              label=${this.previousLabel}
+              label=${this.previousPageLabel}
               ?disabled=${current <= 1}
               @click=${() => this.goTo(current - 1)}
             >
@@ -136,7 +136,7 @@ export class Pagination extends DSBaseElement {
               class="button button--next"
               variant="neutral"
               appearance="plain"
-              label=${this.nextLabel}
+              label=${this.nextPageLabel}
               ?disabled=${current >= this.pages}
               @click=${() => this.goTo(current + 1)}
             >

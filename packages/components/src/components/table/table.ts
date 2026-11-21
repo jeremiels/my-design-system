@@ -5,6 +5,7 @@ import { OverflowController } from "../../controllers/overflow.js";
 import { TableSortEvent } from "../../events/table-sort.js";
 import { toggleAll, toggleValue } from "../../state/selection.js";
 import { nextSort, type SortDirection } from "../../state/table.js";
+import { TableCell } from "../table-cell/table-cell.js";
 import { TableHeaderCell } from "../table-header-cell/table-header-cell.js";
 import { TableRow } from "../table-row/table-row.js";
 import tableStyles from "./table.css" with { type: "css" };
@@ -28,7 +29,10 @@ import tableTokens from "./table.tokens.css" with { type: "css" };
  * `selectMessage` and its row header; the head gets one for every row.
  * `values` holds the `value` of the rows selected; each choice of the user
  * fires `change`. A row without `value`, a row of details for instance, has
- * an empty cell there.
+ * an empty cell there. The selection outlives the rows that go: a row of
+ * another page, or one a filter hides, stays selected, and shows selected
+ * again when it comes back. The head's box chooses the rows shown. The
+ * application takes a deleted row out of `values`.
  *
  * The table scrolls past the width of the page, and past
  * `--u-table-max-block-size`. While it scrolls, it takes the focus, for the
@@ -50,6 +54,9 @@ import tableTokens from "./table.tokens.css" with { type: "css" };
 export class Table extends DSBaseElement {
   static override componentName = "table";
 
+  /** Its rows and cells: registering the table registers them. */
+  static override dependencies = [TableRow, TableCell, TableHeaderCell];
+
   static styles = [super.styles ?? [], tableTokens, tableStyles];
 
   /** The caption of the table: its accessible name. */
@@ -68,7 +75,10 @@ export class Table extends DSBaseElement {
   @property({ type: Boolean, reflect: true })
   selectable = false;
 
-  /** The `value` of the rows selected, in their order. Property only. */
+  /**
+   * The `value` of the rows selected: those of the rows shown, in their
+   * order, after those of the rows gone. Property only.
+   */
   @property({ attribute: false })
   values: readonly string[] = [];
 
@@ -148,10 +158,15 @@ export class Table extends DSBaseElement {
    * @internal
    */
   toggleRow(row: TableRow): void {
-    this.values =
-      row.slot === "head"
-        ? toggleAll(this.#items, this.values)
-        : toggleValue(this.#items, this.values, row.value);
+    const items = this.#items;
+    const shown = new Set(items.map((item) => item.value));
+    // The rows gone, of another page: their choice stays.
+    const gone = this.values.filter((value) => !shown.has(value));
+    const chosen = this.values.filter((value) => shown.has(value));
+    this.values = [
+      ...gone,
+      ...(row.slot === "head" ? toggleAll(items, chosen) : toggleValue(items, chosen, row.value)),
+    ];
     this.dispatchEvent(new Event("change", { bubbles: true }));
   }
 
@@ -159,14 +174,6 @@ export class Table extends DSBaseElement {
     super.willUpdate(changedProperties);
     const rows = this.#bodyRows;
     this.empty = rows.length === 0;
-    // The selection holds rows of the table only.
-    if (this.values.length > 0) {
-      const values = new Set(rows.map((row) => row.value));
-      const kept = this.values.filter((value) => values.has(value));
-      if (kept.length !== this.values.length) {
-        this.values = kept;
-      }
-    }
   }
 
   protected override updated(changedProperties: PropertyValues<this>): void {

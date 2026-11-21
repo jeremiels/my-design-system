@@ -4,6 +4,8 @@
   --u-drawer-background-color: var(--u-color-surface-raised);
   --u-drawer-padding: var(--u-spacing-md);
   --u-drawer-gap: var(--u-spacing-sm);
+  --u-drawer-heading-font-size: var(--u-font-size-lg);
+  --u-drawer-heading-font-weight: var(--u-font-weight-semibold);
   --u-drawer-close-button-padding: var(--u-spacing-xs);
   --u-drawer-backdrop-color: var(--u-color-backdrop);
   --u-drawer-shadow: var(--u-shadow-overlay);

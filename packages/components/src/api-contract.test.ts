@@ -154,6 +154,30 @@ it("documents exactly the components of the catalog", () => {
   );
 });
 
+it("gives one meaning to each text property, across the components", () => {
+  // `labels` of designSystem() translates a text by its property name, for
+  // every component that has it (ADR 0006): one name, one default text.
+  const defaults = new Map<string, Set<string>>();
+  for (const declaration of components as (Declaration & {
+    members?: { kind: string; name: string; default?: string; privacy?: string }[];
+  })[]) {
+    for (const member of declaration.members ?? []) {
+      if (member.kind === "field" && !member.privacy && /(Label|Message)$/.test(member.name)) {
+        const texts = defaults.get(member.name) ?? new Set();
+        texts.add(member.default ?? "");
+        defaults.set(member.name, texts);
+      }
+    }
+  }
+  const ambiguous = [...defaults]
+    .filter(([, texts]) => texts.size > 1)
+    .map(([name, texts]) => `${name}: ${[...texts].join(" | ")}`);
+  expect(
+    ambiguous,
+    "Name each text after its meaning: previousPageLabel, not previousLabel.",
+  ).toEqual([]);
+});
+
 describe.each(components)("<$tagName> matches the manifest", (declaration) => {
   const tag = declaration.tagName!;
 

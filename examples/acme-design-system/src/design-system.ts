@@ -1,6 +1,6 @@
 /**
  * ACME's design system (ADR 0006 of the base): part of the base's catalog
- * (no button-link), its form fields and its autocomplete, ACME's card, ACME's button in place of
+ * (no button-link), its form fields, its lists and its drawer, ACME's card, ACME's button in place of
  * the base's, and ACME's icons over the base's. Declaring it registers nothing and imports
  * no component: an app registers what it uses, `await acme.define(Alert)`,
  * and downloads only that — ACME's button loads with the first component
@@ -12,7 +12,33 @@ import { acmeIcons } from "./icons/index.js";
 
 export const acme = designSystem({
   prefix: "acme",
-  catalog: ["button", "alert", "modal", "icon", "text-field", "textarea", "autocomplete", "card"],
+  catalog: [
+    "button",
+    "alert",
+    "modal",
+    "drawer",
+    "icon",
+    "text-field",
+    "textarea",
+    "autocomplete",
+    "combobox",
+    "select",
+    "date-picker",
+    "file-field",
+    "toggle-button",
+    "badge",
+    "tag",
+    "tag-group",
+    "table",
+    "table-row",
+    "table-cell",
+    "table-header-cell",
+    "pagination",
+    "stepper",
+    "step",
+    "toaster",
+    "card",
+  ],
   overrides: {
     button: () =>
       import("./components/acme-button/acme-button.js").then((module) => module.AcmeButton),
@@ -21,6 +47,17 @@ export const acme = designSystem({
   // The texts of ACME's language, for every component that has the property.
   labels: {
     closeLabel: "Fermer",
+    completedLabel: "(terminée)",
+    filesLabel: "Fichiers choisis",
+    nextMonthLabel: "Mois suivant",
+    nextPageLabel: "Page suivante",
+    pageLabel: (page: number) => `Page ${page}`,
+    previousMonthLabel: "Mois précédent",
+    previousPageLabel: "Page précédente",
+    removeMessage: (text: string) => `Retirer ${text}`,
+    selectAllLabel: "Sélectionner toutes les lignes",
+    selectMessage: (name: string) => `Sélectionner ${name}`,
+    statusMessage: (page: number, pages: number) => `Page ${page} sur ${pages}`,
     errorLabel: "Erreur :",
     loadingLabel: "Chargement…",
     resultsMessage: (count: number, shown: number) => {
