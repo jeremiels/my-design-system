@@ -128,3 +128,47 @@ it("shows the label again on Escape, list closed, and leaves the modal around it
   await userEvent.keyboard("{Escape}");
   await expect.poll(() => modal.open).toBe(false);
 });
+
+it("chooses several options with multiple: tags under the input, one entry per value", async () => {
+  const { field, input } = await mount("multiple required");
+  const form = document.querySelector("form")!;
+  expect(field.validity.valueMissing).toBe(true);
+  const listbox = field.shadowRoot!.querySelector('[role="listbox"]')!;
+
+  await userEvent.type(input, "par");
+  await userEvent.keyboard("{ArrowDown}{Enter}");
+  await field.updateComplete;
+  expect(field.values).toEqual(["75056"]);
+  expect(field.value).toBe("75056");
+  // The text empties, the list stays open, with a box per option.
+  expect(input.value).toBe("");
+  expect(field.open).toBe(true);
+  expect(listbox.getAttribute("aria-multiselectable")).toBe("true");
+
+  await userEvent.type(input, "ly");
+  await userEvent.keyboard("{ArrowDown}{Enter}");
+  await field.updateComplete;
+  expect(field.values).toEqual(["75056", "69123"]);
+  expect(new FormData(form).getAll("town")).toEqual(["75056", "69123"]);
+  expect(field.validity.valid).toBe(true);
+
+  // The tags show the labels; one leaves its option out. The list, open,
+  // covers them: Escape closes it.
+  await userEvent.keyboard("{Escape}");
+  const values = field.shadowRoot!.querySelector<HTMLElement>('[part~="values"]')!;
+  const tags = [...values.querySelectorAll("*")].filter((element) =>
+    element.localName.endsWith("-tag"),
+  );
+  expect(tags.map((tag) => tag.textContent!.trim())).toEqual(["Paris", "Lyon"]);
+  const remove = tags[0]!.shadowRoot!.querySelector<HTMLElement>('[part~="remove-button"]')!;
+  await userEvent.click(remove.shadowRoot?.querySelector("button") ?? remove);
+  await field.updateComplete;
+  expect(field.values).toEqual(["69123"]);
+
+  // Picking a chosen option again leaves it out.
+  await userEvent.click(input);
+  await userEvent.type(input, "ly");
+  await userEvent.keyboard("{ArrowDown}{Enter}");
+  await field.updateComplete;
+  expect(field.values).toEqual([]);
+});

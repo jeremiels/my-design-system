@@ -124,6 +124,40 @@ export const Default = meta.story({
   },
 });
 
+export const Multiple = meta.story({
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "With `multiple`, the user chooses several towns: a pick adds the town, or leaves it out, empties the text and keeps the list open. The chosen towns show under the input as tags, named by `values-label`; `values` holds their codes, and the form receives one entry per code.",
+      },
+    },
+  },
+  render: () => html`
+    <u-combobox
+      label="Towns of the survey"
+      multiple
+      values-label="Chosen towns"
+      .options=${towns}
+      .values=${["75056"]}
+    ></u-combobox>
+  `,
+  play: async ({ canvasElement }) => {
+    const { field, input, popup, shown } = await fieldIn(canvasElement);
+    await userEvent.type(input, "ly");
+    await waitFor(() => expect(shown()).toEqual(["Lyon"]));
+    await userEvent.keyboard("{ArrowDown}{Enter}");
+    await waitFor(() => expect(field.values).toEqual(["75056", "69123"]));
+    expect(input.value).toBe("");
+    expect(isOpen(popup)).toBe(true);
+    await userEvent.keyboard("{Escape}");
+    await waitFor(() => expect(isOpen(popup)).toBe(false));
+    const group = field.shadowRoot!.querySelector<HTMLElement>('[part~="values"]')!;
+    expect(group.getAttribute("role")).toBe("list");
+    await transitionsEnd(popup);
+  },
+});
+
 export const Revert = meta.story({
   parameters: {
     docs: {

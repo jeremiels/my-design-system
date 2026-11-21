@@ -1,9 +1,15 @@
-import { html, type PropertyValues } from "lit";
+import { nothing, type PropertyValues } from "lit";
+import { property } from "lit/decorators.js";
+import { html } from "lit/static-html.js";
 import { EditableComboboxBase } from "../../bases/editable-combobox/editable-combobox-base.js";
 import { fieldIds } from "../../bases/field/field-base.js";
 import { DismissController } from "../../controllers/dismiss.js";
 import type { ListboxOption } from "../../controllers/listbox.type.js";
+import { ListboxSelectEvent } from "../../events/listbox-select.js";
+import type { FormValue } from "../../mixins/withFormControl.js";
 import { normalizeText } from "../../state/typeahead.js";
+import { Tag } from "../tag/tag.js";
+import { TagGroup } from "../tag-group/tag-group.js";
 
 /**
  * A combobox: the user types to filter a list of options, and picks one.
@@ -36,11 +42,38 @@ import { normalizeText } from "../../state/typeahead.js";
  * the text. Its message is the browser's, from a hidden native `<select>`:
  * give `error-message` to write it in the page's language.
  *
+ * With `multiple`, the user chooses several options (ADR 0038). A pick adds
+ * the option, or leaves it out if chosen already, empties the text and
+ * keeps the list open: its options have a box, as in a `select` with
+ * `multiple`. Under the input, a `tag-group` named by `values-label` lists
+ * the chosen options; each tag leaves its option out. `values` holds the
+ * chosen values, in the order of the picks, `value` the first one, and the
+ * form receives one entry per value.
+ *
  * @element u-combobox
  * @summary A labelled text input that filters options, and whose value is one of them.
+ * @csspart values - The `tag-group` of the chosen options, with `multiple`.
  */
 export class Combobox extends EditableComboboxBase {
   static override componentName = "combobox";
+
+  /** Lists the chosen options with the `tag-group` and `tag` of its own registration. */
+  static override dependencies = [...super.dependencies, TagGroup, Tag];
+
+  /** The user chooses several options: `values`. Reflected. */
+  @property({ type: Boolean, reflect: true })
+  multiple = false;
+
+  /** The chosen values, with `multiple`, in the order of the picks. Property only. */
+  @property({ attribute: false })
+  values: readonly string[] = [];
+
+  /** The accessible name of the list of the chosen options, with `multiple`, in the page's language. */
+  @property({ type: String, attribute: "values-label" })
+  valuesLabel = "Chosen options";
+
+  /** The options picked, by value: their labels show in the tags while the options change. */
+  #chosen = new Map<string, ListboxOption>();
 
   /** The text the user typed since the last pick, `undefined` while the input shows the label of `value`. */
   #typed?: string;
@@ -61,9 +94,32 @@ export class Combobox extends EditableComboboxBase {
     });
   }
 
-  /** What the user typed, or the label of the option of `value`. */
+  /** What the user typed, or the label of the option of `value`; only what the user types with `multiple`. */
   protected override get controlText(): string {
-    return this.#typed ?? this.#textOf(this.value);
+    return this.#typed ?? (this.multiple ? "" : this.#textOf(this.value));
+  }
+
+  protected override get listboxMultiple(): boolean {
+    return this.multiple;
+  }
+
+  protected override isOptionSelected(option: ListboxOption): boolean {
+    return this.values.includes(option.value);
+  }
+
+  /** With `multiple`, one entry per chosen value, under `name`. */
+  protected override get formValue(): FormValue {
+    if (!this.multiple) {
+      return super.formValue;
+    }
+    if (!this.name) {
+      return null;
+    }
+    const data = new FormData();
+    for (const value of this.values) {
+      data.append(this.name, value);
+    }
+    return data;
   }
 
   /** What the user typed: the list shows every option while the input shows the label of `value`. */
@@ -79,6 +135,7 @@ export class Combobox extends EditableComboboxBase {
   /** @internal */
   override formResetCallback(): void {
     super.formResetCallback();
+    this.values = [];
     this.#typed = undefined;
     this.#picked = undefined;
     this.#cleared = false;
@@ -86,8 +143,11 @@ export class Combobox extends EditableComboboxBase {
 
   protected override willUpdate(changedProperties: PropertyValues<this>): void {
     // A new value, by a pick or by the application: the input shows its label.
-    if (changedProperties.has("value")) {
+    if (changedProperties.has("value") && !this.multiple) {
       this.#typed = undefined;
+    }
+    if (this.multiple) {
+      this.value = this.values[0] ?? "";
     }
     super.willUpdate(changedProperties);
   }
@@ -95,7 +155,8 @@ export class Combobox extends EditableComboboxBase {
   /** Validity from `value`, not from the text: `required` and empty, or `setCustomValidity()`. */
   protected override syncValidity(): void {
     const input = this.renderRoot.querySelector<HTMLElement>(`#${fieldIds.control}`);
-    this.syncValueValidity(this.required && this.value === "", input ?? undefined);
+    const missing = this.multiple ? this.values.length === 0 : this.value === "";
+    this.syncValueValidity(this.required && missing, input ?? undefined);
   }
 
   protected override renderCombobox() {
@@ -107,11 +168,43 @@ export class Combobox extends EditableComboboxBase {
     `;
   }
 
+  /** With `multiple`: the input, its list, then the tags of the chosen options. */
+  protected override renderControl(): unknown {
+    const tagGroup = this.tagFor(TagGroup);
+    const tag = this.tagFor(Tag);
+    return html`
+      ${super.renderControl()}
+      ${
+        this.multiple && this.values.length > 0
+          ? html`<${tagGroup} part="values" class="values" label=${this.valuesLabel}>
+              ${this.values.map(
+                (value) =>
+                  html`<${tag}
+                    ?removable=${!this.readOnly && !this.isDisabled}
+                    @u-remove=${() => this.#leaveOut(value)}
+                    >${this.#textOf(value)}</${tag}
+                  >`,
+              )}
+            </${tagGroup}>`
+          : nothing
+      }
+    `;
+  }
+
+  /** A tag removed: its value leaves `values`, as a user's change. */
+  #leaveOut(value: string): void {
+    this.values = this.values.filter((chosen) => chosen !== value);
+    this.dispatchEvent(
+      new InputEvent("input", { bubbles: true, composed: true, inputType: "deleteContent" }),
+    );
+    this.handleChange();
+  }
+
   /** The text changed: the popup follows it; an empty text clears the value. */
   protected override handleInput(event: Event): void {
     const text = (event.target as HTMLInputElement).value;
     this.#typed = text;
-    if (text === "" && this.value !== "") {
+    if (text === "" && this.value !== "" && !this.multiple) {
       this.value = "";
       this.#cleared = true;
       this.markInteracted();
@@ -158,6 +251,28 @@ export class Combobox extends EditableComboboxBase {
   }
 
   protected override selectOption(option: ListboxOption): void {
+    if (this.multiple) {
+      // One more choice, or one less: the text empties, the list stays open.
+      if (!this.dispatchEvent(new ListboxSelectEvent(option))) {
+        return;
+      }
+      this.#chosen.set(option.value, option);
+      this.values = this.values.includes(option.value)
+        ? this.values.filter((value) => value !== option.value)
+        : [...this.values, option.value];
+      this.#typed = undefined;
+      this.requestUpdate();
+      this.dispatchEvent(
+        new InputEvent("input", {
+          bubbles: true,
+          composed: true,
+          inputType: "insertReplacementText",
+          data: this.optionText(option),
+        }),
+      );
+      this.handleChange();
+      return;
+    }
     super.selectOption(option);
     if (this.value === option.value) {
       // Picked, even again: the input shows its label.
@@ -201,6 +316,7 @@ export class Combobox extends EditableComboboxBase {
     }
     const option =
       this.availableOptions.find((candidate) => candidate.value === value) ??
+      this.#chosen.get(value) ??
       (this.#picked?.value === value ? this.#picked : undefined);
     return option ? this.optionText(option) : value;
   }

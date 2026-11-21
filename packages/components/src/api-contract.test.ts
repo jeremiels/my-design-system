@@ -104,7 +104,12 @@ async function capped(element: HTMLElement) {
  */
 const setupFor: Record<string, (element: HTMLElement) => Promise<void> | void> = {
   "u-autocomplete": capped,
-  "u-combobox": capped,
+  // A capped list, and with `multiple`, the tags of chosen values.
+  "u-combobox": async (element) => {
+    await capped(element);
+    Object.assign(element, { multiple: true, values: ["1"] });
+    await (element as DSBaseElement).updateComplete;
+  },
   // A file chosen, for the `tag-group` of the files.
   "u-file-field": async (element) => {
     const input = element.shadowRoot!.querySelector<HTMLInputElement>("input")!;

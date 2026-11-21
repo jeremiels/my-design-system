@@ -68,6 +68,7 @@ export const acme = designSystem({
     skipLinksLabel: "Accès rapide",
     skipToContentLabel: "Aller au contenu",
     statusMessage: (page: number, pages: number) => `Page ${page} sur ${pages}`,
+    valuesLabel: "Options choisies",
     errorLabel: "Erreur :",
     loadingLabel: "Chargement…",
     resultsMessage: (count: number, shown: number) => {
