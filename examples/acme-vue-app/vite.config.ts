@@ -1,8 +1,18 @@
 import { acme } from "@acme/design-system";
 import vue from "@vitejs/plugin-vue";
+import { resolve } from "node:path";
 import { defineConfig } from "vite";
 
 export default defineConfig({
+  build: {
+    rollupOptions: {
+      // Two pages: the account form, and the list of requests.
+      input: {
+        index: resolve(import.meta.dirname, "index.html"),
+        requests: resolve(import.meta.dirname, "requests.html"),
+      },
+    },
+  },
   plugins: [
     vue({
       template: {

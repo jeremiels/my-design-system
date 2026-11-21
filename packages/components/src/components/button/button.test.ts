@@ -116,3 +116,37 @@ describe("click() on the host", () => {
     expect(form.querySelector("input")!.value).toBe("Draft");
   });
 });
+
+describe("disabled, then enabled again", () => {
+  // The browser calls formDisabledCallback() while Lit reflects `disabled`:
+  // a frameworks sets the property back and forth, as Vue's `:disabled`.
+  it("enables its native control again, and its clicks reach the host", async () => {
+    document.body.innerHTML = `<u-button>Accept</u-button>`;
+    const button = document.querySelector<Button>("u-button")!;
+    const control = () => button.shadowRoot!.querySelector("button")!;
+    const onClick = vi.fn();
+    button.addEventListener("click", onClick);
+
+    button.disabled = true;
+    await button.updateComplete;
+    expect(control().disabled).toBe(true);
+
+    button.disabled = false;
+    await vi.waitFor(() => expect(control().disabled).toBe(false));
+    expect(button.hasAttribute("aria-disabled")).toBe(false);
+    await userEvent.click(control());
+    expect(onClick).toHaveBeenCalledOnce();
+  });
+
+  it("follows a disabled fieldset too", async () => {
+    document.body.innerHTML = `<fieldset><u-button>Accept</u-button></fieldset>`;
+    const fieldset = document.querySelector("fieldset")!;
+    const button = document.querySelector<Button>("u-button")!;
+    const control = () => button.shadowRoot!.querySelector("button")!;
+    await button.updateComplete;
+    fieldset.disabled = true;
+    await vi.waitFor(() => expect(control().disabled).toBe(true));
+    fieldset.disabled = false;
+    await vi.waitFor(() => expect(control().disabled).toBe(false));
+  });
+});

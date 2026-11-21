@@ -4,6 +4,8 @@
   --u-modal-border-radius: var(--u-radius-lg);
   --u-modal-padding: var(--u-spacing-md);
   --u-modal-gap: var(--u-spacing-sm);
+  --u-modal-heading-font-size: var(--u-font-size-lg);
+  --u-modal-heading-font-weight: var(--u-font-weight-semibold);
   --u-modal-close-button-padding: var(--u-spacing-xs);
   --u-modal-backdrop-color: var(--u-color-backdrop);
   --u-modal-shadow: var(--u-shadow-overlay);

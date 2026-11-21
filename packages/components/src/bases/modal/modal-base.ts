@@ -30,7 +30,8 @@ import type { ModalCancelReason, ModalClosedBy } from "./modal.type.js";
  *
  * @slot - The dialog content. Its first `autofocus` element gets the focus on opening; the close button otherwise.
  * @csspart dialog - The native `<dialog>`.
- * @csspart content - The content wrapper inside the dialog: the content, and the close button at its top end.
+ * @csspart content - The content wrapper inside the dialog: the title, the content, and the close button at its top end.
+ * @csspart heading - The title, an `<h2>` that shows `label` and names the dialog.
  * @csspart close-button - The button that closes the dialog: the `button` component of the same registration.
  * @csspart close-icon - The icon of the close button: the `icon` component of the same registration. `close-label` names the button.
  * @fires {ModalCancelEvent} u-cancel - Before it closes at the user's request: close button, Escape, click outside, `requestClose()`. Its `reason` says which. Cancelable: `preventDefault()` keeps it open.
@@ -52,11 +53,19 @@ export abstract class ModalBase extends DSBaseElement {
   @property({ type: Boolean, reflect: true }) open = false;
 
   /**
-   * Accessible name of the dialog, announced when it opens. Required: a
-   * dialog without a name is announced as just "dialog".
+   * The title of the dialog: a heading at its top, which names it, announced
+   * when it opens (ADR 0033). Required: a dialog without a name is
+   * announced as just "dialog".
    */
   @property({ type: String })
   label?: string;
+
+  /**
+   * Hides the title on screen; it still names the dialog. For a content
+   * that shows its own title. Reflected.
+   */
+  @property({ type: Boolean, reflect: true, attribute: "label-hidden" })
+  labelHidden = false;
 
   /**
    * Accessible name of the close button, which shows only an icon. Translate
@@ -148,7 +157,7 @@ export abstract class ModalBase extends DSBaseElement {
     return html`
       <dialog
         part="dialog"
-        aria-label=${ifDefined(this.label || undefined)}
+        aria-labelledby=${ifDefined(this.label ? "heading" : undefined)}
         closedby=${this.closedBy === "any" ? "closerequest" : this.closedBy}
         @keydown=${this.handleDialogKeydown}
         @cancel=${this.handleDialogCancel}
@@ -168,6 +177,7 @@ export abstract class ModalBase extends DSBaseElement {
           >
             <${icon} part="close-icon" name="close"></${icon}>
           </${button}>
+          <h2 part="heading" class="heading" id="heading" ?hidden=${!this.label}>${this.label}</h2>
           <div class="body"><slot></slot></div>
         </div>
       </dialog>

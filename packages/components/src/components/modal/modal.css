@@ -82,6 +82,30 @@ dialog[open]:where(:not([data-closing]))::backdrop {
 .close {
   --u-button-padding-block: var(--u-modal-close-button-padding);
 }
+/* The title names the dialog (aria-labelledby): beside the close button,
+   above the content. */
+.heading {
+  grid-area: 1 / 1;
+  align-self: center;
+  margin: 0;
+  font-size: var(--u-modal-heading-font-size);
+  font-weight: var(--u-modal-heading-font-weight);
+}
 .body {
+  grid-area: 2 / 1 / auto / span 2;
+}
+/* `label-hidden`: the title names the dialog, hidden on screen; the content
+   takes its place beside the close button. */
+:host([label-hidden]) .heading {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+:host([label-hidden]) .body,
+.heading[hidden] + .body {
   grid-area: 1 / 1;
 }

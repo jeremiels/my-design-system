@@ -100,7 +100,7 @@ export const Opened = meta.story({
     docs: {
       description: {
         story:
-          "The `open` attribute opens the modal from the HTML, without a button or script. `label` names the dialog. The close button gets the focus.",
+          "The `open` attribute opens the modal from the HTML, without a button or script. `label` is its title, a heading that names the dialog. The close button gets the focus.",
       },
     },
   },
@@ -114,7 +114,11 @@ export const Opened = meta.story({
     expect(modal.getAttribute("open")).toBe("");
     const dialog = modal.shadowRoot!.querySelector("dialog")!;
     expect(dialog.open).toBe(true);
-    expect(dialog.getAttribute("aria-label")).toBe("Example dialog");
+    // The title shows at the top, and names the dialog.
+    const heading = modal.shadowRoot!.querySelector<HTMLElement>('[part~="heading"]')!;
+    expect(heading.textContent).toBe("Example dialog");
+    expect(heading.checkVisibility()).toBe(true);
+    await expect(dialog).toHaveAccessibleName("Example dialog");
     // Opened on its first render, before its close button rendered.
     const close = modal.shadowRoot!.querySelector('[part~="close-button"]')!;
     await waitFor(() => expect(close.matches(":focus-within")).toBe(true));
@@ -153,6 +157,31 @@ export const CloseButton = meta.story({
     // A square button around the icon.
     const box = closeButton(modal).getBoundingClientRect();
     expect(box.width).toBeCloseTo(box.height, 1);
+  },
+});
+
+export const HiddenTitle = meta.story({
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "`label-hidden` hides the title on screen, for a content that shows its own: `label` still names the dialog.",
+      },
+    },
+  },
+  render: () => html`
+    ${opener("confirm", "Supprimer")}
+    <u-modal id="confirm" open label="Supprimer le fichier ?" label-hidden>
+      <p>Le fichier est supprimé définitivement.</p>
+    </u-modal>
+  `,
+  play: async ({ canvasElement }) => {
+    const modal = canvasElement.querySelector<Modal>("u-modal")!;
+    await modal.updateComplete;
+    const dialog = modal.shadowRoot!.querySelector("dialog")!;
+    const heading = modal.shadowRoot!.querySelector<HTMLElement>('[part~="heading"]')!;
+    await expect(dialog).toHaveAccessibleName("Supprimer le fichier ?");
+    expect(heading.getBoundingClientRect().width).toBeLessThanOrEqual(1);
   },
 });
 

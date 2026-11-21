@@ -24,6 +24,9 @@ import stepperTokens from "./stepper.tokens.css" with { type: "css" };
 export class Stepper extends DSBaseElement {
   static override componentName = "stepper";
 
+  /** Its steps: registering the stepper registers them. */
+  static override dependencies = [Step];
+
   static styles = [super.styles ?? [], stepperTokens, stepperStyles];
 
   /** The accessible name of the list: what the steps are of, "Your request" for instance. */

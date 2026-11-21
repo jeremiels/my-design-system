@@ -1,6 +1,7 @@
 import { html } from "lit";
 import { property } from "lit/decorators.js";
 import { DSBaseElement } from "../../bases/base-element.js";
+import { Tag } from "../tag/tag.js";
 import tagTokens from "../tag/tag.tokens.css" with { type: "css" };
 import tagGroupStyles from "./tag-group.css" with { type: "css" };
 
@@ -20,6 +21,9 @@ import tagGroupStyles from "./tag-group.css" with { type: "css" };
  */
 export class TagGroup extends DSBaseElement {
   static override componentName = "tag-group";
+
+  /** Its tags: registering the group registers them. */
+  static override dependencies = [Tag];
 
   static styles = [super.styles ?? [], tagTokens, tagGroupStyles];
 

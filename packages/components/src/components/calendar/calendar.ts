@@ -98,12 +98,12 @@ export class Calendar extends DSBaseElement {
   max?: string;
 
   /** The accessible name of the previous button, in the page's language. */
-  @property({ type: String, attribute: "previous-label" })
-  previousLabel = "Previous month";
+  @property({ type: String, attribute: "previous-month-label" })
+  previousMonthLabel = "Previous month";
 
   /** The accessible name of the next button, in the page's language. */
-  @property({ type: String, attribute: "next-label" })
-  nextLabel = "Next month";
+  @property({ type: String, attribute: "next-month-label" })
+  nextMonthLabel = "Next month";
 
   /** The day the keys move from: its month shows. */
   @state()
@@ -228,7 +228,7 @@ export class Calendar extends DSBaseElement {
           class="nav nav--previous"
           variant="neutral"
           appearance="plain"
-          label=${this.previousLabel}
+          label=${this.previousMonthLabel}
           ?disabled=${!canGoBack}
           @click=${() => this.#moveMonth(-1)}
         >
@@ -242,7 +242,7 @@ export class Calendar extends DSBaseElement {
           class="nav nav--next"
           variant="neutral"
           appearance="plain"
-          label=${this.nextLabel}
+          label=${this.nextMonthLabel}
           ?disabled=${!canGoForward}
           @click=${() => this.#moveMonth(1)}
         >

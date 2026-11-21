@@ -66,8 +66,8 @@ export const Bounds = meta.story({
         value="2026-11-21"
         min="2026-11-09"
         max="2026-11-27"
-        previous-label="Mois précédent"
-        next-label="Mois suivant"
+        previous-month-label="Mois précédent"
+        next-month-label="Mois suivant"
       ></u-calendar>
     </div>
   `,

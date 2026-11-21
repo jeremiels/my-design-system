@@ -21,6 +21,16 @@
       "$value": "{spacing.sm}",
       "$description": "Space between the content and the close button."
     },
+    "heading-font-size": {
+      "$type": "dimension",
+      "$value": "{font.size.lg}",
+      "$description": "Font size of the title, `label`."
+    },
+    "heading-font-weight": {
+      "$type": "fontWeight",
+      "$value": "{font.weight.semibold}",
+      "$description": "Font weight of the title."
+    },
     "close-button-padding": {
       "$type": "dimension",
       "$value": "{spacing.xs}",

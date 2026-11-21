@@ -1,0 +1,91 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Documentation/ADR/0033 Retours d'un écran d'application" />
+
+# ADR 0033 — Retours d'un écran d'application
+
+**Statut :** accepté · **Date :** 21 novembre 2026 · Change la D4 de l'[ADR 0030](?path=/docs/documentation-adr-0030-tableau--docs) et le nom de la modale de l'[ADR 0008](?path=/docs/documentation-adr-0008-commandes-et-modale--docs)
+
+## Contexte
+
+Les stories testent chaque composant seul. L'application Vue d'exemple n'avait qu'un formulaire. Les composants d'une liste n'avaient jamais servi ensemble, dans une application.
+
+`examples/acme-vue-app` a une deuxième page, `requests.html` : la liste des demandes d'un service, comme un agent l'utilise.
+
+- Des filtres : un `select`, un `date-picker`, un `toggle-button`, et un `tag-group` des filtres actifs.
+- Un `table` trié et sélectionnable, sur plusieurs pages (`pagination`), avec une ligne de détail par demande.
+- Un bouton qui accepte la sélection, puis un `toaster`.
+- Un `drawer` qui modifie une demande : un `stepper`, un `select`, un `textarea`, un `file-field`.
+
+`smoke.mjs` en teste chaque tâche dans Chromium, contre les archives du socle et d'ACME. L'écran a montré six défauts du socle.
+
+## D1 — Un parent enregistre ses enfants
+
+`tabs`, `tree`, `menu` et `breadcrumb` déclarent leurs enfants dans `dependencies`. `table`, `stepper` et `tag-group` ne le faisaient pas : `acme.define(Table)` laissait les lignes et les cellules sans définition.
+
+**Décision :** un composant déclare dans `dependencies` les composants enfants que l'application écrit en lui. `table` déclare `table-row`, `table-cell` et `table-header-cell`, `stepper` déclare `step`, `tag-group` déclare `tag`.
+
+## D2 — Un texte, un sens
+
+`labels` de `designSystem()` traduit un texte par le nom de sa propriété, dans chaque composant qui l'a ([ADR 0006](?path=/docs/documentation-adr-0006-design-system-de-marque--docs)). `previousLabel` valait « Previous page » dans `pagination` et « Previous month » dans `calendar` : une traduction ne pouvait servir aux deux.
+
+**Décision :** le nom d'un texte dit son sens, unique dans le socle.
+
+- `pagination` a `previous-page-label` et `next-page-label`.
+- `calendar` et `date-picker` ont `previous-month-label` et `next-month-label`.
+- `api-contract.test.ts` échoue quand deux composants donnent deux valeurs par défaut à une même propriété `…Label` ou `…Message`.
+
+## D3 — La sélection d'un tableau survit à ses lignes
+
+- **Option A — Une ligne retirée sort de `values`**, comme une option retirée d'un `<select multiple>` (ADR 0030, D4). Une page suivante efface la sélection de la page précédente. L'application, qui garde sa copie de `values`, ne voit pas l'effacement.
+- **Option B — `values` garde le choix des lignes retirées.** Une ligne revient choisie sur sa page.
+
+**Décision : B.** L'application tient la sélection, comme ses filtres et sa page.
+
+- La case de l'en-tête choisit les lignes affichées, et garde les autres choix.
+- L'application retire de `values` une ligne qu'elle supprime.
+
+## D4 — Le titre d'une modale s'affiche
+
+- **Option A — `label` nomme la boîte de dialogue, sans s'afficher** (ADR 0008). L'exemple « Supprimer le fichier ? » du [guide de la modale](?path=/docs/documentation-guides-ouvrir-et-fermer-une-modale--docs) ne montre pas sa question.
+- **Option B — `label` s'affiche en titre**, comme Web Awesome (`without-header` le cache), Carbon (`cds-modal-heading`) et le DSFR (un titre que vise `aria-labelledby`).
+
+**Décision : B.** `modal` et `drawer` rendent `label` dans un `<h2>`, la part `heading`, qui nomme la boîte de dialogue (`aria-labelledby`).
+
+- `label-hidden` cache le titre à l'écran, pour un contenu qui affiche le sien. Il nomme toujours la boîte de dialogue, comme le `label-hidden` des champs.
+- Les tokens `heading-font-size` et `heading-font-weight` de `modal` et de `drawer` le dessinent.
+
+## D5 — Un nombre s'écrit en attribut dans un template Vue
+
+`<acme-table-cell colspan="7">` échouait dans `vue-tsc` : la propriété est un nombre. Vue accepte `colspan="7"` sur un `<td>` natif.
+
+**Décision :** `VueElements` accepte pour une propriété nombre son attribut, une chaîne de chiffres (`` `${number}` ``), comme le type `Numberish` de Vue. `colspan="deux"` reste refusé : `src/TypeCheck.vue` le vérifie.
+
+## D6 — Un bouton désactivé puis réactivé
+
+Le bouton « Accepter la sélection » restait désactivé après le choix d'une ligne. Le navigateur appelle `formDisabledCallback()` pendant que Lit reflète `disabled` en attribut. Lit ignore une propriété posée à ce moment : `formDisabled` gardait son ancienne valeur.
+
+**Décision :** quand le navigateur l'appelle pendant une mise à jour, `withDisabled` pose `formDisabled`, puis demande un rendu après cette mise à jour. `updateComplete` attend ce rendu. Tout contrôle de formulaire du socle se réactive : `button`, les champs, les cases. `button.test.ts` le vérifie, avec un `<fieldset disabled>` aussi.
+
+## Conséquences
+
+- **Code :** `dependencies` de `Table`, `Stepper` et `TagGroup`. Les propriétés renommées de `Pagination`, `Calendar` et `DatePicker`. `values` de `Table`. `labelHidden` et le titre de `ModalBase`. Le type `VueElements`. `withDisabled`.
+- **Exemples :** le catalogue d'ACME offre les composants de l'écran, avec leurs textes en français. L'application Vue a deux pages.
+- **Tests :** onze vérifications de l'écran dans `smoke.mjs`, la story `HiddenTitle` de `modal`, le test des textes dans `api-contract.test.ts`.
+- **Remarques d'usage**, dans le [guide Vue](?path=/docs/documentation-guides-utiliser-une-marque-dans-une-application-vue--docs) :
+  - Une option « Tous » de valeur `""` vaut « rien de choisi » dans un `select` : `placeholder` l'affiche.
+  - Vue retire l'espace au début d'un élément : écrivez `Modifier <span class="visually-hidden">R-133</span>`, l'espace hors du `<span>`.
+- **Limites :** le texte de l'input de `file-field` reste celui du navigateur ([ADR 0028](?path=/docs/documentation-adr-0028-champ-de-fichiers--docs)).
+
+## Questions ouvertes
+
+- **Niveau du titre :** un `<h2>` dans toute modale. Le DSFR choisit de `h2` à `h6` selon la place de la modale dans la page.
+- **Sélection de toutes les pages :** « Sélectionner les 23 demandes », au-delà des lignes affichées.
+
+## Sources
+
+Consultées le 21 novembre 2026.
+
+- [dialog.ts](https://github.com/shoelace-style/webawesome/blob/next/packages/webawesome/src/components/dialog/dialog.ts) (Web Awesome).
+- [modal-heading.ts](https://github.com/carbon-design-system/carbon/blob/main/packages/web-components/src/components/modal/modal-heading.ts) (IBM, Carbon).
+- [Accessibilité de la modale](https://github.com/GouvernementFR/dsfr/blob/main/src/dsfr/component/modal/_part/doc/accessibility/index.md) (DSFR).

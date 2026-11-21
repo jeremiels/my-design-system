@@ -45,12 +45,12 @@ export class DatePicker extends PickerBase {
   max?: string;
 
   /** The accessible name of the calendar's previous button, in the page's language. */
-  @property({ type: String, attribute: "previous-label" })
-  previousLabel = "Previous month";
+  @property({ type: String, attribute: "previous-month-label" })
+  previousMonthLabel = "Previous month";
 
   /** The accessible name of the calendar's next button, in the page's language. */
-  @property({ type: String, attribute: "next-label" })
-  nextLabel = "Next month";
+  @property({ type: String, attribute: "next-month-label" })
+  nextMonthLabel = "Next month";
 
   protected override get popupRole(): "dialog" {
     return "dialog";
@@ -118,8 +118,8 @@ export class DatePicker extends PickerBase {
           .value=${this.value}
           .min=${this.min}
           .max=${this.max}
-          previous-label=${this.previousLabel}
-          next-label=${this.nextLabel}
+          previous-month-label=${this.previousMonthLabel}
+          next-month-label=${this.nextMonthLabel}
           @change=${this.#pick}
         ></${calendar}>
       </div>

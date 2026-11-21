@@ -374,6 +374,34 @@
             },
             {
               "kind": "field",
+              "name": "#formDisabledRender",
+              "privacy": "private",
+              "type": {
+                "text": "Promise<void> | undefined"
+              },
+              "description": "The render of a disabled state the browser gave during an update.",
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "getUpdateComplete",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "Promise<boolean>"
+                }
+              },
+              "description": "Also waits for the render of `formDisabledCallback()`.",
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "field",
               "name": "componentName",
               "type": {
                 "text": "string"
@@ -1241,6 +1269,34 @@
               },
               "privacy": "protected",
               "readonly": true,
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "#formDisabledRender",
+              "privacy": "private",
+              "type": {
+                "text": "Promise<void> | undefined"
+              },
+              "description": "The render of a disabled state the browser gave during an update.",
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "getUpdateComplete",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "Promise<boolean>"
+                }
+              },
+              "description": "Also waits for the render of `formDisabledCallback()`.",
               "inheritedFrom": {
                 "name": "withDisabled",
                 "module": "src/mixins/withDisabled.ts"
@@ -2795,6 +2851,34 @@
               },
               "privacy": "protected",
               "readonly": true,
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "#formDisabledRender",
+              "privacy": "private",
+              "type": {
+                "text": "Promise<void> | undefined"
+              },
+              "description": "The render of a disabled state the browser gave during an update.",
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "getUpdateComplete",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "Promise<boolean>"
+                }
+              },
+              "description": "Also waits for the render of `formDisabledCallback()`.",
               "inheritedFrom": {
                 "name": "withDisabled",
                 "module": "src/mixins/withDisabled.ts"
@@ -4982,6 +5066,34 @@
             },
             {
               "kind": "field",
+              "name": "#formDisabledRender",
+              "privacy": "private",
+              "type": {
+                "text": "Promise<void> | undefined"
+              },
+              "description": "The render of a disabled state the browser gave during an update.",
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "getUpdateComplete",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "Promise<boolean>"
+                }
+              },
+              "description": "Also waits for the render of `formDisabledCallback()`.",
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "field",
               "name": "shadowRootOptions",
               "type": {
                 "text": "ShadowRootInit"
@@ -6452,6 +6564,34 @@
             },
             {
               "kind": "field",
+              "name": "#formDisabledRender",
+              "privacy": "private",
+              "type": {
+                "text": "Promise<void> | undefined"
+              },
+              "description": "The render of a disabled state the browser gave during an update.",
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "getUpdateComplete",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "Promise<boolean>"
+                }
+              },
+              "description": "Also waits for the render of `formDisabledCallback()`.",
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "field",
               "name": "componentName",
               "type": {
                 "text": "string"
@@ -6732,8 +6872,12 @@
               "name": "dialog"
             },
             {
-              "description": "The content wrapper inside the dialog: the content, and the close button at its top end.",
+              "description": "The content wrapper inside the dialog: the title, the content, and the close button at its top end.",
               "name": "content"
+            },
+            {
+              "description": "The title, an `<h2>` that shows `label` and names the dialog.",
+              "name": "heading"
             },
             {
               "description": "The button that closes the dialog: the `button` component of the same registration.",
@@ -6782,8 +6926,19 @@
               "type": {
                 "text": "string | undefined"
               },
-              "description": "Accessible name of the dialog, announced when it opens. Required: a\ndialog without a name is announced as just \"dialog\".",
+              "description": "The title of the dialog: a heading at its top, which names it, announced\nwhen it opens (ADR 0033). Required: a dialog without a name is\nannounced as just \"dialog\".",
               "attribute": "label"
+            },
+            {
+              "kind": "field",
+              "name": "labelHidden",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Hides the title on screen; it still names the dialog. For a content\nthat shows its own title. Reflected.",
+              "attribute": "label-hidden",
+              "reflects": true
             },
             {
               "kind": "field",
@@ -7131,8 +7286,17 @@
               "type": {
                 "text": "string | undefined"
               },
-              "description": "Accessible name of the dialog, announced when it opens. Required: a\ndialog without a name is announced as just \"dialog\".",
+              "description": "The title of the dialog: a heading at its top, which names it, announced\nwhen it opens (ADR 0033). Required: a dialog without a name is\nannounced as just \"dialog\".",
               "fieldName": "label"
+            },
+            {
+              "name": "label-hidden",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Hides the title on screen; it still names the dialog. For a content\nthat shows its own title. Reflected.",
+              "fieldName": "labelHidden"
             },
             {
               "name": "close-label",
@@ -8313,6 +8477,34 @@
             },
             {
               "kind": "field",
+              "name": "#formDisabledRender",
+              "privacy": "private",
+              "type": {
+                "text": "Promise<void> | undefined"
+              },
+              "description": "The render of a disabled state the browser gave during an update.",
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "getUpdateComplete",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "Promise<boolean>"
+                }
+              },
+              "description": "Also waits for the render of `formDisabledCallback()`.",
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "field",
               "name": "dependencies",
               "type": {
                 "text": "readonly (typeof DSBaseElement)[]"
@@ -9322,6 +9514,34 @@
             },
             {
               "kind": "field",
+              "name": "#formDisabledRender",
+              "privacy": "private",
+              "type": {
+                "text": "Promise<void> | undefined"
+              },
+              "description": "The render of a disabled state the browser gave during an update.",
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "getUpdateComplete",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "Promise<boolean>"
+                }
+              },
+              "description": "Also waits for the render of `formDisabledCallback()`.",
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "field",
               "name": "componentName",
               "type": {
                 "text": "string"
@@ -9834,6 +10054,34 @@
               },
               "privacy": "protected",
               "readonly": true,
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "#formDisabledRender",
+              "privacy": "private",
+              "type": {
+                "text": "Promise<void> | undefined"
+              },
+              "description": "The render of a disabled state the browser gave during an update.",
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "getUpdateComplete",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "Promise<boolean>"
+                }
+              },
+              "description": "Also waits for the render of `formDisabledCallback()`.",
               "inheritedFrom": {
                 "name": "withDisabled",
                 "module": "src/mixins/withDisabled.ts"
@@ -11475,6 +11723,34 @@
               },
               "privacy": "protected",
               "readonly": true,
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "#formDisabledRender",
+              "privacy": "private",
+              "type": {
+                "text": "Promise<void> | undefined"
+              },
+              "description": "The render of a disabled state the browser gave during an update.",
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "getUpdateComplete",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "Promise<boolean>"
+                }
+              },
+              "description": "Also waits for the render of `formDisabledCallback()`.",
               "inheritedFrom": {
                 "name": "withDisabled",
                 "module": "src/mixins/withDisabled.ts"
@@ -13595,6 +13871,34 @@
             },
             {
               "kind": "field",
+              "name": "#formDisabledRender",
+              "privacy": "private",
+              "type": {
+                "text": "Promise<void> | undefined"
+              },
+              "description": "The render of a disabled state the browser gave during an update.",
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "getUpdateComplete",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "Promise<boolean>"
+                }
+              },
+              "description": "Also waits for the render of `formDisabledCallback()`.",
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "field",
               "name": "shadowRootOptions",
               "type": {
                 "text": "ShadowRootInit"
@@ -15483,6 +15787,34 @@
             },
             {
               "kind": "field",
+              "name": "#formDisabledRender",
+              "privacy": "private",
+              "type": {
+                "text": "Promise<void> | undefined"
+              },
+              "description": "The render of a disabled state the browser gave during an update.",
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "getUpdateComplete",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "Promise<boolean>"
+                }
+              },
+              "description": "Also waits for the render of `formDisabledCallback()`.",
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "field",
               "name": "size",
               "type": {
                 "text": "ButtonSize"
@@ -16350,6 +16682,34 @@
             },
             {
               "kind": "field",
+              "name": "#formDisabledRender",
+              "privacy": "private",
+              "type": {
+                "text": "Promise<void> | undefined"
+              },
+              "description": "The render of a disabled state the browser gave during an update.",
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "getUpdateComplete",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "Promise<boolean>"
+                }
+              },
+              "description": "Also waits for the render of `formDisabledCallback()`.",
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "field",
               "name": "size",
               "type": {
                 "text": "ButtonSize"
@@ -17101,23 +17461,23 @@
             },
             {
               "kind": "field",
-              "name": "previousLabel",
+              "name": "previousMonthLabel",
               "type": {
                 "text": "string"
               },
               "default": "\"Previous month\"",
               "description": "The accessible name of the previous button, in the page's language.",
-              "attribute": "previous-label"
+              "attribute": "previous-month-label"
             },
             {
               "kind": "field",
-              "name": "nextLabel",
+              "name": "nextMonthLabel",
               "type": {
                 "text": "string"
               },
               "default": "\"Next month\"",
               "description": "The accessible name of the next button, in the page's language.",
-              "attribute": "next-label"
+              "attribute": "next-month-label"
             },
             {
               "kind": "field",
@@ -17350,22 +17710,22 @@
               "fieldName": "max"
             },
             {
-              "name": "previous-label",
+              "name": "previous-month-label",
               "type": {
                 "text": "string"
               },
               "default": "\"Previous month\"",
               "description": "The accessible name of the previous button, in the page's language.",
-              "fieldName": "previousLabel"
+              "fieldName": "previousMonthLabel"
             },
             {
-              "name": "next-label",
+              "name": "next-month-label",
               "type": {
                 "text": "string"
               },
               "default": "\"Next month\"",
               "description": "The accessible name of the next button, in the page's language.",
-              "fieldName": "nextLabel"
+              "fieldName": "nextMonthLabel"
             }
           ],
           "superclass": {
@@ -17886,6 +18246,34 @@
               },
               "privacy": "protected",
               "readonly": true,
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "#formDisabledRender",
+              "privacy": "private",
+              "type": {
+                "text": "Promise<void> | undefined"
+              },
+              "description": "The render of a disabled state the browser gave during an update.",
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "getUpdateComplete",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "Promise<boolean>"
+                }
+              },
+              "description": "Also waits for the render of `formDisabledCallback()`.",
               "inheritedFrom": {
                 "name": "withDisabled",
                 "module": "src/mixins/withDisabled.ts"
@@ -19593,6 +19981,34 @@
               },
               "privacy": "protected",
               "readonly": true,
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "#formDisabledRender",
+              "privacy": "private",
+              "type": {
+                "text": "Promise<void> | undefined"
+              },
+              "description": "The render of a disabled state the browser gave during an update.",
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "getUpdateComplete",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "Promise<boolean>"
+                }
+              },
+              "description": "Also waits for the render of `formDisabledCallback()`.",
               "inheritedFrom": {
                 "name": "withDisabled",
                 "module": "src/mixins/withDisabled.ts"
@@ -21574,6 +21990,34 @@
             },
             {
               "kind": "field",
+              "name": "#formDisabledRender",
+              "privacy": "private",
+              "type": {
+                "text": "Promise<void> | undefined"
+              },
+              "description": "The render of a disabled state the browser gave during an update.",
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "getUpdateComplete",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "Promise<boolean>"
+                }
+              },
+              "description": "Also waits for the render of `formDisabledCallback()`.",
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "field",
               "name": "shadowRootOptions",
               "type": {
                 "text": "ShadowRootInit"
@@ -23174,6 +23618,34 @@
             },
             {
               "kind": "field",
+              "name": "#formDisabledRender",
+              "privacy": "private",
+              "type": {
+                "text": "Promise<void> | undefined"
+              },
+              "description": "The render of a disabled state the browser gave during an update.",
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "getUpdateComplete",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "Promise<boolean>"
+                }
+              },
+              "description": "Also waits for the render of `formDisabledCallback()`.",
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "field",
               "name": "dependencies",
               "type": {
                 "text": "readonly (typeof DSBaseElement)[]"
@@ -24499,23 +24971,23 @@
             },
             {
               "kind": "field",
-              "name": "previousLabel",
+              "name": "previousMonthLabel",
               "type": {
                 "text": "string"
               },
               "default": "\"Previous month\"",
               "description": "The accessible name of the calendar's previous button, in the page's language.",
-              "attribute": "previous-label"
+              "attribute": "previous-month-label"
             },
             {
               "kind": "field",
-              "name": "nextLabel",
+              "name": "nextMonthLabel",
               "type": {
                 "text": "string"
               },
               "default": "\"Next month\"",
               "description": "The accessible name of the calendar's next button, in the page's language.",
-              "attribute": "next-label"
+              "attribute": "next-month-label"
             },
             {
               "kind": "field",
@@ -25403,6 +25875,34 @@
             },
             {
               "kind": "field",
+              "name": "#formDisabledRender",
+              "privacy": "private",
+              "type": {
+                "text": "Promise<void> | undefined"
+              },
+              "description": "The render of a disabled state the browser gave during an update.",
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "getUpdateComplete",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "Promise<boolean>"
+                }
+              },
+              "description": "Also waits for the render of `formDisabledCallback()`.",
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "field",
               "name": "shadowRootOptions",
               "type": {
                 "text": "ShadowRootInit"
@@ -25841,22 +26341,22 @@
               "fieldName": "max"
             },
             {
-              "name": "previous-label",
+              "name": "previous-month-label",
               "type": {
                 "text": "string"
               },
               "default": "\"Previous month\"",
               "description": "The accessible name of the calendar's previous button, in the page's language.",
-              "fieldName": "previousLabel"
+              "fieldName": "previousMonthLabel"
             },
             {
-              "name": "next-label",
+              "name": "next-month-label",
               "type": {
                 "text": "string"
               },
               "default": "\"Next month\"",
               "description": "The accessible name of the calendar's next button, in the page's language.",
-              "fieldName": "nextLabel"
+              "fieldName": "nextMonthLabel"
             },
             {
               "name": "placeholder",
@@ -26428,6 +26928,16 @@
               "default": "var(--u-spacing-sm)"
             },
             {
+              "description": "Font size of the title, `label`.",
+              "name": "--u-drawer-heading-font-size",
+              "default": "var(--u-font-size-lg)"
+            },
+            {
+              "description": "Font weight of the title.",
+              "name": "--u-drawer-heading-font-weight",
+              "default": "var(--u-font-weight-semibold)"
+            },
+            {
               "description": "Padding of the close button, around its icon.",
               "name": "--u-drawer-close-button-padding",
               "default": "var(--u-spacing-xs)"
@@ -26524,8 +27034,23 @@
               "type": {
                 "text": "string | undefined"
               },
-              "description": "Accessible name of the dialog, announced when it opens. Required: a\ndialog without a name is announced as just \"dialog\".",
+              "description": "The title of the dialog: a heading at its top, which names it, announced\nwhen it opens (ADR 0033). Required: a dialog without a name is\nannounced as just \"dialog\".",
               "attribute": "label",
+              "inheritedFrom": {
+                "name": "ModalBase",
+                "module": "src/bases/modal/modal-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "labelHidden",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Hides the title on screen; it still names the dialog. For a content\nthat shows its own title. Reflected.",
+              "attribute": "label-hidden",
+              "reflects": true,
               "inheritedFrom": {
                 "name": "ModalBase",
                 "module": "src/bases/modal/modal-base.ts"
@@ -26940,8 +27465,21 @@
               "type": {
                 "text": "string | undefined"
               },
-              "description": "Accessible name of the dialog, announced when it opens. Required: a\ndialog without a name is announced as just \"dialog\".",
+              "description": "The title of the dialog: a heading at its top, which names it, announced\nwhen it opens (ADR 0033). Required: a dialog without a name is\nannounced as just \"dialog\".",
               "fieldName": "label",
+              "inheritedFrom": {
+                "name": "ModalBase",
+                "module": "src/bases/modal/modal-base.ts"
+              }
+            },
+            {
+              "name": "label-hidden",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Hides the title on screen; it still names the dialog. For a content\nthat shows its own title. Reflected.",
+              "fieldName": "labelHidden",
               "inheritedFrom": {
                 "name": "ModalBase",
                 "module": "src/bases/modal/modal-base.ts"
@@ -27001,8 +27539,16 @@
               }
             },
             {
-              "description": "The content wrapper inside the dialog: the content, and the close button at its top end.",
+              "description": "The content wrapper inside the dialog: the title, the content, and the close button at its top end.",
               "name": "content",
+              "inheritedFrom": {
+                "name": "ModalBase",
+                "module": "src/bases/modal/modal-base.ts"
+              }
+            },
+            {
+              "description": "The title, an `<h2>` that shows `label` and names the dialog.",
+              "name": "heading",
               "inheritedFrom": {
                 "name": "ModalBase",
                 "module": "src/bases/modal/modal-base.ts"
@@ -27912,6 +28458,34 @@
               },
               "privacy": "protected",
               "readonly": true,
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "#formDisabledRender",
+              "privacy": "private",
+              "type": {
+                "text": "Promise<void> | undefined"
+              },
+              "description": "The render of a disabled state the browser gave during an update.",
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "getUpdateComplete",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "Promise<boolean>"
+                }
+              },
+              "description": "Also waits for the render of `formDisabledCallback()`.",
               "inheritedFrom": {
                 "name": "withDisabled",
                 "module": "src/mixins/withDisabled.ts"
@@ -28971,6 +29545,34 @@
             },
             {
               "kind": "field",
+              "name": "#formDisabledRender",
+              "privacy": "private",
+              "type": {
+                "text": "Promise<void> | undefined"
+              },
+              "description": "The render of a disabled state the browser gave during an update.",
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "getUpdateComplete",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "Promise<boolean>"
+                }
+              },
+              "description": "Also waits for the render of `formDisabledCallback()`.",
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "field",
               "name": "dependencies",
               "type": {
                 "text": "readonly (typeof DSBaseElement)[]"
@@ -29565,6 +30167,34 @@
             },
             {
               "kind": "field",
+              "name": "#formDisabledRender",
+              "privacy": "private",
+              "type": {
+                "text": "Promise<void> | undefined"
+              },
+              "description": "The render of a disabled state the browser gave during an update.",
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "getUpdateComplete",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "Promise<boolean>"
+                }
+              },
+              "description": "Also waits for the render of `formDisabledCallback()`.",
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "field",
               "name": "open",
               "type": {
                 "text": "boolean"
@@ -29947,6 +30577,16 @@
               "default": "var(--u-spacing-sm)"
             },
             {
+              "description": "Font size of the title, `label`.",
+              "name": "--u-modal-heading-font-size",
+              "default": "var(--u-font-size-lg)"
+            },
+            {
+              "description": "Font weight of the title.",
+              "name": "--u-modal-heading-font-weight",
+              "default": "var(--u-font-weight-semibold)"
+            },
+            {
               "description": "Padding of the close button around its icon, the same on every side: a square button.",
               "name": "--u-modal-close-button-padding",
               "default": "var(--u-spacing-xs)"
@@ -30027,8 +30667,23 @@
               "type": {
                 "text": "string | undefined"
               },
-              "description": "Accessible name of the dialog, announced when it opens. Required: a\ndialog without a name is announced as just \"dialog\".",
+              "description": "The title of the dialog: a heading at its top, which names it, announced\nwhen it opens (ADR 0033). Required: a dialog without a name is\nannounced as just \"dialog\".",
               "attribute": "label",
+              "inheritedFrom": {
+                "name": "ModalBase",
+                "module": "src/bases/modal/modal-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "labelHidden",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Hides the title on screen; it still names the dialog. For a content\nthat shows its own title. Reflected.",
+              "attribute": "label-hidden",
+              "reflects": true,
               "inheritedFrom": {
                 "name": "ModalBase",
                 "module": "src/bases/modal/modal-base.ts"
@@ -30442,8 +31097,16 @@
               }
             },
             {
-              "description": "The content wrapper inside the dialog: the content, and the close button at its top end.",
+              "description": "The content wrapper inside the dialog: the title, the content, and the close button at its top end.",
               "name": "content",
+              "inheritedFrom": {
+                "name": "ModalBase",
+                "module": "src/bases/modal/modal-base.ts"
+              }
+            },
+            {
+              "description": "The title, an `<h2>` that shows `label` and names the dialog.",
+              "name": "heading",
               "inheritedFrom": {
                 "name": "ModalBase",
                 "module": "src/bases/modal/modal-base.ts"
@@ -30485,8 +31148,21 @@
               "type": {
                 "text": "string | undefined"
               },
-              "description": "Accessible name of the dialog, announced when it opens. Required: a\ndialog without a name is announced as just \"dialog\".",
+              "description": "The title of the dialog: a heading at its top, which names it, announced\nwhen it opens (ADR 0033). Required: a dialog without a name is\nannounced as just \"dialog\".",
               "fieldName": "label",
+              "inheritedFrom": {
+                "name": "ModalBase",
+                "module": "src/bases/modal/modal-base.ts"
+              }
+            },
+            {
+              "name": "label-hidden",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Hides the title on screen; it still names the dialog. For a content\nthat shows its own title. Reflected.",
+              "fieldName": "labelHidden",
               "inheritedFrom": {
                 "name": "ModalBase",
                 "module": "src/bases/modal/modal-base.ts"
@@ -31002,6 +31678,34 @@
               },
               "privacy": "protected",
               "readonly": true,
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "#formDisabledRender",
+              "privacy": "private",
+              "type": {
+                "text": "Promise<void> | undefined"
+              },
+              "description": "The render of a disabled state the browser gave during an update.",
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "getUpdateComplete",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "Promise<boolean>"
+                }
+              },
+              "description": "Also waits for the render of `formDisabledCallback()`.",
               "inheritedFrom": {
                 "name": "withDisabled",
                 "module": "src/mixins/withDisabled.ts"
@@ -32052,23 +32756,23 @@
             },
             {
               "kind": "field",
-              "name": "previousLabel",
+              "name": "previousPageLabel",
               "type": {
                 "text": "string"
               },
               "default": "\"Previous page\"",
               "description": "The accessible name of the previous button, in the page's language.",
-              "attribute": "previous-label"
+              "attribute": "previous-page-label"
             },
             {
               "kind": "field",
-              "name": "nextLabel",
+              "name": "nextPageLabel",
               "type": {
                 "text": "string"
               },
               "default": "\"Next page\"",
               "description": "The accessible name of the next button, in the page's language.",
-              "attribute": "next-label"
+              "attribute": "next-page-label"
             },
             {
               "kind": "field",
@@ -32233,22 +32937,22 @@
               "fieldName": "label"
             },
             {
-              "name": "previous-label",
+              "name": "previous-page-label",
               "type": {
                 "text": "string"
               },
               "default": "\"Previous page\"",
               "description": "The accessible name of the previous button, in the page's language.",
-              "fieldName": "previousLabel"
+              "fieldName": "previousPageLabel"
             },
             {
-              "name": "next-label",
+              "name": "next-page-label",
               "type": {
                 "text": "string"
               },
               "default": "\"Next page\"",
               "description": "The accessible name of the next button, in the page's language.",
-              "fieldName": "nextLabel"
+              "fieldName": "nextPageLabel"
             }
           ],
           "superclass": {
@@ -32558,6 +33262,34 @@
               },
               "privacy": "protected",
               "readonly": true,
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "#formDisabledRender",
+              "privacy": "private",
+              "type": {
+                "text": "Promise<void> | undefined"
+              },
+              "description": "The render of a disabled state the browser gave during an update.",
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "getUpdateComplete",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "Promise<boolean>"
+                }
+              },
+              "description": "Also waits for the render of `formDisabledCallback()`.",
               "inheritedFrom": {
                 "name": "withDisabled",
                 "module": "src/mixins/withDisabled.ts"
@@ -33791,6 +34523,34 @@
             },
             {
               "kind": "field",
+              "name": "#formDisabledRender",
+              "privacy": "private",
+              "type": {
+                "text": "Promise<void> | undefined"
+              },
+              "description": "The render of a disabled state the browser gave during an update.",
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "getUpdateComplete",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "Promise<boolean>"
+                }
+              },
+              "description": "Also waits for the render of `formDisabledCallback()`.",
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "field",
               "name": "label",
               "type": {
                 "text": "string"
@@ -34871,6 +35631,34 @@
               },
               "privacy": "protected",
               "readonly": true,
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "#formDisabledRender",
+              "privacy": "private",
+              "type": {
+                "text": "Promise<void> | undefined"
+              },
+              "description": "The render of a disabled state the browser gave during an update.",
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "getUpdateComplete",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "Promise<boolean>"
+                }
+              },
+              "description": "Also waits for the render of `formDisabledCallback()`.",
               "inheritedFrom": {
                 "name": "withDisabled",
                 "module": "src/mixins/withDisabled.ts"
@@ -36515,6 +37303,34 @@
             },
             {
               "kind": "field",
+              "name": "#formDisabledRender",
+              "privacy": "private",
+              "type": {
+                "text": "Promise<void> | undefined"
+              },
+              "description": "The render of a disabled state the browser gave during an update.",
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "getUpdateComplete",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "Promise<boolean>"
+                }
+              },
+              "description": "Also waits for the render of `formDisabledCallback()`.",
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "field",
               "name": "dependencies",
               "type": {
                 "text": "readonly (typeof DSBaseElement)[]"
@@ -37931,6 +38747,34 @@
             },
             {
               "kind": "field",
+              "name": "#formDisabledRender",
+              "privacy": "private",
+              "type": {
+                "text": "Promise<void> | undefined"
+              },
+              "description": "The render of a disabled state the browser gave during an update.",
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "getUpdateComplete",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "Promise<boolean>"
+                }
+              },
+              "description": "Also waits for the render of `formDisabledCallback()`.",
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "field",
               "name": "dependencies",
               "type": {
                 "text": "readonly (typeof DSBaseElement)[]"
@@ -39226,6 +40070,20 @@
             },
             {
               "kind": "field",
+              "name": "dependencies",
+              "type": {
+                "text": "readonly (typeof DSBaseElement)[]"
+              },
+              "static": true,
+              "default": "[Step]",
+              "description": "Its steps: registering the stepper registers them.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "field",
               "name": "label",
               "type": {
                 "text": "string"
@@ -39272,20 +40130,6 @@
               },
               "description": "The steps, in order. None on a server: the element has no children there.",
               "readonly": true
-            },
-            {
-              "kind": "field",
-              "name": "dependencies",
-              "type": {
-                "text": "readonly (typeof DSBaseElement)[]"
-              },
-              "static": true,
-              "default": "[]",
-              "description": "Components this one renders (ADR 0001, D2): `defineComponents()`\nregisters them too, and `tagFor()` resolves their tag. Never hard-code\nanother component's tag in a template, nor create one with\n`document.createElement` — a brand's override would be bypassed.",
-              "inheritedFrom": {
-                "name": "DSBaseElement",
-                "module": "src/bases/base-element.ts"
-              }
             },
             {
               "kind": "method",
@@ -40185,6 +41029,34 @@
               },
               "privacy": "protected",
               "readonly": true,
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "#formDisabledRender",
+              "privacy": "private",
+              "type": {
+                "text": "Promise<void> | undefined"
+              },
+              "description": "The render of a disabled state the browser gave during an update.",
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "getUpdateComplete",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "Promise<boolean>"
+                }
+              },
+              "description": "Also waits for the render of `formDisabledCallback()`.",
               "inheritedFrom": {
                 "name": "withDisabled",
                 "module": "src/mixins/withDisabled.ts"
@@ -41156,6 +42028,34 @@
               },
               "privacy": "protected",
               "readonly": true,
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "#formDisabledRender",
+              "privacy": "private",
+              "type": {
+                "text": "Promise<void> | undefined"
+              },
+              "description": "The render of a disabled state the browser gave during an update.",
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "getUpdateComplete",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "Promise<boolean>"
+                }
+              },
+              "description": "Also waits for the render of `formDisabledCallback()`.",
               "inheritedFrom": {
                 "name": "withDisabled",
                 "module": "src/mixins/withDisabled.ts"
@@ -42257,7 +43157,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "A table of data, written with elements as an HTML table: `table-row`\nchildren, whose cells are `table-cell` and `table-header-cell` (ADR 0030).\nAny row fits: a row of details across the columns (`colspan`), a group\nheading, a cell holding links, buttons or a `badge`.\n\nThe rows with `slot=\"head\"` form its header, which stays in view while\nthe other rows scroll under it. `label` is its caption and its name.\n\nA header cell with `sort-key` sorts the rows: a press fires `u-sort`, then\nthe table shows the new sort, `aria-sort` and an arrow. The table keeps\nthe order of its rows: the application sorts them, with `sortRows()` or\non its server, and renders them again.\n\nWith `selectable`, each row gets a `checkbox` before its cells, named by\n`selectMessage` and its row header; the head gets one for every row.\n`values` holds the `value` of the rows selected; each choice of the user\nfires `change`. A row without `value`, a row of details for instance, has\nan empty cell there.\n\nThe table scrolls past the width of the page, and past\n`--u-table-max-block-size`. While it scrolls, it takes the focus, for the\nkeyboard, as a region named by its caption.",
+          "description": "A table of data, written with elements as an HTML table: `table-row`\nchildren, whose cells are `table-cell` and `table-header-cell` (ADR 0030).\nAny row fits: a row of details across the columns (`colspan`), a group\nheading, a cell holding links, buttons or a `badge`.\n\nThe rows with `slot=\"head\"` form its header, which stays in view while\nthe other rows scroll under it. `label` is its caption and its name.\n\nA header cell with `sort-key` sorts the rows: a press fires `u-sort`, then\nthe table shows the new sort, `aria-sort` and an arrow. The table keeps\nthe order of its rows: the application sorts them, with `sortRows()` or\non its server, and renders them again.\n\nWith `selectable`, each row gets a `checkbox` before its cells, named by\n`selectMessage` and its row header; the head gets one for every row.\n`values` holds the `value` of the rows selected; each choice of the user\nfires `change`. A row without `value`, a row of details for instance, has\nan empty cell there. The selection outlives the rows that go: a row of\nanother page, or one a filter hides, stays selected, and shows selected\nagain when it comes back. The head's box chooses the rows shown. The\napplication takes a deleted row out of `values`.\n\nThe table scrolls past the width of the page, and past\n`--u-table-max-block-size`. While it scrolls, it takes the focus, for the\nkeyboard, as a region named by its caption.",
           "name": "Table",
           "cssProperties": [
             {
@@ -42415,6 +43315,20 @@
             },
             {
               "kind": "field",
+              "name": "dependencies",
+              "type": {
+                "text": "readonly (typeof DSBaseElement)[]"
+              },
+              "static": true,
+              "default": "[TableRow, TableCell, TableHeaderCell]",
+              "description": "Its rows and cells: registering the table registers them.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "field",
               "name": "label",
               "type": {
                 "text": "string"
@@ -42461,7 +43375,7 @@
                 "text": "readonly string[]"
               },
               "default": "[]",
-              "description": "The `value` of the rows selected, in their order. Property only."
+              "description": "The `value` of the rows selected: those of the rows shown, in their\norder, after those of the rows gone. Property only."
             },
             {
               "kind": "field",
@@ -42540,20 +43454,6 @@
               },
               "description": "The rows the user can select, as items: those with a `value`.",
               "readonly": true
-            },
-            {
-              "kind": "field",
-              "name": "dependencies",
-              "type": {
-                "text": "readonly (typeof DSBaseElement)[]"
-              },
-              "static": true,
-              "default": "[]",
-              "description": "Components this one renders (ADR 0001, D2): `defineComponents()`\nregisters them too, and `tagFor()` resolves their tag. Never hard-code\nanother component's tag in a template, nor create one with\n`document.createElement` — a brand's override would be bypassed.",
-              "inheritedFrom": {
-                "name": "DSBaseElement",
-                "module": "src/bases/base-element.ts"
-              }
             },
             {
               "kind": "method",
@@ -43159,6 +44059,20 @@
             },
             {
               "kind": "field",
+              "name": "dependencies",
+              "type": {
+                "text": "readonly (typeof DSBaseElement)[]"
+              },
+              "static": true,
+              "default": "[Tag]",
+              "description": "Its tags: registering the group registers them.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "field",
               "name": "label",
               "type": {
                 "text": "string"
@@ -43205,20 +44119,6 @@
                 }
               },
               "description": "The focus was in the tag the application removed: to a neighbor, or to the group."
-            },
-            {
-              "kind": "field",
-              "name": "dependencies",
-              "type": {
-                "text": "readonly (typeof DSBaseElement)[]"
-              },
-              "static": true,
-              "default": "[]",
-              "description": "Components this one renders (ADR 0001, D2): `defineComponents()`\nregisters them too, and `tagFor()` resolves their tag. Never hard-code\nanother component's tag in a template, nor create one with\n`document.createElement` — a brand's override would be bypassed.",
-              "inheritedFrom": {
-                "name": "DSBaseElement",
-                "module": "src/bases/base-element.ts"
-              }
             },
             {
               "kind": "method",
@@ -44014,6 +44914,34 @@
               },
               "privacy": "protected",
               "readonly": true,
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "#formDisabledRender",
+              "privacy": "private",
+              "type": {
+                "text": "Promise<void> | undefined"
+              },
+              "description": "The render of a disabled state the browser gave during an update.",
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "getUpdateComplete",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "Promise<boolean>"
+                }
+              },
+              "description": "Also waits for the render of `formDisabledCallback()`.",
               "inheritedFrom": {
                 "name": "withDisabled",
                 "module": "src/mixins/withDisabled.ts"
@@ -45348,6 +46276,34 @@
               },
               "privacy": "protected",
               "readonly": true,
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "#formDisabledRender",
+              "privacy": "private",
+              "type": {
+                "text": "Promise<void> | undefined"
+              },
+              "description": "The render of a disabled state the browser gave during an update.",
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "getUpdateComplete",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "Promise<boolean>"
+                }
+              },
+              "description": "Also waits for the render of `formDisabledCallback()`.",
               "inheritedFrom": {
                 "name": "withDisabled",
                 "module": "src/mixins/withDisabled.ts"
@@ -47042,6 +47998,34 @@
             },
             {
               "kind": "field",
+              "name": "#formDisabledRender",
+              "privacy": "private",
+              "type": {
+                "text": "Promise<void> | undefined"
+              },
+              "description": "The render of a disabled state the browser gave during an update.",
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "getUpdateComplete",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "Promise<boolean>"
+                }
+              },
+              "description": "Also waits for the render of `formDisabledCallback()`.",
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "field",
               "name": "size",
               "type": {
                 "text": "ButtonSize"
@@ -47822,6 +48806,34 @@
             },
             {
               "kind": "field",
+              "name": "#formDisabledRender",
+              "privacy": "private",
+              "type": {
+                "text": "Promise<void> | undefined"
+              },
+              "description": "The render of a disabled state the browser gave during an update.",
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "getUpdateComplete",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "Promise<boolean>"
+                }
+              },
+              "description": "Also waits for the render of `formDisabledCallback()`.",
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "field",
               "name": "open",
               "type": {
                 "text": "boolean"
@@ -48367,6 +49379,34 @@
               },
               "privacy": "protected",
               "readonly": true,
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "#formDisabledRender",
+              "privacy": "private",
+              "type": {
+                "text": "Promise<void> | undefined"
+              },
+              "description": "The render of a disabled state the browser gave during an update.",
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "getUpdateComplete",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "Promise<boolean>"
+                }
+              },
+              "description": "Also waits for the render of `formDisabledCallback()`.",
               "inheritedFrom": {
                 "name": "withDisabled",
                 "module": "src/mixins/withDisabled.ts"
@@ -51487,6 +52527,26 @@
               },
               "privacy": "protected",
               "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "#formDisabledRender",
+              "privacy": "private",
+              "type": {
+                "text": "Promise<void> | undefined"
+              },
+              "description": "The render of a disabled state the browser gave during an update."
+            },
+            {
+              "kind": "method",
+              "name": "getUpdateComplete",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "Promise<boolean>"
+                }
+              },
+              "description": "Also waits for the render of `formDisabledCallback()`."
             }
           ],
           "attributes": [

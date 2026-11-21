@@ -6,18 +6,52 @@
 import {
   Alert,
   Autocomplete,
+  Badge,
   Button,
+  Combobox,
+  DatePicker,
+  Drawer,
+  FileField,
   Icon,
   Modal,
+  Pagination,
+  Select,
+  Stepper,
+  Table,
+  TagGroup,
   Textarea,
   TextField,
+  Toaster,
+  ToggleButton,
 } from "@unicorne/components";
 import type { TagNameMap } from "@unicorne/components";
 import type { AcmeCatalog } from "./catalog.js";
 import { AcmeCard } from "./components/acme-card/acme-card.js";
 import { acme } from "./design-system.js";
 
-void acme.define(Button, Alert, Modal, Icon, TextField, Textarea, Autocomplete, AcmeCard);
+// A table registers its rows and cells, a stepper its steps, a tag group its tags.
+void acme.define(
+  Button,
+  Alert,
+  Modal,
+  Drawer,
+  Icon,
+  TextField,
+  Textarea,
+  Autocomplete,
+  Combobox,
+  Select,
+  DatePicker,
+  FileField,
+  ToggleButton,
+  Badge,
+  TagGroup,
+  Table,
+  Pagination,
+  Stepper,
+  Toaster,
+  AcmeCard,
+);
 
 declare global {
   interface HTMLElementTagNameMap extends TagNameMap<"acme", AcmeCatalog> {}

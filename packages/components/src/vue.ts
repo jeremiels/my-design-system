@@ -15,6 +15,15 @@ import type { EmitFn, HTMLAttributes, PublicProps } from "vue";
 import type { CatalogEntry } from "./registry/catalog.js";
 
 /**
+ * A property's type as a template writes it: a number also as its
+ * attribute, `colspan="2"`, as Vue's own types accept on a native `<td>`.
+ */
+type Numberish<Value> = Value extends number ? Value | `${number}` : Value;
+
+/** The properties of an element as the props of a template, all optional. */
+type TemplateProps<Element> = { [Key in keyof Element]?: Numberish<Element[Key]> };
+
+/**
  * A custom element as Vue's templates see it: its properties as props, its
  * own events as emits. The helper of Vue's guide for custom elements.
  */
@@ -23,7 +32,7 @@ export type VueElement<
   Events extends Record<string, Event>,
 > = new () => Element & {
   /** @deprecated For the types of templates only: not a property of the element. */
-  $props: HTMLAttributes & Partial<Omit<Element, keyof LitElement>> & PublicProps;
+  $props: HTMLAttributes & TemplateProps<Omit<Element, keyof LitElement>> & PublicProps;
   /** @deprecated For the types of templates only: not a method of the element. */
   $emit: EmitFn<{ [Name in keyof Events]: (event: Events[Name]) => void }>;
 };
