@@ -7,11 +7,51 @@
   color: var(--u-tabs-text-color);
 }
 
+.bar {
+  display: flex;
+  align-items: stretch;
+  min-inline-size: 0;
+  border-block-end: var(--u-tabs-border-width) solid var(--u-tabs-border-color);
+}
+
 .tablist {
   display: flex;
+  flex: 1;
   gap: var(--u-tabs-gap);
-  border-block-end: var(--u-tabs-border-width) solid var(--u-tabs-border-color);
+  min-inline-size: 0;
   overflow-x: auto;
+}
+
+/* The buttons that scroll the list, at the edges it hides tabs past. */
+.scroll {
+  flex: none;
+  display: inline-grid;
+  place-items: center;
+  inline-size: var(--u-tabs-scroll-button-size);
+  padding: 0;
+  color: inherit;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.chevron {
+  box-sizing: border-box;
+  inline-size: var(--u-tabs-chevron-size);
+  block-size: var(--u-tabs-chevron-size);
+  border: solid currentColor;
+  border-width: 0 calc(var(--u-tabs-chevron-width) * 2) calc(var(--u-tabs-chevron-width) * 2) 0;
+}
+
+/* Along the text: tabs.ts reads the direction, `:dir()` is missing before Chrome 120. */
+.scroll--start .chevron,
+.scroll--end.scroll--rtl .chevron {
+  transform: rotate(135deg);
+}
+
+.scroll--end .chevron,
+.scroll--start.scroll--rtl .chevron {
+  transform: rotate(-45deg);
 }
 
 :host([orientation="vertical"]) {
@@ -19,10 +59,14 @@
   align-items: start;
 }
 
-:host([orientation="vertical"]) .tablist {
-  flex-direction: column;
+:host([orientation="vertical"]) .bar {
   border-block-end: 0;
   border-inline-end: var(--u-tabs-border-width) solid var(--u-tabs-border-color);
+}
+
+:host([orientation="vertical"]) .tablist {
+  flex-direction: column;
+  overflow-x: visible;
 }
 
 /* The line of the selected tab, beside a vertical list. */
@@ -42,7 +86,7 @@
 }
 
 @media (forced-colors: active) {
-  .tablist {
+  .bar {
     border-color: CanvasText;
   }
 }

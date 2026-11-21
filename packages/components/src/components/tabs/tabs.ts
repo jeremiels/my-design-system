@@ -1,6 +1,7 @@
-import { html, type PropertyValues } from "lit";
+import { html, nothing, type PropertyValues } from "lit";
 import { property } from "lit/decorators.js";
 import { ifDefined } from "lit/directives/if-defined.js";
+import { OverflowController } from "../../controllers/overflow.js";
 import { RovingFocusController } from "../../controllers/roving-focus.js";
 import type { Orientation } from "../../types/common.js";
 import { DSBaseElement } from "../../bases/base-element.js";
@@ -22,6 +23,10 @@ let nextId = 0;
  * looping, along the text direction; Home and End select the first and last
  * tabs. A click selects a tab. Each selection by the user fires `change`.
  *
+ * A list wider than its tabs scrolls. Buttons at its edges scroll it, for
+ * the pointer: they stay out of the Tab order and of the accessibility tree,
+ * the arrow keys bring each tab into view (`OverflowController`).
+ *
  * The tabs and the panels are children of the host: the tabs go in the
  * `tab` slot by themselves. The component links each tab and its panel with
  * `aria-controls` and `aria-labelledby`, and gives them an `id` if they have
@@ -32,6 +37,7 @@ let nextId = 0;
  * @slot tab - The `tab` elements of the same registration. They go there by themselves.
  * @slot - The `tab-panel` elements of the same registration.
  * @csspart tablist - The list of tabs, `role="tablist"`.
+ * @csspart scroll-button - A button that scrolls the list, shown when tabs go past its edge.
  * @fires change - When the user selects another tab: a click, the arrow keys, Home or End.
  * @tokens tabs - Its tokens (`@cssprop`), from `@unicorne/tokens` (`src/component/tabs/`): `npm run analyze` documents them.
  */
@@ -54,6 +60,25 @@ export class Tabs extends DSBaseElement {
   /** An accessible name for the list of tabs, when the page has no heading for it. */
   @property({ type: String })
   label = "";
+
+  #overflow = new OverflowController(this, () =>
+    this.orientation === "vertical"
+      ? undefined
+      : this.renderRoot?.querySelector<HTMLElement>('[part~="tablist"]'),
+  );
+
+  /** Whether the text runs right to left: the chevrons point the other way. */
+  #rtl = false;
+
+  override connectedCallback(): void {
+    super.connectedCallback();
+    // `:dir()` is missing before Chrome 120.
+    const rtl = getComputedStyle(this).direction === "rtl";
+    if (rtl !== this.#rtl) {
+      this.#rtl = rtl;
+      this.requestUpdate();
+    }
+  }
 
   constructor() {
     super();
@@ -123,16 +148,36 @@ export class Tabs extends DSBaseElement {
     this.dispatchEvent(new Event("change", { bubbles: true }));
   }
 
+  #renderScroll(edge: "start" | "end") {
+    const shown = this.orientation !== "vertical" && this.#overflow[edge];
+    return shown
+      ? html`<button
+          part="scroll-button"
+          class="scroll scroll--${edge}${this.#rtl ? " scroll--rtl" : ""}"
+          type="button"
+          tabindex="-1"
+          aria-hidden="true"
+          @click=${() => this.#overflow.scroll(edge)}
+        >
+          <span class="chevron"></span>
+        </button>`
+      : nothing;
+  }
+
   render() {
     return html`
-      <div
-        part="tablist"
-        class="tablist"
-        role="tablist"
-        aria-orientation=${this.orientation}
-        aria-label=${ifDefined(this.label || undefined)}
-      >
-        <slot name="tab" @slotchange=${() => this.requestUpdate()}></slot>
+      <div class="bar">
+        ${this.#renderScroll("start")}
+        <div
+          part="tablist"
+          class="tablist"
+          role="tablist"
+          aria-orientation=${this.orientation}
+          aria-label=${ifDefined(this.label || undefined)}
+        >
+          <slot name="tab" @slotchange=${() => this.requestUpdate()}></slot>
+        </div>
+        ${this.#renderScroll("end")}
       </div>
       <slot @slotchange=${() => this.requestUpdate()}></slot>
     `;

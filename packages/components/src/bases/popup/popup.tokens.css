@@ -7,7 +7,7 @@
   --u-popup-trigger-padding-block: var(--u-spacing-sm);
   --u-popup-trigger-gap: var(--u-spacing-sm);
   --u-popup-trigger-background-color: var(--u-color-surface-default);
-  --u-popup-trigger-background-color-hover: var(--u-color-secondary-background-hover);
+  --u-popup-trigger-background-color-hover: var(--u-color-surface-raised);
   --u-popup-trigger-border-width: var(--u-border-width);
   --u-popup-trigger-border-color: var(--u-color-border-control);
   --u-popup-trigger-border-radius: var(--u-radius-md);

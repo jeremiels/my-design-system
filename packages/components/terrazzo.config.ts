@@ -53,6 +53,7 @@ export default defineConfig({
         toaster: { file: "components/toaster/toaster.tokens.css" },
         calendar: { file: "components/calendar/calendar.tokens.css" },
         "date-picker": { file: "components/date-picker/date-picker.tokens.css" },
+        tree: { file: "components/tree/tree.tokens.css" },
       },
     }),
   ],

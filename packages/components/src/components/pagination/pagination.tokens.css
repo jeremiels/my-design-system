@@ -7,7 +7,7 @@
   --u-pagination-button-size: var(--u-size-icon);
   --u-pagination-padding-inline: var(--u-spacing-sm);
   --u-pagination-border-radius: var(--u-radius-md);
-  --u-pagination-hover-background-color: var(--u-color-secondary-background-hover);
+  --u-pagination-hover-background-color: var(--u-color-surface-raised);
   --u-pagination-current-background-color: var(--u-color-action-background);
   --u-pagination-current-text-color: var(--u-color-action-text);
   --u-pagination-chevron-size: var(--u-spacing-sm);

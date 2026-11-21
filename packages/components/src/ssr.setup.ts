@@ -40,6 +40,8 @@ const pages: Record<string, string> = {
   toaster: `<u-toaster></u-toaster>`,
   calendar: `<u-calendar value="2026-11-21"></u-calendar>`,
   "date-picker": `<u-date-picker label="Arrival" value="2026-11-21"></u-date-picker>`,
+  tree: `<u-tree label="Files"><u-tree-item label="Documents" value="docs" expanded><u-tree-item label="Report" value="report"></u-tree-item></u-tree-item></u-tree>`,
+  "tree-item": `<u-tree-item label="Report" value="report"></u-tree-item>`,
   "menu-item": `<u-menu-item>Rename</u-menu-item>`,
 };
 

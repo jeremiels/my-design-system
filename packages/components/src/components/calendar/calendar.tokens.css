@@ -8,7 +8,7 @@
   --u-calendar-weekday-font-size: var(--u-font-size-sm);
   --u-calendar-day-size: var(--u-size-icon);
   --u-calendar-day-border-radius: var(--u-radius-md);
-  --u-calendar-day-background-color-hover: var(--u-color-secondary-background-hover);
+  --u-calendar-day-background-color-hover: var(--u-color-surface-raised);
   --u-calendar-selected-background-color: var(--u-color-action-background);
   --u-calendar-selected-text-color: var(--u-color-action-text);
   --u-calendar-today-border-color: var(--u-color-border-control);

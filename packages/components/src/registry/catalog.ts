@@ -29,6 +29,8 @@ import { Tabs } from "../components/tabs/tabs.js";
 import { Toaster } from "../components/toaster/toaster.js";
 import { Toolbar } from "../components/toolbar/toolbar.js";
 import { Tooltip } from "../components/tooltip/tooltip.js";
+import { TreeItem } from "../components/tree-item/tree-item.js";
+import { Tree } from "../components/tree/tree.js";
 import { TextField } from "../components/text-field/text-field.js";
 import { Textarea } from "../components/textarea/textarea.js";
 import type { ListboxSelectEvent } from "../events/listbox-select.js";
@@ -76,6 +78,8 @@ export const allComponents = [
   Toaster,
   Calendar,
   DatePicker,
+  TreeItem,
+  Tree,
 ] as const;
 
 /** A component of a catalog, as types: its element, and its own events by name. */
@@ -123,6 +127,8 @@ export interface Catalog {
   toaster: { element: Toaster; events: { "u-close": ToastCloseEvent } };
   toolbar: { element: Toolbar; events: {} };
   tooltip: { element: Tooltip; events: { "u-toggle": PopupToggleEvent } };
+  tree: { element: Tree; events: {} };
+  "tree-item": { element: TreeItem; events: {} };
   "text-field": { element: TextField; events: {} };
   textarea: { element: Textarea; events: {} };
 }

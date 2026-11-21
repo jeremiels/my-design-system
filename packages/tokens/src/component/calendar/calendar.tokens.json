@@ -43,7 +43,7 @@
     },
     "day-background-color-hover": {
       "$type": "color",
-      "$value": "{color.secondary.background-hover}",
+      "$value": "{color.surface.raised}",
       "$description": "Background color of a day or a button under the pointer."
     },
     "selected-background-color": {

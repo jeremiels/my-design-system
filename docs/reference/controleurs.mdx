@@ -325,6 +325,7 @@ Donne un tabindex mobile aux éléments d'un composant composite : Tab atteint u
 - Le contrôleur pose le `tabindex` des éléments après chaque rendu de l'hôte : 0 pour l'élément que Tab atteint, -1 pour les autres.
 - Rendez l'hôte de nouveau quand ses éléments changent, au `slotchange` de son slot.
 - Un déplacement boucle aux extrémités, saute les éléments désactivés et suit le sens du texte (`state/collection.ts`).
+- L'élément d'une touche est le plus proche de sa cible : les éléments peuvent s'imbriquer, comme dans un arbre.
 - Une touche avec Alt, Ctrl ou Meta reste à la page.
 
 ## DismissController
@@ -417,6 +418,15 @@ Montre un popup tant que le pointeur reste sur son hôte, ou que le focus du cla
 - Le pointeur va du déclencheur au popup sans le cacher : le popup descend de l'hôte.
 - Le focus du clavier (`:focus-visible`) montre tout de suite, pas un clic.
 - Le focus qui part est le rôle de `DismissController`.
+
+## OverflowController
+
+Dit si le contenu d'un conteneur qui défile dépasse son début ou sa fin, et le fait défiler. `Tabs` le crée, pour ses boutons de défilement.
+
+- Le constructeur reçoit l'hôte et une fonction qui donne le conteneur.
+- `start` et `end` disent si du contenu dépasse le début ou la fin, dans le sens du texte.
+- `scroll("start" | "end")` fait défiler le conteneur de la plus grande part de sa largeur.
+- Le contrôleur mesure après chaque rendu de l'hôte, à chaque changement de taille (`ResizeObserver`) et à chaque défilement. Il rend l'hôte de nouveau quand un bord change.
 
 ## AnnounceController
 
@@ -615,6 +625,13 @@ dialog[open]:where(:not([data-closing])) {
 - `isWithin()` et `clampDate()` tiennent une date entre `min` et `max`.
 - `monthWeeks(année, mois, premierJour)` donne les semaines d'un mois. Un jour d'un mois voisin vaut `undefined`.
 - `calendarKeyMove(touche, date, options)` donne la date d'une touche de la grille, dans le sens du texte.
+
+## Nœuds d'un arbre
+
+`packages/components/src/state/tree.ts` donne les nœuds d'un arbre. `Tree` lit ses éléments comme des nœuds `{ expanded, children }`.
+
+- `visibleNodes(racines)` donne les nœuds visibles, dans l'ordre : les racines, et les enfants des nœuds ouverts.
+- `parentOf(racines, nœud)` donne le parent d'un nœud, `undefined` pour une racine.
 
 ## File des toasts
 

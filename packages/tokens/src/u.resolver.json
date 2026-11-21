@@ -47,7 +47,8 @@
         { "$ref": "component/tooltip/tooltip.tokens.json" },
         { "$ref": "component/toaster/toaster.tokens.json" },
         { "$ref": "component/calendar/calendar.tokens.json" },
-        { "$ref": "component/date-picker/date-picker.tokens.json" }
+        { "$ref": "component/date-picker/date-picker.tokens.json" },
+        { "$ref": "component/tree/tree.tokens.json" }
       ]
     }
   },

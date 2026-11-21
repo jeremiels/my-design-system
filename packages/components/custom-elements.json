@@ -6659,7 +6659,7 @@
             {
               "description": "Background color of the trigger under the pointer.",
               "name": "--u-popup-trigger-background-color-hover",
-              "default": "var(--u-color-secondary-background-hover)"
+              "default": "var(--u-color-surface-raised)"
             },
             {
               "description": "Border width of the trigger.",
@@ -13571,7 +13571,7 @@
             {
               "description": "Background color of a day or a button under the pointer.",
               "name": "--u-calendar-day-background-color-hover",
-              "default": "var(--u-color-secondary-background-hover)"
+              "default": "var(--u-color-surface-raised)"
             },
             {
               "description": "Background color of the chosen day.",
@@ -21756,7 +21756,7 @@
             {
               "description": "Background color of the trigger under the pointer.",
               "name": "--u-popup-trigger-background-color-hover",
-              "default": "var(--u-color-secondary-background-hover)",
+              "default": "var(--u-color-surface-raised)",
               "inheritedFrom": {
                 "name": "PopupBase",
                 "module": "src/bases/popup/popup-base.ts"
@@ -24521,7 +24521,7 @@
             {
               "description": "Background color of a button under the pointer.",
               "name": "--u-pagination-hover-background-color",
-              "default": "var(--u-color-secondary-background-hover)"
+              "default": "var(--u-color-surface-raised)"
             },
             {
               "description": "Background color of the current page.",
@@ -24967,7 +24967,7 @@
             {
               "description": "Background color of the trigger under the pointer.",
               "name": "--u-popup-trigger-background-color-hover",
-              "default": "var(--u-color-secondary-background-hover)",
+              "default": "var(--u-color-surface-raised)",
               "inheritedFrom": {
                 "name": "PopupBase",
                 "module": "src/bases/popup/popup-base.ts"
@@ -32784,7 +32784,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "Tabs: a list of `tab` and their `tab-panel`, one panel shown at a time.\n`value` is the `value` of the selected tab, and of the panel it shows\n(ADR 0020).\n\nTab reaches the selected tab, then its panel. The arrow keys of the\norientation move to the next and previous enabled tabs and select them,\nlooping, along the text direction; Home and End select the first and last\ntabs. A click selects a tab. Each selection by the user fires `change`.\n\nThe tabs and the panels are children of the host: the tabs go in the\n`tab` slot by themselves. The component links each tab and its panel with\n`aria-controls` and `aria-labelledby`, and gives them an `id` if they have\nnone.",
+          "description": "Tabs: a list of `tab` and their `tab-panel`, one panel shown at a time.\n`value` is the `value` of the selected tab, and of the panel it shows\n(ADR 0020).\n\nTab reaches the selected tab, then its panel. The arrow keys of the\norientation move to the next and previous enabled tabs and select them,\nlooping, along the text direction; Home and End select the first and last\ntabs. A click selects a tab. Each selection by the user fires `change`.\n\nA list wider than its tabs scrolls. Buttons at its edges scroll it, for\nthe pointer: they stay out of the Tab order and of the accessibility tree,\nthe arrow keys bring each tab into view (`OverflowController`).\n\nThe tabs and the panels are children of the host: the tabs go in the\n`tab` slot by themselves. The component links each tab and its panel with\n`aria-controls` and `aria-labelledby`, and gives them an `id` if they have\nnone.",
           "name": "Tabs",
           "cssProperties": [
             {
@@ -32836,12 +32836,31 @@
               "description": "Space between the element and its focus ring.",
               "name": "--u-tabs-focus-ring-offset",
               "default": "var(--u-focus-ring-offset)"
+            },
+            {
+              "description": "Width of a scroll button, shown when the tabs go past an edge.",
+              "name": "--u-tabs-scroll-button-size",
+              "default": "var(--u-size-icon)"
+            },
+            {
+              "description": "Width and height of the chevron of a scroll button.",
+              "name": "--u-tabs-chevron-size",
+              "default": "var(--u-spacing-sm)"
+            },
+            {
+              "description": "Stroke of the chevron. Twice this width.",
+              "name": "--u-tabs-chevron-width",
+              "default": "var(--u-border-width)"
             }
           ],
           "cssParts": [
             {
               "description": "The list of tabs, `role=\"tablist\"`.",
               "name": "tablist"
+            },
+            {
+              "description": "A button that scrolls the list, shown when tabs go past its edge.",
+              "name": "scroll-button"
             }
           ],
           "slots": [
@@ -32916,6 +32935,22 @@
             },
             {
               "kind": "field",
+              "name": "#overflow",
+              "privacy": "private",
+              "default": "new OverflowController(this, () => this.orientation === \"vertical\" ? undefined : this.renderRoot?.querySelector<HTMLElement>('[part~=\"tablist\"]'), )"
+            },
+            {
+              "kind": "field",
+              "name": "#rtl",
+              "privacy": "private",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether the text runs right to left: the chevrons point the other way."
+            },
+            {
+              "kind": "field",
               "name": "tabs",
               "type": {
                 "text": "readonly Tab[]"
@@ -32962,6 +32997,19 @@
                 }
               ],
               "description": "Selects `tab` at the user's request: `change`, as a native radio."
+            },
+            {
+              "kind": "method",
+              "name": "#renderScroll",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "edge",
+                  "type": {
+                    "text": "\"start\" | \"end\""
+                  }
+                }
+              ]
             },
             {
               "kind": "method",
@@ -36469,7 +36517,7 @@
             {
               "description": "Background color of the trigger under the pointer.",
               "name": "--u-popup-trigger-background-color-hover",
-              "default": "var(--u-color-secondary-background-hover)",
+              "default": "var(--u-color-surface-raised)",
               "inheritedFrom": {
                 "name": "PopupBase",
                 "module": "src/bases/popup/popup-base.ts"
@@ -37087,6 +37135,697 @@
           "declaration": {
             "name": "Tooltip",
             "module": "src/components/tooltip/tooltip.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/components/tree-item/tree-item.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "An item of a `tree`: a row, and its own `tree-item` children, shown while\nit is `expanded`. Its tree gives it the focus, its level and its choice\n(ADR 0024).\n\nThe host has `role=\"treeitem\"`, `aria-level`, `aria-selected`, and\n`aria-expanded` when it has children. Its `label` is its accessible name:\nits content also holds its children.",
+          "name": "TreeItem",
+          "cssParts": [
+            {
+              "description": "The row: the chevron and the label.",
+              "name": "row"
+            },
+            {
+              "description": "The chevron of an item with children: a click opens or closes it.",
+              "name": "toggle"
+            },
+            {
+              "description": "The wrapper of the children, `role=\"group\"`.",
+              "name": "group"
+            }
+          ],
+          "slots": [
+            {
+              "description": "The `tree-item` children, shown while `expanded`.",
+              "name": ""
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "componentName",
+              "type": {
+                "text": "string"
+              },
+              "static": true,
+              "default": "\"tree-item\"",
+              "description": "Name of the component in the catalog, without any tag prefix: the\nregistered tag is `<prefix>-<componentName>`. Every concrete component\nsets it; abstract bases (e.g. `ButtonBase`) don't.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "value",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "The `value` of its tree while it is chosen.",
+              "attribute": "value"
+            },
+            {
+              "kind": "field",
+              "name": "label",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "The label of the row, and the accessible name of the item. Required.",
+              "attribute": "label"
+            },
+            {
+              "kind": "field",
+              "name": "expanded",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether its children show. Reflected.",
+              "attribute": "expanded",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "selected",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether the item is chosen. Set by its tree, from the tree's `value`. Reflected.",
+              "attribute": "selected",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "items",
+              "type": {
+                "text": "readonly TreeItem[]"
+              },
+              "description": "Its `tree-item` children.",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "disabled",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Disables interaction; also sets `aria-disabled=\"true\"` on the host.",
+              "attribute": "disabled",
+              "reflects": true,
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "formDisabled",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "private",
+              "default": "false",
+              "description": "The browser's disabled state of a form-associated element.",
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "styles",
+              "type": {
+                "text": "array"
+              },
+              "static": true,
+              "default": "[(Base as unknown as typeof LitElement).styles ?? [], disabledStyles]",
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "isDisabled",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "protected",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "dependencies",
+              "type": {
+                "text": "readonly (typeof DSBaseElement)[]"
+              },
+              "static": true,
+              "default": "[]",
+              "description": "Components this one renders (ADR 0001, D2): `defineComponents()`\nregisters them too, and `tagFor()` resolves their tag. Never hard-code\nanother component's tag in a template, nor create one with\n`document.createElement` — a brand's override would be bypassed.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "forDesignSystem",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "T"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "this",
+                  "type": {
+                    "text": "T"
+                  }
+                },
+                {
+                  "name": "_settings",
+                  "type": {
+                    "text": "DesignSystemSettings"
+                  }
+                }
+              ],
+              "description": "The class a design system registers for this component, given its\nsettings: this class by default. A component that depends on a setting\nreturns a subclass that applies it, and leaves this class unchanged:\n`Icon` returns a subclass with the design system's `icons` over its own.\n`designSystem()` calls it once per class, after choosing the brand's\noverride, so the subclass extends the override.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "language",
+              "type": {
+                "text": "string | undefined"
+              },
+              "privacy": "protected",
+              "description": "The language of the component, for `Intl`: the `lang` of its closest\nancestor, through the shadow roots, or the document's. `undefined` on a\nserver, and without any: `Intl` takes its default.",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "tagFor",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "StaticValue"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "component",
+                  "type": {
+                    "text": "typeof DSBaseElement"
+                  }
+                }
+              ],
+              "description": "The tag of a component declared in `static dependencies`, for templates\nfrom `lit/static-html.js`: `` html`<${this.tagFor(Button)}>…</${…}>` ``.\nIt follows the registration of this element: `u-modal` renders\n`u-button`, `acme-modal` renders `acme-button` — the brand's override\nof `Button` if it has one.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            }
+          ],
+          "attributes": [
+            {
+              "name": "value",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "The `value` of its tree while it is chosen.",
+              "fieldName": "value"
+            },
+            {
+              "name": "label",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "The label of the row, and the accessible name of the item. Required.",
+              "fieldName": "label"
+            },
+            {
+              "name": "expanded",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether its children show. Reflected.",
+              "fieldName": "expanded"
+            },
+            {
+              "name": "selected",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether the item is chosen. Set by its tree, from the tree's `value`. Reflected.",
+              "fieldName": "selected"
+            },
+            {
+              "name": "disabled",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Disables interaction; also sets `aria-disabled=\"true\"` on the host.",
+              "fieldName": "disabled",
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            }
+          ],
+          "mixins": [
+            {
+              "name": "withDisabled",
+              "module": "/src/mixins/withDisabled.js"
+            }
+          ],
+          "superclass": {
+            "name": "DSBaseElement",
+            "module": "/src/bases/base-element.js"
+          },
+          "tagName": "u-tree-item",
+          "customElement": true,
+          "summary": "An item of a tree, with its children."
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "TreeItem",
+          "declaration": {
+            "name": "TreeItem",
+            "module": "src/components/tree-item/tree-item.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/components/tree/tree.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "A tree: items in levels, folders and files for instance, each one with\nits `tree-item` children. The user opens and closes the items, and\nchooses one: `value` is its `value` (ADR 0024).\n\nIts keys follow the ARIA tree view: one Tab stop; ArrowDown and ArrowUp\nmove between the items that show; ArrowRight opens a closed item, or\nmoves to its first child; ArrowLeft closes an open item, or moves to its\nparent; Home and End reach the first and last items; typing the start of\na label moves to it. Enter, Space and a click on a row choose the item,\nand fire `change`. A click on a chevron opens or closes its item.",
+          "name": "Tree",
+          "cssProperties": [
+            {
+              "description": "Font family.",
+              "name": "--u-tree-font-family",
+              "default": "var(--u-font-family-body)"
+            },
+            {
+              "description": "Font size.",
+              "name": "--u-tree-font-size",
+              "default": "var(--u-font-size-md)"
+            },
+            {
+              "description": "Text color.",
+              "name": "--u-tree-text-color",
+              "default": "var(--u-color-text-default)"
+            },
+            {
+              "description": "Indent of each level.",
+              "name": "--u-tree-indent",
+              "default": "var(--u-spacing-md)"
+            },
+            {
+              "description": "Space between the chevron and the label.",
+              "name": "--u-tree-gap",
+              "default": "var(--u-spacing-xs)"
+            },
+            {
+              "description": "Horizontal padding of a row.",
+              "name": "--u-tree-row-padding-inline",
+              "default": "var(--u-spacing-sm)"
+            },
+            {
+              "description": "Vertical padding of a row.",
+              "name": "--u-tree-row-padding-block",
+              "default": "var(--u-spacing-xs)"
+            },
+            {
+              "description": "Corner radius of a row.",
+              "name": "--u-tree-row-border-radius",
+              "default": "var(--u-radius-sm)"
+            },
+            {
+              "description": "Background color of a row under the pointer.",
+              "name": "--u-tree-row-background-color-hover",
+              "default": "var(--u-color-surface-raised)"
+            },
+            {
+              "description": "Background color of the chosen row.",
+              "name": "--u-tree-selected-background-color",
+              "default": "var(--u-color-action-background)"
+            },
+            {
+              "description": "Text color of the chosen row.",
+              "name": "--u-tree-selected-text-color",
+              "default": "var(--u-color-action-text)"
+            },
+            {
+              "description": "Width and height of the chevron of an item with children.",
+              "name": "--u-tree-chevron-size",
+              "default": "var(--u-spacing-sm)"
+            },
+            {
+              "description": "Stroke of the chevron. Twice this width.",
+              "name": "--u-tree-chevron-width",
+              "default": "var(--u-border-width)"
+            },
+            {
+              "description": "Color of the focus ring.",
+              "name": "--u-tree-focus-ring-color",
+              "default": "var(--u-color-focus-ring)"
+            },
+            {
+              "description": "Width of the focus ring.",
+              "name": "--u-tree-focus-ring-width",
+              "default": "var(--u-focus-ring-width)"
+            },
+            {
+              "description": "Space between a row and its focus ring, inside it.",
+              "name": "--u-tree-focus-ring-offset",
+              "default": "var(--u-focus-ring-offset)"
+            }
+          ],
+          "cssParts": [
+            {
+              "description": "The element of the `tree` role.",
+              "name": "tree"
+            }
+          ],
+          "slots": [
+            {
+              "description": "The `tree-item` elements of the same registration, the roots.",
+              "name": ""
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "componentName",
+              "type": {
+                "text": "string"
+              },
+              "static": true,
+              "default": "\"tree\"",
+              "description": "Name of the component in the catalog, without any tag prefix: the\nregistered tag is `<prefix>-<componentName>`. Every concrete component\nsets it; abstract bases (e.g. `ButtonBase`) don't.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "dependencies",
+              "type": {
+                "text": "readonly (typeof DSBaseElement)[]"
+              },
+              "static": true,
+              "default": "[TreeItem]",
+              "description": "Recognizes its items of its own registration (ADR 0001, D2).",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "value",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "The `value` of the chosen item, or `\"\"`.",
+              "attribute": "value"
+            },
+            {
+              "kind": "field",
+              "name": "label",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "The accessible name of the tree: what its items are. Required.",
+              "attribute": "label"
+            },
+            {
+              "kind": "field",
+              "name": "#active",
+              "privacy": "private",
+              "type": {
+                "text": "TreeItem | undefined"
+              },
+              "description": "The item the keys move from."
+            },
+            {
+              "kind": "field",
+              "name": "#typeahead",
+              "privacy": "private",
+              "default": "emptyTypeahead"
+            },
+            {
+              "kind": "field",
+              "name": "#observer",
+              "privacy": "private",
+              "type": {
+                "text": "MutationObserver | undefined"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "items",
+              "type": {
+                "text": "readonly TreeItem[]"
+              },
+              "privacy": "protected",
+              "description": "The roots. None on a server: the element has no children there.",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "visibleItems",
+              "type": {
+                "text": "readonly TreeItem[]"
+              },
+              "privacy": "protected",
+              "description": "The items that show, in reading order.",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "#chosen",
+              "privacy": "private",
+              "type": {
+                "text": "TreeItem | undefined"
+              },
+              "readonly": true
+            },
+            {
+              "kind": "method",
+              "name": "#itemOf",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "TreeItem | undefined"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "event",
+                  "type": {
+                    "text": "Event"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "#choose",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "item",
+                  "type": {
+                    "text": "TreeItem"
+                  }
+                }
+              ],
+              "description": "Chooses `item` at the user's request: `value`, then `change`."
+            },
+            {
+              "kind": "method",
+              "name": "#focus",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "item",
+                  "type": {
+                    "text": "TreeItem | undefined"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "field",
+              "name": "#onKeydown",
+              "privacy": "private"
+            },
+            {
+              "kind": "field",
+              "name": "#onClick",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "forDesignSystem",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "T"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "this",
+                  "type": {
+                    "text": "T"
+                  }
+                },
+                {
+                  "name": "_settings",
+                  "type": {
+                    "text": "DesignSystemSettings"
+                  }
+                }
+              ],
+              "description": "The class a design system registers for this component, given its\nsettings: this class by default. A component that depends on a setting\nreturns a subclass that applies it, and leaves this class unchanged:\n`Icon` returns a subclass with the design system's `icons` over its own.\n`designSystem()` calls it once per class, after choosing the brand's\noverride, so the subclass extends the override.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "language",
+              "type": {
+                "text": "string | undefined"
+              },
+              "privacy": "protected",
+              "description": "The language of the component, for `Intl`: the `lang` of its closest\nancestor, through the shadow roots, or the document's. `undefined` on a\nserver, and without any: `Intl` takes its default.",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "tagFor",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "StaticValue"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "component",
+                  "type": {
+                    "text": "typeof DSBaseElement"
+                  }
+                }
+              ],
+              "description": "The tag of a component declared in `static dependencies`, for templates\nfrom `lit/static-html.js`: `` html`<${this.tagFor(Button)}>…</${…}>` ``.\nIt follows the registration of this element: `u-modal` renders\n`u-button`, `acme-modal` renders `acme-button` — the brand's override\nof `Button` if it has one.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            }
+          ],
+          "events": [
+            {
+              "name": "change",
+              "type": {
+                "text": "Event"
+              },
+              "description": "When the user chooses another item: `value` holds its value."
+            }
+          ],
+          "attributes": [
+            {
+              "name": "value",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "The `value` of the chosen item, or `\"\"`.",
+              "fieldName": "value"
+            },
+            {
+              "name": "label",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "The accessible name of the tree: what its items are. Required.",
+              "fieldName": "label"
+            }
+          ],
+          "superclass": {
+            "name": "DSBaseElement",
+            "module": "/src/bases/base-element.js"
+          },
+          "tagName": "u-tree",
+          "customElement": true,
+          "summary": "Items in levels, to open, close and choose."
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "Tree",
+          "declaration": {
+            "name": "Tree",
+            "module": "src/components/tree/tree.ts"
           }
         }
       ]
@@ -37898,6 +38637,124 @@
     },
     {
       "kind": "javascript-module",
+      "path": "src/controllers/overflow.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "Reactive controller: tells whether the content of a scrolling container\ngoes past its start or its end, along the inline axis, and scrolls it.\n`Tabs` creates one, to show its scroll buttons.\n\nIt measures the container after each render of the host, when its size\nchanges (`ResizeObserver`) and when it scrolls, and renders the host\nagain when an edge changes. It works in either text direction.",
+          "name": "OverflowController",
+          "members": [
+            {
+              "kind": "field",
+              "name": "#host",
+              "privacy": "private",
+              "type": {
+                "text": "ReactiveControllerHost"
+              },
+              "readonly": true,
+              "default": "host"
+            },
+            {
+              "kind": "field",
+              "name": "#container",
+              "privacy": "private",
+              "type": {
+                "text": "() => HTMLElement | null | undefined"
+              },
+              "readonly": true,
+              "default": "container"
+            },
+            {
+              "kind": "field",
+              "name": "#observed",
+              "privacy": "private",
+              "type": {
+                "text": "HTMLElement | undefined"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "#resize",
+              "privacy": "private",
+              "type": {
+                "text": "ResizeObserver | undefined"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "start",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Some content goes past the start."
+            },
+            {
+              "kind": "field",
+              "name": "end",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Some content goes past the end."
+            },
+            {
+              "kind": "method",
+              "name": "hostUpdated",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "hostDisconnected",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "scroll",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "edge",
+                  "type": {
+                    "text": "OverflowEdge"
+                  }
+                }
+              ],
+              "description": "Scrolls the container towards `edge` by most of its width."
+            },
+            {
+              "kind": "field",
+              "name": "#measure",
+              "privacy": "private"
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "OverflowController",
+          "declaration": {
+            "name": "OverflowController",
+            "module": "src/controllers/overflow.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/controllers/roving-focus.ts",
       "declarations": [
         {
@@ -38540,6 +39397,22 @@
           "name": "*",
           "declaration": {
             "name": "*",
+            "module": "src/components/tree-item/tree-item.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "*",
+          "declaration": {
+            "name": "*",
+            "module": "src/components/tree/tree.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "*",
+          "declaration": {
+            "name": "*",
             "module": "src/mixins/withDisabled.js"
           }
         },
@@ -38685,6 +39558,14 @@
           "declaration": {
             "name": "*",
             "module": "src/state/calendar.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "*",
+          "declaration": {
+            "name": "*",
+            "module": "src/state/tree.js"
           }
         },
         {
@@ -40505,6 +41386,72 @@
           "declaration": {
             "name": "removeToast",
             "module": "src/state/toast.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/state/tree.ts",
+      "declarations": [
+        {
+          "kind": "function",
+          "name": "visibleNodes",
+          "return": {
+            "type": {
+              "text": "T[]"
+            }
+          },
+          "parameters": [
+            {
+              "name": "roots",
+              "type": {
+                "text": "readonly T[]"
+              }
+            }
+          ],
+          "description": "The nodes that show, in reading order: the roots, and the children of the expanded ones."
+        },
+        {
+          "kind": "function",
+          "name": "parentOf",
+          "return": {
+            "type": {
+              "text": "T | undefined"
+            }
+          },
+          "parameters": [
+            {
+              "name": "roots",
+              "type": {
+                "text": "readonly T[]"
+              }
+            },
+            {
+              "name": "node",
+              "type": {
+                "text": "T"
+              }
+            }
+          ],
+          "description": "The parent of `node`, `undefined` for a root or a node outside the tree."
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "visibleNodes",
+          "declaration": {
+            "name": "visibleNodes",
+            "module": "src/state/tree.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "parentOf",
+          "declaration": {
+            "name": "parentOf",
+            "module": "src/state/tree.ts"
           }
         }
       ]

@@ -80,6 +80,8 @@ export default defineConfig({
         toaster: resolve(import.meta.dirname, "src/components/toaster/toaster.ts"),
         calendar: resolve(import.meta.dirname, "src/components/calendar/calendar.ts"),
         "date-picker": resolve(import.meta.dirname, "src/components/date-picker/date-picker.ts"),
+        tree: resolve(import.meta.dirname, "src/components/tree/tree.ts"),
+        "tree-item": resolve(import.meta.dirname, "src/components/tree-item/tree-item.ts"),
         "menu-item": resolve(import.meta.dirname, "src/components/menu-item/menu-item.ts"),
       },
       formats: ["es"],
