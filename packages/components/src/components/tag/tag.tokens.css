@@ -13,6 +13,4 @@
   --u-tag-remove-size: var(--u-size-indicator-sm);
   --u-tag-remove-background-color-hover: var(--u-color-border-default);
   --u-tag-group-gap: var(--u-spacing-xs);
-  --u-tag-focus-ring-color: var(--u-color-focus-ring);
-  --u-tag-focus-ring-width: var(--u-focus-ring-width);
 }

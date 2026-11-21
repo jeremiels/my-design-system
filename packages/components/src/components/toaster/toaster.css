@@ -49,19 +49,9 @@
   min-inline-size: 0;
 }
 
+/* The close button: a `button` of the toast's variant, on its color. */
 .close {
-  display: inline-grid;
-  place-items: center;
-  padding: 0;
-  color: inherit;
-  background: none;
-  border: 0;
-  cursor: pointer;
-}
-
-.close:focus-visible {
-  outline: var(--u-toaster-focus-ring-width) solid var(--u-toaster-focus-ring-color);
-  outline-offset: var(--u-toaster-focus-ring-offset);
+  flex: none;
 }
 
 .toast--information {

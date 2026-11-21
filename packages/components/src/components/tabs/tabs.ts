@@ -1,10 +1,12 @@
-import { html, nothing, type PropertyValues } from "lit";
+import { nothing, type PropertyValues } from "lit";
 import { property } from "lit/decorators.js";
 import { ifDefined } from "lit/directives/if-defined.js";
+import { html } from "lit/static-html.js";
 import { OverflowController } from "../../controllers/overflow.js";
 import { RovingFocusController } from "../../controllers/roving-focus.js";
 import type { Orientation } from "../../types/common.js";
 import { DSBaseElement } from "../../bases/base-element.js";
+import { Button } from "../button/button.js";
 import { TabPanel } from "../tab-panel/tab-panel.js";
 import { Tab } from "../tab/tab.js";
 import tabsStyles from "./tabs.css" with { type: "css" };
@@ -37,7 +39,7 @@ let nextId = 0;
  * @slot tab - The `tab` elements of the same registration. They go there by themselves.
  * @slot - The `tab-panel` elements of the same registration.
  * @csspart tablist - The list of tabs, `role="tablist"`.
- * @csspart scroll-button - A button that scrolls the list, shown when tabs go past its edge.
+ * @csspart scroll-button - A button that scrolls the list, shown when tabs go past its edge: the `button` component of the same registration, `plain` and `neutral`, for the pointer only.
  * @fires change - When the user selects another tab: a click, the arrow keys, Home or End.
  * @tokens tabs - Its tokens (`@cssprop`), from `@unicorne/tokens` (`src/component/tabs/`): `npm run analyze` documents them.
  */
@@ -45,7 +47,7 @@ export class Tabs extends DSBaseElement {
   static override componentName = "tabs";
 
   /** Recognizes its tabs and panels of its own registration (ADR 0001, D2). */
-  static override dependencies: readonly (typeof DSBaseElement)[] = [Tab, TabPanel];
+  static override dependencies: readonly (typeof DSBaseElement)[] = [Tab, TabPanel, Button];
 
   static styles = [super.styles ?? [], tabsTokens, tabsStyles];
 
@@ -150,17 +152,19 @@ export class Tabs extends DSBaseElement {
 
   #renderScroll(edge: "start" | "end") {
     const shown = this.orientation !== "vertical" && this.#overflow[edge];
+    const button = this.tagFor(Button);
     return shown
-      ? html`<button
+      ? html`<${button}
           part="scroll-button"
           class="scroll scroll--${edge}${this.#rtl ? " scroll--rtl" : ""}"
-          type="button"
+          variant="neutral"
+          appearance="plain"
           tabindex="-1"
           aria-hidden="true"
           @click=${() => this.#overflow.scroll(edge)}
         >
           <span class="chevron"></span>
-        </button>`
+        </${button}>`
       : nothing;
   }
 

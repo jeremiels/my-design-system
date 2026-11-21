@@ -110,7 +110,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "Shared base of `button` and `button-link`: size, variant, disabled state,\nclick handling and styles. Abstract: extend `Button` or `ButtonLink`.\nFocus is delegated to the native control, so `focus()` and `autofocus`\nwork on the host.",
+          "description": "Shared base of `button` and `button-link`: size, variant, appearance,\ndisabled state, click handling and styles. Abstract: extend `Button` or\n`ButtonLink`. Focus is delegated to the native control, so `focus()` and\n`autofocus` work on the host, and a negative `tabindex` on the host takes\nit out of the tab order.\n\nThe button is the building block of the other components: a composite\nrenders it for every control that looks like a button (`tagFor(Button)`),\nso a brand's button changes them all (ADR 0031). They set its tokens to\nfit it: an outer rule beats its `:host` tokens.",
           "name": "ButtonBase",
           "cssProperties": [
             {
@@ -132,6 +132,26 @@
               "description": "Text color.",
               "name": "--u-button-text-color",
               "default": "var(--u-color-action-text)"
+            },
+            {
+              "description": "Color of the variant on a surface: the text of the `outlined` and `plain` appearances (variants change the default).",
+              "name": "--u-button-foreground-color",
+              "default": "var(--u-color-action-foreground)"
+            },
+            {
+              "description": "Border color of the `outlined` appearance (variants change the default).",
+              "name": "--u-button-outlined-border-color",
+              "default": "var(--u-color-action-foreground)"
+            },
+            {
+              "description": "Border color (appearances change the default). The border keeps every appearance at the same size.",
+              "name": "--u-button-border-color",
+              "default": "var(--u-color-transparent)"
+            },
+            {
+              "description": "Border width.",
+              "name": "--u-button-border-width",
+              "default": "var(--u-border-width)"
             },
             {
               "description": "Corner radius.",
@@ -220,9 +240,39 @@
                 "text": "ButtonVariant"
               },
               "default": "\"primary\"",
-              "description": "Button variant: `primary`, `secondary` or a semantic variant.",
+              "description": "Button variant: `primary`, `secondary`, `neutral` or a semantic variant. It sets the colors.",
               "attribute": "variant",
               "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "appearance",
+              "type": {
+                "text": "ButtonAppearance"
+              },
+              "default": "\"filled\"",
+              "description": "How the variant paints the button: `filled`, `outlined` (a border, no fill) or `plain` (its text only).",
+              "attribute": "appearance",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "label",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "The accessible name, for a button whose content is an icon or a shape:\nthe button is then square. Its content names it otherwise.",
+              "attribute": "label"
+            },
+            {
+              "kind": "field",
+              "name": "current",
+              "type": {
+                "text": "ButtonCurrent | undefined"
+              },
+              "description": "The item of a set the button stands for, `page` in a pagination: `aria-current`.",
+              "attribute": "current"
             },
             {
               "kind": "field",
@@ -246,6 +296,26 @@
                 }
               ],
               "description": "Handles clicks on the inner control. While disabled, cancels the click\nand keeps it from reaching the host (a link without `href` still\ndispatches one). Subclasses add their behavior after calling it."
+            },
+            {
+              "kind": "field",
+              "name": "controlTabIndex",
+              "type": {
+                "text": "string | undefined"
+              },
+              "privacy": "protected",
+              "description": "The `tabindex` of the native control: `-1` when the host's is negative.",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "controlClasses",
+              "type": {
+                "text": "string"
+              },
+              "privacy": "protected",
+              "description": "The classes of the native control: `button`, and `button--square` with `label`.",
+              "readonly": true
             },
             {
               "kind": "field",
@@ -419,8 +489,34 @@
                 "text": "ButtonVariant"
               },
               "default": "\"primary\"",
-              "description": "Button variant: `primary`, `secondary` or a semantic variant.",
+              "description": "Button variant: `primary`, `secondary`, `neutral` or a semantic variant. It sets the colors.",
               "fieldName": "variant"
+            },
+            {
+              "name": "appearance",
+              "type": {
+                "text": "ButtonAppearance"
+              },
+              "default": "\"filled\"",
+              "description": "How the variant paints the button: `filled`, `outlined` (a border, no fill) or `plain` (its text only).",
+              "fieldName": "appearance"
+            },
+            {
+              "name": "label",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "The accessible name, for a button whose content is an icon or a shape:\nthe button is then square. Its content names it otherwise.",
+              "fieldName": "label"
+            },
+            {
+              "name": "current",
+              "type": {
+                "text": "ButtonCurrent | undefined"
+              },
+              "description": "The item of a set the button stands for, `page` in a pagination: `aria-current`.",
+              "fieldName": "current"
             },
             {
               "name": "disabled",
@@ -3531,6 +3627,11 @@
               "default": "var(--u-font-size-sm)"
             },
             {
+              "description": "Space between the spinner of the status line and its text, while the options load.",
+              "name": "--u-listbox-status-gap",
+              "default": "var(--u-spacing-xs)"
+            },
+            {
               "description": "Space between the control and its popup.",
               "name": "--u-combobox-popup-offset",
               "default": "var(--u-spacing-2xs)",
@@ -3770,7 +3871,7 @@
               "name": "option"
             },
             {
-              "description": "The line at the end of the list: `loadingLabel` during a slow request, or `resultsMessage` when the list doesn't show every option. Hidden from assistive technologies, which hear the live region.",
+              "description": "The line at the end of the list: a `spinner` and `loadingLabel` during a slow request, or `resultsMessage` when the list doesn't show every option. Hidden from assistive technologies, which hear the live region.",
               "name": "status"
             },
             {
@@ -3821,6 +3922,20 @@
             }
           ],
           "members": [
+            {
+              "kind": "field",
+              "name": "dependencies",
+              "type": {
+                "text": "readonly (typeof DSBaseElement)[]"
+              },
+              "static": true,
+              "default": "[...super.dependencies, Spinner]",
+              "description": "Renders the spinner of its status line with the `spinner` of its own registration.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
             {
               "kind": "field",
               "name": "options",
@@ -4004,9 +4119,9 @@
               "name": "#status",
               "privacy": "private",
               "type": {
-                "text": "string"
+                "text": "unknown"
               },
-              "description": "What the status line shows: `loadingLabel` during a slow request, or else the count of a capped list.",
+              "description": "What the status line shows: a spinner and `loadingLabel` during a slow request, or else the count of a capped list.",
               "readonly": true
             },
             {
@@ -4863,20 +4978,6 @@
               "inheritedFrom": {
                 "name": "withDisabled",
                 "module": "src/mixins/withDisabled.ts"
-              }
-            },
-            {
-              "kind": "field",
-              "name": "dependencies",
-              "type": {
-                "text": "readonly (typeof DSBaseElement)[]"
-              },
-              "static": true,
-              "default": "[Icon]",
-              "description": "Renders the icon of its error message with the `icon` of its own registration (ADR 0001, D2).",
-              "inheritedFrom": {
-                "name": "DSBaseElement",
-                "module": "src/bases/base-element.ts"
               }
             },
             {
@@ -6639,7 +6740,7 @@
               "name": "close-button"
             },
             {
-              "description": "The icon of the close button: the `icon` component of the same registration, named by `close-label`.",
+              "description": "The icon of the close button: the `icon` component of the same registration. `close-label` names the button.",
               "name": "close-icon"
             }
           ],
@@ -8892,7 +8993,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "Shared base of the popups anchored to a trigger: `menu`. Its popup is a\n`popover=\"manual\"` of its shadow root, in the top layer, placed by an\n`AnchoredPopoverController` below its anchor, with an animated entry and\nexit. Abstract: extend `Menu`, or write a popup with `popup` and `anchor`\n(ADR 0021).\n\n`open` opens and closes it, as do `show()`, `hide()` and `toggle()`, and\nthe commands of the same name from an invoker button: `--show`, `--hide`\nand `--toggle`. Escape, a press outside the component and the focus\nleaving it close it (`DismissController`). Each change fires `u-toggle`,\nwith its `reason`, but on the first render.\n\nThe sheet of the base styles the trigger (`class=\"trigger\"`, with a\n`class=\"chevron\"`) and the popup's transitions (`class=\"popup\"`).",
+          "description": "Shared base of the popups anchored to a trigger: `menu`. Its popup is a\n`popover=\"manual\"` of its shadow root, in the top layer, placed by an\n`AnchoredPopoverController` below its anchor, with an animated entry and\nexit. Abstract: extend `Menu`, or write a popup with `popup` and `anchor`\n(ADR 0021).\n\n`open` opens and closes it, as do `show()`, `hide()` and `toggle()`, and\nthe commands of the same name from an invoker button: `--show`, `--hide`\nand `--toggle`. Escape, a press outside the component and the focus\nleaving it close it (`DismissController`). Each change fires `u-toggle`,\nwith its `reason`, but on the first render.\n\nThe trigger is a `button` (ADR 0031): declare `Button` in the subclass's\n`dependencies`. The sheet of the base styles its `class=\"chevron\"` and the\npopup's transitions (`class=\"popup\"`).",
           "name": "PopupBase",
           "cssProperties": [
             {
@@ -8906,19 +9007,9 @@
               "default": "var(--u-font-size-md)"
             },
             {
-              "description": "Text color of the trigger.",
+              "description": "Text color of the popup.",
               "name": "--u-popup-text-color",
               "default": "var(--u-color-text-default)"
-            },
-            {
-              "description": "Horizontal padding of the trigger.",
-              "name": "--u-popup-trigger-padding-inline",
-              "default": "var(--u-spacing-md)"
-            },
-            {
-              "description": "Vertical padding of the trigger.",
-              "name": "--u-popup-trigger-padding-block",
-              "default": "var(--u-spacing-sm)"
             },
             {
               "description": "Space between the label of the trigger and its chevron.",
@@ -8926,32 +9017,12 @@
               "default": "var(--u-spacing-sm)"
             },
             {
-              "description": "Background color of the trigger.",
-              "name": "--u-popup-trigger-background-color",
-              "default": "var(--u-color-surface-default)"
-            },
-            {
-              "description": "Background color of the trigger under the pointer.",
-              "name": "--u-popup-trigger-background-color-hover",
-              "default": "var(--u-color-surface-raised)"
-            },
-            {
-              "description": "Border width of the trigger.",
-              "name": "--u-popup-trigger-border-width",
+              "description": "Stroke width of the chevron, twice this width.",
+              "name": "--u-popup-chevron-width",
               "default": "var(--u-border-width)"
             },
             {
-              "description": "Border color of the trigger.",
-              "name": "--u-popup-trigger-border-color",
-              "default": "var(--u-color-border-control)"
-            },
-            {
-              "description": "Corner radius of the trigger.",
-              "name": "--u-popup-trigger-border-radius",
-              "default": "var(--u-radius-md)"
-            },
-            {
-              "description": "Width and height of the chevron. Its stroke is twice the border's width.",
+              "description": "Width and height of the chevron.",
               "name": "--u-popup-chevron-size",
               "default": "var(--u-spacing-sm)"
             },
@@ -8969,21 +9040,6 @@
               "description": "Entry and exit transition easing of the popup.",
               "name": "--u-popup-transition-timing-function",
               "default": "var(--u-motion-easing-standard)"
-            },
-            {
-              "description": "Color of the focus ring.",
-              "name": "--u-popup-focus-ring-color",
-              "default": "var(--u-color-focus-ring)"
-            },
-            {
-              "description": "Width of the focus ring.",
-              "name": "--u-popup-focus-ring-width",
-              "default": "var(--u-focus-ring-width)"
-            },
-            {
-              "description": "Space between the trigger and its focus ring.",
-              "name": "--u-popup-focus-ring-offset",
-              "default": "var(--u-focus-ring-offset)"
             }
           ],
           "members": [
@@ -12374,6 +12430,20 @@
             },
             {
               "kind": "field",
+              "name": "dependencies",
+              "type": {
+                "text": "readonly (typeof DSBaseElement)[]"
+              },
+              "static": true,
+              "default": "[...super.dependencies, Spinner]",
+              "description": "Renders the spinner of its status line with the `spinner` of its own registration.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "field",
               "name": "options",
               "type": {
                 "text": "readonly ListboxOption[] | undefined"
@@ -12635,9 +12705,9 @@
               "name": "#status",
               "privacy": "private",
               "type": {
-                "text": "string"
+                "text": "unknown"
               },
-              "description": "What the status line shows: `loadingLabel` during a slow request, or else the count of a capped list.",
+              "description": "What the status line shows: a spinner and `loadingLabel` during a slow request, or else the count of a capped list.",
               "readonly": true,
               "inheritedFrom": {
                 "name": "EditableComboboxBase",
@@ -13530,20 +13600,6 @@
             },
             {
               "kind": "field",
-              "name": "dependencies",
-              "type": {
-                "text": "readonly (typeof DSBaseElement)[]"
-              },
-              "static": true,
-              "default": "[Icon]",
-              "description": "Renders the icon of its error message with the `icon` of its own registration (ADR 0001, D2).",
-              "inheritedFrom": {
-                "name": "DSBaseElement",
-                "module": "src/bases/base-element.ts"
-              }
-            },
-            {
-              "kind": "field",
               "name": "shadowRootOptions",
               "type": {
                 "text": "ShadowRootInit"
@@ -13994,7 +14050,7 @@
               }
             },
             {
-              "description": "The line at the end of the list: `loadingLabel` during a slow request, or `resultsMessage` when the list doesn't show every option. Hidden from assistive technologies, which hear the live region.",
+              "description": "The line at the end of the list: a `spinner` and `loadingLabel` during a slow request, or `resultsMessage` when the list doesn't show every option. Hidden from assistive technologies, which hear the live region.",
               "name": "status",
               "inheritedFrom": {
                 "name": "EditableComboboxBase",
@@ -14200,6 +14256,15 @@
               "description": "Font size of the status line, at the end of the list: “Loading…”, or the number of options it doesn't show.",
               "name": "--u-listbox-status-font-size",
               "default": "var(--u-font-size-sm)",
+              "inheritedFrom": {
+                "name": "EditableComboboxBase",
+                "module": "src/bases/editable-combobox/editable-combobox-base.ts"
+              }
+            },
+            {
+              "description": "Space between the spinner of the status line and its text, while the options load.",
+              "name": "--u-listbox-status-gap",
+              "default": "var(--u-spacing-xs)",
               "inheritedFrom": {
                 "name": "EditableComboboxBase",
                 "module": "src/bases/editable-combobox/editable-combobox-base.ts"
@@ -15451,9 +15516,51 @@
                 "text": "ButtonVariant"
               },
               "default": "\"primary\"",
-              "description": "Button variant: `primary`, `secondary` or a semantic variant.",
+              "description": "Button variant: `primary`, `secondary`, `neutral` or a semantic variant. It sets the colors.",
               "attribute": "variant",
               "reflects": true,
+              "inheritedFrom": {
+                "name": "ButtonBase",
+                "module": "src/bases/button/button-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "appearance",
+              "type": {
+                "text": "ButtonAppearance"
+              },
+              "default": "\"filled\"",
+              "description": "How the variant paints the button: `filled`, `outlined` (a border, no fill) or `plain` (its text only).",
+              "attribute": "appearance",
+              "reflects": true,
+              "inheritedFrom": {
+                "name": "ButtonBase",
+                "module": "src/bases/button/button-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "label",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "The accessible name, for a button whose content is an icon or a shape:\nthe button is then square. Its content names it otherwise.",
+              "attribute": "label",
+              "inheritedFrom": {
+                "name": "ButtonBase",
+                "module": "src/bases/button/button-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "current",
+              "type": {
+                "text": "ButtonCurrent | undefined"
+              },
+              "description": "The item of a set the button stands for, `page` in a pagination: `aria-current`.",
+              "attribute": "current",
               "inheritedFrom": {
                 "name": "ButtonBase",
                 "module": "src/bases/button/button-base.ts"
@@ -15485,6 +15592,34 @@
                 }
               ],
               "description": "Handles clicks on the inner control. While disabled, cancels the click\nand keeps it from reaching the host (a link without `href` still\ndispatches one). Subclasses add their behavior after calling it.",
+              "inheritedFrom": {
+                "name": "ButtonBase",
+                "module": "src/bases/button/button-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "controlTabIndex",
+              "type": {
+                "text": "string | undefined"
+              },
+              "privacy": "protected",
+              "description": "The `tabindex` of the native control: `-1` when the host's is negative.",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "ButtonBase",
+                "module": "src/bases/button/button-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "controlClasses",
+              "type": {
+                "text": "string"
+              },
+              "privacy": "protected",
+              "description": "The classes of the native control: `button`, and `button--square` with `label`.",
+              "readonly": true,
               "inheritedFrom": {
                 "name": "ButtonBase",
                 "module": "src/bases/button/button-base.ts"
@@ -15621,8 +15756,46 @@
                 "text": "ButtonVariant"
               },
               "default": "\"primary\"",
-              "description": "Button variant: `primary`, `secondary` or a semantic variant.",
+              "description": "Button variant: `primary`, `secondary`, `neutral` or a semantic variant. It sets the colors.",
               "fieldName": "variant",
+              "inheritedFrom": {
+                "name": "ButtonBase",
+                "module": "src/bases/button/button-base.ts"
+              }
+            },
+            {
+              "name": "appearance",
+              "type": {
+                "text": "ButtonAppearance"
+              },
+              "default": "\"filled\"",
+              "description": "How the variant paints the button: `filled`, `outlined` (a border, no fill) or `plain` (its text only).",
+              "fieldName": "appearance",
+              "inheritedFrom": {
+                "name": "ButtonBase",
+                "module": "src/bases/button/button-base.ts"
+              }
+            },
+            {
+              "name": "label",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "The accessible name, for a button whose content is an icon or a shape:\nthe button is then square. Its content names it otherwise.",
+              "fieldName": "label",
+              "inheritedFrom": {
+                "name": "ButtonBase",
+                "module": "src/bases/button/button-base.ts"
+              }
+            },
+            {
+              "name": "current",
+              "type": {
+                "text": "ButtonCurrent | undefined"
+              },
+              "description": "The item of a set the button stands for, `page` in a pagination: `aria-current`.",
+              "fieldName": "current",
               "inheritedFrom": {
                 "name": "ButtonBase",
                 "module": "src/bases/button/button-base.ts"
@@ -15688,6 +15861,42 @@
               "description": "Text color.",
               "name": "--u-button-text-color",
               "default": "var(--u-color-action-text)",
+              "inheritedFrom": {
+                "name": "ButtonBase",
+                "module": "src/bases/button/button-base.ts"
+              }
+            },
+            {
+              "description": "Color of the variant on a surface: the text of the `outlined` and `plain` appearances (variants change the default).",
+              "name": "--u-button-foreground-color",
+              "default": "var(--u-color-action-foreground)",
+              "inheritedFrom": {
+                "name": "ButtonBase",
+                "module": "src/bases/button/button-base.ts"
+              }
+            },
+            {
+              "description": "Border color of the `outlined` appearance (variants change the default).",
+              "name": "--u-button-outlined-border-color",
+              "default": "var(--u-color-action-foreground)",
+              "inheritedFrom": {
+                "name": "ButtonBase",
+                "module": "src/bases/button/button-base.ts"
+              }
+            },
+            {
+              "description": "Border color (appearances change the default). The border keeps every appearance at the same size.",
+              "name": "--u-button-border-color",
+              "default": "var(--u-color-transparent)",
+              "inheritedFrom": {
+                "name": "ButtonBase",
+                "module": "src/bases/button/button-base.ts"
+              }
+            },
+            {
+              "description": "Border width.",
+              "name": "--u-button-border-width",
+              "default": "var(--u-border-width)",
               "inheritedFrom": {
                 "name": "ButtonBase",
                 "module": "src/bases/button/button-base.ts"
@@ -15822,8 +16031,22 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "A button that triggers an action, or submits or resets its form (`type`).\nWith `commandfor` and `command`, it controls another element without\nscript, like a native invoker button: it opens a `modal` with\n`command=\"--show-modal\"`.\n\nA submit button sends its `name` and `value` with the form data, as a\nnative one does. The `submitter` of the `submit` event is a hidden native\n`<button>` that carries them, removed once the event has run: a button of\na shadow root can't be the submitter of its host's form.\n\n`click()` acts as a click on the inner button: it submits, resets or\nsends the command. Implicit submission relies on it: Enter in a field\nclicks the form's first submit button (`FieldBase.submitOnEnter()`).",
+          "description": "A button that triggers an action, or submits or resets its form (`type`).\nWith `commandfor` and `command`, it controls another element without\nscript, like a native invoker button: it opens a `modal` with\n`command=\"--show-modal\"`.\n\nA submit button sends its `name` and `value` with the form data, as a\nnative one does. The `submitter` of the `submit` event is a hidden native\n`<button>` that carries them, removed once the event has run: a button of\na shadow root can't be the submitter of its host's form.\n\n`click()` acts as a click on the inner button: it submits, resets or\nsends the command. Implicit submission relies on it: Enter in a field\nclicks the form's first submit button (`FieldBase.submitOnEnter()`).\n\nWith `loading`, a `spinner` covers the label and the button ignores\nclicks, but keeps the focus: announce the end of the action in a live\nregion. With `popup`, it is the trigger of a menu or a dialog, and\n`expanded` says whether that popup is open.",
           "name": "Button",
+          "cssParts": [
+            {
+              "description": "The `spinner` over the label, with `loading`.",
+              "name": "spinner"
+            },
+            {
+              "description": "The native `<button>` (or `<a>` for `button-link`).",
+              "name": "button",
+              "inheritedFrom": {
+                "name": "ButtonBase",
+                "module": "src/bases/button/button-base.ts"
+              }
+            }
+          ],
           "members": [
             {
               "kind": "field",
@@ -15848,6 +16071,20 @@
               "static": true,
               "default": "true",
               "description": "Required for ElementInternals.form to resolve an ancestor <form> — a\nshadow-rendered <button type=\"submit\"> has no light-DOM form owner\notherwise, so type=\"submit\"/\"reset\" would silently do nothing."
+            },
+            {
+              "kind": "field",
+              "name": "dependencies",
+              "type": {
+                "text": "readonly (typeof DSBaseElement)[]"
+              },
+              "static": true,
+              "default": "[Spinner]",
+              "description": "Components this one renders (ADR 0001, D2): `defineComponents()`\nregisters them too, and `tagFor()` resolves their tag. Never hard-code\nanother component's tag in a template, nor create one with\n`document.createElement` — a brand's override would be bypassed.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
             },
             {
               "kind": "field",
@@ -15878,6 +16115,36 @@
               "default": "\"\"",
               "description": "Value of the button, submitted under `name`. A `modal` closed by this button (`--close`,\n`--request-close`) takes it as its `returnValue`.",
               "attribute": "value"
+            },
+            {
+              "kind": "field",
+              "name": "loading",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether the action of the button is running: a spinner covers the label, and clicks do nothing.",
+              "attribute": "loading",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "popup",
+              "type": {
+                "text": "ButtonPopup | undefined"
+              },
+              "description": "The popup the button opens, `menu` or `dialog` for instance: `aria-haspopup`. None by default.",
+              "attribute": "popup"
+            },
+            {
+              "kind": "field",
+              "name": "expanded",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether the popup of `popup` is open: `aria-expanded`.",
+              "attribute": "expanded"
             },
             {
               "kind": "method",
@@ -16106,9 +16373,51 @@
                 "text": "ButtonVariant"
               },
               "default": "\"primary\"",
-              "description": "Button variant: `primary`, `secondary` or a semantic variant.",
+              "description": "Button variant: `primary`, `secondary`, `neutral` or a semantic variant. It sets the colors.",
               "attribute": "variant",
               "reflects": true,
+              "inheritedFrom": {
+                "name": "ButtonBase",
+                "module": "src/bases/button/button-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "appearance",
+              "type": {
+                "text": "ButtonAppearance"
+              },
+              "default": "\"filled\"",
+              "description": "How the variant paints the button: `filled`, `outlined` (a border, no fill) or `plain` (its text only).",
+              "attribute": "appearance",
+              "reflects": true,
+              "inheritedFrom": {
+                "name": "ButtonBase",
+                "module": "src/bases/button/button-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "label",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "The accessible name, for a button whose content is an icon or a shape:\nthe button is then square. Its content names it otherwise.",
+              "attribute": "label",
+              "inheritedFrom": {
+                "name": "ButtonBase",
+                "module": "src/bases/button/button-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "current",
+              "type": {
+                "text": "ButtonCurrent | undefined"
+              },
+              "description": "The item of a set the button stands for, `page` in a pagination: `aria-current`.",
+              "attribute": "current",
               "inheritedFrom": {
                 "name": "ButtonBase",
                 "module": "src/bases/button/button-base.ts"
@@ -16129,16 +16438,30 @@
             },
             {
               "kind": "field",
-              "name": "dependencies",
+              "name": "controlTabIndex",
               "type": {
-                "text": "readonly (typeof DSBaseElement)[]"
+                "text": "string | undefined"
               },
-              "static": true,
-              "default": "[]",
-              "description": "Components this one renders (ADR 0001, D2): `defineComponents()`\nregisters them too, and `tagFor()` resolves their tag. Never hard-code\nanother component's tag in a template, nor create one with\n`document.createElement` — a brand's override would be bypassed.",
+              "privacy": "protected",
+              "description": "The `tabindex` of the native control: `-1` when the host's is negative.",
+              "readonly": true,
               "inheritedFrom": {
-                "name": "DSBaseElement",
-                "module": "src/bases/base-element.ts"
+                "name": "ButtonBase",
+                "module": "src/bases/button/button-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "controlClasses",
+              "type": {
+                "text": "string"
+              },
+              "privacy": "protected",
+              "description": "The classes of the native control: `button`, and `button--square` with `label`.",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "ButtonBase",
+                "module": "src/bases/button/button-base.ts"
               }
             },
             {
@@ -16237,6 +16560,32 @@
               "fieldName": "value"
             },
             {
+              "name": "loading",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether the action of the button is running: a spinner covers the label, and clicks do nothing.",
+              "fieldName": "loading"
+            },
+            {
+              "name": "popup",
+              "type": {
+                "text": "ButtonPopup | undefined"
+              },
+              "description": "The popup the button opens, `menu` or `dialog` for instance: `aria-haspopup`. None by default.",
+              "fieldName": "popup"
+            },
+            {
+              "name": "expanded",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether the popup of `popup` is open: `aria-expanded`.",
+              "fieldName": "expanded"
+            },
+            {
               "name": "commandfor",
               "type": {
                 "text": "string | undefined"
@@ -16292,8 +16641,46 @@
                 "text": "ButtonVariant"
               },
               "default": "\"primary\"",
-              "description": "Button variant: `primary`, `secondary` or a semantic variant.",
+              "description": "Button variant: `primary`, `secondary`, `neutral` or a semantic variant. It sets the colors.",
               "fieldName": "variant",
+              "inheritedFrom": {
+                "name": "ButtonBase",
+                "module": "src/bases/button/button-base.ts"
+              }
+            },
+            {
+              "name": "appearance",
+              "type": {
+                "text": "ButtonAppearance"
+              },
+              "default": "\"filled\"",
+              "description": "How the variant paints the button: `filled`, `outlined` (a border, no fill) or `plain` (its text only).",
+              "fieldName": "appearance",
+              "inheritedFrom": {
+                "name": "ButtonBase",
+                "module": "src/bases/button/button-base.ts"
+              }
+            },
+            {
+              "name": "label",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "The accessible name, for a button whose content is an icon or a shape:\nthe button is then square. Its content names it otherwise.",
+              "fieldName": "label",
+              "inheritedFrom": {
+                "name": "ButtonBase",
+                "module": "src/bases/button/button-base.ts"
+              }
+            },
+            {
+              "name": "current",
+              "type": {
+                "text": "ButtonCurrent | undefined"
+              },
+              "description": "The item of a set the button stands for, `page` in a pagination: `aria-current`.",
+              "fieldName": "current",
               "inheritedFrom": {
                 "name": "ButtonBase",
                 "module": "src/bases/button/button-base.ts"
@@ -16321,16 +16708,6 @@
             {
               "description": "The button label.",
               "name": "",
-              "inheritedFrom": {
-                "name": "ButtonBase",
-                "module": "src/bases/button/button-base.ts"
-              }
-            }
-          ],
-          "cssParts": [
-            {
-              "description": "The native `<button>` (or `<a>` for `button-link`).",
-              "name": "button",
               "inheritedFrom": {
                 "name": "ButtonBase",
                 "module": "src/bases/button/button-base.ts"
@@ -16369,6 +16746,42 @@
               "description": "Text color.",
               "name": "--u-button-text-color",
               "default": "var(--u-color-action-text)",
+              "inheritedFrom": {
+                "name": "ButtonBase",
+                "module": "src/bases/button/button-base.ts"
+              }
+            },
+            {
+              "description": "Color of the variant on a surface: the text of the `outlined` and `plain` appearances (variants change the default).",
+              "name": "--u-button-foreground-color",
+              "default": "var(--u-color-action-foreground)",
+              "inheritedFrom": {
+                "name": "ButtonBase",
+                "module": "src/bases/button/button-base.ts"
+              }
+            },
+            {
+              "description": "Border color of the `outlined` appearance (variants change the default).",
+              "name": "--u-button-outlined-border-color",
+              "default": "var(--u-color-action-foreground)",
+              "inheritedFrom": {
+                "name": "ButtonBase",
+                "module": "src/bases/button/button-base.ts"
+              }
+            },
+            {
+              "description": "Border color (appearances change the default). The border keeps every appearance at the same size.",
+              "name": "--u-button-border-color",
+              "default": "var(--u-color-transparent)",
+              "inheritedFrom": {
+                "name": "ButtonBase",
+                "module": "src/bases/button/button-base.ts"
+              }
+            },
+            {
+              "description": "Border width.",
+              "name": "--u-button-border-width",
+              "default": "var(--u-border-width)",
               "inheritedFrom": {
                 "name": "ButtonBase",
                 "module": "src/bases/button/button-base.ts"
@@ -16607,11 +17020,11 @@
               "name": "heading"
             },
             {
-              "description": "The button of the previous month.",
+              "description": "The button of the previous month: the `button` component of the same registration, `plain` and `neutral`.",
               "name": "previous"
             },
             {
-              "description": "The button of the next month.",
+              "description": "The button of the next month, like `previous`.",
               "name": "next"
             },
             {
@@ -16633,6 +17046,20 @@
               "static": true,
               "default": "\"calendar\"",
               "description": "Name of the component in the catalog, without any tag prefix: the\nregistered tag is `<prefix>-<componentName>`. Every concrete component\nsets it; abstract bases (e.g. `ButtonBase`) don't.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "dependencies",
+              "type": {
+                "text": "readonly (typeof DSBaseElement)[]"
+              },
+              "static": true,
+              "default": "[Button]",
+              "description": "Renders its month buttons with the `button` of its own registration.",
               "inheritedFrom": {
                 "name": "DSBaseElement",
                 "module": "src/bases/base-element.ts"
@@ -16816,20 +17243,6 @@
                   }
                 }
               ]
-            },
-            {
-              "kind": "field",
-              "name": "dependencies",
-              "type": {
-                "text": "readonly (typeof DSBaseElement)[]"
-              },
-              "static": true,
-              "default": "[]",
-              "description": "Components this one renders (ADR 0001, D2): `defineComponents()`\nregisters them too, and `tagFor()` resolves their tag. Never hard-code\nanother component's tag in a template, nor create one with\n`document.createElement` — a brand's override would be bypassed.",
-              "inheritedFrom": {
-                "name": "DSBaseElement",
-                "module": "src/bases/base-element.ts"
-              }
             },
             {
               "kind": "method",
@@ -20138,6 +20551,20 @@
             },
             {
               "kind": "field",
+              "name": "dependencies",
+              "type": {
+                "text": "readonly (typeof DSBaseElement)[]"
+              },
+              "static": true,
+              "default": "[...super.dependencies, Spinner]",
+              "description": "Renders the spinner of its status line with the `spinner` of its own registration.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "field",
               "name": "options",
               "type": {
                 "text": "readonly ListboxOption[] | undefined"
@@ -20385,9 +20812,9 @@
               "name": "#status",
               "privacy": "private",
               "type": {
-                "text": "string"
+                "text": "unknown"
               },
-              "description": "What the status line shows: `loadingLabel` during a slow request, or else the count of a capped list.",
+              "description": "What the status line shows: a spinner and `loadingLabel` during a slow request, or else the count of a capped list.",
               "readonly": true,
               "inheritedFrom": {
                 "name": "EditableComboboxBase",
@@ -21144,20 +21571,6 @@
             },
             {
               "kind": "field",
-              "name": "dependencies",
-              "type": {
-                "text": "readonly (typeof DSBaseElement)[]"
-              },
-              "static": true,
-              "default": "[Icon]",
-              "description": "Renders the icon of its error message with the `icon` of its own registration (ADR 0001, D2).",
-              "inheritedFrom": {
-                "name": "DSBaseElement",
-                "module": "src/bases/base-element.ts"
-              }
-            },
-            {
-              "kind": "field",
               "name": "shadowRootOptions",
               "type": {
                 "text": "ShadowRootInit"
@@ -21593,7 +22006,7 @@
               }
             },
             {
-              "description": "The line at the end of the list: `loadingLabel` during a slow request, or `resultsMessage` when the list doesn't show every option. Hidden from assistive technologies, which hear the live region.",
+              "description": "The line at the end of the list: a `spinner` and `loadingLabel` during a slow request, or `resultsMessage` when the list doesn't show every option. Hidden from assistive technologies, which hear the live region.",
               "name": "status",
               "inheritedFrom": {
                 "name": "EditableComboboxBase",
@@ -21799,6 +22212,15 @@
               "description": "Font size of the status line, at the end of the list: “Loading…”, or the number of options it doesn't show.",
               "name": "--u-listbox-status-font-size",
               "default": "var(--u-font-size-sm)",
+              "inheritedFrom": {
+                "name": "EditableComboboxBase",
+                "module": "src/bases/editable-combobox/editable-combobox-base.ts"
+              }
+            },
+            {
+              "description": "Space between the spinner of the status line and its text, while the options load.",
+              "name": "--u-listbox-status-gap",
+              "default": "var(--u-spacing-xs)",
               "inheritedFrom": {
                 "name": "EditableComboboxBase",
                 "module": "src/bases/editable-combobox/editable-combobox-base.ts"
@@ -26592,7 +27014,7 @@
               }
             },
             {
-              "description": "The icon of the close button: the `icon` component of the same registration, named by `close-label`.",
+              "description": "The icon of the close button: the `icon` component of the same registration. `close-label` names the button.",
               "name": "close-icon",
               "inheritedFrom": {
                 "name": "ModalBase",
@@ -26756,16 +27178,6 @@
               "description": "Space between the tags of a `tag-group`.",
               "name": "--u-tag-group-gap",
               "default": "var(--u-spacing-xs)"
-            },
-            {
-              "description": "Color of the focus ring of the remove button.",
-              "name": "--u-tag-focus-ring-color",
-              "default": "var(--u-color-focus-ring)"
-            },
-            {
-              "description": "Width of the focus ring of the remove button.",
-              "name": "--u-tag-focus-ring-width",
-              "default": "var(--u-focus-ring-width)"
             },
             {
               "description": "Space between the label, the hint, the control and the error message.",
@@ -28672,7 +29084,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "A menu button: a button that opens a list of actions, its `menu-item`\nchildren. The component renders its trigger, in the same shadow root as\nthe popup: the trigger's `aria-expanded` and `aria-controls` reach it\n(ADR 0021). The popup and its closing are those of `PopupBase`.\n\nKeys of the trigger: Enter, Space and ArrowDown open the menu on its\nfirst item, ArrowUp on its last. In the menu: the arrows move between the\nenabled items, looping; Home and End reach the first and the last; typing\nthe start of a label moves to it; Enter and Space fire the item's `click`.\nEscape and an item close the menu and give the focus back to the trigger;\nTab and a press outside close it.",
+          "description": "A menu button: a button that opens a list of actions, its `menu-item`\nchildren. The component renders its trigger, an `outlined` and `neutral`\n`button` with `popup=\"menu\"`: its control reports `aria-expanded` (ADR\n0021, ADR 0031). `label` names the trigger and the menu. The popup and\nits closing are those of `PopupBase`.\n\nKeys of the trigger: Enter, Space and ArrowDown open the menu on its\nfirst item, ArrowUp on its last. In the menu: the arrows move between the\nenabled items, looping; Home and End reach the first and the last; typing\nthe start of a label moves to it; Enter and Space fire the item's `click`.\nEscape and an item close the menu and give the focus back to the trigger;\nTab and a press outside close it.",
           "name": "Menu",
           "cssProperties": [
             {
@@ -28766,6 +29178,11 @@
               "default": "var(--u-font-size-sm)"
             },
             {
+              "description": "Space between the spinner of the status line and its text, while the options load.",
+              "name": "--u-listbox-status-gap",
+              "default": "var(--u-spacing-xs)"
+            },
+            {
               "description": "Font family.",
               "name": "--u-popup-font-family",
               "default": "var(--u-font-family-body)",
@@ -28784,27 +29201,9 @@
               }
             },
             {
-              "description": "Text color of the trigger.",
+              "description": "Text color of the popup.",
               "name": "--u-popup-text-color",
               "default": "var(--u-color-text-default)",
-              "inheritedFrom": {
-                "name": "PopupBase",
-                "module": "src/bases/popup/popup-base.ts"
-              }
-            },
-            {
-              "description": "Horizontal padding of the trigger.",
-              "name": "--u-popup-trigger-padding-inline",
-              "default": "var(--u-spacing-md)",
-              "inheritedFrom": {
-                "name": "PopupBase",
-                "module": "src/bases/popup/popup-base.ts"
-              }
-            },
-            {
-              "description": "Vertical padding of the trigger.",
-              "name": "--u-popup-trigger-padding-block",
-              "default": "var(--u-spacing-sm)",
               "inheritedFrom": {
                 "name": "PopupBase",
                 "module": "src/bases/popup/popup-base.ts"
@@ -28820,26 +29219,8 @@
               }
             },
             {
-              "description": "Background color of the trigger.",
-              "name": "--u-popup-trigger-background-color",
-              "default": "var(--u-color-surface-default)",
-              "inheritedFrom": {
-                "name": "PopupBase",
-                "module": "src/bases/popup/popup-base.ts"
-              }
-            },
-            {
-              "description": "Background color of the trigger under the pointer.",
-              "name": "--u-popup-trigger-background-color-hover",
-              "default": "var(--u-color-surface-raised)",
-              "inheritedFrom": {
-                "name": "PopupBase",
-                "module": "src/bases/popup/popup-base.ts"
-              }
-            },
-            {
-              "description": "Border width of the trigger.",
-              "name": "--u-popup-trigger-border-width",
+              "description": "Stroke width of the chevron, twice this width.",
+              "name": "--u-popup-chevron-width",
               "default": "var(--u-border-width)",
               "inheritedFrom": {
                 "name": "PopupBase",
@@ -28847,25 +29228,7 @@
               }
             },
             {
-              "description": "Border color of the trigger.",
-              "name": "--u-popup-trigger-border-color",
-              "default": "var(--u-color-border-control)",
-              "inheritedFrom": {
-                "name": "PopupBase",
-                "module": "src/bases/popup/popup-base.ts"
-              }
-            },
-            {
-              "description": "Corner radius of the trigger.",
-              "name": "--u-popup-trigger-border-radius",
-              "default": "var(--u-radius-md)",
-              "inheritedFrom": {
-                "name": "PopupBase",
-                "module": "src/bases/popup/popup-base.ts"
-              }
-            },
-            {
-              "description": "Width and height of the chevron. Its stroke is twice the border's width.",
+              "description": "Width and height of the chevron.",
               "name": "--u-popup-chevron-size",
               "default": "var(--u-spacing-sm)",
               "inheritedFrom": {
@@ -28899,38 +29262,11 @@
                 "name": "PopupBase",
                 "module": "src/bases/popup/popup-base.ts"
               }
-            },
-            {
-              "description": "Color of the focus ring.",
-              "name": "--u-popup-focus-ring-color",
-              "default": "var(--u-color-focus-ring)",
-              "inheritedFrom": {
-                "name": "PopupBase",
-                "module": "src/bases/popup/popup-base.ts"
-              }
-            },
-            {
-              "description": "Width of the focus ring.",
-              "name": "--u-popup-focus-ring-width",
-              "default": "var(--u-focus-ring-width)",
-              "inheritedFrom": {
-                "name": "PopupBase",
-                "module": "src/bases/popup/popup-base.ts"
-              }
-            },
-            {
-              "description": "Space between the trigger and its focus ring.",
-              "name": "--u-popup-focus-ring-offset",
-              "default": "var(--u-focus-ring-offset)",
-              "inheritedFrom": {
-                "name": "PopupBase",
-                "module": "src/bases/popup/popup-base.ts"
-              }
             }
           ],
           "cssParts": [
             {
-              "description": "The native `<button>` that opens the menu.",
+              "description": "The button that opens the menu: the `button` component of the same registration.",
               "name": "trigger"
             },
             {
@@ -28966,8 +29302,8 @@
                 "text": "readonly (typeof DSBaseElement)[]"
               },
               "static": true,
-              "default": "[MenuItem]",
-              "description": "Recognizes its items of its own registration (ADR 0001, D2).",
+              "default": "[MenuItem, Button]",
+              "description": "Recognizes its items, and renders its trigger, with the components of its own registration (ADR 0001, D2).",
               "inheritedFrom": {
                 "name": "DSBaseElement",
                 "module": "src/bases/base-element.ts"
@@ -29051,7 +29387,7 @@
               "name": "#trigger",
               "privacy": "private",
               "type": {
-                "text": "HTMLButtonElement | null"
+                "text": "Button | null"
               },
               "readonly": true
             },
@@ -30109,7 +30445,7 @@
               }
             },
             {
-              "description": "The icon of the close button: the `icon` component of the same registration, named by `close-label`.",
+              "description": "The icon of the close button: the `icon` component of the same registration. `close-label` names the button.",
               "name": "close-icon",
               "inheritedFrom": {
                 "name": "ModalBase",
@@ -31622,21 +31958,6 @@
               "default": "var(--u-radius-md)"
             },
             {
-              "description": "Background color of a button under the pointer.",
-              "name": "--u-pagination-hover-background-color",
-              "default": "var(--u-color-surface-raised)"
-            },
-            {
-              "description": "Background color of the current page.",
-              "name": "--u-pagination-current-background-color",
-              "default": "var(--u-color-action-background)"
-            },
-            {
-              "description": "Text color of the current page.",
-              "name": "--u-pagination-current-text-color",
-              "default": "var(--u-color-action-text)"
-            },
-            {
               "description": "Width and height of the chevrons of the previous and next buttons.",
               "name": "--u-pagination-chevron-size",
               "default": "var(--u-spacing-sm)"
@@ -31645,21 +31966,6 @@
               "description": "Stroke of the chevrons. Twice this width.",
               "name": "--u-pagination-chevron-width",
               "default": "var(--u-border-width)"
-            },
-            {
-              "description": "Color of the focus ring.",
-              "name": "--u-pagination-focus-ring-color",
-              "default": "var(--u-color-focus-ring)"
-            },
-            {
-              "description": "Width of the focus ring.",
-              "name": "--u-pagination-focus-ring-width",
-              "default": "var(--u-focus-ring-width)"
-            },
-            {
-              "description": "Space between a button and its focus ring.",
-              "name": "--u-pagination-focus-ring-offset",
-              "default": "var(--u-focus-ring-offset)"
             }
           ],
           "cssParts": [
@@ -31668,7 +31974,7 @@
               "name": "nav"
             },
             {
-              "description": "A button: a page, the previous or the next one.",
+              "description": "A button, a page, the previous or the next one: the `button` component of the same registration, `plain` and `neutral`, `filled` and `primary` for the current page.",
               "name": "button"
             },
             {
@@ -31686,6 +31992,20 @@
               "static": true,
               "default": "\"pagination\"",
               "description": "Name of the component in the catalog, without any tag prefix: the\nregistered tag is `<prefix>-<componentName>`. Every concrete component\nsets it; abstract bases (e.g. `ButtonBase`) don't.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "dependencies",
+              "type": {
+                "text": "readonly (typeof DSBaseElement)[]"
+              },
+              "static": true,
+              "default": "[Button]",
+              "description": "Renders its buttons with the `button` of its own registration.",
               "inheritedFrom": {
                 "name": "DSBaseElement",
                 "module": "src/bases/base-element.ts"
@@ -31802,20 +32122,6 @@
                 }
               ],
               "description": "Moves to `page` at the user's request: `change`, and the announcement."
-            },
-            {
-              "kind": "field",
-              "name": "dependencies",
-              "type": {
-                "text": "readonly (typeof DSBaseElement)[]"
-              },
-              "static": true,
-              "default": "[]",
-              "description": "Components this one renders (ADR 0001, D2): `defineComponents()`\nregisters them too, and `tagFor()` resolves their tag. Never hard-code\nanother component's tag in a template, nor create one with\n`document.createElement` — a brand's override would be bypassed.",
-              "inheritedFrom": {
-                "name": "DSBaseElement",
-                "module": "src/bases/base-element.ts"
-              }
             },
             {
               "kind": "method",
@@ -31966,7 +32272,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "A popover: a button that shows a panel of content below it, an\nexplanation, a few fields, a set of links. The panel is a non-modal\ndialog: the page stays usable, and Tab goes from the button into the\ncontent. The popup and its closing are those of `PopupBase` (ADR 0022).\n\nThe component renders its trigger, in the same shadow root as the panel:\nthe trigger's `aria-expanded` and `aria-controls` reach it. Escape closes\nthe panel and gives the focus back to the trigger; a press outside and\nthe focus leaving the component close it too.",
+          "description": "A popover: a button that shows a panel of content below it, an\nexplanation, a few fields, a set of links. The panel is a non-modal\ndialog: the page stays usable, and Tab goes from the button into the\ncontent. The popup and its closing are those of `PopupBase` (ADR 0022).\n\nThe component renders its trigger, an `outlined` and `neutral` `button`\nwith `popup=\"dialog\"`: its control reports `aria-expanded` (ADR 0031).\n`label` names the trigger and the panel. Escape closes\nthe panel and gives the focus back to the trigger; a press outside and\nthe focus leaving the component close it too.",
           "name": "Popover",
           "cssProperties": [
             {
@@ -32023,27 +32329,9 @@
               }
             },
             {
-              "description": "Text color of the trigger.",
+              "description": "Text color of the popup.",
               "name": "--u-popup-text-color",
               "default": "var(--u-color-text-default)",
-              "inheritedFrom": {
-                "name": "PopupBase",
-                "module": "src/bases/popup/popup-base.ts"
-              }
-            },
-            {
-              "description": "Horizontal padding of the trigger.",
-              "name": "--u-popup-trigger-padding-inline",
-              "default": "var(--u-spacing-md)",
-              "inheritedFrom": {
-                "name": "PopupBase",
-                "module": "src/bases/popup/popup-base.ts"
-              }
-            },
-            {
-              "description": "Vertical padding of the trigger.",
-              "name": "--u-popup-trigger-padding-block",
-              "default": "var(--u-spacing-sm)",
               "inheritedFrom": {
                 "name": "PopupBase",
                 "module": "src/bases/popup/popup-base.ts"
@@ -32059,26 +32347,8 @@
               }
             },
             {
-              "description": "Background color of the trigger.",
-              "name": "--u-popup-trigger-background-color",
-              "default": "var(--u-color-surface-default)",
-              "inheritedFrom": {
-                "name": "PopupBase",
-                "module": "src/bases/popup/popup-base.ts"
-              }
-            },
-            {
-              "description": "Background color of the trigger under the pointer.",
-              "name": "--u-popup-trigger-background-color-hover",
-              "default": "var(--u-color-surface-raised)",
-              "inheritedFrom": {
-                "name": "PopupBase",
-                "module": "src/bases/popup/popup-base.ts"
-              }
-            },
-            {
-              "description": "Border width of the trigger.",
-              "name": "--u-popup-trigger-border-width",
+              "description": "Stroke width of the chevron, twice this width.",
+              "name": "--u-popup-chevron-width",
               "default": "var(--u-border-width)",
               "inheritedFrom": {
                 "name": "PopupBase",
@@ -32086,25 +32356,7 @@
               }
             },
             {
-              "description": "Border color of the trigger.",
-              "name": "--u-popup-trigger-border-color",
-              "default": "var(--u-color-border-control)",
-              "inheritedFrom": {
-                "name": "PopupBase",
-                "module": "src/bases/popup/popup-base.ts"
-              }
-            },
-            {
-              "description": "Corner radius of the trigger.",
-              "name": "--u-popup-trigger-border-radius",
-              "default": "var(--u-radius-md)",
-              "inheritedFrom": {
-                "name": "PopupBase",
-                "module": "src/bases/popup/popup-base.ts"
-              }
-            },
-            {
-              "description": "Width and height of the chevron. Its stroke is twice the border's width.",
+              "description": "Width and height of the chevron.",
               "name": "--u-popup-chevron-size",
               "default": "var(--u-spacing-sm)",
               "inheritedFrom": {
@@ -32138,38 +32390,11 @@
                 "name": "PopupBase",
                 "module": "src/bases/popup/popup-base.ts"
               }
-            },
-            {
-              "description": "Color of the focus ring.",
-              "name": "--u-popup-focus-ring-color",
-              "default": "var(--u-color-focus-ring)",
-              "inheritedFrom": {
-                "name": "PopupBase",
-                "module": "src/bases/popup/popup-base.ts"
-              }
-            },
-            {
-              "description": "Width of the focus ring.",
-              "name": "--u-popup-focus-ring-width",
-              "default": "var(--u-focus-ring-width)",
-              "inheritedFrom": {
-                "name": "PopupBase",
-                "module": "src/bases/popup/popup-base.ts"
-              }
-            },
-            {
-              "description": "Space between the trigger and its focus ring.",
-              "name": "--u-popup-focus-ring-offset",
-              "default": "var(--u-focus-ring-offset)",
-              "inheritedFrom": {
-                "name": "PopupBase",
-                "module": "src/bases/popup/popup-base.ts"
-              }
             }
           ],
           "cssParts": [
             {
-              "description": "The native `<button>` that opens the panel.",
+              "description": "The button that opens the panel: the `button` component of the same registration.",
               "name": "trigger"
             },
             {
@@ -32193,6 +32418,20 @@
               "static": true,
               "default": "\"popover\"",
               "description": "Name of the component in the catalog, without any tag prefix: the\nregistered tag is `<prefix>-<componentName>`. Every concrete component\nsets it; abstract bases (e.g. `ButtonBase`) don't.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "dependencies",
+              "type": {
+                "text": "readonly (typeof DSBaseElement)[]"
+              },
+              "static": true,
+              "default": "[Button]",
+              "description": "Renders its trigger with the `button` of its own registration.",
               "inheritedFrom": {
                 "name": "DSBaseElement",
                 "module": "src/bases/base-element.ts"
@@ -32241,7 +32480,7 @@
               "name": "#trigger",
               "privacy": "private",
               "type": {
-                "text": "HTMLButtonElement | null"
+                "text": "Button | null"
               },
               "readonly": true
             },
@@ -32566,20 +32805,6 @@
               "inheritedFrom": {
                 "name": "PopupBase",
                 "module": "src/bases/popup/popup-base.ts"
-              }
-            },
-            {
-              "kind": "field",
-              "name": "dependencies",
-              "type": {
-                "text": "readonly (typeof DSBaseElement)[]"
-              },
-              "static": true,
-              "default": "[]",
-              "description": "Components this one renders (ADR 0001, D2): `defineComponents()`\nregisters them too, and `tagFor()` resolves their tag. Never hard-code\nanother component's tag in a template, nor create one with\n`document.createElement` — a brand's override would be bypassed.",
-              "inheritedFrom": {
-                "name": "DSBaseElement",
-                "module": "src/bases/base-element.ts"
               }
             },
             {
@@ -34907,6 +35132,11 @@
               "description": "Font size of the status line, at the end of the list: “Loading…”, or the number of options it doesn't show.",
               "name": "--u-listbox-status-font-size",
               "default": "var(--u-font-size-sm)"
+            },
+            {
+              "description": "Space between the spinner of the status line and its text, while the options load.",
+              "name": "--u-listbox-status-gap",
+              "default": "var(--u-spacing-xs)"
             },
             {
               "description": "Space between the text of the control and its chevron.",
@@ -42566,7 +42796,7 @@
               "name": "tablist"
             },
             {
-              "description": "A button that scrolls the list, shown when tabs go past its edge.",
+              "description": "A button that scrolls the list, shown when tabs go past its edge: the `button` component of the same registration, `plain` and `neutral`, for the pointer only.",
               "name": "scroll-button"
             }
           ],
@@ -42602,7 +42832,7 @@
                 "text": "readonly (typeof DSBaseElement)[]"
               },
               "static": true,
-              "default": "[Tab, TabPanel]",
+              "default": "[Tab, TabPanel, Button]",
               "description": "Recognizes its tabs and panels of its own registration (ADR 0001, D2).",
               "inheritedFrom": {
                 "name": "DSBaseElement",
@@ -42916,16 +43146,6 @@
               "description": "Space between the tags of a `tag-group`.",
               "name": "--u-tag-group-gap",
               "default": "var(--u-spacing-xs)"
-            },
-            {
-              "description": "Color of the focus ring of the remove button.",
-              "name": "--u-tag-focus-ring-color",
-              "default": "var(--u-color-focus-ring)"
-            },
-            {
-              "description": "Width of the focus ring of the remove button.",
-              "name": "--u-tag-focus-ring-width",
-              "default": "var(--u-focus-ring-width)"
             }
           ],
           "slots": [
@@ -43183,16 +43403,6 @@
               "description": "Space between the tags of a `tag-group`.",
               "name": "--u-tag-group-gap",
               "default": "var(--u-spacing-xs)"
-            },
-            {
-              "description": "Color of the focus ring of the remove button.",
-              "name": "--u-tag-focus-ring-color",
-              "default": "var(--u-color-focus-ring)"
-            },
-            {
-              "description": "Width of the focus ring of the remove button.",
-              "name": "--u-tag-focus-ring-width",
-              "default": "var(--u-focus-ring-width)"
             }
           ],
           "cssParts": [
@@ -43201,7 +43411,7 @@
               "name": "tag"
             },
             {
-              "description": "The remove button of a `removable` tag.",
+              "description": "The remove button of a `removable` tag: the `button` component of the same registration, `plain` and `neutral`.",
               "name": "remove-button"
             },
             {
@@ -43237,8 +43447,8 @@
                 "text": "readonly (typeof DSBaseElement)[]"
               },
               "static": true,
-              "default": "[Icon]",
-              "description": "Renders its remove icon with the `icon` of its own registration.",
+              "default": "[Button, Icon]",
+              "description": "Renders its remove button and its icon with the `button` and the `icon` of its own registration.",
               "inheritedFrom": {
                 "name": "DSBaseElement",
                 "module": "src/bases/base-element.ts"
@@ -46160,21 +46370,6 @@
               "description": "Text color of a `danger` message.",
               "name": "--u-toaster-danger-text-color",
               "default": "var(--u-color-danger-text)"
-            },
-            {
-              "description": "Color of the focus ring of a close button.",
-              "name": "--u-toaster-focus-ring-color",
-              "default": "var(--u-color-focus-ring)"
-            },
-            {
-              "description": "Width of the focus ring.",
-              "name": "--u-toaster-focus-ring-width",
-              "default": "var(--u-focus-ring-width)"
-            },
-            {
-              "description": "Space between a close button and its focus ring.",
-              "name": "--u-toaster-focus-ring-offset",
-              "default": "var(--u-focus-ring-offset)"
             }
           ],
           "cssParts": [
@@ -46187,7 +46382,7 @@
               "name": "toast"
             },
             {
-              "description": "The close button of a message.",
+              "description": "The close button of a message: the `button` component of the same registration, of the message's variant.",
               "name": "close-button"
             }
           ],
@@ -46213,7 +46408,7 @@
                 "text": "readonly (typeof DSBaseElement)[]"
               },
               "static": true,
-              "default": "[Icon]",
+              "default": "[Button, Icon]",
               "description": "Renders the icons with the `icon` of its own registration (ADR 0001, D2).",
               "inheritedFrom": {
                 "name": "DSBaseElement",
@@ -46789,27 +46984,9 @@
               }
             },
             {
-              "description": "Text color of the trigger.",
+              "description": "Text color of the popup.",
               "name": "--u-popup-text-color",
               "default": "var(--u-color-text-default)",
-              "inheritedFrom": {
-                "name": "PopupBase",
-                "module": "src/bases/popup/popup-base.ts"
-              }
-            },
-            {
-              "description": "Horizontal padding of the trigger.",
-              "name": "--u-popup-trigger-padding-inline",
-              "default": "var(--u-spacing-md)",
-              "inheritedFrom": {
-                "name": "PopupBase",
-                "module": "src/bases/popup/popup-base.ts"
-              }
-            },
-            {
-              "description": "Vertical padding of the trigger.",
-              "name": "--u-popup-trigger-padding-block",
-              "default": "var(--u-spacing-sm)",
               "inheritedFrom": {
                 "name": "PopupBase",
                 "module": "src/bases/popup/popup-base.ts"
@@ -46825,26 +47002,8 @@
               }
             },
             {
-              "description": "Background color of the trigger.",
-              "name": "--u-popup-trigger-background-color",
-              "default": "var(--u-color-surface-default)",
-              "inheritedFrom": {
-                "name": "PopupBase",
-                "module": "src/bases/popup/popup-base.ts"
-              }
-            },
-            {
-              "description": "Background color of the trigger under the pointer.",
-              "name": "--u-popup-trigger-background-color-hover",
-              "default": "var(--u-color-surface-raised)",
-              "inheritedFrom": {
-                "name": "PopupBase",
-                "module": "src/bases/popup/popup-base.ts"
-              }
-            },
-            {
-              "description": "Border width of the trigger.",
-              "name": "--u-popup-trigger-border-width",
+              "description": "Stroke width of the chevron, twice this width.",
+              "name": "--u-popup-chevron-width",
               "default": "var(--u-border-width)",
               "inheritedFrom": {
                 "name": "PopupBase",
@@ -46852,25 +47011,7 @@
               }
             },
             {
-              "description": "Border color of the trigger.",
-              "name": "--u-popup-trigger-border-color",
-              "default": "var(--u-color-border-control)",
-              "inheritedFrom": {
-                "name": "PopupBase",
-                "module": "src/bases/popup/popup-base.ts"
-              }
-            },
-            {
-              "description": "Corner radius of the trigger.",
-              "name": "--u-popup-trigger-border-radius",
-              "default": "var(--u-radius-md)",
-              "inheritedFrom": {
-                "name": "PopupBase",
-                "module": "src/bases/popup/popup-base.ts"
-              }
-            },
-            {
-              "description": "Width and height of the chevron. Its stroke is twice the border's width.",
+              "description": "Width and height of the chevron.",
               "name": "--u-popup-chevron-size",
               "default": "var(--u-spacing-sm)",
               "inheritedFrom": {
@@ -46900,33 +47041,6 @@
               "description": "Entry and exit transition easing of the popup.",
               "name": "--u-popup-transition-timing-function",
               "default": "var(--u-motion-easing-standard)",
-              "inheritedFrom": {
-                "name": "PopupBase",
-                "module": "src/bases/popup/popup-base.ts"
-              }
-            },
-            {
-              "description": "Color of the focus ring.",
-              "name": "--u-popup-focus-ring-color",
-              "default": "var(--u-color-focus-ring)",
-              "inheritedFrom": {
-                "name": "PopupBase",
-                "module": "src/bases/popup/popup-base.ts"
-              }
-            },
-            {
-              "description": "Width of the focus ring.",
-              "name": "--u-popup-focus-ring-width",
-              "default": "var(--u-focus-ring-width)",
-              "inheritedFrom": {
-                "name": "PopupBase",
-                "module": "src/bases/popup/popup-base.ts"
-              }
-            },
-            {
-              "description": "Space between the trigger and its focus ring.",
-              "name": "--u-popup-focus-ring-offset",
-              "default": "var(--u-focus-ring-offset)",
               "inheritedFrom": {
                 "name": "PopupBase",
                 "module": "src/bases/popup/popup-base.ts"

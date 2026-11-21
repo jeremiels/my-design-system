@@ -4,6 +4,7 @@ import { afterEach, expect, it } from "vitest";
 import { userEvent } from "vitest/browser";
 import "../../define.js";
 import type { PopupToggleReason } from "../../events/popup-toggle.js";
+import type { Button } from "../button/button.js";
 import type { MenuItem } from "../menu-item/menu-item.js";
 import type { Menu } from "./menu.js";
 
@@ -18,7 +19,10 @@ async function mount(attributes = "") {
   const menu = document.querySelector<Menu>("u-menu")!;
   const items = Array.from(menu.querySelectorAll<MenuItem>("u-menu-item"));
   await Promise.all([menu, ...items].map((element) => element.updateComplete));
-  const trigger = menu.shadowRoot!.querySelector<HTMLButtonElement>('[part~="trigger"]')!;
+  // The trigger is a `u-button`; its native control carries the ARIA.
+  const trigger = menu.shadowRoot!.querySelector<Button>('[part~="trigger"]')!;
+  await trigger.updateComplete;
+  const control = trigger.shadowRoot!.querySelector("button")!;
   const popup = menu.shadowRoot!.querySelector<HTMLElement>('[part~="menu"]')!;
   const toggles: [string, PopupToggleReason][] = [];
   menu.addEventListener("u-toggle", (event) => toggles.push([event.newState, event.reason]));
@@ -26,7 +30,7 @@ async function mount(attributes = "") {
   for (const item of items) {
     item.addEventListener("click", () => pressed.push(item.value));
   }
-  return { menu, items, trigger, popup, toggles, pressed };
+  return { menu, items, trigger, control, popup, toggles, pressed };
 }
 
 afterEach(() => {
@@ -34,10 +38,10 @@ afterEach(() => {
 });
 
 it("is a menu button whose menu is named by it", async () => {
-  const { menu, trigger, popup, items } = await mount();
-  await expect.element(trigger).toHaveAccessibleName("Actions");
-  expect(trigger.getAttribute("aria-haspopup")).toBe("menu");
-  expect(trigger.getAttribute("aria-expanded")).toBe("false");
+  const { menu, control, popup, items } = await mount();
+  await expect.element(control).toHaveAccessibleName("Actions");
+  expect(control.getAttribute("aria-haspopup")).toBe("menu");
+  expect(control.getAttribute("aria-expanded")).toBe("false");
   // Closed, the popup is hidden: out of the accessibility tree.
   menu.show();
   await expect.poll(() => popup.matches(":popover-open")).toBe(true);
@@ -46,11 +50,11 @@ it("is a menu button whose menu is named by it", async () => {
 });
 
 it("opens on its first item with Enter, moves past a disabled item, presses with Enter", async () => {
-  const { menu, items, trigger, popup, toggles, pressed } = await mount();
+  const { menu, items, trigger, control, popup, toggles, pressed } = await mount();
   trigger.focus();
   await userEvent.keyboard("{Enter}");
   await expect.poll(() => document.activeElement).toBe(items[0]);
-  expect(trigger.getAttribute("aria-expanded")).toBe("true");
+  expect(control.getAttribute("aria-expanded")).toBe("true");
   expect(popup.matches(":popover-open")).toBe(true);
   await userEvent.keyboard("{ArrowDown}");
   expect(document.activeElement).toBe(items[2]);

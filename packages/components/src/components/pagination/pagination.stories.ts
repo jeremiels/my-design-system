@@ -1,6 +1,7 @@
 import preview from "#.storybook/preview";
 import { html } from "lit";
 import { expect, fn, userEvent } from "storybook/test";
+import type { Button } from "../button/button";
 import type { Pagination } from "./pagination";
 
 const meta = preview.meta({
@@ -34,8 +35,10 @@ export const Default = meta.story({
     await pagination.updateComplete;
     const onChange = fn();
     pagination.addEventListener("change", onChange);
-    const next = pagination.shadowRoot!.querySelector<HTMLButtonElement>(".button--next")!;
-    expect(next).toHaveAccessibleName("Next page");
+    // Its buttons are `u-button` elements; the native control carries the name.
+    const next = pagination.shadowRoot!.querySelector<Button>(".button--next")!;
+    await next.updateComplete;
+    await expect(next.shadowRoot!.querySelector("button")!).toHaveAccessibleName("Next page");
     await userEvent.click(next);
     expect(pagination.page).toBe(7);
     expect(onChange).toHaveBeenCalledOnce();

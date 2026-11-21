@@ -65,6 +65,9 @@ render() {
 - `tagFor()` donne la balise de l'enregistrement de cet élément : `u-modal` rend `u-button`, `acme-modal` rend la surcharge de la marque.
 - N'écrivez jamais la balise d'un autre composant en dur, et n'appelez jamais `document.createElement` pour lui. La surcharge de la marque serait ignorée.
 - Une icône se rend de la même façon, avec `Icon` dans `dependencies` (skill `icons`).
+- Rendez un composant de base pour tout contrôle qui en a l'air, jamais son élément natif : `button` (avec `variant="neutral"`, `appearance="plain"`, `label` pour une icône seule, `current`, `popup` et `expanded`), `icon`, `spinner`, `checkbox`, `radio`. S'il lui manque quelque chose, ajoutez-le au composant de base (ADR 0031, `docs/adr/0031-composants-de-base-et-composition.mdx`).
+- `packages/components/src/composition.test.ts` échoue sur un `<button>`, une case, un `<svg>` ou une barre de progression natifs, et sur une balise écrite en dur. Une exception va dans sa liste `ALLOWED`, avec sa raison.
+- Le contrôle natif d'un composant de base est dans son propre shadow root : un test lit le nom et l'ARIA sur `button.shadowRoot.querySelector("button")`, après `await button.updateComplete`.
 - Quand le sous-élément est un choix d'intégration, préférez un slot ou une commande. La modale rend son bouton de fermeture (`tagFor(Button)`). Son déclencheur reste hors d'elle : un bouton avec `commandfor` et `command` (section Commandes).
 - Ajoutez tout nouvel import `lit/...` à `optimizeDeps.include` dans le `vite.config.ts` de la racine. Sinon, Vitest et Storybook ré-optimisent en cours de test et échouent.
 

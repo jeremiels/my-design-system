@@ -1,0 +1,205 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Documentation/ADR/0031 Composants de base et composition" />
+
+# ADR 0031 — Composants de base et composition
+
+**Statut :** accepté · **Date :** 21 novembre 2026 · Change le déclencheur de l'[ADR 0021](?path=/docs/documentation-adr-0021-menu-et-popups--docs)
+
+## Contexte
+
+Un composant du socle en rend d'autres : `modal` rend son bouton de fermeture avec `button`, `table-row` sa case avec `checkbox`, `file-field` ses fichiers avec `tag`. `tagFor()` donne la balise de leur enregistrement : une marque qui change son `button` change aussi le bouton de la modale ([ADR 0001](?path=/docs/documentation-adr-0001-architecture-multi-marque--docs)).
+
+Sept composants dessinent pourtant un `<button>` natif qui a l'air d'un bouton :
+
+- le bouton de retrait de `tag` et le bouton de fermeture de `toaster` ;
+- les mois précédent et suivant de `calendar` ;
+- les pages de `pagination` ;
+- les boutons de défilement de `tabs` ;
+- les déclencheurs de `menu` et de `popover`.
+
+Chacun recopie le focus, le survol, l'état désactivé et le mode de contraste forcé, avec ses propres tokens. Une marque qui change son `button` ne les change pas.
+
+La cause est dans `button`. Il n'a pas :
+
+- de style sans fond ni bordure, pour une action discrète ;
+- de couleur sans intention, pour fermer ou retirer ;
+- de nom accessible pour un contenu fait d'une icône ou d'une forme ;
+- d'état `aria-current`, `aria-haspopup` ou `aria-expanded` ;
+- de `tabindex` négatif qui atteigne son contrôle natif ;
+- d'état de chargement.
+
+Le chargement d'`autocomplete` et de `combobox` écrit son texte sans `spinner` ([ADR 0026](?path=/docs/documentation-adr-0026-grandes-listes-et-options-chargées--docs)).
+
+### Ce que font les bibliothèques
+
+<table>
+  <thead>
+    <tr>
+      <th>Bibliothèque</th>
+      <th>Apparence</th>
+      <th>Icône seule</th>
+      <th>Chargement</th>
+      <th>Boutons des composites</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Web Awesome</td>
+      <td>
+        `appearance` : `accent`, `filled`, `outlined`, `filled-outlined`, `plain`. `variant`
+        `neutral`, la valeur par défaut.
+      </td>
+      <td>Une `wa-icon` seule dans le slot, nommée par son `label`.</td>
+      <td>`loading` rend un `wa-spinner` et bloque les clics.</td>
+      <td>
+        Le bouton de fermeture de `wa-dialog` et le bouton de retrait de `wa-tag` sont des
+        `wa-button` `plain`.
+      </td>
+    </tr>
+    <tr>
+      <td>Spectrum Web Components</td>
+      <td>`treatment` : `fill`, `outline`. `quiet`, déprécié.</td>
+      <td>`label` sur l'hôte.</td>
+      <td>`pending` et `pending-label`, qui bloquent les clics.</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>Carbon</td>
+      <td>`kind` : `primary`, `secondary`, `tertiary`, `ghost`.</td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>DSFR</td>
+      <td>Primaire, secondaire (une bordure), tertiaire, tertiaire sans bordure.</td>
+      <td>Une icône et un `title`.</td>
+      <td></td>
+      <td></td>
+    </tr>
+  </tbody>
+</table>
+
+## D1 — Des composants de base, que les autres rendent
+
+Un composant de base est un composant que d'autres composants rendent : `button`, `icon`, `spinner`, `progress`, `checkbox`, `switch`, `radio`, `tag`.
+
+- Un composant rend le composant de base pour tout contrôle qui en a l'air, avec `tagFor()` et `static dependencies`.
+- Un élément natif reste permis dans deux cas : le contrôle du composant de base lui-même, ou un élément qui n'a pas l'air d'un contrôle. Le bouton de tri d'un `table-header-cell` est le texte de l'en-tête.
+- Le composite règle le composant de base par ses tokens : une règle de sa feuille sur l'hôte bat les tokens `:host`. Il donne ses propres tokens en valeur : `--u-button-border-radius: var(--u-tag-border-radius)`.
+- Il complète le composant de base quand il manque quelque chose, au lieu de dessiner son propre contrôle. `label-hidden` de `FieldBase` en vient ([ADR 0030](?path=/docs/documentation-adr-0030-tableau--docs)).
+
+## D2 — L'apparence de `button`
+
+- **Option A — Une variante par style**, `ghost` ou `outlined`, comme Carbon. La variante mêle alors le style et l'intention : un bouton `danger` sans fond n'existe pas.
+- **Option B — `appearance`, qui croise `variant`**, comme Web Awesome. La variante fixe la couleur, l'apparence la façon de la peindre.
+
+**Décision : B.** `appearance` vaut `filled` (par défaut), `outlined` ou `plain`. `variant` prend la valeur `neutral`, pour les actions sans intention : fermer, retirer, faire défiler.
+
+- `outlined` et `plain` n'ont pas de fond. Leur texte prend la couleur `foreground` de l'intention, une bordure aussi pour `outlined`.
+- Chaque intention a un token sémantique `color.<intention>.foreground`. Il garde un contraste AA sur les surfaces et sur les fonds `neutral`, au survol et à l'appui.
+- `color.neutral` donne les fonds et le texte de `neutral`. `color.transparent` donne le fond d'`outlined` et de `plain`.
+- Chaque apparence garde une bordure, transparente pour `filled` : elles ont toutes la même taille.
+- Un token de composant peut viser un token de son propre composant : `text-color` d'`outlined` vaut `{button.foreground-color}`, que fixe la variante. Le `var()` suit les deux attributs.
+
+## D3 — Le nom, l'état et le focus de `button`
+
+- `label` donne le nom accessible d'un bouton dont le contenu est une icône, une forme ou un nombre, comme Spectrum. Le bouton est alors carré.
+- `label` devient l'`aria-label` du contrôle natif : il remplace le nom du contenu. Il contient le texte visible : « Page 10 » pour une page « 10 » (WCAG 2.5.3).
+- Le composite remplit `label` avec sa propre propriété de texte : `close-label` de `modal`, traduite par `labels` de `designSystem()`.
+- `current` pose `aria-current` : la page courante d'une `pagination`.
+- `popup` pose `aria-haspopup` : `menu` ou `dialog`. Avec `popup`, `expanded` pose `aria-expanded` à `true` ou `false`.
+- Un `tabindex` négatif sur l'hôte atteint le contrôle natif : les boutons de défilement de `tabs` restent hors de l'ordre de tabulation.
+
+`pressed` (`aria-pressed`) reste une question : un booléen absent ne distingue pas un bouton simple d'un bouton bascule relâché.
+
+## D4 — Le chargement de `button`
+
+`loading` montre un `spinner` sur le libellé, comme Web Awesome. Le bouton ignore les clics, porte `aria-disabled`, et garde le focus et son nom. L'application annonce la fin de l'action dans une région live.
+
+`button` déclare `spinner` dans ses `dependencies` : enregistrer `button` enregistre aussi `spinner`.
+
+## D5 — Les composites migrés
+
+<table>
+  <thead>
+    <tr>
+      <th>Composant</th>
+      <th>Bouton</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>`modal`, `drawer`</td>
+      <td>Fermer : `neutral`, `plain`, nommé par `close-label`.</td>
+    </tr>
+    <tr>
+      <td>`tag`</td>
+      <td>Retirer : `neutral`, `plain`, `small`, rond.</td>
+    </tr>
+    <tr>
+      <td>`toaster`</td>
+      <td>Fermer : la variante du message, `filled`, sur sa couleur.</td>
+    </tr>
+    <tr>
+      <td>`calendar`</td>
+      <td>Mois précédent et suivant : `neutral`, `plain`, à la taille d'un jour.</td>
+    </tr>
+    <tr>
+      <td>`pagination`</td>
+      <td>
+        Précédent, suivant et pages : `neutral`, `plain`. La page courante : `primary`, `filled`,
+        avec `current="page"`.
+      </td>
+    </tr>
+    <tr>
+      <td>`tabs`</td>
+      <td>Défilement : `neutral`, `plain`, `tabindex="-1"`, pour le pointeur seul.</td>
+    </tr>
+    <tr>
+      <td>`menu`, `popover`</td>
+      <td>
+        Déclencheur : `neutral`, `outlined`, avec `popup` et `expanded`. `label` nomme aussi le
+        popup.
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+Le contrôle natif du déclencheur est dans le shadow root du `button` : `aria-controls` n'atteint pas le popup de `menu` ou de `popover`, et le composant ne le pose pas. Cet attribut est facultatif dans le pattern de l'APG. Le popup prend `label` comme nom. `aria-expanded` et `aria-haspopup` restent sur le contrôle.
+
+La ligne d'état d'`autocomplete` et de `combobox` montre un `spinner` avant `loading-label`, pendant une requête lente.
+
+## D6 — Un test garde la règle
+
+`packages/components/src/composition.test.ts` lit le code des composants, des bases, des contrôleurs et des mixins, sans leurs commentaires. Il échoue dans deux cas :
+
+- un fichier rend `<button>`, `<input type="checkbox">`, `<input type="radio">`, `<svg>`, `<progress>` ou `role="progressbar"`, et ne figure pas dans sa liste `ALLOWED` ;
+- un fichier écrit la balise d'un autre composant (`<u-…>`) au lieu de `tagFor()`.
+
+Chaque entrée de `ALLOWED` donne sa raison. Une entrée sans élément natif fait aussi échouer le test.
+
+## Conséquences
+
+- **Code :** `appearance`, `label` et `current` sur `ButtonBase`. `loading`, `popup` et `expanded` sur `Button`. Les sept composites, `modal` et `drawer` rendent `button`. `EditableComboboxBase` rend `spinner`. `ListboxController` accepte un gabarit dans `status`.
+- **Tokens :** `color.<intention>.foreground`, `color.neutral`, `color.transparent` et `palette.transparent`. Le modifier `button-appearance`, la variante `neutral`, `foreground-color`, `outlined-border-color`, `border-color` et `border-width` de `button`. `status-gap` de `listbox`. Les tokens que les boutons migrés remplacent sortent de `tag`, `toaster`, `pagination` et `popup`.
+- **Règles des tokens :** `checkLevels()` accepte un alias vers un token du même composant ([Tokens et couches CSS](?path=/docs/documentation-référence-tokens-et-couches-css--docs)).
+- **Contraste :** `contrastPairs` vérifie `foreground` sur les surfaces et les fonds `neutral`, et le texte de `neutral` sur ses fonds.
+- **Tests :** `composition.test.ts`, les stories `Appearances`, `IconOnly`, `Loading` et `PopupTrigger` de `button` dans trois moteurs.
+- **Limites :**
+  - Chaque bouton d'un composite est un élément avec son shadow root. Les jours d'un `calendar` restent des `<button>` natifs d'une grille.
+  - Le premier focus d'un composite atteint son `button` après le rendu de ce dernier.
+
+## Questions ouvertes
+
+- **Bouton bascule :** `pressed` et `aria-pressed`, pour une barre d'outils.
+- **Chevrons :** des icônes `chevron-*`, au lieu des chevrons en CSS de `calendar`, `pagination`, `tabs` et des popups.
+- **Divulgation :** `aria-expanded` sans `popup`, pour un bouton qui montre une région de la page.
+
+## Sources
+
+Consultées le 21 novembre 2026.
+
+- [button.ts](https://github.com/shoelace-style/webawesome/blob/next/packages/webawesome/src/components/button/button.ts), [dialog.ts](https://github.com/shoelace-style/webawesome/blob/next/packages/webawesome/src/components/dialog/dialog.ts) et [tag.ts](https://github.com/shoelace-style/webawesome/blob/next/packages/webawesome/src/components/tag/tag.ts) (Web Awesome).
+- [Button.ts](https://github.com/adobe/spectrum-web-components/blob/main/1st-gen/packages/button/src/Button.ts) et [ButtonBase.ts](https://github.com/adobe/spectrum-web-components/blob/main/1st-gen/packages/button/src/ButtonBase.ts) (Adobe, Spectrum Web Components).

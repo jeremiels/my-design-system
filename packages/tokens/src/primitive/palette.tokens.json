@@ -523,6 +523,15 @@
           "hex": "#000000"
         }
       }
+    },
+    "transparent": {
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [0, 0, 0],
+        "alpha": 0,
+        "hex": "#000000"
+      },
+      "$description": "No color: a fill or a border that lets what is below show."
     }
   }
 }

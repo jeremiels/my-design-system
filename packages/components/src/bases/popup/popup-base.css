@@ -7,41 +7,15 @@
   font-size: var(--u-popup-font-size);
 }
 
-.trigger {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--u-popup-trigger-gap);
-  padding-inline: var(--u-popup-trigger-padding-inline);
-  padding-block: var(--u-popup-trigger-padding-block);
-  font: inherit;
-  color: var(--u-popup-text-color);
-  background-color: var(--u-popup-trigger-background-color);
-  border: var(--u-popup-trigger-border-width) solid var(--u-popup-trigger-border-color);
-  border-radius: var(--u-popup-trigger-border-radius);
-  cursor: pointer;
-}
-
-.trigger:hover:not(:disabled) {
-  background-color: var(--u-popup-trigger-background-color-hover);
-}
-
-.trigger:focus-visible {
-  outline: var(--u-popup-focus-ring-width) solid var(--u-popup-focus-ring-color);
-  outline-offset: var(--u-popup-focus-ring-offset);
-}
-
-.trigger:disabled {
-  cursor: default;
-}
-
+/* The trigger is an outlined `button`; its chevron follows the label. */
 .chevron {
   box-sizing: border-box;
   inline-size: var(--u-popup-chevron-size);
   block-size: var(--u-popup-chevron-size);
   margin-block-start: calc(var(--u-popup-chevron-size) / -2);
+  margin-inline-start: var(--u-popup-trigger-gap);
   border: solid currentColor;
-  border-width: 0 calc(var(--u-popup-trigger-border-width) * 2)
-    calc(var(--u-popup-trigger-border-width) * 2) 0;
+  border-width: 0 calc(var(--u-popup-chevron-width) * 2) calc(var(--u-popup-chevron-width) * 2) 0;
   transform: rotate(45deg);
 }
 

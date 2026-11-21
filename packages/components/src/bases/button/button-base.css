@@ -1,9 +1,18 @@
 /* The tokens, their variants and sizes are in button.tokens.css, generated
    from tokens/component/button/ (ADR 0002). These rules only read them. */
+
+/* The host sizes the button: a composite sets its inline size or its block
+   size, and the native control fills it. */
+:host {
+  display: inline-block;
+}
+
 .button {
+  box-sizing: border-box;
   display: inline-grid;
-  place-content: center;
-  width: fit-content;
+  place-items: center;
+  inline-size: 100%;
+  min-block-size: 100%;
   font-family: var(--u-button-font-family);
   font-size: var(--u-button-font-size);
   font-weight: var(--u-button-font-weight);
@@ -11,11 +20,42 @@
   padding-block: var(--u-button-padding-block);
   background-color: var(--u-button-background-color);
   color: var(--u-button-text-color);
-  border: none;
+  border: var(--u-button-border-width) solid var(--u-button-border-color);
   border-radius: var(--u-button-border-radius);
   cursor: pointer;
   transition: background-color var(--u-button-transition-duration)
     var(--u-button-transition-timing-function);
+}
+
+/* The label and the spinner of `loading` share the cell. */
+.button > * {
+  grid-area: 1 / 1;
+}
+
+.content {
+  display: inline-flex;
+  align-items: center;
+}
+
+/* With `label`, the content is an icon, a shape or a number: a square
+   button, at least. */
+.button--square {
+  padding-inline: var(--u-button-padding-block);
+}
+
+:host([loading]) .button {
+  cursor: progress;
+}
+
+:host([loading]) .content {
+  opacity: 0;
+}
+
+/* The spinner takes the color and the font size of the label, on any fill and
+   at any size. */
+.spinner {
+  --u-spinner-indicator-color: currentColor;
+  --u-spinner-size: 1em;
 }
 
 .button:hover {
@@ -33,7 +73,7 @@
 
 @media (forced-colors: active) {
   .button {
-    border: 1px solid ButtonText;
+    border-color: ButtonText;
   }
   .button:focus-visible {
     outline-color: Highlight;

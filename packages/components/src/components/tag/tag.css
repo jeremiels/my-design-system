@@ -24,38 +24,22 @@
   padding-inline-end: var(--u-tag-padding-block);
 }
 
-/* The remove button: a round target around its icon. */
+/* The remove button: a `button`, round around its icon, with the tag's
+   size and hover color. */
 .remove {
-  display: inline-grid;
-  place-items: center;
   inline-size: var(--u-tag-remove-size);
   block-size: var(--u-tag-remove-size);
-  padding: 0;
-  margin: 0;
-  border: none;
-  border-radius: 50%;
-  background: none;
-  color: inherit;
-  font: inherit;
-  cursor: pointer;
+  --u-button-padding-block: 0;
+  --u-button-border-radius: var(--u-tag-border-radius);
+  --u-button-background-color-hover: var(--u-tag-remove-background-color-hover);
 }
 .remove > * {
   inline-size: 100%;
   block-size: 100%;
 }
-.remove:hover {
-  background-color: var(--u-tag-remove-background-color-hover);
-}
-.remove:focus-visible {
-  outline: var(--u-tag-focus-ring-width) solid var(--u-tag-focus-ring-color);
-  outline-offset: 0;
-}
 
 @media (forced-colors: active) {
   .tag {
     border-color: CanvasText;
-  }
-  .remove:focus-visible {
-    outline-color: Highlight;
   }
 }

@@ -90,21 +90,6 @@
       "$type": "color",
       "$value": "{color.danger.text}",
       "$description": "Text color of a `danger` message."
-    },
-    "focus-ring-color": {
-      "$type": "color",
-      "$value": "{color.focus-ring}",
-      "$description": "Color of the focus ring of a close button."
-    },
-    "focus-ring-width": {
-      "$type": "dimension",
-      "$value": "{focus-ring.width}",
-      "$description": "Width of the focus ring."
-    },
-    "focus-ring-offset": {
-      "$type": "dimension",
-      "$value": "{focus-ring.offset}",
-      "$description": "Space between a close button and its focus ring."
     }
   }
 }

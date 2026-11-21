@@ -17,7 +17,7 @@ Les chemins partent de `packages/components/`, sauf ceux de `packages/tokens/` e
 
 ## 1. Créez les fichiers dans `src/components/<nom>/`
 
-- `<nom>.ts` : la classe (skill `lit-component`). Elle étend `DSBaseElement`, déclare `static override componentName = "<nom>"` et, si elle rend d'autres composants, `static dependencies` avec `tagFor()`.
+- `<nom>.ts` : la classe (skill `lit-component`). Elle étend `DSBaseElement`, déclare `static override componentName = "<nom>"` et, si elle rend d'autres composants, `static dependencies` avec `tagFor()`. Elle rend un composant de base (`button`, `icon`, `spinner`, `checkbox`) pour tout contrôle qui en a l'air, jamais son élément natif (ADR 0031).
 - `packages/tokens/src/component/<nom>/<nom>.tokens.json` : ses tokens, en DTCG (skill `design-tokens`). Ils vivent dans `@unicorne/tokens`, pour toutes les plateformes. `npm run tokens` génère `src/components/<nom>/<nom>.tokens.css`.
 - `<nom>.css` : sa feuille (skill `component-styling`). Elle lit les tokens `--u-<nom>-<propriété-css>`. Ajoutez `part="…"` sur les éléments que les marques peuvent styler.
 - `<nom>.type.ts` : ses types union, s'il en a.

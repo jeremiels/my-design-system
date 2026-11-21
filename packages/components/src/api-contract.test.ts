@@ -77,6 +77,7 @@ function hostAttributeStates(root: ShadowRoot): [string, string][] {
 
 /** Attributes some parts need to render: the `gap` of `pagination`, with enough pages. */
 const attributesFor: Record<string, Record<string, string>> = {
+  "u-button": { loading: "" },
   "u-pagination": { pages: "20" },
   "u-tag": { removable: "" },
   "u-table": { label: "Requests" },

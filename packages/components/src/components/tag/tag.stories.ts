@@ -1,6 +1,7 @@
 import preview from "#.storybook/preview";
 import { html } from "lit";
 import { expect, userEvent, waitFor } from "storybook/test";
+import type { Button } from "../button/button";
 import type { TagGroup } from "../tag-group/tag-group";
 import type { Tag } from "./tag";
 
@@ -61,9 +62,12 @@ export const Removable = meta.story({
     const group = canvasElement.querySelector<TagGroup>("u-tag-group")!;
     const tags = [...group.querySelectorAll<Tag>("u-tag")];
     await Promise.all(tags.map((tag) => tag.updateComplete));
-    const button = (tag: Tag) =>
-      tag.shadowRoot!.querySelector<HTMLButtonElement>('[part~="remove-button"]')!;
-    expect(button(tags[0]!).getAttribute("aria-label")).toBe("Remove Paris");
+    const button = (tag: Tag) => tag.shadowRoot!.querySelector<Button>('[part~="remove-button"]')!;
+    await button(tags[0]!).updateComplete;
+    // The remove button is a `u-button`, named by `label` on its native control.
+    await expect(button(tags[0]!).shadowRoot!.querySelector("button")!).toHaveAccessibleName(
+      "Remove Paris",
+    );
 
     // The focus moves to the tag that takes its place.
     await userEvent.click(button(tags[0]!));

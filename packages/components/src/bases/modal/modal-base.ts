@@ -32,7 +32,7 @@ import type { ModalCancelReason, ModalClosedBy } from "./modal.type.js";
  * @csspart dialog - The native `<dialog>`.
  * @csspart content - The content wrapper inside the dialog: the content, and the close button at its top end.
  * @csspart close-button - The button that closes the dialog: the `button` component of the same registration.
- * @csspart close-icon - The icon of the close button: the `icon` component of the same registration, named by `close-label`.
+ * @csspart close-icon - The icon of the close button: the `icon` component of the same registration. `close-label` names the button.
  * @fires {ModalCancelEvent} u-cancel - Before it closes at the user's request: close button, Escape, click outside, `requestClose()`. Its `reason` says which. Cancelable: `preventDefault()` keeps it open.
  * @fires {ModalCloseEvent} u-close - When the dialog closes, whatever the cause. Its `value` is the modal's `returnValue`.
  */
@@ -161,10 +161,12 @@ export abstract class ModalBase extends DSBaseElement {
           <${button}
             part="close-button"
             class="close"
-            variant="secondary"
+            variant="neutral"
+            appearance="plain"
+            label=${this.closeLabel}
             @click=${this.handleCloseButton}
           >
-            <${icon} part="close-icon" name="close" label=${this.closeLabel}></${icon}>
+            <${icon} part="close-icon" name="close"></${icon}>
           </${button}>
           <div class="body"><slot></slot></div>
         </div>

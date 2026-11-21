@@ -168,8 +168,15 @@ Le resolver déclare trois sets et des modifiers. Chaque modifier a des contexte
     </tr>
     <tr>
       <td>`button-variant`</td>
-      <td>`primary`, `secondary`, `success`, `warning`, `danger`, `information`</td>
+      <td>`primary`, `secondary`, `success`, `warning`, `danger`, `information`, `neutral`</td>
       <td>Les couleurs de `button` et `button-link`</td>
+    </tr>
+    <tr>
+      <td>`button-appearance`</td>
+      <td>`filled`, `outlined`, `plain`</td>
+      <td>
+        Le fond, la bordure et le texte de `button` et `button-link`, dans la couleur de la variante
+      </td>
     </tr>
     <tr>
       <td>`button-size`</td>
@@ -226,7 +233,7 @@ Le plugin de génération fait échouer le build quand une de ces règles n'est 
 
 - Seules les primitives contiennent des valeurs littérales. Une primitive ne référence que des primitives.
 - Un token sémantique est un alias de primitive ou de token sémantique.
-- Un token de composant est un alias de token sémantique, avec une `$description`.
+- Un token de composant est un alias de token sémantique, avec une `$description`. Un contexte peut aussi viser un token du même composant : `text-color` d'`appearance.plain` vaut `{button.foreground-color}`, que fixe la variante. Le `var()` suit les deux attributs.
 - Un token reste à un seul niveau.
 - Un contexte change seulement des tokens qui ont une valeur par défaut.
 - Les thèmes `light` et `dark` déclarent les mêmes tokens.

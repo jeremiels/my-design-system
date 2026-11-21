@@ -15,6 +15,10 @@
       "text": {
         "$value": "{palette.neutral.950}",
         "$description": "Text on the three backgrounds."
+      },
+      "foreground": {
+        "$value": "{palette.brand.200}",
+        "$description": "Text and border of the intent on the surfaces and on the neutral backgrounds, like an outlined button."
       }
     },
     "secondary": {
@@ -31,6 +35,10 @@
       "text": {
         "$value": "{palette.neutral.950}",
         "$description": "Text on the three backgrounds."
+      },
+      "foreground": {
+        "$value": "{palette.accent.200}",
+        "$description": "Text and border of the intent on the surfaces and on the neutral backgrounds, like an outlined button."
       }
     },
     "success": {
@@ -47,6 +55,10 @@
       "text": {
         "$value": "{palette.neutral.950}",
         "$description": "Text on the three backgrounds."
+      },
+      "foreground": {
+        "$value": "{palette.success.200}",
+        "$description": "Text and border of the intent on the surfaces and on the neutral backgrounds, like an outlined button."
       }
     },
     "warning": {
@@ -63,6 +75,10 @@
       "text": {
         "$value": "{palette.neutral.950}",
         "$description": "Text on the three backgrounds."
+      },
+      "foreground": {
+        "$value": "{palette.warning.200}",
+        "$description": "Text and border of the intent on the surfaces and on the neutral backgrounds, like an outlined button."
       }
     },
     "danger": {
@@ -79,6 +95,10 @@
       "text": {
         "$value": "{palette.neutral.950}",
         "$description": "Text on the three backgrounds."
+      },
+      "foreground": {
+        "$value": "{palette.danger.200}",
+        "$description": "Text and border of the intent on the surfaces and on the neutral backgrounds, like an outlined button."
       }
     },
     "information": {
@@ -94,6 +114,26 @@
       },
       "text": {
         "$value": "{palette.neutral.950}",
+        "$description": "Text on the three backgrounds."
+      },
+      "foreground": {
+        "$value": "{palette.information.200}",
+        "$description": "Text and border of the intent on the surfaces and on the neutral backgrounds, like an outlined button."
+      }
+    },
+    "neutral": {
+      "$description": "Neutral actions and controls, without intent, like the remove button of a tag.",
+      "background": {
+        "$value": "{palette.neutral.800}"
+      },
+      "background-hover": {
+        "$value": "{palette.neutral.700}"
+      },
+      "background-active": {
+        "$value": "{palette.neutral.600}"
+      },
+      "text": {
+        "$value": "{palette.neutral.100}",
         "$description": "Text on the three backgrounds."
       }
     },
@@ -133,6 +173,10 @@
     "backdrop": {
       "$value": "{palette.black-alpha.70}",
       "$description": "Behind a modal."
+    },
+    "transparent": {
+      "$value": "{palette.transparent}",
+      "$description": "No color: the background of a plain button, the border of a filled one."
     }
   }
 }

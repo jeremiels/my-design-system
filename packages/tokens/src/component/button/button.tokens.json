@@ -1,6 +1,6 @@
 {
   "button": {
-    "$description": "Tokens of `button` and `button-link`. The defaults are those of the `primary` variant and the `medium` size.",
+    "$description": "Tokens of `button` and `button-link`. The defaults are those of the `primary` variant, the `filled` appearance and the `medium` size.",
     "background-color": {
       "$type": "color",
       "$value": "{color.action.background}",
@@ -20,6 +20,26 @@
       "$type": "color",
       "$value": "{color.action.text}",
       "$description": "Text color."
+    },
+    "foreground-color": {
+      "$type": "color",
+      "$value": "{color.action.foreground}",
+      "$description": "Color of the variant on a surface: the text of the `outlined` and `plain` appearances (variants change the default)."
+    },
+    "outlined-border-color": {
+      "$type": "color",
+      "$value": "{color.action.foreground}",
+      "$description": "Border color of the `outlined` appearance (variants change the default)."
+    },
+    "border-color": {
+      "$type": "color",
+      "$value": "{color.transparent}",
+      "$description": "Border color (appearances change the default). The border keeps every appearance at the same size."
+    },
+    "border-width": {
+      "$type": "dimension",
+      "$value": "{border.width}",
+      "$description": "Border width."
     },
     "border-radius": {
       "$type": "dimension",

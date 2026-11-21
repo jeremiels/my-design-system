@@ -1,6 +1,6 @@
 {
   "popup": {
-    "$description": "Tokens of the popups anchored to a trigger (`PopupBase`): the trigger, its chevron, the popup's distance and transitions. `menu` and `popover` add their panel.",
+    "$description": "Tokens of the popups anchored to a trigger (`PopupBase`): the chevron of the trigger, a `button`, the popup's distance and transitions. `menu` and `popover` add their panel.",
     "font-family": {
       "$type": "fontFamily",
       "$value": "{font.family.body}",
@@ -14,52 +14,22 @@
     "text-color": {
       "$type": "color",
       "$value": "{color.text.default}",
-      "$description": "Text color of the trigger."
-    },
-    "trigger-padding-inline": {
-      "$type": "dimension",
-      "$value": "{spacing.md}",
-      "$description": "Horizontal padding of the trigger."
-    },
-    "trigger-padding-block": {
-      "$type": "dimension",
-      "$value": "{spacing.sm}",
-      "$description": "Vertical padding of the trigger."
+      "$description": "Text color of the popup."
     },
     "trigger-gap": {
       "$type": "dimension",
       "$value": "{spacing.sm}",
       "$description": "Space between the label of the trigger and its chevron."
     },
-    "trigger-background-color": {
-      "$type": "color",
-      "$value": "{color.surface.default}",
-      "$description": "Background color of the trigger."
-    },
-    "trigger-background-color-hover": {
-      "$type": "color",
-      "$value": "{color.surface.raised}",
-      "$description": "Background color of the trigger under the pointer."
-    },
-    "trigger-border-width": {
+    "chevron-width": {
       "$type": "dimension",
       "$value": "{border.width}",
-      "$description": "Border width of the trigger."
-    },
-    "trigger-border-color": {
-      "$type": "color",
-      "$value": "{color.border.control}",
-      "$description": "Border color of the trigger."
-    },
-    "trigger-border-radius": {
-      "$type": "dimension",
-      "$value": "{radius.md}",
-      "$description": "Corner radius of the trigger."
+      "$description": "Stroke width of the chevron, twice this width."
     },
     "chevron-size": {
       "$type": "dimension",
       "$value": "{spacing.sm}",
-      "$description": "Width and height of the chevron. Its stroke is twice the border's width."
+      "$description": "Width and height of the chevron."
     },
     "popup-offset": {
       "$type": "dimension",
@@ -75,21 +45,6 @@
       "$type": "cubicBezier",
       "$value": "{motion.easing.standard}",
       "$description": "Entry and exit transition easing of the popup."
-    },
-    "focus-ring-color": {
-      "$type": "color",
-      "$value": "{color.focus-ring}",
-      "$description": "Color of the focus ring."
-    },
-    "focus-ring-width": {
-      "$type": "dimension",
-      "$value": "{focus-ring.width}",
-      "$description": "Width of the focus ring."
-    },
-    "focus-ring-offset": {
-      "$type": "dimension",
-      "$value": "{focus-ring.offset}",
-      "$description": "Space between the trigger and its focus ring."
     }
   }
 }

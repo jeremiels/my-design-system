@@ -2,6 +2,7 @@ import preview from "#.storybook/preview";
 import { html } from "lit";
 import { ifDefined } from "lit/directives/if-defined.js";
 import { expect, fn, userEvent, waitFor } from "storybook/test";
+import type { Button } from "../button/button";
 import type { MenuItem } from "../menu-item/menu-item";
 import type { Menu } from "./menu";
 
@@ -10,10 +11,14 @@ async function menuIn(canvasElement: HTMLElement) {
   const menu = canvasElement.querySelector<Menu>("u-menu")!;
   const items = [...menu.querySelectorAll<MenuItem>("u-menu-item")];
   await Promise.all([menu, ...items].map((element) => element.updateComplete));
+  // The trigger is a `u-button`; its native control carries the name and the ARIA.
+  const trigger = menu.shadowRoot!.querySelector<Button>('[part~="trigger"]')!;
+  await trigger.updateComplete;
   return {
     menu,
     items,
-    trigger: menu.shadowRoot!.querySelector<HTMLButtonElement>('[part~="trigger"]')!,
+    trigger,
+    control: trigger.shadowRoot!.querySelector("button")!,
     popup: menu.shadowRoot!.querySelector<HTMLElement>('[part~="menu"]')!,
   };
 }
@@ -70,8 +75,8 @@ export const Default = meta.story({
     </u-menu>
   `,
   play: async ({ canvasElement }) => {
-    const { menu, items, trigger, popup } = await menuIn(canvasElement);
-    expect(trigger).toHaveAccessibleName("Actions");
+    const { menu, items, trigger, control, popup } = await menuIn(canvasElement);
+    await expect(control).toHaveAccessibleName("Actions");
     const onClick = fn();
     items[1]!.addEventListener("click", onClick);
     await userEvent.click(trigger);
@@ -99,11 +104,11 @@ export const Open = meta.story({
     </u-menu>
   `,
   play: async ({ canvasElement }) => {
-    const { items, trigger, popup } = await menuIn(canvasElement);
+    const { items, trigger, control, popup } = await menuIn(canvasElement);
     trigger.focus();
     await userEvent.keyboard("{ArrowDown}");
     await waitFor(() => expect(popup.matches(":popover-open")).toBe(true));
-    await waitFor(() => expect(trigger.getAttribute("aria-expanded")).toBe("true"));
+    await waitFor(() => expect(control.getAttribute("aria-expanded")).toBe("true"));
     expect(items[1]!.getAttribute("aria-disabled")).toBe("true");
     await popupSettled(popup);
   },

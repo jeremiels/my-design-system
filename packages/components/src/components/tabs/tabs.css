@@ -22,17 +22,13 @@
   overflow-x: auto;
 }
 
-/* The buttons that scroll the list, at the edges it hides tabs past. */
+/* The buttons that scroll the list, at the edges it hides tabs past: a
+   `button`, as high as the bar. */
 .scroll {
   flex: none;
-  display: inline-grid;
-  place-items: center;
   inline-size: var(--u-tabs-scroll-button-size);
-  padding: 0;
-  color: inherit;
-  background: none;
-  border: 0;
-  cursor: pointer;
+  --u-button-padding-inline: 0;
+  --u-button-padding-block: 0;
 }
 
 .chevron {

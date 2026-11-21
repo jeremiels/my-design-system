@@ -21,7 +21,11 @@ export default defineConfig({
       components: {
         button: {
           file: "bases/button/button.tokens.css",
-          attributes: { "button-variant": "variant", "button-size": "size" },
+          attributes: {
+            "button-variant": "variant",
+            "button-appearance": "appearance",
+            "button-size": "size",
+          },
         },
         alert: {
           file: "components/alert/alert.tokens.css",

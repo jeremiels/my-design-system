@@ -65,16 +65,6 @@
       "$type": "dimension",
       "$value": "{spacing.xs}",
       "$description": "Space between the tags of a `tag-group`."
-    },
-    "focus-ring-color": {
-      "$type": "color",
-      "$value": "{color.focus-ring}",
-      "$description": "Color of the focus ring of the remove button."
-    },
-    "focus-ring-width": {
-      "$type": "dimension",
-      "$value": "{focus-ring.width}",
-      "$description": "Width of the focus ring of the remove button."
     }
   }
 }

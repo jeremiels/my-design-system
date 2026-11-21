@@ -3,6 +3,7 @@ import { property, state } from "lit/decorators.js";
 import { html } from "lit/static-html.js";
 import { DSBaseElement } from "../../bases/base-element.js";
 import { TagRemoveEvent } from "../../events/tag-remove.js";
+import { Button } from "../button/button.js";
 import { Icon } from "../icon/icon.js";
 import tagStyles from "./tag.css" with { type: "css" };
 import tagTokens from "./tag.tokens.css" with { type: "css" };
@@ -21,7 +22,7 @@ import tagTokens from "./tag.tokens.css" with { type: "css" };
  * @summary A keyword, which the user may remove.
  * @slot - The text of the tag.
  * @csspart tag - The tag.
- * @csspart remove-button - The remove button of a `removable` tag.
+ * @csspart remove-button - The remove button of a `removable` tag: the `button` component of the same registration, `plain` and `neutral`.
  * @csspart remove-icon - Its icon: the `icon` component of the same registration.
  * @fires {TagRemoveEvent} u-remove - When the user presses the remove button. The tag stays until the application removes it.
  * @tokens tag - Its tokens (`@cssprop`), shared with `tag-group`, from `@unicorne/tokens` (`src/component/tag/`): `npm run analyze` documents them.
@@ -29,8 +30,8 @@ import tagTokens from "./tag.tokens.css" with { type: "css" };
 export class Tag extends DSBaseElement {
   static override componentName = "tag";
 
-  /** Renders its remove icon with the `icon` of its own registration. */
-  static override dependencies = [Icon];
+  /** Renders its remove button and its icon with the `button` and the `icon` of its own registration. */
+  static override dependencies = [Button, Icon];
 
   static shadowRootOptions: ShadowRootInit = { ...super.shadowRootOptions, delegatesFocus: true };
 
@@ -58,19 +59,22 @@ export class Tag extends DSBaseElement {
   }
 
   render() {
+    const button = this.tagFor(Button);
     const icon = this.tagFor(Icon);
     return html`<span part="tag" class="tag"
       ><span class="text"><slot @slotchange=${this.#readText}></slot></span>${
         this.removable
-          ? html`<button
+          ? html`<${button}
               part="remove-button"
               class="remove"
-              type="button"
-              aria-label=${this.removeMessage(this.text)}
+              variant="neutral"
+              appearance="plain"
+              size="small"
+              label=${this.removeMessage(this.text)}
               @click=${this.#remove}
             >
               <${icon} part="remove-icon" name="close"></${icon}>
-            </button>`
+            </${button}>`
           : nothing
       }</span
     >`;

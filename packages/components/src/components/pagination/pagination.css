@@ -17,7 +17,15 @@
   list-style: none;
 }
 
-.button,
+/* The buttons are `button` components named by `label`, so square: at the
+   size of the pagination, wider for a long page number. */
+.button {
+  min-inline-size: var(--u-pagination-button-size);
+  block-size: var(--u-pagination-button-size);
+  --u-button-padding-block: 0;
+  --u-button-border-radius: var(--u-pagination-border-radius);
+}
+
 .gap {
   box-sizing: border-box;
   display: inline-grid;
@@ -25,34 +33,6 @@
   min-inline-size: var(--u-pagination-button-size);
   min-block-size: var(--u-pagination-button-size);
   padding-inline: var(--u-pagination-padding-inline);
-}
-
-.button {
-  font: inherit;
-  color: inherit;
-  background: none;
-  border: 0;
-  border-radius: var(--u-pagination-border-radius);
-  cursor: pointer;
-}
-
-.button:hover:not(:disabled, [aria-current]) {
-  background-color: var(--u-pagination-hover-background-color);
-}
-
-.button[aria-current] {
-  color: var(--u-pagination-current-text-color);
-  background-color: var(--u-pagination-current-background-color);
-}
-
-.button:disabled {
-  opacity: var(--u-opacity-disabled);
-  cursor: default;
-}
-
-.button:focus-visible {
-  outline: var(--u-pagination-focus-ring-width) solid var(--u-pagination-focus-ring-color);
-  outline-offset: var(--u-pagination-focus-ring-offset);
 }
 
 /* A chevron that points back or forward, along the text. */
@@ -80,11 +60,4 @@
 
 .rtl .button--next .chevron {
   transform: rotate(135deg);
-}
-
-@media (forced-colors: active) {
-  .button[aria-current] {
-    color: HighlightText;
-    background-color: Highlight;
-  }
 }

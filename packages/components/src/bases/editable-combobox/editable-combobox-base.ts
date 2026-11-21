@@ -1,12 +1,14 @@
-import { html, type PropertyValues } from "lit";
+import { nothing, type PropertyValues } from "lit";
 import { property } from "lit/decorators.js";
 import { live } from "lit/directives/live.js";
+import { html } from "lit/static-html.js";
 import { ListboxController, listboxStyles, listboxTokens } from "../../controllers/listbox.js";
 import type { ListboxOption } from "../../controllers/listbox.type.js";
 import { LoadController } from "../../controllers/load.js";
 import { ListboxSelectEvent } from "../../events/listbox-select.js";
 import { collectionKeyMove } from "../../state/collection.js";
 import { normalizeText } from "../../state/typeahead.js";
+import { Spinner } from "../../components/spinner/spinner.js";
 import { ComboboxBase } from "../combobox/combobox-base.js";
 import { fieldIds } from "../field/field-base.js";
 import type { ComboboxFilter, OptionsRequest } from "./editable-combobox.type.js";
@@ -52,11 +54,14 @@ interface Matches {
  * @csspart input - The native `<input>`, the combobox.
  * @csspart listbox - The list of options, in the popup.
  * @csspart option - An option. The active one has `aria-selected="true"`, a disabled one `aria-disabled="true"`.
- * @csspart status - The line at the end of the list: `loadingLabel` during a slow request, or `resultsMessage` when the list doesn't show every option. Hidden from assistive technologies, which hear the live region.
+ * @csspart status - The line at the end of the list: a `spinner` and `loadingLabel` during a slow request, or `resultsMessage` when the list doesn't show every option. Hidden from assistive technologies, which hear the live region.
  * @fires {ListboxSelectEvent} u-select - When the user picks an option, before the field takes its value. Its `option` is the option. Cancelable: `preventDefault()` keeps the value.
  * @tokens listbox - Its list's tokens (`@cssprop`), shared by every list of options, from `@unicorne/tokens` (`src/component/listbox/`): `npm run analyze` documents them.
  */
 export abstract class EditableComboboxBase extends ComboboxBase {
+  /** Renders the spinner of its status line with the `spinner` of its own registration. */
+  static override dependencies = [...super.dependencies, Spinner];
+
   static styles = [super.styles ?? [], listboxTokens, listboxStyles];
 
   /**
@@ -210,13 +215,15 @@ export abstract class EditableComboboxBase extends ComboboxBase {
     return result;
   }
 
-  /** What the status line shows: `loadingLabel` during a slow request, or else the count of a capped list. */
-  get #status(): string {
+  /** What the status line shows: a spinner and `loadingLabel` during a slow request, or else the count of a capped list. */
+  get #status(): unknown {
     if (this.#loader.slow) {
-      return this.loadingLabel;
+      const spinner = this.tagFor(Spinner);
+      return html`<${spinner} size="small" label=${this.loadingLabel}></${spinner}
+        >${this.loadingLabel}`;
     }
     const { shown, count } = this.#matches;
-    return shown.length < count ? this.resultsMessage(count, shown.length) : "";
+    return shown.length < count ? this.resultsMessage(count, shown.length) : nothing;
   }
 
   /** The active option, `undefined` when none. */

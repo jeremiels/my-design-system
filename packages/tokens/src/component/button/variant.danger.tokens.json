@@ -3,6 +3,8 @@
     "background-color": { "$value": "{color.danger.background}" },
     "background-color-hover": { "$value": "{color.danger.background-hover}" },
     "background-color-active": { "$value": "{color.danger.background-active}" },
-    "text-color": { "$value": "{color.danger.text}" }
+    "text-color": { "$value": "{color.danger.text}" },
+    "foreground-color": { "$value": "{color.danger.foreground}" },
+    "outlined-border-color": { "$value": "{color.danger.foreground}" }
   }
 }

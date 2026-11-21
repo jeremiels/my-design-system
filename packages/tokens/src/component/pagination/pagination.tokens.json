@@ -1,6 +1,6 @@
 {
   "pagination": {
-    "$description": "Tokens of `pagination`: its buttons and the current page.",
+    "$description": "Tokens of `pagination`: the size of its buttons. They are `button` components: the current page is a `primary` one.",
     "gap": {
       "$type": "dimension",
       "$value": "{spacing.2xs}",
@@ -36,21 +36,6 @@
       "$value": "{radius.md}",
       "$description": "Corner radius of a button."
     },
-    "hover-background-color": {
-      "$type": "color",
-      "$value": "{color.surface.raised}",
-      "$description": "Background color of a button under the pointer."
-    },
-    "current-background-color": {
-      "$type": "color",
-      "$value": "{color.action.background}",
-      "$description": "Background color of the current page."
-    },
-    "current-text-color": {
-      "$type": "color",
-      "$value": "{color.action.text}",
-      "$description": "Text color of the current page."
-    },
     "chevron-size": {
       "$type": "dimension",
       "$value": "{spacing.sm}",
@@ -60,21 +45,6 @@
       "$type": "dimension",
       "$value": "{border.width}",
       "$description": "Stroke of the chevrons. Twice this width."
-    },
-    "focus-ring-color": {
-      "$type": "color",
-      "$value": "{color.focus-ring}",
-      "$description": "Color of the focus ring."
-    },
-    "focus-ring-width": {
-      "$type": "dimension",
-      "$value": "{focus-ring.width}",
-      "$description": "Width of the focus ring."
-    },
-    "focus-ring-offset": {
-      "$type": "dimension",
-      "$value": "{focus-ring.offset}",
-      "$description": "Space between a button and its focus ring."
     }
   }
 }
