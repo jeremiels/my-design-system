@@ -1,0 +1,16 @@
+/* The tokens are in popover.tokens.css, generated from tokens/component/popover/
+   (ADR 0002). The trigger and the transitions are those of popup-base.css. */
+.panel {
+  max-inline-size: min(var(--u-popover-max-inline-size), 100vw);
+  padding: var(--u-popover-padding);
+  background-color: var(--u-popover-background-color);
+  border: var(--u-popover-border-width) solid var(--u-popover-border-color);
+  border-radius: var(--u-popover-border-radius);
+  box-shadow: var(--u-popover-shadow);
+}
+
+@media (forced-colors: active) {
+  .panel {
+    border-color: CanvasText;
+  }
+}

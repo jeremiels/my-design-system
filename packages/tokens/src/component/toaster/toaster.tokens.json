@@ -1,0 +1,110 @@
+{
+  "toaster": {
+    "$description": "Tokens of `toaster`: the place of its messages, and each message.",
+    "inset": {
+      "$type": "dimension",
+      "$value": "{spacing.md}",
+      "$description": "Distance between the messages and the edges of the page."
+    },
+    "gap": {
+      "$type": "dimension",
+      "$value": "{spacing.sm}",
+      "$description": "Space between two messages."
+    },
+    "inline-size": {
+      "$type": "dimension",
+      "$value": "{size.panel}",
+      "$description": "Width of a message, at most that of the page."
+    },
+    "padding": {
+      "$type": "dimension",
+      "$value": "{spacing.md}",
+      "$description": "Inner padding of a message."
+    },
+    "message-gap": {
+      "$type": "dimension",
+      "$value": "{spacing.sm}",
+      "$description": "Space between the icon, the text and the close button of a message."
+    },
+    "border-radius": {
+      "$type": "dimension",
+      "$value": "{radius.md}",
+      "$description": "Corner radius of a message."
+    },
+    "shadow": {
+      "$type": "shadow",
+      "$value": "{shadow.overlay}",
+      "$description": "Shadow of a message."
+    },
+    "font-family": {
+      "$type": "fontFamily",
+      "$value": "{font.family.body}",
+      "$description": "Font family."
+    },
+    "font-size": {
+      "$type": "dimension",
+      "$value": "{font.size.md}",
+      "$description": "Font size."
+    },
+    "transition-duration": {
+      "$type": "duration",
+      "$value": "{motion.duration.fast}",
+      "$description": "Entry transition duration of a message. Zero with reduced motion."
+    },
+    "information-background-color": {
+      "$type": "color",
+      "$value": "{color.information.background}",
+      "$description": "Background color of a `information` message."
+    },
+    "information-text-color": {
+      "$type": "color",
+      "$value": "{color.information.text}",
+      "$description": "Text color of a `information` message."
+    },
+    "success-background-color": {
+      "$type": "color",
+      "$value": "{color.success.background}",
+      "$description": "Background color of a `success` message."
+    },
+    "success-text-color": {
+      "$type": "color",
+      "$value": "{color.success.text}",
+      "$description": "Text color of a `success` message."
+    },
+    "warning-background-color": {
+      "$type": "color",
+      "$value": "{color.warning.background}",
+      "$description": "Background color of a `warning` message."
+    },
+    "warning-text-color": {
+      "$type": "color",
+      "$value": "{color.warning.text}",
+      "$description": "Text color of a `warning` message."
+    },
+    "danger-background-color": {
+      "$type": "color",
+      "$value": "{color.danger.background}",
+      "$description": "Background color of a `danger` message."
+    },
+    "danger-text-color": {
+      "$type": "color",
+      "$value": "{color.danger.text}",
+      "$description": "Text color of a `danger` message."
+    },
+    "focus-ring-color": {
+      "$type": "color",
+      "$value": "{color.focus-ring}",
+      "$description": "Color of the focus ring of a close button."
+    },
+    "focus-ring-width": {
+      "$type": "dimension",
+      "$value": "{focus-ring.width}",
+      "$description": "Width of the focus ring."
+    },
+    "focus-ring-offset": {
+      "$type": "dimension",
+      "$value": "{focus-ring.offset}",
+      "$description": "Space between a close button and its focus ring."
+    }
+  }
+}

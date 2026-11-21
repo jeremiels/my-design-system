@@ -1,0 +1,12 @@
+/* Generated from ../tokens/src/u.resolver.json by @unicorne/tokens/terrazzo-plugin (ADR 0002). Do not edit: change the tokens. */
+:host {
+  --u-drawer-inline-size: var(--u-size-panel);
+  --u-drawer-background-color: var(--u-color-surface-raised);
+  --u-drawer-padding: var(--u-spacing-md);
+  --u-drawer-gap: var(--u-spacing-sm);
+  --u-drawer-close-button-padding: var(--u-spacing-xs);
+  --u-drawer-backdrop-color: var(--u-color-backdrop);
+  --u-drawer-shadow: var(--u-shadow-overlay);
+  --u-drawer-transition-duration: var(--u-motion-duration-base);
+  --u-drawer-transition-timing-function: var(--u-motion-easing-standard);
+}

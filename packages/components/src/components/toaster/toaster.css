@@ -1,0 +1,88 @@
+/* The tokens are in toaster.tokens.css, generated from tokens/component/toaster/
+   (ADR 0002). */
+:host {
+  font-family: var(--u-toaster-font-family);
+  font-size: var(--u-toaster-font-size);
+}
+
+/* The list, in the top layer: at the end corner of the page, not centered as
+   a popover would be. */
+.list {
+  position: fixed;
+  inset-block: auto var(--u-toaster-inset);
+  inset-inline: auto var(--u-toaster-inset);
+  display: flex;
+  flex-direction: column;
+  gap: var(--u-toaster-gap);
+  inline-size: min(var(--u-toaster-inline-size), calc(100vw - var(--u-toaster-inset) * 2));
+  margin: 0;
+  padding: 0;
+  overflow: visible;
+  color: inherit;
+  background: none;
+  border: 0;
+  list-style: none;
+}
+
+.list:not(:popover-open) {
+  display: none;
+}
+
+.toast {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--u-toaster-message-gap);
+  padding: var(--u-toaster-padding);
+  border-radius: var(--u-toaster-border-radius);
+  box-shadow: var(--u-toaster-shadow);
+  transition: opacity var(--u-toaster-transition-duration);
+}
+
+@starting-style {
+  .toast {
+    opacity: 0;
+  }
+}
+
+.message {
+  flex: 1;
+  min-inline-size: 0;
+}
+
+.close {
+  display: inline-grid;
+  place-items: center;
+  padding: 0;
+  color: inherit;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.close:focus-visible {
+  outline: var(--u-toaster-focus-ring-width) solid var(--u-toaster-focus-ring-color);
+  outline-offset: var(--u-toaster-focus-ring-offset);
+}
+
+.toast--information {
+  color: var(--u-toaster-information-text-color);
+  background-color: var(--u-toaster-information-background-color);
+}
+.toast--success {
+  color: var(--u-toaster-success-text-color);
+  background-color: var(--u-toaster-success-background-color);
+}
+.toast--warning {
+  color: var(--u-toaster-warning-text-color);
+  background-color: var(--u-toaster-warning-background-color);
+}
+.toast--danger {
+  color: var(--u-toaster-danger-text-color);
+  background-color: var(--u-toaster-danger-background-color);
+}
+
+@media (forced-colors: active) {
+  .toast {
+    border: 1px solid CanvasText;
+  }
+}

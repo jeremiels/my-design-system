@@ -1,0 +1,40 @@
+{
+  "tooltip": {
+    "$description": "Tokens of `tooltip`: its bubble. The distance and the transitions take those of `popup`.",
+    "padding-inline": {
+      "$type": "dimension",
+      "$value": "{spacing.sm}",
+      "$description": "Horizontal padding of the bubble."
+    },
+    "padding-block": {
+      "$type": "dimension",
+      "$value": "{spacing.xs}",
+      "$description": "Vertical padding of the bubble."
+    },
+    "max-inline-size": {
+      "$type": "dimension",
+      "$value": "{size.popup}",
+      "$description": "Largest width of the bubble."
+    },
+    "font-size": {
+      "$type": "dimension",
+      "$value": "{font.size.sm}",
+      "$description": "Font size of the bubble."
+    },
+    "background-color": {
+      "$type": "color",
+      "$value": "{color.text.default}",
+      "$description": "Background color of the bubble: the text color, inverted."
+    },
+    "text-color": {
+      "$type": "color",
+      "$value": "{color.surface.default}",
+      "$description": "Text color of the bubble: the surface color, inverted."
+    },
+    "border-radius": {
+      "$type": "dimension",
+      "$value": "{radius.sm}",
+      "$description": "Corner radius of the bubble."
+    }
+  }
+}

@@ -1,0 +1,24 @@
+/* Generated from ../tokens/src/u.resolver.json by @unicorne/tokens/terrazzo-plugin (ADR 0002). Do not edit: change the tokens. */
+:host {
+  --u-toaster-inset: var(--u-spacing-md);
+  --u-toaster-gap: var(--u-spacing-sm);
+  --u-toaster-inline-size: var(--u-size-panel);
+  --u-toaster-padding: var(--u-spacing-md);
+  --u-toaster-message-gap: var(--u-spacing-sm);
+  --u-toaster-border-radius: var(--u-radius-md);
+  --u-toaster-shadow: var(--u-shadow-overlay);
+  --u-toaster-font-family: var(--u-font-family-body);
+  --u-toaster-font-size: var(--u-font-size-md);
+  --u-toaster-transition-duration: var(--u-motion-duration-fast);
+  --u-toaster-information-background-color: var(--u-color-information-background);
+  --u-toaster-information-text-color: var(--u-color-information-text);
+  --u-toaster-success-background-color: var(--u-color-success-background);
+  --u-toaster-success-text-color: var(--u-color-success-text);
+  --u-toaster-warning-background-color: var(--u-color-warning-background);
+  --u-toaster-warning-text-color: var(--u-color-warning-text);
+  --u-toaster-danger-background-color: var(--u-color-danger-background);
+  --u-toaster-danger-text-color: var(--u-color-danger-text);
+  --u-toaster-focus-ring-color: var(--u-color-focus-ring);
+  --u-toaster-focus-ring-width: var(--u-focus-ring-width);
+  --u-toaster-focus-ring-offset: var(--u-focus-ring-offset);
+}

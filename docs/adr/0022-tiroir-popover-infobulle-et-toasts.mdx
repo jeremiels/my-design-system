@@ -1,0 +1,77 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Documentation/ADR/0022 Tiroir, popover, infobulle et toasts" />
+
+# ADR 0022 — Tiroir, popover, infobulle et toasts
+
+**Statut :** accepté · **Date :** 21 novembre 2026
+
+## Contexte
+
+Une application affiche un panneau le long d'un bord de la page, un contenu sous un bouton, la description d'un bouton, et les messages courts qui suivent une action.
+
+- `Modal` porte le comportement d'un dialogue modal sur le `<dialog>` natif ([ADR 0008](?path=/docs/documentation-adr-0008-commandes-et-modale--docs)). `PopupBase` porte celui d'un popup ancré à un déclencheur ([ADR 0021](?path=/docs/documentation-adr-0021-menu-et-popups--docs)).
+- `aria-describedby` ne vise pas un élément d'un shadow root plus profond que le sien ([ADR 0007](?path=/docs/documentation-adr-0007-champs-de-formulaire--docs)). Les noms d'ancre CSS ne sortent pas de leur arbre.
+- WCAG 1.4.13 demande qu'une infobulle reste quand le pointeur passe dessus, et qu'Échap la ferme.
+- Le top layer superpose ses éléments dans l'ordre de leur ouverture : un popover ouvert après une modale passe au-dessus.
+
+## D1 — Le tiroir
+
+`ModalBase` sort de `Modal` : le `<dialog>`, ses commandes, `u-cancel`, `u-close` et le bouton de fermeture. `Modal` et `Drawer` l'étendent avec leurs feuilles.
+
+- Les événements gardent leur nom, `ModalCancelEvent` et `ModalCloseEvent` : un tiroir est un dialogue modal.
+- Le tiroir glisse depuis le bord `start`, dans le sens du texte, ou `end` (`placement`). Le script lit le sens du texte : `:dir()` manque à Chrome avant 120.
+- Sa largeur est le token sémantique `size.panel`, 20 rem, au plus celle de la page.
+
+## D2 — Le popover
+
+`popover` étend `PopupBase`, comme `menu` : il rend son bouton, et son panneau est un dialogue non modal, `role="dialog"`, nommé par le bouton.
+
+- Tab va du bouton au contenu : le panneau suit le bouton dans l'arbre aplati.
+- Échap ferme le panneau et rend le focus au bouton. Un appui dehors et le focus qui part le ferment.
+- Le bouton, son chevron et la transition du panneau passent dans `PopupBase`, avec leurs tokens : le groupe `popup` remplace le groupe `menu`.
+
+## D3 — L'infobulle
+
+- **Option A — `for` vers un déclencheur de la page**, comme Web Awesome. La bulle est dans le shadow root de l'infobulle : ni l'ancre CSS ni `aria-describedby` ne relient les deux arbres.
+- **Option B — L'infobulle entoure son déclencheur et son texte.** Les deux restent dans l'arbre de la page : l'`aria-describedby` du déclencheur atteint le texte. L'ancre est l'enveloppe du slot, dans le shadow root de la bulle.
+
+**Décision : B.** `<u-tooltip><button>Copier</button><span slot="content">Copier le lien</span></u-tooltip>`.
+
+- `HoverIntentController` montre la bulle après 300 ms de pointeur au repos, et la cache 100 ms après son départ. Le focus du clavier la montre tout de suite.
+- La bulle reste sous le pointeur : elle descend de l'hôte, et ne bloque pas le pointeur (WCAG 1.4.13).
+- Les causes `hover` et `focus-in` entrent dans le tableau des causes du guide d'API.
+
+## D4 — Les toasts
+
+`toaster` tient la file de ses messages (`state/toast.ts`), et les rend dans le top layer, un `popover="manual"` affiché tant qu'il en a.
+
+- L'application appelle `show(message, { variant, duration })`, qui renvoie un id, et `close(id)`.
+- Un message part après sa `duration` (5 s par défaut, 0 pour aucune). Le pointeur qui bouge dessus, ou le focus, le retient.
+- Le pointeur retient sur `pointermove`, pas sur `pointerenter` : le navigateur émet `pointerenter` quand la liste apparaît sous un pointeur immobile, et aucun `pointerleave` ensuite.
+- Au-delà de `max` messages (3), le plus ancien part.
+- Une live region annonce chaque message : polie, ou assertive pour `warning` et `danger`, comme `alert`.
+- Chaque fermeture émet `u-close`, avec l'`id` et une cause : `timeout`, `close-press` ou `imperative`. `timeout` entre dans le tableau des causes du guide d'API.
+
+## Conséquences
+
+- **Code :** `ModalBase`, `Drawer`, `Popover`, `Tooltip`, `Toaster`, `HoverIntentController`, `state/toast.ts` et `ToastCloseEvent`.
+- **Tokens :** les groupes `drawer`, `popover`, `tooltip`, `toaster` et `popup`, le token sémantique `size.panel` et la primitive `dimension.8000`.
+- **Tests :** `popover.test.ts`, `tooltip.test.ts`, `toaster.test.ts`, les stories dans trois moteurs, `state/toast.test.ts` dans Node. Le test de contrat montre un message du toaster, pour ses parts.
+- **Limites :**
+  - Le déclencheur d'une infobulle est un bouton ou un lien natif : le `<button>` interne de `button` ne reçoit pas la description.
+  - `u-close` du toaster n'entre pas dans la table globale des événements, qui le type déjà pour la modale. Le catalogue le type par composant.
+
+## Questions ouvertes
+
+- **Infobulle sur un composant :** `button` relaie une description à son `<button>` interne, ou Reference Target le permet dans toute la matrice.
+- **Action dans un toast :** un bouton « Annuler », avec `u-action`.
+- **Toasts et modale :** un toast ouvert avant une modale passe sous elle, et la page sous la modale est inerte.
+
+## Sources
+
+Consultées le 21 novembre 2026.
+
+- [Tooltip Pattern](https://www.w3.org/WAI/ARIA/apg/patterns/tooltip/) (W3C, ARIA Authoring Practices Guide) : Échap, et le texte lié par `aria-describedby`.
+- [Understanding SC 1.4.13 Content on Hover or Focus](https://www.w3.org/WAI/WCAG22/Understanding/content-on-hover-or-focus) (W3C) : refermable, survolable, persistant.
+- [Dialog (Modal) Pattern](https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/) (W3C, ARIA Authoring Practices Guide).

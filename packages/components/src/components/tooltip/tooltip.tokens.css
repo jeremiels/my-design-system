@@ -1,0 +1,10 @@
+/* Generated from ../tokens/src/u.resolver.json by @unicorne/tokens/terrazzo-plugin (ADR 0002). Do not edit: change the tokens. */
+:host {
+  --u-tooltip-padding-inline: var(--u-spacing-sm);
+  --u-tooltip-padding-block: var(--u-spacing-xs);
+  --u-tooltip-max-inline-size: var(--u-size-popup);
+  --u-tooltip-font-size: var(--u-font-size-sm);
+  --u-tooltip-background-color: var(--u-color-text-default);
+  --u-tooltip-text-color: var(--u-color-surface-default);
+  --u-tooltip-border-radius: var(--u-radius-sm);
+}
