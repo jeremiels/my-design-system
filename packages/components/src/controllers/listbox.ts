@@ -21,6 +21,15 @@ export interface ListboxControllerOptions {
   activate: (index: number) => void;
   /** The user picked an enabled option, by a click. */
   select: (option: ListboxOption) => void;
+  /**
+   * Whether the list takes several choices. It then has
+   * `aria-multiselectable`, and `aria-selected` says the choice of each
+   * option, from `selected()`. Otherwise, `aria-selected` marks the active
+   * option. `false` by default.
+   */
+  multiple?: () => boolean;
+  /** For a list of several choices: whether `option` is chosen. */
+  selected?: (option: ListboxOption, index: number) => boolean;
   /** Renders the content of an option. Default: its label, or its value. */
   renderOption?: (option: ListboxOption, index: number) => unknown;
   /** `id` of the list in the shadow root. Default: `listbox`. */
@@ -29,7 +38,12 @@ export interface ListboxControllerOptions {
 
 /** An option of the light DOM, as data. */
 function optionOf(element: HTMLOptionElement): ListboxOption {
-  return { value: element.value, label: element.label, disabled: element.disabled };
+  return {
+    value: element.value,
+    label: element.label,
+    disabled: element.disabled,
+    selected: element.defaultSelected,
+  };
 }
 
 /**
@@ -41,7 +55,7 @@ function optionOf(element: HTMLOptionElement): ListboxOption {
  *
  * The controller connects a list to the DOM; it holds no state of its own.
  * The host owns the active index (`comboboxReducer()`, or
- * `moveActiveIndex()` of `state/listbox.ts`) and the options.
+ * `moveIndex()` of `state/collection.ts`) and the options.
  *
  * It also reads the `<option>` children of the host, as data, in
  * `childOptions`, and never changes them: a framework keeps rendering them.
@@ -135,6 +149,7 @@ export class ListboxController implements ReactiveController {
    */
   render(): unknown {
     const active = this.#options.activeIndex();
+    const selected = this.#options.multiple?.() ? this.#options.selected : undefined;
     const renderOption =
       this.#options.renderOption ?? ((option: ListboxOption) => option.label || option.value);
     return html`
@@ -144,6 +159,7 @@ export class ListboxController implements ReactiveController {
         id=${this.id}
         role="listbox"
         aria-labelledby=${this.#options.labelledBy}
+        aria-multiselectable=${selected ? "true" : nothing}
         @pointerdown=${this.#keepFocus}
         @pointermove=${this.#activateUnderPointer}
         @click=${this.#selectUnderPointer}
@@ -158,7 +174,10 @@ export class ListboxController implements ReactiveController {
                 id=${this.#optionId(index)}
                 role="option"
                 data-index=${index}
-                aria-selected=${index === active ? "true" : "false"}
+                aria-selected=${
+                  (selected ? selected(option, index) : index === active) ? "true" : "false"
+                }
+                data-active=${index === active ? "" : nothing}
                 aria-disabled=${option.disabled ? "true" : nothing}
               >
                 ${renderOption(option, index)}

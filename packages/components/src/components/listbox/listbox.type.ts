@@ -10,6 +10,6 @@ export interface ListboxOption {
   label?: string;
   /** The option shows, but the user can't reach nor pick it. */
   disabled?: boolean;
+  /** Chosen by default, in a `select` with `multiple`: the `selected` of an `<option>`. */
+  selected?: boolean;
 }
-
-export type { ListboxItem, ListboxMove } from "../../state/listbox.js";

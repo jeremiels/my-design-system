@@ -65,6 +65,26 @@
       "$type": "number",
       "$value": "{opacity.disabled}",
       "$description": "Opacity of a disabled option."
+    },
+    "option-check-size": {
+      "$type": "dimension",
+      "$value": "{size.choice}",
+      "$description": "Width and height of the box before an option, in a list of several choices."
+    },
+    "option-check-gap": {
+      "$type": "dimension",
+      "$value": "{spacing.sm}",
+      "$description": "Space between the box and the option's text."
+    },
+    "option-check-border-width": {
+      "$type": "dimension",
+      "$value": "{border.width}",
+      "$description": "Border width of the box. Filled when the option is chosen."
+    },
+    "option-check-border-radius": {
+      "$type": "dimension",
+      "$value": "{radius.sm}",
+      "$description": "Corner radius of the box."
     }
   }
 }

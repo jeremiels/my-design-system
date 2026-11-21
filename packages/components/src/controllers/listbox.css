@@ -25,9 +25,30 @@
 
 /* The active option: the one the arrow keys or the pointer are on, which
    the control's aria-activedescendant names. */
-.option[aria-selected="true"] {
+.option[data-active] {
   background-color: var(--u-listbox-option-background-color-active);
   color: var(--u-listbox-option-text-color-active);
+}
+
+/* A list of several choices: a box before each option, filled when chosen. */
+.listbox[aria-multiselectable] .option {
+  display: flex;
+  align-items: center;
+  gap: var(--u-listbox-option-check-gap);
+}
+.listbox[aria-multiselectable] .option::before {
+  content: "";
+  flex: none;
+  box-sizing: border-box;
+  inline-size: var(--u-listbox-option-check-size);
+  block-size: var(--u-listbox-option-check-size);
+  border: var(--u-listbox-option-check-border-width) solid currentColor;
+  border-radius: var(--u-listbox-option-check-border-radius);
+}
+.listbox[aria-multiselectable] .option[aria-selected="true"]::before {
+  background-color: currentColor;
+  box-shadow: inset 0 0 0 var(--u-listbox-option-check-border-width)
+    var(--u-listbox-background-color);
 }
 
 .option[aria-disabled="true"] {
@@ -35,7 +56,7 @@
 }
 
 @media (forced-colors: active) {
-  .option[aria-selected="true"] {
+  .option[data-active] {
     background-color: Highlight;
     color: HighlightText;
   }
