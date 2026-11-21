@@ -17,6 +17,7 @@
   --u-listbox-option-check-gap: var(--u-spacing-sm);
   --u-listbox-option-check-border-width: var(--u-border-width);
   --u-listbox-option-check-border-radius: var(--u-radius-sm);
+  --u-listbox-option-radio-border-radius: var(--u-radius-full);
   --u-listbox-status-font-size: var(--u-font-size-sm);
   --u-listbox-status-gap: var(--u-spacing-xs);
 }

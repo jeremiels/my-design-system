@@ -1,10 +1,12 @@
-import { html, nothing, type PropertyValues } from "lit";
+import { nothing, type PropertyValues } from "lit";
+import { html } from "lit/static-html.js";
 import { property, state } from "lit/decorators.js";
 import { DSBaseElement } from "../../bases/base-element.js";
 import { OverflowController } from "../../controllers/overflow.js";
 import { TableSortEvent } from "../../events/table-sort.js";
 import { toggleAll, toggleValue } from "../../state/selection.js";
 import { nextSort, type SortDirection } from "../../state/table.js";
+import { Spinner } from "../spinner/spinner.js";
 import { TableCell } from "../table-cell/table-cell.js";
 import { TableHeaderCell } from "../table-header-cell/table-header-cell.js";
 import { TableRow } from "../table-row/table-row.js";
@@ -47,6 +49,8 @@ import tableTokens from "./table.tokens.css" with { type: "css" };
  * @csspart table - The table, `role="table"`.
  * @csspart caption - The caption: `label`.
  * @csspart empty - The box of the `empty` slot.
+ * @csspart loading - The box of the spinner, while the table loads.
+ * @csspart spinner - The `spinner` component of the same registration, while the table loads.
  * @fires {TableSortEvent} u-sort - When the user presses a sortable header, before the table shows the new sort. Its `key` and `direction` give it. Cancelable: `preventDefault()` keeps the sort shown.
  * @fires {Event} change - When the user selects or deselects rows. `values` gives the selection.
  * @tokens table - Its tokens (`@cssprop`), shared by its rows and cells, from `@unicorne/tokens` (`src/component/table/`): `npm run analyze` documents them.
@@ -55,7 +59,7 @@ export class Table extends DSBaseElement {
   static override componentName = "table";
 
   /** Its rows and cells: registering the table registers them. */
-  static override dependencies = [TableRow, TableCell, TableHeaderCell];
+  static override dependencies = [TableRow, TableCell, TableHeaderCell, Spinner];
 
   static styles = [super.styles ?? [], tableTokens, tableStyles];
 
@@ -74,6 +78,19 @@ export class Table extends DSBaseElement {
   /** Whether the user selects rows, with a checkbox before each one. Reflected. */
   @property({ type: Boolean, reflect: true })
   selectable = false;
+
+  /**
+   * Whether the table loads new rows: the application sorts, filters or
+   * pages on its server. The rows stay, dimmed, the table is `aria-busy`,
+   * and a `spinner` named by `loading-label` shows over them, or in place
+   * of the empty message. Reflected.
+   */
+  @property({ type: Boolean, reflect: true })
+  loading = false;
+
+  /** The accessible name of the spinner while the table loads, in the page's language. */
+  @property({ type: String, attribute: "loading-label" })
+  loadingLabel = "Loading…";
 
   /**
    * The `value` of the rows selected: those of the rows shown, in their
@@ -206,6 +223,7 @@ export class Table extends DSBaseElement {
 
   render() {
     const scrolls = this.#overflow.scrolls;
+    const spinner = this.tagFor(Spinner);
     return html`
       <div
         part="scroller"
@@ -219,6 +237,7 @@ export class Table extends DSBaseElement {
           class="table"
           role="table"
           aria-labelledby=${this.label ? "caption" : nothing}
+          aria-busy=${this.loading ? "true" : nothing}
         >
           <div
             part="caption"
@@ -232,7 +251,16 @@ export class Table extends DSBaseElement {
           <div class="head" role="rowgroup"><slot name="head"></slot></div>
           <div class="body" role="rowgroup"><slot></slot></div>
         </div>
-        <div part="empty" class="empty" ?hidden=${!this.empty}><slot name="empty"></slot></div>
+        <div part="empty" class="empty" ?hidden=${!this.empty || this.loading}>
+          <slot name="empty"></slot>
+        </div>
+        <div
+          part="loading"
+          class="loading${this.empty ? " loading--empty" : ""}"
+          ?hidden=${!this.loading}
+        >
+          <${spinner} part="spinner" label=${this.loadingLabel}></${spinner}>
+        </div>
       </div>
     `;
   }

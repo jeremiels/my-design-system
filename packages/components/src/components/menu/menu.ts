@@ -1,4 +1,5 @@
 import chevronDown from "@unicorne/icons/chevron-down";
+import type { PropertyValues } from "lit";
 import { html } from "lit/static-html.js";
 import { property } from "lit/decorators.js";
 import { listboxTokens } from "../../controllers/listbox.js";
@@ -79,6 +80,16 @@ export class Menu extends PopupBase {
     return Array.from(this.children ?? []).filter(
       (child): child is MenuItem => child instanceof MenuItem,
     );
+  }
+
+  protected override updated(changedProperties: PropertyValues<this>): void {
+    super.updated(changedProperties);
+    // Among choices, an action keeps the place of their box: the labels align.
+    const items = this.items;
+    const choices = items.some((item) => item.type !== "normal");
+    for (const item of items) {
+      item.toggleAttribute("data-indent", choices && item.type === "normal");
+    }
   }
 
   protected get popup(): HTMLElement | null {
@@ -165,19 +176,45 @@ export class Menu extends PopupBase {
         this.requestUpdate();
         items[result.index]!.focus();
       }
+    } else if (event.key === " " && item.type !== "normal") {
+      // Space checks a choice and keeps the menu open (APG).
+      event.preventDefault();
+      if (!item.disabled) {
+        this.#check(item);
+      }
     } else if (event.key === "Enter" || event.key === " ") {
       event.preventDefault();
       item.click();
     }
   };
 
-  /** A click on an enabled item, by the pointer or the keys: the menu closes. */
+  /** A click on an enabled item, by the pointer or the keys: a choice changes, then the menu closes. */
   #onClick = (event: MouseEvent) => {
     const item = this.#itemOf(event);
     if (item && !item.disabled) {
+      if (item.type !== "normal") {
+        this.#check(item);
+      }
       this.hidePopup("item-press");
     }
   };
+
+  /** Toggles a `checkbox` item, or checks a `radio` item and unchecks its group; `change` from the item. */
+  #check(item: MenuItem): void {
+    if (item.type === "checkbox") {
+      item.checked = !item.checked;
+    } else if (item.type === "radio") {
+      if (item.checked) {
+        return;
+      }
+      for (const other of this.items) {
+        if (other.type === "radio" && other.name === item.name) {
+          other.checked = other === item;
+        }
+      }
+    }
+    item.dispatchEvent(new Event("change", { bubbles: true }));
+  }
 
   render() {
     const button = this.tagFor(Button);

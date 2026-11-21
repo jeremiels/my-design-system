@@ -309,6 +309,45 @@ export const Empty = meta.story({
   },
 });
 
+export const Loading = meta.story({
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "`loading` while the application loads new rows from its server: the rows stay, dimmed, the table is `aria-busy`, and a spinner named by `loading-label` shows over them. Without rows, it takes the place of the empty message.",
+      },
+    },
+  },
+  render: () => html`
+    <div style="display: grid; gap: 1rem">
+      <u-table label="Requests" loading>${head} ${requests.map((request) => row(request))}</u-table>
+      <u-table label="Archive" loading loading-label="Chargement…">
+        ${head}
+        <p slot="empty">No request yet.</p>
+      </u-table>
+    </div>
+  `,
+  play: async ({ canvasElement }) => {
+    const [withRows, empty] = [...canvasElement.querySelectorAll<Table>("u-table")];
+    await withRows!.updateComplete;
+    await empty!.updateComplete;
+    const part = (table: Table, name: string) =>
+      table.shadowRoot!.querySelector<HTMLElement>(`[part~="${name}"]`)!;
+    expect(part(withRows!, "table").getAttribute("aria-busy")).toBe("true");
+    await expect(
+      part(withRows!, "spinner").shadowRoot!.querySelector("[role=progressbar]"),
+    ).toHaveAccessibleName("Loading…");
+    // Without rows: the spinner in place of the empty message.
+    expect(part(empty!, "empty").hidden).toBe(true);
+    expect(part(empty!, "loading").hidden).toBe(false);
+    // Loaded: the table is no longer busy.
+    withRows!.loading = false;
+    await withRows!.updateComplete;
+    expect(part(withRows!, "table").hasAttribute("aria-busy")).toBe(false);
+    expect(part(withRows!, "loading").hidden).toBe(true);
+  },
+});
+
 export const Scrolling = meta.story({
   parameters: {
     docs: {

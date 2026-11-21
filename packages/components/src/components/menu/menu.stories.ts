@@ -113,3 +113,45 @@ export const Open = meta.story({
     await popupSettled(popup);
   },
 });
+
+export const Choices = meta.story({
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Items of `type="checkbox"` toggle, items of `type="radio"` and the same `name` form a group: `menuitemcheckbox`, `menuitemradio` and `aria-checked`. Space checks an item and keeps the menu open; a click or Enter checks it and closes the menu. Each change fires `change` from the item.',
+      },
+    },
+  },
+  render: () => html`
+    <u-menu label="View">
+      <u-menu-item type="checkbox" value="grid" checked>Show the grid</u-menu-item>
+      <u-menu-item type="checkbox" value="rulers">Show the rulers</u-menu-item>
+      <u-menu-item type="radio" name="size" value="small">Small icons</u-menu-item>
+      <u-menu-item type="radio" name="size" value="large" checked>Large icons</u-menu-item>
+      <u-menu-item value="reset">Reset the view</u-menu-item>
+    </u-menu>
+  `,
+  play: async ({ canvasElement }) => {
+    const menu = canvasElement.querySelector<Menu>("u-menu")!;
+    await menu.updateComplete;
+    const items = [...menu.querySelectorAll<MenuItem>("u-menu-item")];
+    await Promise.all(items.map((item) => item.updateComplete));
+    expect(items.map((item) => item.getAttribute("role"))).toEqual([
+      "menuitemcheckbox",
+      "menuitemcheckbox",
+      "menuitemradio",
+      "menuitemradio",
+      "menuitem",
+    ]);
+    const onChange = fn();
+    menu.addEventListener("change", onChange);
+    const trigger = menu.shadowRoot!.querySelector<Button>('[part~="trigger"]')!;
+    await userEvent.click(trigger.shadowRoot!.querySelector("button")!);
+    await waitFor(() => expect(menu.open).toBe(true));
+    await userEvent.click(items[1]!);
+    expect(items[1]!.checked).toBe(true);
+    expect(onChange).toHaveBeenCalledOnce();
+    await waitFor(() => expect(menu.open).toBe(false));
+  },
+});

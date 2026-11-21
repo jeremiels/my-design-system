@@ -21,4 +21,5 @@
   --u-table-focus-ring-color: var(--u-color-focus-ring);
   --u-table-focus-ring-width: var(--u-focus-ring-width);
   --u-table-focus-ring-offset: var(--u-focus-ring-offset);
+  --u-table-loading-opacity: var(--u-opacity-disabled);
 }

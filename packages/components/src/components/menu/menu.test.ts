@@ -108,3 +108,58 @@ it("opens and closes from a command button, and from its methods", async () => {
   await menu.updateComplete;
   expect(menu.open).toBe(false);
 });
+
+it("checks its choices: Space keeps the menu open, Enter closes it, a radio unchecks its group", async () => {
+  document.body.innerHTML = `
+    <u-menu label="View">
+      <u-menu-item type="checkbox" value="grid" checked>Show the grid</u-menu-item>
+      <u-menu-item type="radio" name="size" value="small">Small</u-menu-item>
+      <u-menu-item type="radio" name="size" value="large" checked>Large</u-menu-item>
+      <u-menu-item value="reset">Reset the view</u-menu-item>
+    </u-menu>`;
+  const menu = document.querySelector<Menu>("u-menu")!;
+  const [grid, small, large, reset] = Array.from(menu.querySelectorAll<MenuItem>("u-menu-item"));
+  await Promise.all([menu, grid!, small!, large!, reset!].map((element) => element.updateComplete));
+  await menu.updateComplete;
+  expect(grid!.getAttribute("role")).toBe("menuitemcheckbox");
+  expect(grid!.getAttribute("aria-checked")).toBe("true");
+  expect(small!.getAttribute("role")).toBe("menuitemradio");
+  expect(reset!.getAttribute("role")).toBe("menuitem");
+  expect(reset!.hasAttribute("aria-checked")).toBe(false);
+  // The action keeps the place of the box: the labels align.
+  expect(reset!.hasAttribute("data-indent")).toBe(true);
+
+  const changes: string[] = [];
+  menu.addEventListener("change", (event) => {
+    const item = event.target as MenuItem;
+    changes.push(`${item.value}:${item.checked}`);
+  });
+  const control = menu
+    .shadowRoot!.querySelector<Button>('[part~="trigger"]')!
+    .shadowRoot!.querySelector("button")!;
+  control.focus();
+  await userEvent.keyboard("{ArrowDown}");
+  await expect.poll(() => menu.open).toBe(true);
+  expect(document.activeElement).toBe(grid);
+
+  // Space: unchecks the box, the menu stays open.
+  await userEvent.keyboard(" ");
+  await grid!.updateComplete;
+  expect(grid!.getAttribute("aria-checked")).toBe("false");
+  expect(menu.open).toBe(true);
+
+  // Space on a radio: checks it, unchecks its group.
+  await userEvent.keyboard("{ArrowDown}");
+  await userEvent.keyboard(" ");
+  await small!.updateComplete;
+  await large!.updateComplete;
+  expect([small!.checked, large!.checked]).toEqual([true, false]);
+  expect(large!.getAttribute("aria-checked")).toBe("false");
+
+  // Enter: checks it, and closes the menu.
+  await userEvent.keyboard("{ArrowDown}");
+  await userEvent.keyboard("{Enter}");
+  expect([small!.checked, large!.checked]).toEqual([false, true]);
+  expect(menu.open).toBe(false);
+  expect(changes).toEqual(["grid:false", "small:true", "large:true"]);
+});

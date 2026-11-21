@@ -3706,6 +3706,11 @@
               "default": "var(--u-radius-sm)"
             },
             {
+              "description": "Corner radius of the circle before a `menu-item` of type `radio`.",
+              "name": "--u-listbox-option-radio-border-radius",
+              "default": "var(--u-radius-full)"
+            },
+            {
               "description": "Font size of the status line, at the end of the list: “Loading…”, or the number of options it doesn't show.",
               "name": "--u-listbox-status-font-size",
               "default": "var(--u-font-size-sm)"
@@ -14552,6 +14557,15 @@
               }
             },
             {
+              "description": "Corner radius of the circle before a `menu-item` of type `radio`.",
+              "name": "--u-listbox-option-radio-border-radius",
+              "default": "var(--u-radius-full)",
+              "inheritedFrom": {
+                "name": "EditableComboboxBase",
+                "module": "src/bases/editable-combobox/editable-combobox-base.ts"
+              }
+            },
+            {
               "description": "Font size of the status line, at the end of the list: “Loading…”, or the number of options it doesn't show.",
               "name": "--u-listbox-status-font-size",
               "default": "var(--u-font-size-sm)",
@@ -22656,6 +22670,15 @@
               }
             },
             {
+              "description": "Corner radius of the circle before a `menu-item` of type `radio`.",
+              "name": "--u-listbox-option-radio-border-radius",
+              "default": "var(--u-radius-full)",
+              "inheritedFrom": {
+                "name": "EditableComboboxBase",
+                "module": "src/bases/editable-combobox/editable-combobox-base.ts"
+              }
+            },
+            {
               "description": "Font size of the status line, at the end of the list: “Loading…”, or the number of options it doesn't show.",
               "name": "--u-listbox-status-font-size",
               "default": "var(--u-font-size-sm)",
@@ -30262,8 +30285,14 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "An item of a `menu`: an action. The host has `role=\"menuitem\"`; its\ncontent is its accessible name. Its menu gives it the focus, and a click\nor Enter or Space on it fires its `click`, then closes the menu\n(ADR 0021).",
+          "description": "An item of a `menu`: an action, or a choice (ADR 0021, ADR 0035). The\nhost has the role of its `type`; its content is its accessible name. Its\nmenu gives it the focus, and a click or Enter or Space on it fires its\n`click`, then closes the menu.\n\n`type=\"checkbox\"` makes it a choice that toggles, `type=\"radio\"` one\nchoice among the items of the same `name`: `menuitemcheckbox` or\n`menuitemradio`, and `aria-checked`. A box shows the choice before the\nlabel, as in a `select` with `multiple`. Space toggles it and keeps the\nmenu open; a click or Enter toggles it, then closes the menu. Each change\nfires `change` from the item.",
           "name": "MenuItem",
+          "cssParts": [
+            {
+              "description": "The box of a choice, filled while `checked`.",
+              "name": "check"
+            }
+          ],
           "slots": [
             {
               "description": "The label of the item.",
@@ -30294,6 +30323,38 @@
               "default": "\"\"",
               "description": "A value the application reads in the item's `click`, to tell the items apart.",
               "attribute": "value"
+            },
+            {
+              "kind": "field",
+              "name": "type",
+              "type": {
+                "text": "MenuItemType"
+              },
+              "default": "\"normal\"",
+              "description": "An action (`normal`), a choice that toggles (`checkbox`), or one choice of a group (`radio`). Reflected.",
+              "attribute": "type",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "checked",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether a choice is checked: `aria-checked`. Reflected.",
+              "attribute": "checked",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "name",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "The group of a `radio` item: checking it unchecks the items of the same name in its menu.",
+              "attribute": "name"
             },
             {
               "kind": "field",
@@ -30459,6 +30520,12 @@
               }
             }
           ],
+          "events": [
+            {
+              "description": "When the user checks or unchecks a choice. Its `checked` gives the new state.",
+              "name": "change"
+            }
+          ],
           "attributes": [
             {
               "name": "value",
@@ -30468,6 +30535,33 @@
               "default": "\"\"",
               "description": "A value the application reads in the item's `click`, to tell the items apart.",
               "fieldName": "value"
+            },
+            {
+              "name": "type",
+              "type": {
+                "text": "MenuItemType"
+              },
+              "default": "\"normal\"",
+              "description": "An action (`normal`), a choice that toggles (`checkbox`), or one choice of a group (`radio`). Reflected.",
+              "fieldName": "type"
+            },
+            {
+              "name": "checked",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether a choice is checked: `aria-checked`. Reflected.",
+              "fieldName": "checked"
+            },
+            {
+              "name": "name",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "The group of a `radio` item: checking it unchecks the items of the same name in its menu.",
+              "fieldName": "name"
             },
             {
               "name": "disabled",
@@ -30495,7 +30589,7 @@
           },
           "tagName": "u-menu-item",
           "customElement": true,
-          "summary": "An action of a menu."
+          "summary": "An action or a choice of a menu."
         }
       ],
       "exports": [
@@ -30508,6 +30602,12 @@
           }
         }
       ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/components/menu-item/menu-item.type.ts",
+      "declarations": [],
+      "exports": []
     },
     {
       "kind": "javascript-module",
@@ -30602,6 +30702,11 @@
               "description": "Corner radius of the box.",
               "name": "--u-listbox-option-check-border-radius",
               "default": "var(--u-radius-sm)"
+            },
+            {
+              "description": "Corner radius of the circle before a `menu-item` of type `radio`.",
+              "name": "--u-listbox-option-radio-border-radius",
+              "default": "var(--u-radius-full)"
             },
             {
               "description": "Font size of the status line, at the end of the list: “Loading…”, or the number of options it doesn't show.",
@@ -30915,7 +31020,26 @@
               "kind": "field",
               "name": "#onClick",
               "privacy": "private",
-              "description": "A click on an enabled item, by the pointer or the keys: the menu closes."
+              "description": "A click on an enabled item, by the pointer or the keys: a choice changes, then the menu closes."
+            },
+            {
+              "kind": "method",
+              "name": "#check",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "item",
+                  "type": {
+                    "text": "MenuItem"
+                  }
+                }
+              ],
+              "description": "Toggles a `checkbox` item, or checks a `radio` item and unchecks its group; `change` from the item."
             },
             {
               "kind": "field",
@@ -37298,6 +37422,11 @@
               "description": "Corner radius of the box.",
               "name": "--u-listbox-option-check-border-radius",
               "default": "var(--u-radius-sm)"
+            },
+            {
+              "description": "Corner radius of the circle before a `menu-item` of type `radio`.",
+              "name": "--u-listbox-option-radio-border-radius",
+              "default": "var(--u-radius-full)"
             },
             {
               "description": "Font size of the status line, at the end of the list: “Loading…”, or the number of options it doesn't show.",
@@ -44292,6 +44421,11 @@
               "description": "Space between the focus ring and what it surrounds.",
               "name": "--u-table-focus-ring-offset",
               "default": "var(--u-focus-ring-offset)"
+            },
+            {
+              "description": "Opacity of the rows while the table loads new ones.",
+              "name": "--u-table-loading-opacity",
+              "default": "var(--u-opacity-disabled)"
             }
           ],
           "cssParts": [
@@ -44576,6 +44710,11 @@
               "description": "Space between the focus ring and what it surrounds.",
               "name": "--u-table-focus-ring-offset",
               "default": "var(--u-focus-ring-offset)"
+            },
+            {
+              "description": "Opacity of the rows while the table loads new ones.",
+              "name": "--u-table-loading-opacity",
+              "default": "var(--u-opacity-disabled)"
             }
           ],
           "cssParts": [
@@ -44918,6 +45057,11 @@
               "description": "Space between the focus ring and what it surrounds.",
               "name": "--u-table-focus-ring-offset",
               "default": "var(--u-focus-ring-offset)"
+            },
+            {
+              "description": "Opacity of the rows while the table loads new ones.",
+              "name": "--u-table-loading-opacity",
+              "default": "var(--u-opacity-disabled)"
             }
           ],
           "cssParts": [
@@ -45242,6 +45386,11 @@
               "description": "Space between the focus ring and what it surrounds.",
               "name": "--u-table-focus-ring-offset",
               "default": "var(--u-focus-ring-offset)"
+            },
+            {
+              "description": "Opacity of the rows while the table loads new ones.",
+              "name": "--u-table-loading-opacity",
+              "default": "var(--u-opacity-disabled)"
             }
           ],
           "cssParts": [
@@ -45260,6 +45409,14 @@
             {
               "description": "The box of the `empty` slot.",
               "name": "empty"
+            },
+            {
+              "description": "The box of the spinner, while the table loads.",
+              "name": "loading"
+            },
+            {
+              "description": "The `spinner` component of the same registration, while the table loads.",
+              "name": "spinner"
             }
           ],
           "slots": [
@@ -45298,7 +45455,7 @@
                 "text": "readonly (typeof DSBaseElement)[]"
               },
               "static": true,
-              "default": "[TableRow, TableCell, TableHeaderCell]",
+              "default": "[TableRow, TableCell, TableHeaderCell, Spinner]",
               "description": "Its rows and cells: registering the table registers them.",
               "inheritedFrom": {
                 "name": "DSBaseElement",
@@ -45345,6 +45502,27 @@
               "description": "Whether the user selects rows, with a checkbox before each one. Reflected.",
               "attribute": "selectable",
               "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "loading",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether the table loads new rows: the application sorts, filters or\npages on its server. The rows stay, dimmed, the table is `aria-busy`,\nand a `spinner` named by `loading-label` shows over them, or in place\nof the empty message. Reflected.",
+              "attribute": "loading",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "loadingLabel",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"Loading…\"",
+              "description": "The accessible name of the spinner while the table loads, in the page's language.",
+              "attribute": "loading-label"
             },
             {
               "kind": "field",
@@ -45552,6 +45730,24 @@
               "default": "false",
               "description": "Whether the user selects rows, with a checkbox before each one. Reflected.",
               "fieldName": "selectable"
+            },
+            {
+              "name": "loading",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether the table loads new rows: the application sorts, filters or\npages on its server. The rows stay, dimmed, the table is `aria-busy`,\nand a `spinner` named by `loading-label` shows over them, or in place\nof the empty message. Reflected.",
+              "fieldName": "loading"
+            },
+            {
+              "name": "loading-label",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"Loading…\"",
+              "description": "The accessible name of the spinner while the table loads, in the page's language.",
+              "fieldName": "loadingLabel"
             },
             {
               "name": "select-all-label",
@@ -54343,6 +54539,14 @@
           "declaration": {
             "name": "*",
             "module": "src/components/notice/notice.type.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "*",
+          "declaration": {
+            "name": "*",
+            "module": "src/components/menu-item/menu-item.type.js"
           }
         },
         {
