@@ -1,0 +1,8 @@
+/* The tokens are in tree.tokens.css, generated from tokens/component/tree/
+   (ADR 0002), and inherited by its items. */
+:host {
+  display: block;
+  font-family: var(--u-tree-font-family);
+  font-size: var(--u-tree-font-size);
+  color: var(--u-tree-text-color);
+}

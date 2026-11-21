@@ -173,6 +173,14 @@
     "./date-picker": {
       "types": "./dist/components/date-picker/date-picker.d.ts",
       "import": "./dist/date-picker.js"
+    },
+    "./tree": {
+      "types": "./dist/components/tree/tree.d.ts",
+      "import": "./dist/tree.js"
+    },
+    "./tree-item": {
+      "types": "./dist/components/tree-item/tree-item.d.ts",
+      "import": "./dist/tree-item.js"
     }
   },
   "scripts": {

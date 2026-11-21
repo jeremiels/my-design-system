@@ -1,0 +1,70 @@
+/* No tokens of its own: those of its tree, inherited. tree-item.ts sets
+   --tree-level, its depth from 0. */
+:host {
+  display: block;
+  outline: none;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: var(--u-tree-gap);
+  padding-block: var(--u-tree-row-padding-block);
+  padding-inline: calc(var(--u-tree-row-padding-inline) + var(--tree-level) * var(--u-tree-indent))
+    var(--u-tree-row-padding-inline);
+  border-radius: var(--u-tree-row-border-radius);
+  cursor: default;
+}
+
+.row:hover {
+  background-color: var(--u-tree-row-background-color-hover);
+}
+
+:host([selected]) .row {
+  color: var(--u-tree-selected-text-color);
+  background-color: var(--u-tree-selected-background-color);
+}
+
+:host(:focus-visible) .row {
+  outline: var(--u-tree-focus-ring-width) solid var(--u-tree-focus-ring-color);
+  outline-offset: calc(var(--u-tree-focus-ring-offset) * -1);
+}
+
+:host([disabled]) .row {
+  opacity: var(--u-opacity-disabled);
+}
+
+/* A chevron that points down when open, along the text when closed: the
+   tree sets data-rtl, `:dir()` is missing before Chrome 120. */
+.toggle {
+  flex: none;
+  box-sizing: border-box;
+  inline-size: var(--u-tree-chevron-size);
+  block-size: var(--u-tree-chevron-size);
+  border: solid currentColor;
+  border-width: 0 calc(var(--u-tree-chevron-width) * 2) calc(var(--u-tree-chevron-width) * 2) 0;
+  transform: rotate(-45deg);
+}
+
+:host([data-rtl]) .toggle {
+  transform: rotate(135deg);
+}
+
+:host([expanded]) .toggle {
+  transform: rotate(45deg);
+}
+
+.toggle--leaf {
+  visibility: hidden;
+}
+
+.group[hidden] {
+  display: none;
+}
+
+@media (forced-colors: active) {
+  :host([selected]) .row {
+    color: HighlightText;
+    background-color: Highlight;
+  }
+}

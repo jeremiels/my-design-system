@@ -1,0 +1,19 @@
+/* Generated from ../tokens/src/u.resolver.json by @unicorne/tokens/terrazzo-plugin (ADR 0002). Do not edit: change the tokens. */
+:host {
+  --u-tree-font-family: var(--u-font-family-body);
+  --u-tree-font-size: var(--u-font-size-md);
+  --u-tree-text-color: var(--u-color-text-default);
+  --u-tree-indent: var(--u-spacing-md);
+  --u-tree-gap: var(--u-spacing-xs);
+  --u-tree-row-padding-inline: var(--u-spacing-sm);
+  --u-tree-row-padding-block: var(--u-spacing-xs);
+  --u-tree-row-border-radius: var(--u-radius-sm);
+  --u-tree-row-background-color-hover: var(--u-color-surface-raised);
+  --u-tree-selected-background-color: var(--u-color-action-background);
+  --u-tree-selected-text-color: var(--u-color-action-text);
+  --u-tree-chevron-size: var(--u-spacing-sm);
+  --u-tree-chevron-width: var(--u-border-width);
+  --u-tree-focus-ring-color: var(--u-color-focus-ring);
+  --u-tree-focus-ring-width: var(--u-focus-ring-width);
+  --u-tree-focus-ring-offset: var(--u-focus-ring-offset);
+}

@@ -88,8 +88,9 @@ export class RovingFocusController implements ReactiveController {
       return;
     }
     const items = this.#options.items();
-    const path = event.composedPath();
-    const current = items.findIndex((item) => path.includes(item));
+    // The item closest to the target: items may nest, as in a tree.
+    const target = event.composedPath().find((node) => items.includes(node as HTMLElement));
+    const current = items.indexOf(target as HTMLElement);
     if (current < 0) {
       return;
     }

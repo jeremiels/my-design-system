@@ -99,3 +99,36 @@ export const VerticalWithDisabled = meta.story({
     expect(tabList.map((tab) => tab.tabIndex)).toEqual([0, -1, -1]);
   },
 });
+
+export const Overflow = meta.story({
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "More tabs than the width holds: the list scrolls, and buttons at its edges scroll it for the pointer. Every tab stays in the list: the arrow keys bring it into view.",
+      },
+    },
+  },
+  render: () => html`
+    <div style="max-inline-size: 22rem">
+      <u-tabs value="january" label="Months">
+        ${["January", "February", "March", "April", "May", "June", "July", "August"].map(
+          (month) => html`<u-tab value=${month.toLowerCase()}>${month}</u-tab>`,
+        )}
+        ${["January", "February", "March", "April", "May", "June", "July", "August"].map(
+          (month) =>
+            html`<u-tab-panel value=${month.toLowerCase()}>The report of ${month}.</u-tab-panel>`,
+        )}
+      </u-tabs>
+    </div>
+  `,
+  play: async ({ canvasElement }) => {
+    const { tabs, tabList } = await tabsIn(canvasElement);
+    const root = tabs.shadowRoot!;
+    await waitFor(() => expect(root.querySelector(".scroll--end")).not.toBeNull());
+    expect(root.querySelector(".scroll--start")).toBeNull();
+    expect(tabList).toHaveLength(8);
+    await userEvent.click(root.querySelector<HTMLElement>(".scroll--end")!);
+    await waitFor(() => expect(root.querySelector(".scroll--start")).not.toBeNull());
+  },
+});

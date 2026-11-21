@@ -38,7 +38,7 @@
     },
     "trigger-background-color-hover": {
       "$type": "color",
-      "$value": "{color.secondary.background-hover}",
+      "$value": "{color.surface.raised}",
       "$description": "Background color of the trigger under the pointer."
     },
     "trigger-border-width": {

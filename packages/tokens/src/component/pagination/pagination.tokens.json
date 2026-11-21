@@ -38,7 +38,7 @@
     },
     "hover-background-color": {
       "$type": "color",
-      "$value": "{color.secondary.background-hover}",
+      "$value": "{color.surface.raised}",
       "$description": "Background color of a button under the pointer."
     },
     "current-background-color": {

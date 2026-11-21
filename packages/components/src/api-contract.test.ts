@@ -80,12 +80,24 @@ const attributesFor: Record<string, Record<string, string>> = {
   "u-pagination": { pages: "20" },
 };
 
-/** What some parts need besides: a message of `toaster`. */
-const setupFor: Record<string, (element: HTMLElement) => void> = {
+/** What some parts need besides: a message of `toaster`, tabs past the edge of `tabs`. */
+const setupFor: Record<string, (element: HTMLElement) => Promise<void> | void> = {
   "u-toaster": (element) =>
     (element as unknown as { show(message: string, options: object): void }).show("Saved", {
       duration: 0,
     }),
+  "u-tabs": async (element) => {
+    element.style.inlineSize = "8rem";
+    element.innerHTML = Array.from(
+      { length: 8 },
+      (_, index) => `<u-tab value="${index}">Tab ${index}</u-tab>`,
+    ).join("");
+    // The list measures itself after a render, then shows its buttons.
+    for (let render = 0; render < 3; render++) {
+      await (element as DSBaseElement).updateComplete;
+      await new Promise(requestAnimationFrame);
+    }
+  },
 };
 
 async function render(tag: string, content = ""): Promise<DSBaseElement> {
@@ -96,7 +108,7 @@ async function render(tag: string, content = ""): Promise<DSBaseElement> {
   element.innerHTML = content;
   document.body.append(element);
   await element.updateComplete;
-  setupFor[tag]?.(element);
+  await setupFor[tag]?.(element);
   await element.updateComplete;
   return element;
 }

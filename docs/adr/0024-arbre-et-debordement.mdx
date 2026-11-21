@@ -1,0 +1,63 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Documentation/ADR/0024 Arbre et débordement" />
+
+# ADR 0024 — Arbre et débordement
+
+**Statut :** accepté · **Date :** 21 novembre 2026
+
+## Contexte
+
+Une application montre des éléments en niveaux, des dossiers et des fichiers par exemple. Une barre d'onglets peut avoir plus d'onglets que sa largeur n'en tient.
+
+- Le pattern ARIA est le tree view : `role="tree"`, des `treeitem` avec `aria-level`, `aria-expanded` et `aria-selected`, et leurs enfants dans un `role="group"`.
+- Ses touches : les flèches verticales parcourent les éléments visibles, ArrowRight ouvre ou descend, ArrowLeft ferme ou remonte, Home et End, la recherche par saisie.
+- `RovingFocusController` et `state/typeahead.ts` existent ([ADR 0017](?path=/docs/documentation-adr-0017-cases-à-cocher-interrupteurs-et-radios--docs), [ADR 0018](?path=/docs/documentation-adr-0018-select--docs)).
+- La feuille de route prévoyait de ranger les onglets cachés dans un menu « Plus ».
+
+## D1 — L'arbre
+
+`tree` contient des `tree-item`, qui contiennent les leurs.
+
+- Les éléments restent dans l'arbre de la page. Chaque `tree-item` porte son rôle et ses états sur son hôte, comme `tab` et `radio`.
+- Le nom d'un élément est son `label` (`aria-label`). Son contenu contient aussi ses enfants : son texte entier n'est pas son nom.
+- `state/tree.ts` donne les nœuds visibles, dans l'ordre : `RovingFocusController` les parcourt.
+- Un élément de la liste est le plus proche de la cible de l'événement : `RovingFocusController` le cherche ainsi, pour des éléments imbriqués.
+- `tree` observe les attributs reflétés de ses éléments (`expanded`, `disabled`, `value`) : un élément ouvert par l'application change aussi les éléments visibles.
+- Le choix est unique : `value`, et `change` à chaque choix de l'utilisateur. Un clic sur le chevron ouvre ou ferme, un clic sur la ligne choisit.
+
+## D2 — Les onglets qui débordent
+
+- **Option A — Un menu des onglets cachés.** Un onglet caché sort de la `tablist` : la liste est incomplète pour un lecteur d'écran, et les flèches ne l'atteignent plus.
+- **Option B — La liste défile, avec des boutons à ses bords.** Chaque onglet reste dans la liste, et les flèches l'amènent à la vue.
+
+**Décision : B.** `OverflowController` dit si le contenu d'un conteneur dépasse son début ou sa fin, et le fait défiler.
+
+- Les boutons de défilement sont pour le pointeur : ils sortent de l'ordre de Tab et de l'arbre d'accessibilité.
+- La barre de défilement reste visible : la masquer demande `scrollbar-width`, absent de Chrome avant 121.
+- Le contrôleur mesure après chaque rendu, à chaque changement de taille (`ResizeObserver`) et à chaque défilement, dans les deux sens du texte.
+
+## D3 — Le contraste du survol
+
+Les fonds de survol prenaient `color.secondary.background-hover`, la couleur pleine d'un bouton secondaire. Le texte par défaut n'y avait pas un contraste suffisant. Les fonds de survol des lignes, des jours et des boutons sans fond prennent `color.surface.raised`, dont le contraste avec le texte est vérifié.
+
+## Conséquences
+
+- **Code :** `Tree`, `TreeItem`, `state/tree.ts`, `OverflowController`, et `Tabs` avec ses boutons de défilement.
+- **Tokens :** le groupe `tree`, et trois tokens de `tabs` pour les boutons. Les fonds de survol de `calendar`, `pagination`, `popup` et `tree` changent.
+- **Tests :** `tree.test.ts` avec le vrai clavier, `overflow.test.ts`, `state/tree.test.ts` dans Node, les stories dans trois moteurs. Le test de contrat prépare `tabs` pour sa part `scroll-button`.
+- **Limites :**
+  - L'arbre choisit un seul élément.
+  - La story de l'arbre désactive la règle `label-content-name-mismatch` d'axe : elle compare le nom au texte entier, enfants compris.
+
+## Questions ouvertes
+
+- **Choix multiple :** `aria-multiselectable`, avec `state/selection.ts`.
+- **Chargement à l'ouverture :** les enfants d'un dossier lus d'un serveur quand il s'ouvre.
+
+## Sources
+
+Consultées le 21 novembre 2026.
+
+- [Tree View Pattern](https://www.w3.org/WAI/ARIA/apg/patterns/treeview/) (W3C, ARIA Authoring Practices Guide) : les rôles, les états et les touches.
+- [Tabs Pattern](https://www.w3.org/WAI/ARIA/apg/patterns/tabs/) (W3C, ARIA Authoring Practices Guide) : tous les onglets dans la `tablist`.
