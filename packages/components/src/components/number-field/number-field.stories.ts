@@ -87,3 +87,44 @@ export const OutOfBounds = meta.story({
     );
   },
 });
+
+export const Formatted = meta.story({
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "`formatOptions` shows the number formatted in the language of the page, while the field doesn't have the focus: a currency, a percentage, a unit. With the focus, the user edits the number alone. The value stays in the format of HTML: `1250.5`.",
+      },
+    },
+  },
+  render: () => html`
+    <div lang="fr" style="display: grid; gap: 1rem; max-inline-size: 20rem">
+      <u-number-field
+        label="Montant demandé"
+        value="1250.5"
+        min="0"
+        .formatOptions=${{ style: "currency", currency: "EUR" }}
+      ></u-number-field>
+      <u-number-field
+        label="Taux de prise en charge"
+        value="0.25"
+        step="0.01"
+        .formatOptions=${{ style: "percent" }}
+      ></u-number-field>
+      <u-number-field
+        label="Distance du domicile"
+        value="12.5"
+        .formatOptions=${{ style: "unit", unit: "kilometer" }}
+      ></u-number-field>
+    </div>
+  `,
+  play: async ({ canvasElement }) => {
+    const [amount] = [...canvasElement.querySelectorAll<NumberField>("u-number-field")];
+    await amount!.updateComplete;
+    const input = amount!.shadowRoot!.querySelector<HTMLInputElement>('[part~="input"]')!;
+    expect(input.value.replace(/[\u00a0\u202f]/g, " ")).toBe("1 250,50 €");
+    input.focus();
+    await waitFor(() => expect(input.value).toBe("1250,5"));
+    input.blur();
+  },
+});

@@ -1,0 +1,85 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Documentation/ADR/0036 Nombres formatés" />
+
+# ADR 0036 — Nombres formatés
+
+**Statut :** accepté · **Date :** 21 novembre 2026 · Répond à une question ouverte de l'[ADR 0019](?path=/docs/documentation-adr-0019-nombres-dates-et-curseurs--docs)
+
+## Contexte
+
+Un formulaire demande un montant, un taux, une distance. L'usager lit `1 250,50 €` mieux que `1250.5`.
+
+- `number-field` rend un `<input type="number">` ([ADR 0019](?path=/docs/documentation-adr-0019-nombres-dates-et-curseurs--docs)). Il n'affiche ni groupe, ni devise, ni unité, et son séparateur décimal suit la langue du navigateur.
+- `Intl.NumberFormat` formate un nombre dans une langue : devise, pourcentage, unité. `formatToParts()` donne ses séparateurs.
+- Un `<input type="text">` peut porter `role="spinbutton"`, avec `aria-valuenow` et `aria-valuetext`.
+
+### Ce que font les bibliothèques
+
+<table>
+  <thead>
+    <tr>
+      <th>Bibliothèque</th>
+      <th>Format</th>
+      <th>Saisie</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Spectrum Web Components</td>
+      <td>`sp-number-field` : `formatOptions`, des options de `Intl.NumberFormat`.</td>
+      <td>
+        Un input de texte, `inputmode` selon les options. Le texte est lu dans la langue, au fil de
+        la saisie, par `NumberParser` de `@internationalized/number`.
+      </td>
+    </tr>
+    <tr>
+      <td>React Aria</td>
+      <td>`NumberField` : `formatOptions`, et `@internationalized/number`.</td>
+      <td>`useSpinButton` sur l'input de texte, `inputMode` selon les options.</td>
+    </tr>
+  </tbody>
+</table>
+
+## D1 — `formatOptions`, et le nombre seul pendant la saisie
+
+- **Option A — Le format pendant la saisie aussi**, comme Spectrum. Le curseur se déplace quand un groupe apparaît, et l'analyseur doit accepter chaque état intermédiaire.
+- **Option B — Le format sans le focus, le nombre seul avec.**
+
+**Décision : B.** `formatOptions` prend les options de `Intl.NumberFormat`, comme Spectrum et React Aria.
+
+- Sans le focus, le champ montre `1 250,50 €`, dans la langue de la page (`lang`).
+- Avec le focus, l'usager modifie `1250,5` : le nombre seul, sans groupe ni symbole. Un pourcentage s'y lit multiplié par cent.
+- Le texte se lit dans la langue de la page. Un `1 250,50 €` collé se lit aussi : les groupes, les espaces et les symboles partent.
+- La valeur reste au format de HTML, `1250.5` : le formulaire et l'application la reçoivent ainsi.
+- Sans `formatOptions`, le champ garde son `<input type="number">`.
+
+## D2 — Un input de texte, et la validation du navigateur
+
+- Le contrôle est un `<input type="text" inputmode="decimal" role="spinbutton">`. `aria-valuenow` donne le nombre, `aria-valuetext` le texte formaté.
+- Flèche haut et Flèche bas changent la valeur d'un pas, comme sur l'input natif : `stepNumber()`.
+- Un `<input type="number">` caché reçoit la valeur, `min`, `max` et `step`. Sa validité et ses messages sont ceux du navigateur.
+- Un texte qui n'est pas un nombre vide la valeur, comme l'input natif. Le champ est alors invalide (`badInput`), avec `badInputMessage(texte)`, ou `error-message`.
+- `state/number.ts` lit et écrit les nombres, sans DOM : ses tests tournent dans Node.
+
+## Conséquences
+
+- **Code :** `formatOptions` et `badInputMessage` de `NumberField`, `state/number.ts`.
+- **Tests :** `state/number.test.ts` dans Node, `number-field.test.ts` avec le vrai clavier, la story `Formatted` dans trois moteurs.
+- **Limites :**
+  - Les flèches d'un input natif ne s'affichent pas : le clavier et la saisie changent la valeur.
+  - Un pourcentage se garde à douze décimales près.
+  - Une valeur posée par l'application pendant la saisie s'affiche à la sortie du champ.
+
+## Questions ouvertes
+
+- **Boutons + et − :** deux `button` autour du champ, pour le pointeur, comme Spectrum.
+- **Format pendant la saisie :** les groupes au fil de la frappe.
+
+## Sources
+
+Consultées le 21 novembre 2026.
+
+- [NumberField.ts](https://github.com/adobe/spectrum-web-components/blob/main/1st-gen/packages/number-field/src/NumberField.ts) (Adobe, Spectrum Web Components).
+- [NumberField.tsx](https://github.com/adobe/react-spectrum/blob/main/packages/react-aria-components/src/NumberField.tsx) et [useNumberField.ts](https://github.com/adobe/react-spectrum/blob/main/packages/react-aria/src/numberfield/useNumberField.ts) (Adobe, React Aria).
+- [Intl.NumberFormat](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/NumberFormat) (MDN).

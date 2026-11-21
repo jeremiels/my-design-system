@@ -716,6 +716,15 @@ dialog[open]:where(:not([data-closing])) {
 - `nextSort(tri, clé)` donne le tri après un appui sur l'en-tête de la colonne `clé` : l'autre sens sur la colonne qui trie, croissant sur une autre.
 - `sortRows(lignes, tri, langue)` renvoie une copie des lignes triées : les objets de l'application, que ses `table-row` montrent. Les nombres et les dates se comparent comme tels, le texte dans l'ordre de la langue, avec ses nombres. Les valeurs vides vont à la fin, dans les deux sens.
 
+## Nombres formatés
+
+`packages/components/src/state/number.ts` lit et écrit les nombres d'un `number-field` qui a `formatOptions` ([ADR 0036](?path=/docs/documentation-adr-0036-nombres-formatés--docs)). La langue est celle de la page.
+
+- `formatNumber(valeur, langue, options)` montre la valeur, au format de HTML, avec `Intl.NumberFormat` : `1 250,50 €`.
+- `editableNumber(valeur, langue, options)` donne le texte que l'utilisateur modifie : le nombre seul, sans groupe ni symbole, `1250,5`. Un pourcentage est multiplié par cent.
+- `parseNumber(texte, langue, options)` lit le texte d'un utilisateur, au format de HTML : `1250.5` pour `1 250,50 €`. Elle renvoie `""` pour un texte vide, `undefined` pour un texte qui n'est pas un nombre.
+- `stepNumber(valeur, sens, bornes)` donne la valeur après un pas, comme les flèches d'un `<input type="number">` : sur la grille du pas depuis `min`, entre `min` et `max`.
+
 ## File des toasts
 
 `packages/components/src/state/toast.ts` tient les messages d'un `toaster`, le plus récent à la fin.
