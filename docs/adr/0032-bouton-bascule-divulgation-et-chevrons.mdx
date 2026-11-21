@@ -1,0 +1,165 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Documentation/ADR/0032 Bouton bascule, divulgation et chevrons" />
+
+# ADR 0032 — Bouton bascule, divulgation et chevrons
+
+**Statut :** accepté · **Date :** 21 novembre 2026 · Répond aux questions ouvertes de l'[ADR 0031](?path=/docs/documentation-adr-0031-composants-de-base-et-composition--docs)
+
+## Contexte
+
+`button` est le composant de base des boutons ([ADR 0031](?path=/docs/documentation-adr-0031-composants-de-base-et-composition--docs)). Trois besoins restent sans réponse.
+
+- **Bouton bascule :** le gras d'un éditeur, un filtre d'une liste. Le pattern de l'APG pose `aria-pressed` à `true` ou `false`. Son libellé ne change pas avec son état.
+- **Divulgation :** un bouton montre ou cache une partie de la page, un panneau de filtres ou le détail d'une ligne de `table`. Le pattern pose `aria-expanded`, sans `aria-haspopup`.
+- **Chevrons :** neuf composants dessinent leurs chevrons en CSS, avec deux bordures d'un carré tourné. Une marque ne les change pas par son set d'icônes.
+
+Dans `button`, un booléen absent ne distingue pas un bouton simple d'un bouton relâché, ou d'une divulgation fermée. La règle des booléens du [guide de l'API](?path=/docs/documentation-référence-api-des-composants--docs) l'interdit : un booléen vaut `false` par défaut, et `false` est le cas par défaut.
+
+Quatre composants lisent aussi la direction du texte, chacun avec sa copie du même code : `calendar`, `pagination`, `tabs` et `breadcrumb-item`. `:dir()` manque à la [matrice](?path=/docs/documentation-référence-support-navigateurs--docs).
+
+### Ce que font les bibliothèques
+
+<table>
+  <thead>
+    <tr>
+      <th>Bibliothèque</th>
+      <th>Bouton bascule</th>
+      <th>Icônes des composants</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>UI5</td>
+      <td>
+        `ui5-toggle-button`, un composant, et son `pressed`. Un clic l'inverse ; un clic annulé le
+        rétablit.
+      </td>
+      <td>—</td>
+    </tr>
+    <tr>
+      <td>Fluent UI Web Components</td>
+      <td>`fluent-toggle-button`, un composant, avec `pressed` et `mixed`.</td>
+      <td>—</td>
+    </tr>
+    <tr>
+      <td>Spectrum Web Components</td>
+      <td>
+        `toggles` et `selected` sur `sp-action-button`, dépréciés au profit d'un composant,
+        `swc-toggle-button`.
+      </td>
+      <td>Les icônes d'interface (`icons-ui`), en SVG dans le code des composants.</td>
+    </tr>
+    <tr>
+      <td>Material Web</td>
+      <td>`toggle` et `selected` sur `md-icon-button`, qui émet `input` et `change`.</td>
+      <td>—</td>
+    </tr>
+    <tr>
+      <td>React Aria</td>
+      <td>`ToggleButton`, un composant, avec `isSelected` et `onChange`.</td>
+      <td>—</td>
+    </tr>
+    <tr>
+      <td>Web Awesome</td>
+      <td>—</td>
+      <td>
+        Une bibliothèque `system` : `chevron-down`, `chevron-left`, `chevron-right`, en markup dans
+        le code. Une application la remplace.
+      </td>
+    </tr>
+    <tr>
+      <td>Carbon</td>
+      <td>—</td>
+      <td>Les SVG de `@carbon/icons`, importés par chaque composant : `ChevronRight16`.</td>
+    </tr>
+  </tbody>
+</table>
+
+## D1 — `toggle-button`, un composant
+
+- **Option A — `toggle` et `pressed` sur `button`**, comme Material Web. `toggle` exclut `popup` et la divulgation : deux booléens qui s'excluent.
+- **Option B — Un composant**, comme UI5, Fluent et React Aria. Spectrum y passe aussi.
+
+**Décision : B.** `toggle-button` étend `ButtonBase` : taille, variante, apparence, `label` et `disabled` sont ceux de `button`.
+
+- `pressed` donne `aria-pressed`, toujours `true` ou `false`. Il est reflété.
+- Un clic inverse `pressed`, puis émet `input` et `change`, comme une case à cocher. Poser `pressed` n'émet rien.
+- Relâché, le bouton est `neutral` et `outlined` par défaut : un contrôle visible avant l'appui.
+- Appuyé, les tokens de `toggle-button` le peignent, des couleurs d'`action`. Ils viennent après ceux de la variante et de l'apparence, sur l'hôte : les styles de l'application gagnent encore.
+- En contraste forcé, le bouton appuyé prend `Highlight` et `HighlightText`.
+- Dans un `toolbar`, les flèches passent d'un bouton à l'autre.
+
+## D2 — `expandable` sur `button`
+
+- **Option A — Un composant de divulgation.** Il refait `button` pour un attribut ARIA.
+- **Option B — `expandable` sur `button`**, comme `selectable` sur `table` et `removable` sur `tag`.
+
+**Décision : B.** Avec `expandable`, `expanded` donne `aria-expanded`, à `true` ou `false`. `popup` l'implique.
+
+- L'application change `expanded` et la partie de la page au `click`.
+- `aria-controls` n'atteint pas une partie de la page depuis le shadow root du bouton. L'APG le rend facultatif.
+
+## D3 — Les chevrons sont des icônes
+
+- **Option A — Des formes CSS**, une par composant. Une marque ne les change que par les tokens de taille.
+- **Option B — Des icônes du set**, rendues par `icon`, comme Web Awesome et Carbon. Une marque les remplace par nom, pour tous les composants.
+
+**Décision : B.** `@unicorne/icons` contient `chevron-down`, `chevron-up`, `chevron-left`, `chevron-right` et `chevron-up-down`.
+
+Une icône du set se charge à la demande ([ADR 0005](?path=/docs/documentation-adr-0005-icônes--docs)) : un chevron chargé ainsi apparaîtrait après le reste du composant, et manquerait au rendu serveur.
+
+- **Option 1 — Le markup des chevrons dans `Icon.icons`**, comme la bibliothèque `system` de Web Awesome. Une page qui affiche une seule icône télécharge alors les cinq chevrons.
+- **Option 2 — Le markup importé par chaque composant qui le dessine**, comme Carbon, puis donné à `icon`.
+
+**Décision : 2.** `Icon.bundle()` reçoit le markup d'icônes du set, par nom.
+
+- `calendar`, `pagination`, `tabs`, `breadcrumb-item`, `tree-item`, `details`, `select`, `date-picker`, `menu`, `popover` et `table-header-cell` rendent `icon`.
+- Chaque composant importe le markup de ses chevrons (`@unicorne/icons/chevron-down`) et le donne à `Icon.bundle()`, dans un bloc `static` de sa classe.
+- Tant que le set de l'enregistrement garde le chargeur du socle pour ce nom, `icon` rend ce markup dès son premier rendu, sur un serveur aussi. Les chevrons s'affichent comme les formes CSS qu'ils remplacent.
+- Une icône de marque du même nom l'emporte : elle remplace le chevron dans tous les composants.
+- Une page sans composant à chevron ne télécharge aucun chevron. `Icon.icons` garde un chargeur par icône.
+- Le token sémantique `size.icon-sm` donne leur taille. Les tokens de taille des chevrons le visent ; ceux de leur épaisseur disparaissent : le SVG la porte.
+- `table-header-cell` montre `chevron-up-down` sur une colonne qui ne trie pas, puis `chevron-up` ou `chevron-down`.
+
+## D4 — `DirectionController`
+
+Le contrôleur lit la direction du texte de son hôte à sa connexion, et le rend de nouveau quand elle change. `side("start")` donne `left` ou `right`.
+
+- Un composant choisit l'icône par le côté : `chevron-${side("end")}`.
+- `tree-item` le crée aussi, au lieu d'un attribut `data-rtl` que `tree` posait sur ses éléments.
+- Le premier rendu, sur un serveur aussi, va de gauche à droite.
+
+## D5 — Les tests dans un navigateur lisent les tokens
+
+Les tests du projet Vitest `browser` chargent `styles.css` et `tokens.css`, comme une application (`browser.setup.ts`). Sans eux, une icône sans taille prend celle d'un SVG par défaut, 300 px sur 150.
+
+## Conséquences
+
+- **Code :** `ToggleButton`, `expandable` sur `Button`, `DirectionController`, `Icon.bundle()`.
+- **Icônes :** cinq chevrons dans `@unicorne/icons`.
+- **Tokens :** le groupe `toggle-button`, et `size.icon-sm`. Les tokens `chevron-width` de `pagination`, `tabs`, `tree` et `popup`, et `separator-width` de `breadcrumb`, sont retirés.
+- **Tests :** les stories de `toggle-button` et la story `Disclosure` de `button` dans trois moteurs, `direction.test.ts`, la page `toggle-button` du rendu serveur.
+- **Limites :**
+  - Une page servie sans bundler, qui importe tout le socle, télécharge les modules des chevrons avec ceux des composants.
+  - Un clic annulé (`preventDefault()`) inverse quand même `pressed`.
+  - La direction se lit à la connexion : un `dir` changé ensuite garde l'ancien sens jusqu'à la connexion suivante.
+
+## Questions ouvertes
+
+- **Groupe de boutons bascule :** un choix unique parmi des boutons, comme `swc-toggle-button-group` de Spectrum.
+- **État mixte :** `mixed`, comme Fluent, pour une sélection de texte en partie grasse.
+- **Clic annulé :** rétablir `pressed`, comme UI5.
+
+## Sources
+
+Consultées le 21 novembre 2026.
+
+- [Button](https://www.w3.org/WAI/ARIA/apg/patterns/button/) et [Disclosure](https://www.w3.org/WAI/ARIA/apg/patterns/disclosure/) (W3C, APG).
+- [ToggleButton.ts](https://github.com/SAP/ui5-webcomponents/blob/main/packages/main/src/ToggleButton.ts) (SAP, UI5 Web Components).
+- [toggle-button.ts](https://github.com/microsoft/fluentui/blob/master/packages/web-components/src/toggle-button/toggle-button.ts) (Microsoft, Fluent UI Web Components).
+- [ActionButton.ts](https://github.com/adobe/spectrum-web-components/blob/main/1st-gen/packages/action-button/src/ActionButton.ts) et [icons-ui](https://github.com/adobe/spectrum-web-components/tree/main/1st-gen/packages/icons-ui) (Adobe, Spectrum Web Components).
+- [icon-button.ts](https://github.com/material-components/material-web/blob/main/iconbutton/internal/icon-button.ts) (Google, Material Web).
+- [ToggleButton.tsx](https://github.com/adobe/react-spectrum/blob/main/packages/react-aria-components/src/ToggleButton.tsx) (Adobe, React Aria).
+- [library.system.ts](https://github.com/shoelace-style/webawesome/blob/next/packages/webawesome/src/components/icon/library.system.ts) (Web Awesome).
+- [accordion-item.ts](https://github.com/carbon-design-system/carbon/blob/main/packages/web-components/src/components/accordion/accordion-item.ts) (IBM, Carbon).

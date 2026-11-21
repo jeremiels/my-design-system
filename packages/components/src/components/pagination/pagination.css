@@ -35,29 +35,7 @@
   padding-inline: var(--u-pagination-padding-inline);
 }
 
-/* A chevron that points back or forward, along the text. */
+/* A chevron icon that points back or forward, along the text. */
 .chevron {
-  box-sizing: border-box;
-  inline-size: var(--u-pagination-chevron-size);
-  block-size: var(--u-pagination-chevron-size);
-  border: solid currentColor;
-  border-width: 0 calc(var(--u-pagination-chevron-width) * 2)
-    calc(var(--u-pagination-chevron-width) * 2) 0;
-}
-
-.button--previous .chevron {
-  transform: rotate(135deg);
-}
-
-.button--next .chevron {
-  transform: rotate(-45deg);
-}
-
-/* pagination.ts reads the text direction: `:dir()` is missing before Chrome 120. */
-.rtl .button--previous .chevron {
-  transform: rotate(-45deg);
-}
-
-.rtl .button--next .chevron {
-  transform: rotate(135deg);
+  --u-icon-size: var(--u-pagination-chevron-size);
 }

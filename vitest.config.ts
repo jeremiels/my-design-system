@@ -58,6 +58,7 @@ export default mergeConfig(
               ".storybook/**/*.test.ts",
             ],
             exclude: ["packages/components/src/state/**", "packages/components/src/ssr.test.ts"],
+            setupFiles: ["packages/components/src/browser.setup.ts"],
             browser: {
               enabled: true,
               headless: true,

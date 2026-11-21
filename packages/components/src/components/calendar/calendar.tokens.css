@@ -13,7 +13,7 @@
   --u-calendar-selected-text-color: var(--u-color-action-text);
   --u-calendar-today-border-color: var(--u-color-border-control);
   --u-calendar-border-width: var(--u-border-width);
-  --u-calendar-chevron-size: var(--u-spacing-sm);
+  --u-calendar-chevron-size: var(--u-size-icon-sm);
   --u-calendar-disabled-opacity: var(--u-opacity-disabled);
   --u-calendar-focus-ring-color: var(--u-color-focus-ring);
   --u-calendar-focus-ring-width: var(--u-focus-ring-width);

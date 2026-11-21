@@ -1,8 +1,10 @@
+import chevronDown from "@unicorne/icons/chevron-down";
 import { html } from "lit/static-html.js";
 import { property } from "lit/decorators.js";
 import type { PopupToggleReason } from "../../events/popup-toggle.js";
 import { PopupBase } from "../../bases/popup/popup-base.js";
 import { Button } from "../button/button.js";
+import { Icon } from "../icon/icon.js";
 import popoverStyles from "./popover.css" with { type: "css" };
 import popoverTokens from "./popover.tokens.css" with { type: "css" };
 
@@ -26,10 +28,15 @@ import popoverTokens from "./popover.tokens.css" with { type: "css" };
  * @tokens popover - Its panel's tokens (`@cssprop`), from `@unicorne/tokens` (`src/component/popover/`): `npm run analyze` documents them.
  */
 export class Popover extends PopupBase {
+  static {
+    // Its chevrons render at once, on a server too (ADR 0032).
+    Icon.bundle({ "chevron-down": chevronDown });
+  }
+
   static override componentName = "popover";
 
   /** Renders its trigger with the `button` of its own registration. */
-  static override dependencies = [Button];
+  static override dependencies = [Button, Icon];
 
   static styles = [super.styles ?? [], popoverTokens, popoverStyles];
 
@@ -76,7 +83,8 @@ export class Popover extends PopupBase {
         ?disabled=${this.isDisabled}
         @click=${this.#onTriggerClick}
       >
-        <span class="label">${this.label}</span><span class="chevron" aria-hidden="true"></span>
+        <span class="label">${this.label}</span
+        ><${this.tagFor(Icon)} class="chevron" name="chevron-down"></${this.tagFor(Icon)}>
       </${button}>
       <div
         part="panel"

@@ -141,6 +141,9 @@
         },
         {
           "$ref": "component/table/table.tokens.json"
+        },
+        {
+          "$ref": "component/toggle-button/toggle-button.tokens.json"
         }
       ]
     }

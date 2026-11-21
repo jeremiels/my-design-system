@@ -1,0 +1,23 @@
+/* The tokens are in toggle-button.tokens.css, generated from
+   tokens/component/toggle-button/ (ADR 0002). Released, the button reads the
+   tokens of `button` (button-base.css). Pressed, the tokens of
+   `toggle-button` give them: this sheet comes after those of the variant
+   and the appearance, and the application's styles still win. */
+:host([pressed]) {
+  --u-button-background-color: var(--u-toggle-button-pressed-background-color);
+  --u-button-background-color-hover: var(--u-toggle-button-pressed-background-color-hover);
+  --u-button-background-color-active: var(--u-toggle-button-pressed-background-color-active);
+  --u-button-text-color: var(--u-toggle-button-pressed-text-color);
+  --u-button-border-color: var(--u-toggle-button-pressed-border-color);
+}
+
+/* Forced colors drop the backgrounds: the pressed button takes the
+   system's colors of a selection. */
+@media (forced-colors: active) {
+  :host([pressed]) .button {
+    forced-color-adjust: none;
+    color: HighlightText;
+    background-color: Highlight;
+    border-color: Highlight;
+  }
+}

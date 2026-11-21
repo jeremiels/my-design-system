@@ -71,6 +71,7 @@ export default defineConfig({
         "file-field": { file: "components/file-field/file-field.tokens.css" },
         stepper: { file: "components/stepper/stepper.tokens.css" },
         table: { file: "components/table/table.tokens.css" },
+        "toggle-button": { file: "components/toggle-button/toggle-button.tokens.css" },
       },
     }),
   ],

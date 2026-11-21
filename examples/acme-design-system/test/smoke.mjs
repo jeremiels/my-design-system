@@ -134,10 +134,15 @@ try {
 
   // The page renders an alert of each type `success` (base icon) and
   // `information` (ACME's icon), and a modal, whose close button shows
-  // `close`: of the base's icons, only `close` and `success` load.
+  // `close`: of the base's icons, only `close` and `success` load on demand.
+  // The chevrons are static imports of the components that draw them
+  // (ADR 0032): this page, without a bundler, loads every module of the base.
   const loadedBaseIcons = [...full]
     .filter(
-      (path) => path.startsWith("node_modules/@unicorne/icons/js/") && !path.endsWith("/index.js"),
+      (path) =>
+        path.startsWith("node_modules/@unicorne/icons/js/") &&
+        !path.endsWith("/index.js") &&
+        !path.includes("/chevron-"),
     )
     .map((path) => path.slice(path.lastIndexOf("/") + 1, -".js".length))
     .sort();

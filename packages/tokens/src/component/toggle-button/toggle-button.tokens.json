@@ -1,0 +1,26 @@
+{
+  "toggle-button": {
+    "$description": "Tokens of `toggle-button` while pressed. Released, it is a `button`, painted by the tokens of `button`.",
+    "$type": "color",
+    "pressed-background-color": {
+      "$value": "{color.action.background}",
+      "$description": "Background of the pressed button."
+    },
+    "pressed-background-color-hover": {
+      "$value": "{color.action.background-hover}",
+      "$description": "Background of the pressed button, hovered."
+    },
+    "pressed-background-color-active": {
+      "$value": "{color.action.background-active}",
+      "$description": "Background of the pressed button, while pressed by the pointer."
+    },
+    "pressed-text-color": {
+      "$value": "{color.action.text}",
+      "$description": "Text of the pressed button."
+    },
+    "pressed-border-color": {
+      "$value": "{color.action.background}",
+      "$description": "Border of the pressed button."
+    }
+  }
+}

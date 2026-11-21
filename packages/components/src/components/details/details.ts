@@ -1,6 +1,10 @@
-import { html, type PropertyValues } from "lit";
+import chevronDown from "@unicorne/icons/chevron-down";
+import chevronUp from "@unicorne/icons/chevron-up";
+import type { PropertyValues } from "lit";
 import { property, query } from "lit/decorators.js";
+import { html } from "lit/static-html.js";
 import { DSBaseElement } from "../../bases/base-element.js";
+import { Icon } from "../icon/icon.js";
 import detailsStyles from "./details.css" with { type: "css" };
 import detailsTokens from "./details.tokens.css" with { type: "css" };
 
@@ -28,7 +32,14 @@ import detailsTokens from "./details.tokens.css" with { type: "css" };
  * @tokens details - Its tokens (`@cssprop`), from `@unicorne/tokens` (`src/component/details/`): `npm run analyze` documents them.
  */
 export class Details extends DSBaseElement {
+  static {
+    // Its chevrons render at once, on a server too (ADR 0032).
+    Icon.bundle({ "chevron-down": chevronDown, "chevron-up": chevronUp });
+  }
+
   static override componentName = "details";
+
+  static override dependencies = [Icon];
 
   static styles = [super.styles ?? [], detailsTokens, detailsStyles];
 
@@ -76,10 +87,12 @@ export class Details extends DSBaseElement {
   };
 
   render() {
+    const icon = this.tagFor(Icon);
     return html`
       <details part="details" ?open=${this.open} @toggle=${this.#onToggle}>
         <summary part="summary" class="summary">
-          <span class="chevron" aria-hidden="true"></span><span class="label">${this.label}</span>
+          <${icon} class="chevron" name=${this.open ? "chevron-up" : "chevron-down"}></${icon}
+          ><span class="label">${this.label}</span>
         </summary>
         <div part="content" class="content"><slot></slot></div>
       </details>

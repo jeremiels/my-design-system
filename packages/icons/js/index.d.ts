@@ -6,6 +6,16 @@ export type IconSource = string | IconLoader;
 /** Icon name → icon. */
 export type IconSet = Readonly<Record<string, IconSource>>;
 /** The names of this set. */
-export type IconName = "close" | "danger" | "information" | "success" | "warning";
+export type IconName =
+  | "chevron-down"
+  | "chevron-left"
+  | "chevron-right"
+  | "chevron-up"
+  | "chevron-up-down"
+  | "close"
+  | "danger"
+  | "information"
+  | "success"
+  | "warning";
 /** Icon name → loader of its module: a page downloads only the icons it renders. */
 export declare const icons: Readonly<Record<IconName, IconLoader>>;

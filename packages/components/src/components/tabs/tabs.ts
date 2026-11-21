@@ -1,3 +1,5 @@
+import chevronLeft from "@unicorne/icons/chevron-left";
+import chevronRight from "@unicorne/icons/chevron-right";
 import { nothing, type PropertyValues } from "lit";
 import { property } from "lit/decorators.js";
 import { ifDefined } from "lit/directives/if-defined.js";
@@ -6,7 +8,9 @@ import { OverflowController } from "../../controllers/overflow.js";
 import { RovingFocusController } from "../../controllers/roving-focus.js";
 import type { Orientation } from "../../types/common.js";
 import { DSBaseElement } from "../../bases/base-element.js";
+import { DirectionController } from "../../controllers/direction.js";
 import { Button } from "../button/button.js";
+import { Icon } from "../icon/icon.js";
 import { TabPanel } from "../tab-panel/tab-panel.js";
 import { Tab } from "../tab/tab.js";
 import tabsStyles from "./tabs.css" with { type: "css" };
@@ -44,10 +48,15 @@ let nextId = 0;
  * @tokens tabs - Its tokens (`@cssprop`), from `@unicorne/tokens` (`src/component/tabs/`): `npm run analyze` documents them.
  */
 export class Tabs extends DSBaseElement {
+  static {
+    // Its chevrons render at once, on a server too (ADR 0032).
+    Icon.bundle({ "chevron-left": chevronLeft, "chevron-right": chevronRight });
+  }
+
   static override componentName = "tabs";
 
   /** Recognizes its tabs and panels of its own registration (ADR 0001, D2). */
-  static override dependencies: readonly (typeof DSBaseElement)[] = [Tab, TabPanel, Button];
+  static override dependencies: readonly (typeof DSBaseElement)[] = [Tab, TabPanel, Button, Icon];
 
   static styles = [super.styles ?? [], tabsTokens, tabsStyles];
 
@@ -69,18 +78,8 @@ export class Tabs extends DSBaseElement {
       : this.renderRoot?.querySelector<HTMLElement>('[part~="tablist"]'),
   );
 
-  /** Whether the text runs right to left: the chevrons point the other way. */
-  #rtl = false;
-
-  override connectedCallback(): void {
-    super.connectedCallback();
-    // `:dir()` is missing before Chrome 120.
-    const rtl = getComputedStyle(this).direction === "rtl";
-    if (rtl !== this.#rtl) {
-      this.#rtl = rtl;
-      this.requestUpdate();
-    }
-  }
+  /** The text direction: the chevrons point back and forward along it. */
+  #direction = new DirectionController(this);
 
   constructor() {
     super();
@@ -153,17 +152,18 @@ export class Tabs extends DSBaseElement {
   #renderScroll(edge: "start" | "end") {
     const shown = this.orientation !== "vertical" && this.#overflow[edge];
     const button = this.tagFor(Button);
+    const icon = this.tagFor(Icon);
     return shown
       ? html`<${button}
           part="scroll-button"
-          class="scroll scroll--${edge}${this.#rtl ? " scroll--rtl" : ""}"
+          class="scroll scroll--${edge}"
           variant="neutral"
           appearance="plain"
           tabindex="-1"
           aria-hidden="true"
           @click=${() => this.#overflow.scroll(edge)}
         >
-          <span class="chevron"></span>
+          <${icon} class="chevron" name="chevron-${this.#direction.side(edge)}"></${icon}>
         </${button}>`
       : nothing;
   }

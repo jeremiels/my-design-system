@@ -11,8 +11,7 @@
   --u-tree-row-background-color-hover: var(--u-color-surface-raised);
   --u-tree-selected-background-color: var(--u-color-action-background);
   --u-tree-selected-text-color: var(--u-color-action-text);
-  --u-tree-chevron-size: var(--u-spacing-sm);
-  --u-tree-chevron-width: var(--u-border-width);
+  --u-tree-chevron-size: var(--u-size-icon-sm);
   --u-tree-focus-ring-color: var(--u-color-focus-ring);
   --u-tree-focus-ring-width: var(--u-focus-ring-width);
   --u-tree-focus-ring-offset: var(--u-focus-ring-offset);

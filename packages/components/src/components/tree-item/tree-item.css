@@ -34,24 +34,18 @@
   opacity: var(--u-opacity-disabled);
 }
 
-/* A chevron that points down when open, along the text when closed: the
-   tree sets data-rtl, `:dir()` is missing before Chrome 120. */
+/* A chevron icon that points down when open, along the text when closed. */
 .toggle {
   flex: none;
-  box-sizing: border-box;
+  display: inline-grid;
+  place-items: center;
   inline-size: var(--u-tree-chevron-size);
   block-size: var(--u-tree-chevron-size);
-  border: solid currentColor;
-  border-width: 0 calc(var(--u-tree-chevron-width) * 2) calc(var(--u-tree-chevron-width) * 2) 0;
-  transform: rotate(-45deg);
 }
 
-:host([data-rtl]) .toggle {
-  transform: rotate(135deg);
-}
-
-:host([expanded]) .toggle {
-  transform: rotate(45deg);
+/* On the icon itself: an outer rule beats the tokens of its :host. */
+.chevron {
+  --u-icon-size: var(--u-tree-chevron-size);
 }
 
 .toggle--leaf {

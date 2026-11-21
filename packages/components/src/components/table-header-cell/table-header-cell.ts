@@ -1,7 +1,12 @@
-import { html, nothing } from "lit";
+import chevronDown from "@unicorne/icons/chevron-down";
+import chevronUp from "@unicorne/icons/chevron-up";
+import chevronUpDown from "@unicorne/icons/chevron-up-down";
+import { nothing } from "lit";
 import { property } from "lit/decorators.js";
+import { html } from "lit/static-html.js";
 import { DSBaseElement } from "../../bases/base-element.js";
 import type { SortDirection } from "../../state/table.js";
+import { Icon } from "../icon/icon.js";
 import tableTokens from "../table/table.tokens.css" with { type: "css" };
 import type { Table } from "../table/table.js";
 import type { TableCellAlign, TableHeaderScope } from "../table/table.type.js";
@@ -25,7 +30,18 @@ import tableHeaderCellStyles from "./table-header-cell.css" with { type: "css" }
  * @tokens table - Its tokens (`@cssprop`), shared with `table`, from `@unicorne/tokens` (`src/component/table/`): `npm run analyze` documents them.
  */
 export class TableHeaderCell extends DSBaseElement {
+  static {
+    // Its chevrons render at once, on a server too (ADR 0032).
+    Icon.bundle({
+      "chevron-down": chevronDown,
+      "chevron-up": chevronUp,
+      "chevron-up-down": chevronUpDown,
+    });
+  }
+
   static override componentName = "table-header-cell";
+
+  static override dependencies = [Icon];
 
   static styles = [super.styles ?? [], tableTokens, tableHeaderCellStyles];
 
@@ -73,7 +89,17 @@ export class TableHeaderCell extends DSBaseElement {
               data-sorted=${this.sorted ?? nothing}
               @click=${this.#sort}
             >
-              <slot></slot><span class="sort-icon" aria-hidden="true"></span>
+              <slot></slot
+              ><${this.tagFor(Icon)}
+                class="sort-icon"
+                name=${
+                  this.sorted === "ascending"
+                    ? "chevron-up"
+                    : this.sorted === "descending"
+                      ? "chevron-down"
+                      : "chevron-up-down"
+                }
+              ></${this.tagFor(Icon)}>
             </button>`
           : html`<slot></slot>`
       }

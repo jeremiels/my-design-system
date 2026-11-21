@@ -25,20 +25,15 @@
   color: var(--u-picker-placeholder-color);
 }
 
-/* A chevron down: two borders of a square, turned. */
+/* A chevron icon down. */
 .chevron {
   flex: none;
-  box-sizing: border-box;
-  inline-size: var(--u-picker-chevron-size);
-  block-size: var(--u-picker-chevron-size);
-  margin-block-start: calc(var(--u-picker-chevron-size) / -2);
-  border: solid var(--u-picker-chevron-color);
-  border-width: 0 calc(var(--u-field-border-width) * 2) calc(var(--u-field-border-width) * 2) 0;
-  transform: rotate(45deg);
+  --u-icon-size: var(--u-picker-chevron-size);
+  color: var(--u-picker-chevron-color);
 }
 
 @media (forced-colors: active) {
   .chevron {
-    border-color: CanvasText;
+    color: CanvasText;
   }
 }

@@ -26,31 +26,9 @@
   --u-button-border-radius: var(--u-calendar-day-border-radius);
 }
 
-/* A chevron that points back or forward, along the text. */
+/* A chevron icon that points back or forward, along the text. */
 .chevron {
-  box-sizing: border-box;
-  inline-size: var(--u-calendar-chevron-size);
-  block-size: var(--u-calendar-chevron-size);
-  border: solid currentColor;
-  border-width: 0 calc(var(--u-calendar-border-width) * 2) calc(var(--u-calendar-border-width) * 2)
-    0;
-}
-
-.nav--previous .chevron {
-  transform: rotate(135deg);
-}
-
-.nav--next .chevron {
-  transform: rotate(-45deg);
-}
-
-/* calendar.ts reads the text direction: `:dir()` is missing before Chrome 120. */
-.rtl .nav--previous .chevron {
-  transform: rotate(-45deg);
-}
-
-.rtl .nav--next .chevron {
-  transform: rotate(135deg);
+  --u-icon-size: var(--u-calendar-chevron-size);
 }
 
 .grid {

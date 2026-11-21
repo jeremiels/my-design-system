@@ -8,8 +8,8 @@
     },
     "chevron-size": {
       "$type": "dimension",
-      "$value": "{spacing.sm}",
-      "$description": "Width and height of the chevron. Its stroke is twice the border's width."
+      "$value": "{size.icon-sm}",
+      "$description": "Size of the chevron icon."
     },
     "chevron-color": {
       "$type": "color",

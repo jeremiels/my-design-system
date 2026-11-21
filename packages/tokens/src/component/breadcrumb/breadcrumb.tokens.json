@@ -33,13 +33,8 @@
     },
     "separator-size": {
       "$type": "dimension",
-      "$value": "{spacing.xs}",
-      "$description": "Width and height of the separator, a chevron."
-    },
-    "separator-width": {
-      "$type": "dimension",
-      "$value": "{border.width}",
-      "$description": "Stroke of the separator."
+      "$value": "{size.icon-sm}",
+      "$description": "Size of the separator, a chevron icon."
     },
     "focus-ring-color": {
       "$type": "color",

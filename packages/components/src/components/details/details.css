@@ -33,21 +33,10 @@ details {
   outline-offset: var(--u-details-focus-ring-offset);
 }
 
-/* A chevron down when closed, up when open: the same in either text direction. */
+/* A chevron icon down when closed, up when open: the same in either text direction. */
 .chevron {
   flex: none;
-  box-sizing: border-box;
-  inline-size: var(--u-details-chevron-size);
-  block-size: var(--u-details-chevron-size);
-  margin-block-start: calc(var(--u-details-chevron-size) / -2);
-  border: solid currentColor;
-  border-width: 0 calc(var(--u-details-border-width) * 2) calc(var(--u-details-border-width) * 2) 0;
-  transform: rotate(45deg);
-}
-
-details[open] .chevron {
-  margin-block: calc(var(--u-details-chevron-size) / 2) 0;
-  transform: rotate(-135deg);
+  --u-icon-size: var(--u-details-chevron-size);
 }
 
 .content {

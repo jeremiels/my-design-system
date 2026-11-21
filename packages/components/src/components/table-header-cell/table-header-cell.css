@@ -49,38 +49,15 @@
   outline-offset: var(--u-table-focus-ring-offset);
 }
 
-/* The arrows: up and down, faint, while the column doesn't sort the rows;
-   up while it sorts them ascending, down while descending. Each is a
-   chevron: two borders of a square, turned. */
+/* The sort icon: a chevron up and down, faint, while the column doesn't
+   sort the rows; up while it sorts them ascending, down while descending. */
 .sort-icon {
   flex: none;
-  display: inline-flex;
-  flex-direction: column;
-  align-items: center;
+  --u-icon-size: var(--u-table-sort-icon-size);
   opacity: var(--u-table-sort-icon-opacity);
-}
-.sort-icon::before,
-.sort-icon::after {
-  content: "";
-  box-sizing: border-box;
-  inline-size: var(--u-table-sort-icon-size);
-  block-size: var(--u-table-sort-icon-size);
-  border: 0 solid currentColor;
-  transform: rotate(45deg);
-}
-/* Up and down whatever the direction of the text: physical borders. */
-.sort-icon::before {
-  border-width: calc(var(--u-table-border-width) * 2) 0 0 calc(var(--u-table-border-width) * 2);
-}
-.sort-icon::after {
-  border-width: 0 calc(var(--u-table-border-width) * 2) calc(var(--u-table-border-width) * 2) 0;
 }
 .sort[data-sorted] .sort-icon {
   opacity: 1;
-}
-.sort[data-sorted="ascending"] .sort-icon::after,
-.sort[data-sorted="descending"] .sort-icon::before {
-  display: none;
 }
 
 @media (forced-colors: active) {

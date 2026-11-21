@@ -233,6 +233,10 @@
     "./table-header-cell": {
       "types": "./dist/components/table-header-cell/table-header-cell.d.ts",
       "import": "./dist/table-header-cell.js"
+    },
+    "./toggle-button": {
+      "types": "./dist/components/toggle-button/toggle-button.d.ts",
+      "import": "./dist/toggle-button.js"
     }
   },
   "scripts": {

@@ -265,6 +265,44 @@ export const PopupTrigger = meta.story({
   },
 });
 
+export const Disclosure = meta.story({
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "A button that shows or hides a part of the page, the disclosure pattern: `expandable` gives it `aria-expanded`, from `expanded`. The application changes `expanded` and the part on `click`. A button that stays pressed is a `toggle-button`.",
+      },
+    },
+  },
+  render: () => html`
+    <u-button
+      variant="neutral"
+      appearance="outlined"
+      expandable
+      @click=${(event: Event) => {
+        const button = event.currentTarget as Button;
+        button.expanded = !button.expanded;
+        (button.nextElementSibling as HTMLElement).hidden = !button.expanded;
+      }}
+      >Filters</u-button
+    >
+    <p hidden>Status, date and amount.</p>
+  `,
+  play: async ({ canvasElement }) => {
+    const button = canvasElement.querySelector<Button>("u-button")!;
+    await button.updateComplete;
+    const control = button.shadowRoot!.querySelector("button")!;
+    const region = canvasElement.querySelector("p")!;
+    expect(control.getAttribute("aria-expanded")).toBe("false");
+    // No popup: aria-haspopup stays off.
+    expect(control.hasAttribute("aria-haspopup")).toBe(false);
+    await userEvent.click(control);
+    await button.updateComplete;
+    expect(control.getAttribute("aria-expanded")).toBe("true");
+    expect(region.hidden).toBe(false);
+  },
+});
+
 export const Disabled = meta.story({
   parameters: {
     docs: {

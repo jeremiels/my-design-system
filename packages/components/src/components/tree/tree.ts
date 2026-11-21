@@ -122,15 +122,10 @@ export class Tree extends DSBaseElement {
 
   protected override willUpdate(changedProperties: PropertyValues<this>): void {
     super.willUpdate(changedProperties);
-    const rtl =
-      typeof getComputedStyle === "function" && this.isConnected
-        ? getComputedStyle(this).direction === "rtl"
-        : false;
     const walk = (items: readonly TreeItem[], level: number) => {
       for (const item of items) {
         item.level = level;
         item.selected = this.value !== "" && item.value === this.value;
-        item.toggleAttribute("data-rtl", rtl);
         walk(item.items, level + 1);
       }
     };

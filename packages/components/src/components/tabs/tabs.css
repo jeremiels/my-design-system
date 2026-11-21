@@ -31,23 +31,9 @@
   --u-button-padding-block: 0;
 }
 
+/* A chevron icon that points along the text, to the tabs it hides. */
 .chevron {
-  box-sizing: border-box;
-  inline-size: var(--u-tabs-chevron-size);
-  block-size: var(--u-tabs-chevron-size);
-  border: solid currentColor;
-  border-width: 0 calc(var(--u-tabs-chevron-width) * 2) calc(var(--u-tabs-chevron-width) * 2) 0;
-}
-
-/* Along the text: tabs.ts reads the direction, `:dir()` is missing before Chrome 120. */
-.scroll--start .chevron,
-.scroll--end.scroll--rtl .chevron {
-  transform: rotate(135deg);
-}
-
-.scroll--end .chevron,
-.scroll--start.scroll--rtl .chevron {
-  transform: rotate(-45deg);
+  --u-icon-size: var(--u-tabs-chevron-size);
 }
 
 :host([orientation="vertical"]) {

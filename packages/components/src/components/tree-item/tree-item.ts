@@ -1,8 +1,14 @@
-import { html, type PropertyValues } from "lit";
+import chevronDown from "@unicorne/icons/chevron-down";
+import chevronLeft from "@unicorne/icons/chevron-left";
+import chevronRight from "@unicorne/icons/chevron-right";
+import type { PropertyValues } from "lit";
 import { property } from "lit/decorators.js";
 import { styleMap } from "lit/directives/style-map.js";
+import { html } from "lit/static-html.js";
 import { DSBaseElement } from "../../bases/base-element.js";
+import { DirectionController } from "../../controllers/direction.js";
 import { withDisabled } from "../../mixins/withDisabled.js";
+import { Icon } from "../icon/icon.js";
 import treeItemStyles from "./tree-item.css" with { type: "css" };
 
 /**
@@ -22,9 +28,23 @@ import treeItemStyles from "./tree-item.css" with { type: "css" };
  * @csspart group - The wrapper of the children, `role="group"`.
  */
 export class TreeItem extends withDisabled(DSBaseElement) {
+  static {
+    // Its chevrons render at once, on a server too (ADR 0032).
+    Icon.bundle({
+      "chevron-down": chevronDown,
+      "chevron-left": chevronLeft,
+      "chevron-right": chevronRight,
+    });
+  }
+
   static override componentName = "tree-item";
 
+  static override dependencies = [Icon];
+
   static styles = [super.styles ?? [], treeItemStyles];
+
+  /** The text direction: the chevron of a closed item points along it. */
+  #direction = new DirectionController(this);
 
   /** The `value` of its tree while it is chosen. */
   @property({ type: String })
@@ -75,12 +95,12 @@ export class TreeItem extends withDisabled(DSBaseElement) {
 
   render() {
     const parent = this.items.length > 0;
+    const icon = this.tagFor(Icon);
+    const chevron = this.expanded ? "chevron-down" : `chevron-${this.#direction.side("end")}`;
     return html`
       <div part="row" class="row" style=${styleMap({ "--tree-level": String(this.level - 1) })}>
-        <span
-          part="toggle"
-          class="toggle${parent ? "" : " toggle--leaf"}"
-          aria-hidden="true"
+        <span part="toggle" class="toggle${parent ? "" : " toggle--leaf"}" aria-hidden="true"
+          ><${icon} class="chevron" name=${chevron}></${icon}
         ></span>
         <span class="label">${this.label}</span>
       </div>

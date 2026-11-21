@@ -1,4 +1,4 @@
-import type { IconSet } from "@unicorne/icons";
+import { icons, type IconSet } from "@unicorne/icons";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { defineComponents } from "../../registry/define-components.js";
 import { Icon } from "./icon.js";
@@ -143,6 +143,20 @@ describe("Icon", () => {
     expect(box(icon).childElementCount).toBe(0);
     expect(warn).toHaveBeenCalledOnce();
     expect(warn.mock.calls[0][0]).toContain("offline");
+  });
+
+  it("renders at once the markup a component bundled for an icon of the base, not a brand's", async () => {
+    const BUNDLED = '<svg viewBox="0 0 24 24"><path d="M0 12h24"/></svg>';
+    Icon.bundle({ "chevron-up": BUNDLED });
+    const base = create(iconWith(icons), "chevron-up");
+    // No load: the first render has the markup.
+    await base.updateComplete;
+    expect(box(base).innerHTML).toContain('d="M0 12h24"');
+
+    // A brand's icon of the same name wins.
+    const brand = create(iconWith({ ...icons, "chevron-up": SVG }), "chevron-up");
+    await brand.updateComplete;
+    expect(box(brand).innerHTML).toContain('d="M0 0h24"');
   });
 
   it("loads the icons of the base on demand", () => {

@@ -1,0 +1,8 @@
+/* Generated from ../tokens/src/u.resolver.json by @unicorne/tokens/terrazzo-plugin (ADR 0002). Do not edit: change the tokens. */
+:host {
+  --u-toggle-button-pressed-background-color: var(--u-color-action-background);
+  --u-toggle-button-pressed-background-color-hover: var(--u-color-action-background-hover);
+  --u-toggle-button-pressed-background-color-active: var(--u-color-action-background-active);
+  --u-toggle-button-pressed-text-color: var(--u-color-action-text);
+  --u-toggle-button-pressed-border-color: var(--u-color-action-background);
+}

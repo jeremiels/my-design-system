@@ -31,6 +31,10 @@
       "$value": "{dimension.600}",
       "$description": "An icon next to body text: the 24px grid of the icons."
     },
+    "icon-sm": {
+      "$value": "{dimension.400}",
+      "$description": "Width and height of a small icon inside a control: the chevrons of the components."
+    },
     "choice": {
       "$value": "{dimension.400}",
       "$description": "The box of a checkbox or of a radio, and the thumb of a switch, next to body text."

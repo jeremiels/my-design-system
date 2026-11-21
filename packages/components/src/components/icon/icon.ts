@@ -6,6 +6,12 @@ import { DSBaseElement, type DesignSystemSettings } from "../../bases/base-eleme
 import iconStyles from "./icon.css" with { type: "css" };
 import iconTokens from "./icon.tokens.css" with { type: "css" };
 
+/**
+ * The markup of icons of the base that components bundle, by name
+ * (`Icon.bundle()`): rendered at once, on a server too (ADR 0032).
+ */
+const bundled = new Map<string, string>();
+
 /** The markup of every icon loaded on the page: each icon loads once, then renders at once. */
 const loaded = new Map<IconLoader, string>();
 
@@ -17,6 +23,9 @@ const reported = new Set<string>();
  *
  * The set of the base is `@unicorne/icons`: one module per icon, loaded the
  * first time an icon renders, so a page downloads only the icons it shows.
+ * A component that draws an icon of the base in its own controls, a
+ * chevron, bundles its markup with `Icon.bundle()`: the icon renders at
+ * once, on a server too, and a page without that component downloads none.
  * The box keeps its size while the icon loads, and `updateComplete` resolves
  * once the icon is rendered. The icon takes the color of the text
  * (`currentColor`).
@@ -41,6 +50,19 @@ export class Icon extends DSBaseElement {
    * Rendered as HTML: trusted markup only, such as the output of `unicorne-icons`.
    */
   static icons: IconSet = icons;
+
+  /**
+   * Gives the markup of icons of the base, by name, from the module of a
+   * component that draws them: `Icon.bundle({ "chevron-down": chevronDown })`,
+   * with `import chevronDown from "@unicorne/icons/chevron-down"`. While the
+   * set holds the base's loader for that name, the icon renders this markup
+   * at once, on a server too. A brand's icon of the same name still wins.
+   */
+  static bundle(markup: Readonly<Record<string, string>>): void {
+    for (const [name, svg] of Object.entries(markup)) {
+      bundled.set(name, svg);
+    }
+  }
 
   /**
    * A subclass with the design system's `icons` over the set of this class,
@@ -136,7 +158,9 @@ export class Icon extends DSBaseElement {
   private sourceOf(name: string): IconSource | undefined {
     const set = (this.constructor as typeof Icon).icons;
     if (Object.hasOwn(set, name)) {
-      return set[name];
+      const source = set[name];
+      // The base's own loader: the markup a component bundled, if any.
+      return source === (icons as IconSet)[name] ? (bundled.get(name) ?? source) : source;
     }
     if (name) {
       this.warn(`no icon "${name}" in the set of <${this.localName}>; it renders empty.`);

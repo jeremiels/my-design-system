@@ -112,7 +112,7 @@ Un composant de base est un composant que d'autres composants rendent : `button`
 - `popup` pose `aria-haspopup` : `menu` ou `dialog`. Avec `popup`, `expanded` pose `aria-expanded` à `true` ou `false`.
 - Un `tabindex` négatif sur l'hôte atteint le contrôle natif : les boutons de défilement de `tabs` restent hors de l'ordre de tabulation.
 
-`pressed` (`aria-pressed`) reste une question : un booléen absent ne distingue pas un bouton simple d'un bouton bascule relâché.
+`pressed` (`aria-pressed`) reste une question : un booléen absent ne distingue pas un bouton simple d'un bouton bascule relâché. L'[ADR 0032](?path=/docs/documentation-adr-0032-bouton-bascule-divulgation-et-chevrons--docs) y répond par `toggle-button`.
 
 ## D4 — Le chargement de `button`
 
@@ -193,9 +193,9 @@ Chaque entrée de `ALLOWED` donne sa raison. Une entrée sans élément natif fa
 
 ## Questions ouvertes
 
-- **Bouton bascule :** `pressed` et `aria-pressed`, pour une barre d'outils.
-- **Chevrons :** des icônes `chevron-*`, au lieu des chevrons en CSS de `calendar`, `pagination`, `tabs` et des popups.
-- **Divulgation :** `aria-expanded` sans `popup`, pour un bouton qui montre une région de la page.
+- **Bouton bascule :** résolu par `toggle-button` ([ADR 0032](?path=/docs/documentation-adr-0032-bouton-bascule-divulgation-et-chevrons--docs)).
+- **Chevrons :** résolu par les icônes `chevron-*` ([ADR 0032](?path=/docs/documentation-adr-0032-bouton-bascule-divulgation-et-chevrons--docs)).
+- **Divulgation :** résolu par `expandable` sur `button` ([ADR 0032](?path=/docs/documentation-adr-0032-bouton-bascule-divulgation-et-chevrons--docs)).
 
 ## Sources
 
