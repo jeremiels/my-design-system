@@ -26,9 +26,11 @@ import { normalizeText } from "../../state/typeahead.js";
  * differs from the label of `value`.
  *
  * `inputValue` holds the text, and `input` follows each change of it: with
- * `filter="none"`, the application reads it to fetch the options. The
- * options must hold that of `value`: the input shows its label. Otherwise,
- * the input shows the label of the last option picked, or the value.
+ * `filter="none"`, the application reads it to fetch the options;
+ * `loadOptions` fetches them for it. The options must hold that of `value`:
+ * the input shows its label. Otherwise, the input shows the label of the
+ * last option picked, or the value. With `loadOptions`, give the option of
+ * the first value in `options`.
  *
  * A `required` combobox can't be submitted while `value` is empty, whatever
  * the text. Its message is the browser's, from a hidden native `<select>`:

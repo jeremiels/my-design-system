@@ -182,7 +182,7 @@ export class AcmeMenu extends DSBaseElement {
 
 ## ListboxController
 
-Rend une liste d'options dans le shadow root, `role="listbox"`. Son option active suit le clavier, et le focus reste sur un contrôle : l'input d'un autocomplete, le bouton d'un select. `Autocomplete` le crée.
+Rend une liste d'options dans le shadow root, `role="listbox"`. Son option active suit le clavier, et le focus reste sur un contrôle : l'input d'un autocomplete, le bouton d'un select. `EditableComboboxBase` et `Select` le créent.
 
 Le contrôleur relie la liste au DOM. Il ne tient aucun état : le composant lui donne les options et l'index de l'option active.
 
@@ -231,6 +231,20 @@ Le contrôleur relie la liste au DOM. Il ne tient aucun état : le composant lui
         `aria-selected` dit le choix de chaque option.
       </td>
     </tr>
+    <tr>
+      <td>`busy()`</td>
+      <td>
+        Optionnel : les options se chargent. La liste porte `aria-busy`, et peut rester vide pendant
+        ce temps.
+      </td>
+    </tr>
+    <tr>
+      <td>`status()`</td>
+      <td>
+        Optionnel : le texte d'une ligne à la fin de la liste, la part `status`. Une chaîne vide ne
+        rend aucune ligne.
+      </td>
+    </tr>
   </tbody>
 </table>
 
@@ -275,6 +289,7 @@ Le contrôleur relie la liste au DOM. Il ne tient aucun état : le composant lui
 - Un appui du pointeur sur la liste garde le focus sur le contrôle.
 - La liste défile jusqu'à l'option active quand son index change.
 - L'option active porte `data-active`. Sans `multiple()`, elle porte aussi `aria-selected="true"`.
+- La ligne de `status()` reste visible en bas de la liste qui défile. Elle est masquée aux technologies d'assistance : annoncez son texte par une live region.
 - Les tokens `--u-listbox-*` viennent de `@unicorne/tokens` (`src/component/listbox/`). Le composant les documente avec `@tokens listbox`.
 
 ## RovingFocusController
@@ -427,6 +442,55 @@ Dit si le contenu d'un conteneur qui défile dépasse son début ou sa fin, et l
 - `start` et `end` disent si du contenu dépasse le début ou la fin, dans le sens du texte.
 - `scroll("start" | "end")` fait défiler le conteneur de la plus grande part de sa largeur.
 - Le contrôleur mesure après chaque rendu de l'hôte, à chaque changement de taille (`ResizeObserver`) et à chaque défilement. Il rend l'hôte de nouveau quand un bord change.
+
+## LoadController
+
+Charge des données pour son hôte, d'un serveur par exemple, un chargement à la fois ([ADR 0026](?path=/docs/documentation-adr-0026-grandes-listes-et-options-chargées--docs)). `EditableComboboxBase` le crée, pour `loadOptions`.
+
+<table>
+  <thead>
+    <tr>
+      <th>Membre</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>`new LoadController(hôte, {delay, slowDelay})`</td>
+      <td>
+        `delay()` : les millisecondes entre le dernier `load()` et le début de sa tâche, `0` par
+        défaut. `slowDelay` : la durée d'une tâche avant `slow`, `500` par défaut.
+      </td>
+    </tr>
+    <tr>
+      <td>`load(task)`</td>
+      <td>
+        Lance `task(signal)` après le délai. Remplace le chargement précédent : annule sa tâche
+        et ignore sa réponse.
+      </td>
+    </tr>
+    <tr>
+      <td>`clear()`</td>
+      <td>Annule le chargement et oublie `value`</td>
+    </tr>
+    <tr>
+      <td>`value`</td>
+      <td>La réponse de la dernière tâche résolue, ou `undefined`</td>
+    </tr>
+    <tr>
+      <td>`pending`, `loading`, `slow`</td>
+      <td>
+        Un chargement attend son délai ou tourne ; une tâche tourne ; elle tourne depuis plus de
+        `slowDelay`
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+- `value` garde l'ancienne réponse jusqu'à la nouvelle.
+- Une tâche rejetée vide `value`. Son erreur atteint les gestionnaires d'erreurs de la page (`reportError()`).
+- L'hôte se rend de nouveau à chaque changement de `pending`, `loading`, `slow` et `value`.
+- La déconnexion de l'hôte annule le chargement.
 
 ## AnnounceController
 

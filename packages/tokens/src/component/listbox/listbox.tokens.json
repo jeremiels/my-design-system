@@ -1,6 +1,6 @@
 {
   "listbox": {
-    "$description": "Tokens of the lists of options: the listbox of `autocomplete` (`withListbox`).",
+    "$description": "Tokens of the lists of options that `ListboxController` renders: those of `select`, `autocomplete` and `combobox`.",
     "background-color": {
       "$type": "color",
       "$value": "{color.surface.default}",
@@ -85,6 +85,11 @@
       "$type": "dimension",
       "$value": "{radius.sm}",
       "$description": "Corner radius of the box."
+    },
+    "status-font-size": {
+      "$type": "dimension",
+      "$value": "{font.size.sm}",
+      "$description": "Font size of the status line, at the end of the list: “Loading…”, or the number of options it doesn't show."
     }
   }
 }

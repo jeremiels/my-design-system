@@ -22,8 +22,12 @@ export const acme = designSystem({
   labels: {
     closeLabel: "Fermer",
     errorLabel: "Erreur :",
-    resultsMessage: (count: number) =>
-      count === 0 ? "Aucune suggestion" : count === 1 ? "1 suggestion" : `${count} suggestions`,
+    loadingLabel: "Chargement…",
+    resultsMessage: (count: number, shown: number) => {
+      const results =
+        count === 0 ? "Aucune suggestion" : count === 1 ? "1 suggestion" : `${count} suggestions`;
+      return shown < count ? `${results}, ${shown} affichées` : results;
+    },
   },
   // Names this copy of ACME when another one registers the prefix (ADR 0012 of the base).
   version: __ACME_VERSION__,

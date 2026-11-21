@@ -32,6 +32,18 @@ export interface ListboxControllerOptions {
   selected?: (option: ListboxOption, index: number) => boolean;
   /** Renders the content of an option. Default: its label, or its value. */
   renderOption?: (option: ListboxOption, index: number) => unknown;
+  /**
+   * Whether the options are loading: the list has `aria-busy`, and may be
+   * empty meanwhile. `false` by default. Read at each render.
+   */
+  busy?: () => boolean;
+  /**
+   * A line at the end of the list, that stays in view while it scrolls:
+   * "Loading…", or the number of options it doesn't show. Hidden from
+   * assistive technologies: announce it with a live region. Nothing by
+   * default, nor when it returns `""`. Read at each render.
+   */
+  status?: () => string;
   /** `id` of the list in the shadow root. Default: `listbox`. */
   id?: string;
 }
@@ -143,15 +155,16 @@ export class ListboxController implements ReactiveController {
   }
 
   /**
-   * Renders the list, `role="listbox"`, and the hidden slot of the
-   * `<option>` children. A press on the list keeps the focus on the control;
-   * the pointer makes the option under it active.
+   * Renders the list, `role="listbox"`, its status line, and the hidden slot
+   * of the `<option>` children. A press on the list keeps the focus on the
+   * control; the pointer makes the option under it active.
    */
   render(): unknown {
     const active = this.#options.activeIndex();
     const selected = this.#options.multiple?.() ? this.#options.selected : undefined;
     const renderOption =
       this.#options.renderOption ?? ((option: ListboxOption) => option.label || option.value);
+    const status = this.#options.status?.() ?? "";
     return html`
       <div
         part="listbox"
@@ -160,6 +173,7 @@ export class ListboxController implements ReactiveController {
         role="listbox"
         aria-labelledby=${this.#options.labelledBy}
         aria-multiselectable=${selected ? "true" : nothing}
+        aria-busy=${this.#options.busy?.() ? "true" : nothing}
         @pointerdown=${this.#keepFocus}
         @pointermove=${this.#activateUnderPointer}
         @click=${this.#selectUnderPointer}
@@ -184,6 +198,11 @@ export class ListboxController implements ReactiveController {
               </div>
             `,
           )}
+        ${
+          status
+            ? html`<div part="status" class="status" aria-hidden="true">${status}</div>`
+            : nothing
+        }
       </div>
       <slot hidden></slot>
     `;
