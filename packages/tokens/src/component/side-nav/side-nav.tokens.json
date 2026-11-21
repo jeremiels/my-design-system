@@ -1,0 +1,90 @@
+{
+  "side-nav": {
+    "$description": "Tokens of `side-nav`, shared with its items.",
+    "font-family": {
+      "$type": "fontFamily",
+      "$value": "{font.family.body}",
+      "$description": "Font family."
+    },
+    "font-size": {
+      "$type": "dimension",
+      "$value": "{font.size.md}",
+      "$description": "Font size."
+    },
+    "text-color": {
+      "$type": "color",
+      "$value": "{color.text.default}",
+      "$description": "Color of the items."
+    },
+    "item-padding-inline": {
+      "$type": "dimension",
+      "$value": "{spacing.sm}",
+      "$description": "Space at the sides of an item."
+    },
+    "item-padding-block": {
+      "$type": "dimension",
+      "$value": "{spacing.sm}",
+      "$description": "Space above and below an item."
+    },
+    "item-border-radius": {
+      "$type": "dimension",
+      "$value": "{radius.md}",
+      "$description": "Corner radius of an item."
+    },
+    "item-background-color-hover": {
+      "$type": "color",
+      "$value": "{color.neutral.background}",
+      "$description": "Background of an item, hovered."
+    },
+    "indent": {
+      "$type": "dimension",
+      "$value": "{spacing.md}",
+      "$description": "Indentation of the items of a group."
+    },
+    "current-text-color": {
+      "$type": "color",
+      "$value": "{color.action.foreground}",
+      "$description": "Color of the current page's item."
+    },
+    "current-font-weight": {
+      "$type": "fontWeight",
+      "$value": "{font.weight.semibold}",
+      "$description": "Font weight of the current page's item."
+    },
+    "current-indicator-color": {
+      "$type": "color",
+      "$value": "{color.action.background}",
+      "$description": "Color of the bar beside the current page's item."
+    },
+    "current-indicator-width": {
+      "$type": "dimension",
+      "$value": "{border.width-thick}",
+      "$description": "Width of the bar beside the current page's item."
+    },
+    "chevron-size": {
+      "$type": "dimension",
+      "$value": "{size.icon-sm}",
+      "$description": "Size of the chevron icon of a group."
+    },
+    "gap": {
+      "$type": "dimension",
+      "$value": "{spacing.xs}",
+      "$description": "Space between the label of a group and its chevron."
+    },
+    "focus-ring-width": {
+      "$type": "dimension",
+      "$value": "{focus-ring.width}",
+      "$description": "Width of the focus ring."
+    },
+    "focus-ring-color": {
+      "$type": "color",
+      "$value": "{color.focus-ring}",
+      "$description": "Color of the focus ring."
+    },
+    "focus-ring-offset": {
+      "$type": "dimension",
+      "$value": "{focus-ring.offset}",
+      "$description": "Space between the element and its focus ring."
+    }
+  }
+}

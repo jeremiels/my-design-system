@@ -74,6 +74,18 @@
         "unit": "rem"
       }
     },
+    "12000": {
+      "$value": {
+        "value": 30,
+        "unit": "rem"
+      }
+    },
+    "32000": {
+      "$value": {
+        "value": 80,
+        "unit": "rem"
+      }
+    },
     "full": {
       "$description": "Larger than any element: a fully rounded corner.",
       "$value": {

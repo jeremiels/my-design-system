@@ -144,6 +144,24 @@
         },
         {
           "$ref": "component/toggle-button/toggle-button.tokens.json"
+        },
+        {
+          "$ref": "component/link/link.tokens.json"
+        },
+        {
+          "$ref": "component/page/page.tokens.json"
+        },
+        {
+          "$ref": "component/header/header.tokens.json"
+        },
+        {
+          "$ref": "component/footer/footer.tokens.json"
+        },
+        {
+          "$ref": "component/side-nav/side-nav.tokens.json"
+        },
+        {
+          "$ref": "component/notice/notice.tokens.json"
         }
       ]
     }
@@ -270,6 +288,23 @@
         ]
       }
     },
+    "notice-variant": {
+      "description": "The `variant` attribute of `notice`.",
+      "default": "information",
+      "contexts": {
+        "information": [],
+        "warning": [
+          {
+            "$ref": "component/notice/variant.warning.tokens.json"
+          }
+        ],
+        "danger": [
+          {
+            "$ref": "component/notice/variant.danger.tokens.json"
+          }
+        ]
+      }
+    },
     "spinner-size": {
       "description": "The `size` attribute of `spinner`.",
       "default": "medium",
@@ -343,6 +378,9 @@
     },
     {
       "$ref": "#/modifiers/badge-variant"
+    },
+    {
+      "$ref": "#/modifiers/notice-variant"
     }
   ]
 }

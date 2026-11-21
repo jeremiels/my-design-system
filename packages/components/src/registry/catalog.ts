@@ -41,6 +41,13 @@ import { TableHeaderCell } from "../components/table-header-cell/table-header-ce
 import { TableRow } from "../components/table-row/table-row.js";
 import { Table } from "../components/table/table.js";
 import { ToggleButton } from "../components/toggle-button/toggle-button.js";
+import { Link } from "../components/link/link.js";
+import { Page } from "../components/page/page.js";
+import { Header } from "../components/header/header.js";
+import { Footer } from "../components/footer/footer.js";
+import { SideNav } from "../components/side-nav/side-nav.js";
+import { SideNavItem } from "../components/side-nav-item/side-nav-item.js";
+import { Notice } from "../components/notice/notice.js";
 import { TagGroup } from "../components/tag-group/tag-group.js";
 import { Tag } from "../components/tag/tag.js";
 import { TreeItem } from "../components/tree-item/tree-item.js";
@@ -52,6 +59,7 @@ import type { ModalCancelEvent } from "../events/modal-cancel.js";
 import type { ModalCloseEvent } from "../events/modal-close.js";
 import type { PopupToggleEvent } from "../events/popup-toggle.js";
 import type { TableSortEvent } from "../events/table-sort.js";
+import type { NoticeCloseEvent } from "../events/notice-close.js";
 import type { TagRemoveEvent } from "../events/tag-remove.js";
 import type { ToastCloseEvent } from "../events/toast-close.js";
 
@@ -110,6 +118,13 @@ export const allComponents = [
   TableRow,
   Table,
   ToggleButton,
+  Link,
+  Page,
+  Header,
+  Footer,
+  SideNav,
+  SideNavItem,
+  Notice,
 ] as const;
 
 /** A component of a catalog, as types: its element, and its own events by name. */
@@ -169,6 +184,13 @@ export interface Catalog {
   "tag-group": { element: TagGroup; events: {} };
   toaster: { element: Toaster; events: { "u-close": ToastCloseEvent } };
   "toggle-button": { element: ToggleButton; events: {} };
+  link: { element: Link; events: {} };
+  page: { element: Page; events: {} };
+  header: { element: Header; events: {} };
+  footer: { element: Footer; events: {} };
+  "side-nav": { element: SideNav; events: {} };
+  "side-nav-item": { element: SideNavItem; events: {} };
+  notice: { element: Notice; events: { "u-close": NoticeCloseEvent } };
   toolbar: { element: Toolbar; events: {} };
   tooltip: { element: Tooltip; events: { "u-toggle": PopupToggleEvent } };
   tree: { element: Tree; events: {} };

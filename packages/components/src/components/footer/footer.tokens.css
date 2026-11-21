@@ -1,0 +1,13 @@
+/* Generated from ../tokens/src/u.resolver.json by @unicorne/tokens/terrazzo-plugin (ADR 0002). Do not edit: change the tokens. */
+:host {
+  --u-footer-background-color: var(--u-color-surface-raised);
+  --u-footer-text-color: var(--u-color-text-default);
+  --u-footer-border-color: var(--u-color-border-default);
+  --u-footer-border-width: var(--u-border-width);
+  --u-footer-max-inline-size: var(--u-size-page);
+  --u-footer-padding-inline: var(--u-spacing-md);
+  --u-footer-padding-block: var(--u-spacing-xl);
+  --u-footer-gap: var(--u-spacing-md);
+  --u-footer-font-family: var(--u-font-family-body);
+  --u-footer-font-size: var(--u-font-size-sm);
+}

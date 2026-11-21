@@ -1,0 +1,69 @@
+/* The tokens are in header.tokens.css, generated from
+   tokens/component/header/ (ADR 0002). */
+:host {
+  display: block;
+  font-family: var(--u-header-font-family);
+  color: var(--u-header-text-color);
+  background-color: var(--u-header-background-color);
+  border-block-end: var(--u-header-border-width) solid var(--u-header-border-color);
+}
+
+.header,
+.navigation {
+  box-sizing: border-box;
+  max-inline-size: var(--u-header-max-inline-size);
+  margin-inline: auto;
+  padding-inline: var(--u-header-padding-inline);
+}
+
+/* The logo, the service, then the quick accesses at the end; they wrap
+   under the service on a narrow page. */
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--u-header-gap);
+  padding-block: var(--u-header-padding-block);
+}
+
+.service {
+  flex: 1 1 auto;
+}
+
+.service-name {
+  font-size: var(--u-header-service-name-font-size);
+  font-weight: var(--u-header-service-name-font-weight);
+  color: inherit;
+  text-decoration: none;
+}
+
+.service-name[href]:hover {
+  text-decoration-line: underline;
+}
+
+.service-name:focus-visible {
+  outline: var(--u-header-focus-ring-width) solid var(--u-header-focus-ring-color);
+  outline-offset: var(--u-header-focus-ring-offset);
+}
+
+.tagline {
+  margin: 0;
+  font-size: var(--u-header-tagline-font-size);
+}
+
+.tagline[hidden] {
+  display: none;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--u-header-gap);
+}
+
+@media (forced-colors: active) {
+  :host {
+    border-block-end-color: CanvasText;
+  }
+}

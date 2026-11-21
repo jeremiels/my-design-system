@@ -304,6 +304,56 @@ try {
     },
   );
 
+  await check("the page has its landmarks, named in French", async () => {
+    const landmarks = await Promise.all([
+      page.getByRole("banner").count(),
+      page.getByRole("main").count(),
+      page.getByRole("contentinfo").count(),
+      page.getByRole("navigation", { name: "Demandes", exact: true }).count(),
+      page.getByRole("navigation", { name: "Accès rapide" }).count(),
+    ]);
+    return [
+      landmarks.every((count) => count === 1),
+      `banner, main, contentinfo, navigation, skip links: ${landmarks}`,
+    ];
+  });
+
+  await check("the side navigation marks the current page, and opens its group", async () => {
+    const current = await page.getByRole("link", { name: "Toutes" }).getAttribute("aria-current");
+    const group = await page
+      .getByRole("button", { name: "Demandes" })
+      .getAttribute("aria-expanded");
+    return [
+      current === "page" && group === "true",
+      `aria-current: ${current}, group aria-expanded: ${group}`,
+    ];
+  });
+
+  await page.keyboard.press("Tab");
+  const skipLink = await focused();
+  await page.keyboard.press("Enter");
+  const afterSkip = await focused();
+  await page.keyboard.press("Tab");
+  await check("the skip link comes first, and moves the focus to the content", async () => {
+    // The next Tab reaches the first control of the content: the filter of the state.
+    const next = await page.evaluate(() => {
+      let element = document.activeElement;
+      while (element?.shadowRoot?.activeElement) element = element.shadowRoot.activeElement;
+      return element.getRootNode().host?.localName;
+    });
+    return [
+      skipLink === "skip-link" && afterSkip === "main" && next === "acme-select",
+      `first Tab: ${skipLink}, Enter: ${afterSkip}, next Tab: in ${next}`,
+    ];
+  });
+
+  await page.getByRole("button", { name: "Fermer" }).first().click();
+  await check("closing the notice hides it, and moves the focus to the content", async () => {
+    const notices = await page.locator("acme-notice").count();
+    const target = await focused();
+    return [notices === 0 && target === "main", `notices: ${notices}, focus: ${target}`];
+  });
+
   const first = await rows();
   await check("the table shows a first page of 5 requests, the newest first", async () => {
     const sort = await page

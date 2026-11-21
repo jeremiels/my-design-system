@@ -237,6 +237,34 @@
     "./toggle-button": {
       "types": "./dist/components/toggle-button/toggle-button.d.ts",
       "import": "./dist/toggle-button.js"
+    },
+    "./link": {
+      "types": "./dist/components/link/link.d.ts",
+      "import": "./dist/link.js"
+    },
+    "./page": {
+      "types": "./dist/components/page/page.d.ts",
+      "import": "./dist/page.js"
+    },
+    "./header": {
+      "types": "./dist/components/header/header.d.ts",
+      "import": "./dist/header.js"
+    },
+    "./footer": {
+      "types": "./dist/components/footer/footer.d.ts",
+      "import": "./dist/footer.js"
+    },
+    "./side-nav": {
+      "types": "./dist/components/side-nav/side-nav.d.ts",
+      "import": "./dist/side-nav.js"
+    },
+    "./side-nav-item": {
+      "types": "./dist/components/side-nav-item/side-nav-item.d.ts",
+      "import": "./dist/side-nav-item.js"
+    },
+    "./notice": {
+      "types": "./dist/components/notice/notice.d.ts",
+      "import": "./dist/notice.js"
     }
   },
   "scripts": {

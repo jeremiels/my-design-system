@@ -9,8 +9,14 @@ import {
   DatePicker,
   Drawer,
   FileField,
+  Footer,
+  Header,
+  Link,
+  Notice,
+  Page,
   Pagination,
   Select,
+  SideNav,
   Stepper,
   Table,
   TagGroup,
@@ -21,8 +27,15 @@ import {
 import { createApp } from "vue";
 import Requests from "./Requests.vue";
 
-// A table registers its rows and cells, a stepper its steps, a tag group its tags.
+// A table registers its rows and cells, a stepper its steps, a tag group its
+// tags, a side navigation its items.
 await acme.define(
+  Page,
+  Header,
+  Footer,
+  SideNav,
+  Notice,
+  Link,
   Table,
   Pagination,
   Select,

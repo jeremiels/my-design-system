@@ -1,0 +1,70 @@
+/* The tokens of its side-nav, inherited: side-nav.tokens.css also gives
+   them to an item alone. */
+:host {
+  display: block;
+}
+
+.link,
+.toggle {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: var(--u-side-nav-gap);
+  inline-size: 100%;
+  padding-block: var(--u-side-nav-item-padding-block);
+  padding-inline: var(--u-side-nav-item-padding-inline);
+  border: 0;
+  border-inline-start: var(--u-side-nav-current-indicator-width) solid transparent;
+  border-radius: var(--u-side-nav-item-border-radius);
+  font: inherit;
+  color: inherit;
+  text-align: start;
+  text-decoration: none;
+  background: none;
+  cursor: pointer;
+}
+
+.link:hover,
+.toggle:hover {
+  background-color: var(--u-side-nav-item-background-color-hover);
+}
+
+.link:focus-visible,
+.toggle:focus-visible {
+  outline: var(--u-side-nav-focus-ring-width) solid var(--u-side-nav-focus-ring-color);
+  outline-offset: calc(var(--u-side-nav-focus-ring-offset) * -1);
+}
+
+/* The current page: a bar along its start, its color and its weight; not
+   the color alone (WCAG 1.4.1). */
+.link[aria-current],
+.toggle[aria-current] {
+  color: var(--u-side-nav-current-text-color);
+  font-weight: var(--u-side-nav-current-font-weight);
+}
+
+.link[aria-current] {
+  border-inline-start-color: var(--u-side-nav-current-indicator-color);
+}
+
+.label {
+  flex: 1;
+}
+
+.chevron {
+  --u-icon-size: var(--u-side-nav-chevron-size);
+}
+
+.group {
+  padding-inline-start: var(--u-side-nav-indent);
+}
+
+[hidden] {
+  display: none;
+}
+
+@media (forced-colors: active) {
+  .link[aria-current] {
+    border-inline-start-color: Highlight;
+  }
+}

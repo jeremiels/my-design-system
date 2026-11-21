@@ -14,6 +14,7 @@ export type IconName =
   | "chevron-up-down"
   | "close"
   | "danger"
+  | "external-link"
   | "information"
   | "success"
   | "warning";

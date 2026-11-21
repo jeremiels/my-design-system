@@ -1,0 +1,40 @@
+{
+  "notice": {
+    "$description": "Tokens of `notice`. The defaults are those of the `information` variant.",
+    "background-color": {
+      "$type": "color",
+      "$value": "{color.information.background}",
+      "$description": "Background color (variants change the default)."
+    },
+    "text-color": {
+      "$type": "color",
+      "$value": "{color.information.text}",
+      "$description": "Text color (variants change the default)."
+    },
+    "max-inline-size": {
+      "$type": "dimension",
+      "$value": "{size.page}",
+      "$description": "The largest inline size of its content."
+    },
+    "padding-inline": {
+      "$type": "dimension",
+      "$value": "{spacing.md}",
+      "$description": "Space at the sides of its content."
+    },
+    "padding-block": {
+      "$type": "dimension",
+      "$value": "{spacing.sm}",
+      "$description": "Space above and below its content."
+    },
+    "gap": {
+      "$type": "dimension",
+      "$value": "{spacing.sm}",
+      "$description": "Space between the icon, the message and the close button."
+    },
+    "font-family": {
+      "$type": "fontFamily",
+      "$value": "{font.family.body}",
+      "$description": "Font family."
+    }
+  }
+}

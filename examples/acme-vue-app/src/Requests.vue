@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import {
   sortRows,
+  type Page,
   type Table,
   type TableSort,
   type TableSortEvent,
@@ -11,6 +12,8 @@ import { computed, reactive, ref, useTemplateRef, watch } from "vue";
 import { requests, STATUSES, type Request, type Status } from "./requests.data";
 
 const PAGE_SIZE = 5;
+// In script: vue-tsc 3.3 misreads the template after an attribute that holds `//`.
+const HELP_URL = "https://www.service-public.fr";
 const HIGH_AMOUNT = 500;
 
 /** The requests, as the server sent them; the app changes their status. */
@@ -96,6 +99,14 @@ function acceptSelection() {
   });
 }
 
+/** The notice, once closed, stays closed; the focus goes to the content. */
+const noticeClosed = ref(false);
+const layout = useTemplateRef<Page>("layout");
+function onNoticeClose() {
+  noticeClosed.value = true;
+  layout.value?.focusContent();
+}
+
 /** The request the drawer edits, a copy: saved only by « Enregistrer ». */
 const editing = ref<Request | null>(null);
 const step = computed(() =>
@@ -121,154 +132,189 @@ function save() {
 </script>
 
 <template>
-  <main class="page">
-    <h1>Demandes</h1>
-
-    <section class="filters" aria-label="Filtres">
-      <acme-select
-        v-model="filters.status"
-        label="État"
-        placeholder="Tous les états"
-        :options="statusOptions"
-      ></acme-select>
-      <acme-date-picker
-        v-model="filters.since"
-        label="Reçues depuis le"
-        placeholder="Toutes les dates"
-      ></acme-date-picker>
-      <acme-toggle-button
-        :pressed="filters.high"
-        @change="filters.high = ($event.target as ToggleButton).pressed"
-        >Montant ≥ {{ amountFormat.format(HIGH_AMOUNT) }}</acme-toggle-button
-      >
-    </section>
-
-    <acme-tag-group v-if="tags.length > 0" id="active-filters" label="Filtres actifs">
-      <acme-tag v-for="tag in tags" :key="tag.key" removable @u-remove="removeFilter(tag.key)">{{
-        tag.text
-      }}</acme-tag>
-    </acme-tag-group>
-
-    <div class="bulk">
-      <acme-button id="accept" :disabled="selection.length === 0" @click="acceptSelection">
-        Accepter la sélection ({{ selection.length }})
-      </acme-button>
-      <p id="count">{{ filtered.length }} demandes</p>
-    </div>
-
-    <acme-table
-      id="requests"
-      label="Demandes"
-      selectable
-      :sort-key="sort.key"
-      :sort-direction="sort.direction"
-      :values="selection"
-      @u-sort="onSort"
-      @change="onSelect"
+  <acme-page ref="layout">
+    <acme-notice v-if="!noticeClosed" slot="banner" dismissible @u-close="onNoticeClose"
+      >Information : les demandes de novembre sont closes le 30.</acme-notice
     >
-      <acme-table-row slot="head">
-        <acme-table-header-cell sort-key="id">Demande</acme-table-header-cell>
-        <acme-table-header-cell sort-key="applicant">Demandeur</acme-table-header-cell>
-        <acme-table-header-cell>Objet</acme-table-header-cell>
-        <acme-table-header-cell sort-key="receivedOn">Reçue le</acme-table-header-cell>
-        <acme-table-header-cell sort-key="amount" align="end">Montant</acme-table-header-cell>
-        <acme-table-header-cell>État</acme-table-header-cell>
-        <acme-table-header-cell>Actions</acme-table-header-cell>
-      </acme-table-row>
-      <template v-for="request in shown" :key="request.id">
-        <acme-table-row :value="request.id">
-          <acme-table-header-cell scope="row">{{ request.id }}</acme-table-header-cell>
-          <acme-table-cell>{{ request.applicant }}</acme-table-cell>
-          <acme-table-cell>{{ request.subject }}</acme-table-cell>
-          <acme-table-cell>{{ date(request.receivedOn) }}</acme-table-cell>
-          <acme-table-cell align="end">{{ amountFormat.format(request.amount) }}</acme-table-cell>
-          <acme-table-cell>
-            <acme-badge :variant="STATUSES[request.status].variant">{{
-              STATUSES[request.status].label
-            }}</acme-badge>
-          </acme-table-cell>
-          <acme-table-cell>
-            <span class="row-actions">
-              <acme-button
-                size="small"
-                variant="neutral"
-                appearance="plain"
-                expandable
-                :expanded="details.has(request.id)"
-                @click="toggleDetails(request.id)"
-                >Détails <span class="visually-hidden">de {{ request.id }}</span></acme-button
-              >
-              <acme-button
-                size="small"
-                variant="neutral"
-                appearance="outlined"
-                @click="edit(request)"
-                >Modifier <span class="visually-hidden">{{ request.id }}</span></acme-button
-              >
-            </span>
-          </acme-table-cell>
-        </acme-table-row>
-        <acme-table-row v-if="details.has(request.id)" class="details">
-          <acme-table-cell colspan="7">
-            {{ request.subject }} pour {{ request.applicant }}, reçue le
-            {{ date(request.receivedOn) }}.
-            {{ request.comment ? `Commentaire : ${request.comment}` : "Aucun commentaire." }}
-          </acme-table-cell>
-        </acme-table-row>
-      </template>
-      <p slot="empty">Aucune demande ne correspond aux filtres.</p>
-    </acme-table>
-
-    <acme-pagination
-      label="Pages des demandes"
-      :pages="pages"
-      :page="page"
-      @change="page = ($event.target as HTMLElement & { page: number }).page"
-    ></acme-pagination>
-
-    <acme-drawer
-      :label="editing ? `Demande ${editing.id}` : 'Demande'"
-      :open="editing !== null"
-      @u-close="editing = null"
+    <acme-header
+      slot="header"
+      service-name="Demandes"
+      tagline="Le service des aides de la ville"
+      href="requests.html"
     >
-      <form v-if="editing" class="editor" @submit.prevent="save">
-        <acme-stepper label="Avancement" :value="step">
-          <acme-step value="received">Reçue</acme-step>
-          <acme-step value="review">Instruction</acme-step>
-          <acme-step value="decision">Décision</acme-step>
-        </acme-stepper>
+      <acme-link slot="actions" :href="HELP_URL" target="_blank">Aide</acme-link>
+    </acme-header>
+    <acme-side-nav slot="navigation" label="Demandes">
+      <acme-side-nav-item label="Tableau de bord" href="#tableau"></acme-side-nav-item>
+      <acme-side-nav-item label="Demandes">
+        <acme-side-nav-item label="Toutes" href="requests.html" current></acme-side-nav-item>
+        <acme-side-nav-item label="Archivées" href="#archives"></acme-side-nav-item>
+      </acme-side-nav-item>
+      <acme-side-nav-item label="Rapports">
+        <acme-side-nav-item label="Mensuels" href="#mensuels"></acme-side-nav-item>
+      </acme-side-nav-item>
+    </acme-side-nav>
+    <div class="content">
+      <h1>Demandes</h1>
+
+      <section class="filters" aria-label="Filtres">
         <acme-select
-          v-model="editing.status"
+          v-model="filters.status"
           label="État"
-          name="status"
-          :options="statusOptions.slice(1)"
+          placeholder="Tous les états"
+          :options="statusOptions"
         ></acme-select>
-        <acme-textarea v-model="editing.comment" label="Commentaire" name="comment"></acme-textarea>
-        <acme-file-field
-          label="Pièces justificatives"
-          name="files"
-          multiple
-          hint="PDF ou image, 5 Mo au plus par fichier."
-          accept=".pdf,image/*"
-        ></acme-file-field>
-        <div class="actions">
-          <acme-button type="submit">Enregistrer</acme-button>
-          <acme-button variant="secondary" @click="editing = null">Annuler</acme-button>
-        </div>
-      </form>
-    </acme-drawer>
+        <acme-date-picker
+          v-model="filters.since"
+          label="Reçues depuis le"
+          placeholder="Toutes les dates"
+        ></acme-date-picker>
+        <acme-toggle-button
+          :pressed="filters.high"
+          @change="filters.high = ($event.target as ToggleButton).pressed"
+          >Montant ≥ {{ amountFormat.format(HIGH_AMOUNT) }}</acme-toggle-button
+        >
+      </section>
 
-    <acme-toaster ref="toaster"></acme-toaster>
-  </main>
+      <acme-tag-group v-if="tags.length > 0" id="active-filters" label="Filtres actifs">
+        <acme-tag v-for="tag in tags" :key="tag.key" removable @u-remove="removeFilter(tag.key)">{{
+          tag.text
+        }}</acme-tag>
+      </acme-tag-group>
+
+      <div class="bulk">
+        <acme-button id="accept" :disabled="selection.length === 0" @click="acceptSelection">
+          Accepter la sélection ({{ selection.length }})
+        </acme-button>
+        <p id="count">{{ filtered.length }} demandes</p>
+      </div>
+
+      <acme-table
+        id="requests"
+        label="Demandes"
+        selectable
+        :sort-key="sort.key"
+        :sort-direction="sort.direction"
+        :values="selection"
+        @u-sort="onSort"
+        @change="onSelect"
+      >
+        <acme-table-row slot="head">
+          <acme-table-header-cell sort-key="id">Demande</acme-table-header-cell>
+          <acme-table-header-cell sort-key="applicant">Demandeur</acme-table-header-cell>
+          <acme-table-header-cell>Objet</acme-table-header-cell>
+          <acme-table-header-cell sort-key="receivedOn">Reçue le</acme-table-header-cell>
+          <acme-table-header-cell sort-key="amount" align="end">Montant</acme-table-header-cell>
+          <acme-table-header-cell>État</acme-table-header-cell>
+          <acme-table-header-cell>Actions</acme-table-header-cell>
+        </acme-table-row>
+        <template v-for="request in shown" :key="request.id">
+          <acme-table-row :value="request.id">
+            <acme-table-header-cell scope="row">{{ request.id }}</acme-table-header-cell>
+            <acme-table-cell>{{ request.applicant }}</acme-table-cell>
+            <acme-table-cell>{{ request.subject }}</acme-table-cell>
+            <acme-table-cell>{{ date(request.receivedOn) }}</acme-table-cell>
+            <acme-table-cell align="end">{{ amountFormat.format(request.amount) }}</acme-table-cell>
+            <acme-table-cell>
+              <acme-badge :variant="STATUSES[request.status].variant">{{
+                STATUSES[request.status].label
+              }}</acme-badge>
+            </acme-table-cell>
+            <acme-table-cell>
+              <span class="row-actions">
+                <acme-button
+                  size="small"
+                  variant="neutral"
+                  appearance="plain"
+                  expandable
+                  :expanded="details.has(request.id)"
+                  @click="toggleDetails(request.id)"
+                  >Détails <span class="visually-hidden">de {{ request.id }}</span></acme-button
+                >
+                <acme-button
+                  size="small"
+                  variant="neutral"
+                  appearance="outlined"
+                  @click="edit(request)"
+                  >Modifier <span class="visually-hidden">{{ request.id }}</span></acme-button
+                >
+              </span>
+            </acme-table-cell>
+          </acme-table-row>
+          <acme-table-row v-if="details.has(request.id)" class="details">
+            <acme-table-cell colspan="7">
+              {{ request.subject }} pour {{ request.applicant }}, reçue le
+              {{ date(request.receivedOn) }}.
+              {{ request.comment ? `Commentaire : ${request.comment}` : "Aucun commentaire." }}
+            </acme-table-cell>
+          </acme-table-row>
+        </template>
+        <p slot="empty">Aucune demande ne correspond aux filtres.</p>
+      </acme-table>
+
+      <acme-pagination
+        label="Pages des demandes"
+        :pages="pages"
+        :page="page"
+        @change="page = ($event.target as HTMLElement & { page: number }).page"
+      ></acme-pagination>
+
+      <acme-drawer
+        :label="editing ? `Demande ${editing.id}` : 'Demande'"
+        :open="editing !== null"
+        @u-close="editing = null"
+      >
+        <form v-if="editing" class="editor" @submit.prevent="save">
+          <acme-stepper label="Avancement" :value="step">
+            <acme-step value="received">Reçue</acme-step>
+            <acme-step value="review">Instruction</acme-step>
+            <acme-step value="decision">Décision</acme-step>
+          </acme-stepper>
+          <acme-select
+            v-model="editing.status"
+            label="État"
+            name="status"
+            :options="statusOptions.slice(1)"
+          ></acme-select>
+          <acme-textarea
+            v-model="editing.comment"
+            label="Commentaire"
+            name="comment"
+          ></acme-textarea>
+          <acme-file-field
+            label="Pièces justificatives"
+            name="files"
+            multiple
+            hint="PDF ou image, 5 Mo au plus par fichier."
+            accept=".pdf,image/*"
+          ></acme-file-field>
+          <div class="actions">
+            <acme-button type="submit">Enregistrer</acme-button>
+            <acme-button variant="secondary" @click="editing = null">Annuler</acme-button>
+          </div>
+        </form>
+      </acme-drawer>
+
+      <acme-toaster ref="toaster"></acme-toaster>
+    </div>
+    <acme-footer slot="footer">
+      Le service des aides de la ville.
+      <ul slot="links">
+        <li><acme-link href="#accessibilite">Accessibilité : partiellement conforme</acme-link></li>
+        <li><acme-link href="#mentions">Mentions légales</acme-link></li>
+      </ul>
+    </acme-footer>
+  </acme-page>
 </template>
 
 <style scoped>
-.page {
+.content {
   display: grid;
   gap: var(--u-spacing-md);
-  max-inline-size: 64rem;
-  margin-inline: auto;
-  padding: var(--u-spacing-lg) var(--u-spacing-md);
+}
+
+h1 {
+  margin: 0;
 }
 
 .filters {

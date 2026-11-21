@@ -12,10 +12,16 @@ import {
   DatePicker,
   Drawer,
   FileField,
+  Footer,
+  Header,
   Icon,
+  Link,
   Modal,
+  Notice,
+  Page,
   Pagination,
   Select,
+  SideNav,
   Stepper,
   Table,
   TagGroup,
@@ -29,7 +35,8 @@ import type { AcmeCatalog } from "./catalog.js";
 import { AcmeCard } from "./components/acme-card/acme-card.js";
 import { acme } from "./design-system.js";
 
-// A table registers its rows and cells, a stepper its steps, a tag group its tags.
+// A table registers its rows and cells, a stepper its steps, a tag group its
+// tags, a side navigation its items.
 void acme.define(
   Button,
   Alert,
@@ -50,6 +57,12 @@ void acme.define(
   Pagination,
   Stepper,
   Toaster,
+  Page,
+  Header,
+  Footer,
+  SideNav,
+  Notice,
+  Link,
   AcmeCard,
 );
 

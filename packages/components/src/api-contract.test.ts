@@ -80,6 +80,8 @@ const attributesFor: Record<string, Record<string, string>> = {
   "u-button": { loading: "" },
   "u-pagination": { pages: "20" },
   "u-tag": { removable: "" },
+  "u-link": { href: "/help", target: "_blank" },
+  "u-notice": { dismissible: "" },
   "u-table": { label: "Requests" },
   "u-table-row": { value: "R-104" },
   "u-table-header-cell": { "sort-key": "id" },
