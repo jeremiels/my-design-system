@@ -1,0 +1,16 @@
+/* The panel of the menu: the box of a list, with the tokens of listbox. The
+   trigger and the transitions are those of popup-base.css. */
+.menu {
+  min-inline-size: max-content;
+  padding: var(--u-listbox-padding);
+  background-color: var(--u-listbox-background-color);
+  border: var(--u-listbox-border-width) solid var(--u-listbox-border-color);
+  border-radius: var(--u-listbox-border-radius);
+  box-shadow: var(--u-listbox-shadow);
+}
+
+@media (forced-colors: active) {
+  .menu {
+    border-color: CanvasText;
+  }
+}

@@ -1,0 +1,14 @@
+/* The tokens are in breadcrumb.tokens.css, generated from
+   tokens/component/breadcrumb/ (ADR 0002), and inherited by its items. */
+:host {
+  display: block;
+  font-family: var(--u-breadcrumb-font-family);
+  font-size: var(--u-breadcrumb-font-size);
+}
+
+.list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--u-breadcrumb-gap);
+}

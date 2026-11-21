@@ -1,0 +1,17 @@
+/* The tokens are in toolbar.tokens.css, generated from tokens/component/toolbar/
+   (ADR 0002). */
+:host {
+  display: block;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--u-toolbar-gap);
+}
+
+:host([orientation="vertical"]) .toolbar {
+  flex-direction: column;
+  align-items: stretch;
+}

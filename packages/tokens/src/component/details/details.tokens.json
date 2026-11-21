@@ -1,0 +1,75 @@
+{
+  "details": {
+    "$description": "Tokens of `details`: its summary, its chevron and its content.",
+    "padding-inline": {
+      "$type": "dimension",
+      "$value": "{spacing.md}",
+      "$description": "Horizontal padding of the summary and of the content."
+    },
+    "padding-block": {
+      "$type": "dimension",
+      "$value": "{spacing.sm}",
+      "$description": "Vertical padding of the summary and of the content."
+    },
+    "gap": {
+      "$type": "dimension",
+      "$value": "{spacing.sm}",
+      "$description": "Space between the chevron and the summary's text."
+    },
+    "border-width": {
+      "$type": "dimension",
+      "$value": "{border.width}",
+      "$description": "Width of the border."
+    },
+    "border-color": {
+      "$type": "color",
+      "$value": "{color.border.default}",
+      "$description": "Color of the border."
+    },
+    "border-radius": {
+      "$type": "dimension",
+      "$value": "{radius.md}",
+      "$description": "Corner radius."
+    },
+    "font-family": {
+      "$type": "fontFamily",
+      "$value": "{font.family.body}",
+      "$description": "Font family."
+    },
+    "font-size": {
+      "$type": "dimension",
+      "$value": "{font.size.md}",
+      "$description": "Font size."
+    },
+    "text-color": {
+      "$type": "color",
+      "$value": "{color.text.default}",
+      "$description": "Text color."
+    },
+    "summary-font-weight": {
+      "$type": "fontWeight",
+      "$value": "{font.weight.medium}",
+      "$description": "Font weight of the summary."
+    },
+    "chevron-size": {
+      "$type": "dimension",
+      "$value": "{spacing.sm}",
+      "$description": "Width and height of the chevron. Its stroke is twice the border's width."
+    },
+    "focus-ring-color": {
+      "$type": "color",
+      "$value": "{color.focus-ring}",
+      "$description": "Color of the focus ring."
+    },
+    "focus-ring-width": {
+      "$type": "dimension",
+      "$value": "{focus-ring.width}",
+      "$description": "Width of the focus ring."
+    },
+    "focus-ring-offset": {
+      "$type": "dimension",
+      "$value": "{focus-ring.offset}",
+      "$description": "Space between the summary and its focus ring."
+    }
+  }
+}

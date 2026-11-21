@@ -1,0 +1,10 @@
+{
+  "toolbar": {
+    "$description": "Tokens of `toolbar`.",
+    "gap": {
+      "$type": "dimension",
+      "$value": "{spacing.xs}",
+      "$description": "Space between two controls."
+    }
+  }
+}

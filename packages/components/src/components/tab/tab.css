@@ -1,0 +1,34 @@
+/* The tokens are in tab.tokens.css, generated from tokens/component/tab/
+   (ADR 0002). The font and the text color come from its tabs. */
+:host {
+  display: inline-flex;
+  align-items: center;
+  padding-inline: var(--u-tab-padding-inline);
+  padding-block: var(--u-tab-padding-block);
+  font-weight: var(--u-tab-font-weight);
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+  /* The line of the selected tab. Its tabs moves it beside a vertical list. */
+  border-block-end: var(--u-tab-indicator-width) solid transparent;
+}
+
+:host([selected]) {
+  color: var(--u-tab-selected-color);
+  border-block-end-color: currentColor;
+}
+
+:host(:focus) {
+  outline: none;
+}
+
+:host(:focus-visible) {
+  outline: var(--u-tab-focus-ring-width) solid var(--u-tab-focus-ring-color);
+  outline-offset: calc(var(--u-tab-focus-ring-offset) * -1);
+}
+
+@media (forced-colors: active) {
+  :host([selected]) {
+    border-block-end-color: Highlight;
+  }
+}

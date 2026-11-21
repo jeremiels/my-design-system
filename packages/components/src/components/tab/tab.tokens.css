@@ -1,0 +1,11 @@
+/* Generated from ../tokens/src/u.resolver.json by @unicorne/tokens/terrazzo-plugin (ADR 0002). Do not edit: change the tokens. */
+:host {
+  --u-tab-padding-inline: var(--u-spacing-md);
+  --u-tab-padding-block: var(--u-spacing-sm);
+  --u-tab-font-weight: var(--u-font-weight-medium);
+  --u-tab-selected-color: var(--u-color-action-background);
+  --u-tab-indicator-width: var(--u-focus-ring-width);
+  --u-tab-focus-ring-color: var(--u-color-focus-ring);
+  --u-tab-focus-ring-width: var(--u-focus-ring-width);
+  --u-tab-focus-ring-offset: var(--u-focus-ring-offset);
+}

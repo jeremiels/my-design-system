@@ -1,0 +1,62 @@
+/* The tokens are in details.tokens.css, generated from tokens/component/details/
+   (ADR 0002). */
+:host {
+  display: block;
+  font-family: var(--u-details-font-family);
+  font-size: var(--u-details-font-size);
+  color: var(--u-details-text-color);
+}
+
+details {
+  border: var(--u-details-border-width) solid var(--u-details-border-color);
+  border-radius: var(--u-details-border-radius);
+}
+
+.summary {
+  display: flex;
+  align-items: center;
+  gap: var(--u-details-gap);
+  padding-inline: var(--u-details-padding-inline);
+  padding-block: var(--u-details-padding-block);
+  font-weight: var(--u-details-summary-font-weight);
+  list-style: none;
+  cursor: pointer;
+}
+
+/* The native marker: replaced by the chevron. */
+.summary::-webkit-details-marker {
+  display: none;
+}
+
+.summary:focus-visible {
+  outline: var(--u-details-focus-ring-width) solid var(--u-details-focus-ring-color);
+  outline-offset: var(--u-details-focus-ring-offset);
+}
+
+/* A chevron down when closed, up when open: the same in either text direction. */
+.chevron {
+  flex: none;
+  box-sizing: border-box;
+  inline-size: var(--u-details-chevron-size);
+  block-size: var(--u-details-chevron-size);
+  margin-block-start: calc(var(--u-details-chevron-size) / -2);
+  border: solid currentColor;
+  border-width: 0 calc(var(--u-details-border-width) * 2) calc(var(--u-details-border-width) * 2) 0;
+  transform: rotate(45deg);
+}
+
+details[open] .chevron {
+  margin-block: calc(var(--u-details-chevron-size) / 2) 0;
+  transform: rotate(-135deg);
+}
+
+.content {
+  padding-inline: var(--u-details-padding-inline);
+  padding-block: 0 var(--u-details-padding-block);
+}
+
+@media (forced-colors: active) {
+  details {
+    border-color: CanvasText;
+  }
+}

@@ -1,0 +1,48 @@
+/* The tokens are in tabs.tokens.css, generated from tokens/component/tabs/
+   (ADR 0002). */
+:host {
+  display: block;
+  font-family: var(--u-tabs-font-family);
+  font-size: var(--u-tabs-font-size);
+  color: var(--u-tabs-text-color);
+}
+
+.tablist {
+  display: flex;
+  gap: var(--u-tabs-gap);
+  border-block-end: var(--u-tabs-border-width) solid var(--u-tabs-border-color);
+  overflow-x: auto;
+}
+
+:host([orientation="vertical"]) {
+  display: flex;
+  align-items: start;
+}
+
+:host([orientation="vertical"]) .tablist {
+  flex-direction: column;
+  border-block-end: 0;
+  border-inline-end: var(--u-tabs-border-width) solid var(--u-tabs-border-color);
+}
+
+/* The line of the selected tab, beside a vertical list. */
+:host([orientation="vertical"]) ::slotted([slot="tab"]) {
+  border-block-end: 0;
+  border-inline-end: var(--u-tab-indicator-width) solid transparent;
+}
+
+:host([orientation="vertical"]) ::slotted([selected]) {
+  border-inline-end-color: currentColor;
+}
+
+/* The panel beside a vertical list: the space is on its side. */
+:host([orientation="vertical"]) ::slotted(:not([slot="tab"])) {
+  padding-block-start: 0;
+  padding-inline-start: var(--u-tabs-panel-padding);
+}
+
+@media (forced-colors: active) {
+  .tablist {
+    border-color: CanvasText;
+  }
+}

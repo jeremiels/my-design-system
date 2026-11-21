@@ -1,0 +1,45 @@
+{
+  "tab": {
+    "$description": "Tokens of `tab`: a tab of `tabs`.",
+    "padding-inline": {
+      "$type": "dimension",
+      "$value": "{spacing.md}",
+      "$description": "Horizontal padding of a tab."
+    },
+    "padding-block": {
+      "$type": "dimension",
+      "$value": "{spacing.sm}",
+      "$description": "Vertical padding of a tab."
+    },
+    "font-weight": {
+      "$type": "fontWeight",
+      "$value": "{font.weight.medium}",
+      "$description": "Font weight of a tab."
+    },
+    "selected-color": {
+      "$type": "color",
+      "$value": "{color.action.background}",
+      "$description": "Text color and line of the selected tab."
+    },
+    "indicator-width": {
+      "$type": "dimension",
+      "$value": "{focus-ring.width}",
+      "$description": "Width of the line under the selected tab."
+    },
+    "focus-ring-color": {
+      "$type": "color",
+      "$value": "{color.focus-ring}",
+      "$description": "Color of the focus ring."
+    },
+    "focus-ring-width": {
+      "$type": "dimension",
+      "$value": "{focus-ring.width}",
+      "$description": "Width of the focus ring."
+    },
+    "focus-ring-offset": {
+      "$type": "dimension",
+      "$value": "{focus-ring.offset}",
+      "$description": "Space between the element and its focus ring."
+    }
+  }
+}

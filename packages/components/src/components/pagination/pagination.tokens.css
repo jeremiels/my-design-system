@@ -1,0 +1,18 @@
+/* Generated from ../tokens/src/u.resolver.json by @unicorne/tokens/terrazzo-plugin (ADR 0002). Do not edit: change the tokens. */
+:host {
+  --u-pagination-gap: var(--u-spacing-2xs);
+  --u-pagination-font-family: var(--u-font-family-body);
+  --u-pagination-font-size: var(--u-font-size-md);
+  --u-pagination-text-color: var(--u-color-text-default);
+  --u-pagination-button-size: var(--u-size-icon);
+  --u-pagination-padding-inline: var(--u-spacing-sm);
+  --u-pagination-border-radius: var(--u-radius-md);
+  --u-pagination-hover-background-color: var(--u-color-secondary-background-hover);
+  --u-pagination-current-background-color: var(--u-color-action-background);
+  --u-pagination-current-text-color: var(--u-color-action-text);
+  --u-pagination-chevron-size: var(--u-spacing-sm);
+  --u-pagination-chevron-width: var(--u-border-width);
+  --u-pagination-focus-ring-color: var(--u-color-focus-ring);
+  --u-pagination-focus-ring-width: var(--u-focus-ring-width);
+  --u-pagination-focus-ring-offset: var(--u-focus-ring-offset);
+}

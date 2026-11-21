@@ -1,0 +1,26 @@
+/* No tokens of its own: those of listbox, declared by its menu and inherited.
+   The focused item is the active one. */
+:host {
+  display: block;
+  padding-inline: var(--u-listbox-option-padding-inline);
+  padding-block: var(--u-listbox-option-padding-block);
+  border-radius: var(--u-listbox-option-border-radius);
+  cursor: default;
+  outline: none;
+}
+
+:host(:focus) {
+  color: var(--u-listbox-option-text-color-active);
+  background-color: var(--u-listbox-option-background-color-active);
+}
+
+:host([disabled]) {
+  opacity: var(--u-listbox-option-opacity-disabled);
+}
+
+@media (forced-colors: active) {
+  :host(:focus) {
+    color: HighlightText;
+    background-color: Highlight;
+  }
+}

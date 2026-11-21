@@ -1,0 +1,45 @@
+/* No tokens of its own: those of its breadcrumb, inherited. */
+:host {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--u-breadcrumb-gap);
+}
+
+.link {
+  color: var(--u-breadcrumb-link-color);
+}
+
+.link[aria-current] {
+  color: var(--u-breadcrumb-current-color);
+  text-decoration: none;
+}
+
+.link:focus-visible {
+  outline: var(--u-breadcrumb-focus-ring-width) solid var(--u-breadcrumb-focus-ring-color);
+  outline-offset: var(--u-breadcrumb-focus-ring-offset);
+}
+
+/* A chevron along the text: right in left-to-right text, left otherwise. */
+.separator {
+  box-sizing: border-box;
+  inline-size: var(--u-breadcrumb-separator-size);
+  block-size: var(--u-breadcrumb-separator-size);
+  border: solid var(--u-breadcrumb-separator-color);
+  border-width: 0 var(--u-breadcrumb-separator-width) var(--u-breadcrumb-separator-width) 0;
+  transform: rotate(-45deg);
+}
+
+/* breadcrumb-item.ts reads the text direction: `:dir()` is missing before Chrome 120. */
+.separator--rtl {
+  transform: rotate(135deg);
+}
+
+:host(:last-child) .separator {
+  display: none;
+}
+
+@media (forced-colors: active) {
+  .separator {
+    border-color: CanvasText;
+  }
+}
