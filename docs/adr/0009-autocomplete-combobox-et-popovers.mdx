@@ -287,7 +287,7 @@ export class Autocomplete extends withListbox(ComboboxBase) {
 - **Annonces :** une live region pour le nombre de suggestions, l'absence de résultat et le chargement, comme `wa-combobox`.
 - **Suggestions asynchrones :** un état `loading`, un anti-rebond, une fonction `dataSource` avec un `AbortSignal`.
 - **Affichage :** la mise en évidence du texte trouvé, l'autocomplétion dans l'input, les `<optgroup>`.
-- **Valeur imposée :** un `select` et un `combobox` sur `ComboboxBase`, dont la valeur est une option. Le `<select>` personnalisable (`appearance: base-select`) les remplace une fois dans toute la matrice.
+- **Valeur imposée :** résolue par `select` ([ADR 0018](?path=/docs/documentation-adr-0018-select--docs)) et `combobox` ([ADR 0025](?path=/docs/documentation-adr-0025-combobox-à-valeur-imposée--docs)). Le `<select>` personnalisable (`appearance: base-select`) remplace `select` une fois dans toute la matrice.
 - **Reference Target dans toute la matrice :** des options du light DOM deviennent possibles sans copie.
 - **Soumission implicite :** Enter dans un champ du socle n'envoie pas le formulaire, car l'input interne n'a pas de formulaire. La question concerne `FieldBase`.
 

@@ -16,6 +16,7 @@ const pages: Record<string, string> = {
   "text-field": `<u-text-field label="Name" hint="As on your card" required></u-text-field>`,
   textarea: `<u-textarea label="Message"></u-textarea>`,
   autocomplete: `<u-autocomplete label="City"><option>Paris</option><option>Pau</option></u-autocomplete>`,
+  combobox: `<u-combobox label="City" value="75056"><option value="75056">Paris</option><option value="64445">Pau</option></u-combobox>`,
   checkbox: `<u-checkbox label="I agree" required checked></u-checkbox>`,
   switch: `<u-switch label="Notifications" checked></u-switch>`,
   radio: `<u-radio value="s" label="Small" checked></u-radio>`,

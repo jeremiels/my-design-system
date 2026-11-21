@@ -142,6 +142,11 @@ export abstract class ComboboxBase extends FieldBase {
     return this.open ? "true" : "false";
   }
 
+  /** The text of the control, that the popup follows: `value` by default. */
+  protected get controlText(): string {
+    return this.value;
+  }
+
   /** Whether the popup has something to show: it doesn't open empty. `true` by default. */
   protected get hasPopupContent(): boolean {
     return true;
@@ -271,7 +276,7 @@ export abstract class ComboboxBase extends FieldBase {
       disabled: this.isDisabled || this.readOnly,
       hasContent: this.hasPopupContent,
       items: this.popupItems,
-      hasText: this.value !== "",
+      hasText: this.controlText !== "",
       focused: control !== null && this.shadowRoot?.activeElement === control,
     };
   }
