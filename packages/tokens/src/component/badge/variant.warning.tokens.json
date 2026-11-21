@@ -1,0 +1,10 @@
+{
+  "badge": {
+    "background-color": {
+      "$value": "{color.warning.background}"
+    },
+    "text-color": {
+      "$value": "{color.warning.text}"
+    }
+  }
+}

@@ -78,6 +78,8 @@ function hostAttributeStates(root: ShadowRoot): [string, string][] {
 /** Attributes some parts need to render: the `gap` of `pagination`, with enough pages. */
 const attributesFor: Record<string, Record<string, string>> = {
   "u-pagination": { pages: "20" },
+  "u-tag": { removable: "" },
+  "u-table": { selectable: "", label: "Requests" },
 };
 
 /**
@@ -92,11 +94,28 @@ async function capped(element: HTMLElement) {
 
 /**
  * What some parts need besides: a message of `toaster`, tabs past the edge
- * of `tabs`, a capped list of `autocomplete` and `combobox`.
+ * of `tabs`, a capped list of `autocomplete` and `combobox`, a file of
+ * `file-field`, a row of `table`.
  */
 const setupFor: Record<string, (element: HTMLElement) => Promise<void> | void> = {
   "u-autocomplete": capped,
   "u-combobox": capped,
+  // A file chosen, for the `tag-group` of the files.
+  "u-file-field": async (element) => {
+    const input = element.shadowRoot!.querySelector<HTMLInputElement>("input")!;
+    const transfer = new DataTransfer();
+    transfer.items.add(new File(["%PDF"], "proof.pdf", { type: "application/pdf" }));
+    input.files = transfer.files;
+    input.dispatchEvent(new Event("input", { bubbles: true, composed: true }));
+    await (element as DSBaseElement).updateComplete;
+  },
+  // A sortable column and a row, for the header's button and the cells.
+  "u-table": (element) => {
+    Object.assign(element, {
+      columns: [{ key: "name", label: "Name", sortable: true, rowHeader: true }],
+      rows: [{ id: "1", name: "Ada" }],
+    });
+  },
   "u-toaster": (element) =>
     (element as unknown as { show(message: string, options: object): void }).show("Saved", {
       duration: 0,

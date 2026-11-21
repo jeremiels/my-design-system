@@ -2,13 +2,27 @@
   "spacing": {
     "$type": "dimension",
     "$description": "Space inside and between components.",
-    "2xs": { "$value": "{dimension.50}" },
-    "xs": { "$value": "{dimension.100}" },
-    "sm": { "$value": "{dimension.200}" },
-    "md": { "$value": "{dimension.400}" },
-    "lg": { "$value": "{dimension.600}" },
-    "xl": { "$value": "{dimension.800}" },
-    "2xl": { "$value": "{dimension.1200}" }
+    "2xs": {
+      "$value": "{dimension.50}"
+    },
+    "xs": {
+      "$value": "{dimension.100}"
+    },
+    "sm": {
+      "$value": "{dimension.200}"
+    },
+    "md": {
+      "$value": "{dimension.400}"
+    },
+    "lg": {
+      "$value": "{dimension.600}"
+    },
+    "xl": {
+      "$value": "{dimension.800}"
+    },
+    "2xl": {
+      "$value": "{dimension.1200}"
+    }
   },
   "size": {
     "$type": "dimension",
@@ -28,15 +42,39 @@
     "popup": {
       "$value": "{dimension.6400}",
       "$description": "The largest block size of a popup, like a list of suggestions: its content scrolls past it."
+    },
+    "indicator-sm": {
+      "$value": "{dimension.400}",
+      "$description": "A small loading or progress indicator, inside a control."
+    },
+    "indicator-md": {
+      "$value": "{dimension.600}",
+      "$description": "A loading or progress indicator next to body text."
+    },
+    "indicator-lg": {
+      "$value": "{dimension.1200}",
+      "$description": "A loading indicator that stands for a whole region."
+    },
+    "table": {
+      "$value": "{dimension.full}",
+      "$description": "The largest block size of a table: none by default, the page scrolls."
     }
   },
   "radius": {
     "$type": "dimension",
     "$description": "Corner radii.",
-    "sm": { "$value": "{dimension.50}" },
-    "md": { "$value": "{dimension.100}" },
-    "lg": { "$value": "{dimension.200}" },
-    "full": { "$value": "{dimension.full}" }
+    "sm": {
+      "$value": "{dimension.50}"
+    },
+    "md": {
+      "$value": "{dimension.100}"
+    },
+    "lg": {
+      "$value": "{dimension.200}"
+    },
+    "full": {
+      "$value": "{dimension.full}"
+    }
   },
   "font": {
     "family": {
@@ -48,19 +86,33 @@
     },
     "size": {
       "$type": "dimension",
-      "sm": { "$value": "{font-size.100}" },
-      "md": { "$value": "{font-size.200}" },
-      "lg": { "$value": "{font-size.300}" }
+      "sm": {
+        "$value": "{font-size.100}"
+      },
+      "md": {
+        "$value": "{font-size.200}"
+      },
+      "lg": {
+        "$value": "{font-size.300}"
+      }
     },
     "weight": {
       "$type": "fontWeight",
-      "regular": { "$value": "{font-weight.400}" },
-      "medium": { "$value": "{font-weight.500}" },
-      "semibold": { "$value": "{font-weight.600}" }
+      "regular": {
+        "$value": "{font-weight.400}"
+      },
+      "medium": {
+        "$value": "{font-weight.500}"
+      },
+      "semibold": {
+        "$value": "{font-weight.600}"
+      }
     },
     "line-height": {
       "$type": "number",
-      "body": { "$value": "{line-height.150}" }
+      "body": {
+        "$value": "{line-height.150}"
+      }
     }
   },
   "border": {
@@ -68,17 +120,28 @@
     "width": {
       "$value": "{dimension.25}",
       "$description": "The border of a form control, like a text field."
+    },
+    "width-thick": {
+      "$value": "{dimension.50}",
+      "$description": "A line that carries information: the ring of a spinner, a progress bar."
     }
   },
   "focus-ring": {
     "$type": "dimension",
     "$description": "The focus indicator, the same in every component.",
-    "width": { "$value": "{dimension.50}" },
-    "offset": { "$value": "{dimension.50}" }
+    "width": {
+      "$value": "{dimension.50}"
+    },
+    "offset": {
+      "$value": "{dimension.50}"
+    }
   },
   "opacity": {
     "$type": "number",
-    "disabled": { "$value": "{opacity.60}", "$description": "A disabled component." }
+    "disabled": {
+      "$value": "{opacity.60}",
+      "$description": "A disabled component."
+    }
   },
   "z-index": {
     "$type": "number",
@@ -101,13 +164,23 @@
   "motion": {
     "duration": {
       "$type": "duration",
-      "$description": "Zero when the user asks for reduced motion (motion.reduced).",
-      "fast": { "$value": "{duration.150}" },
-      "base": { "$value": "{duration.250}" }
+      "$description": "Zero when the user asks for reduced motion (motion.reduced), but `loop`, slower.",
+      "fast": {
+        "$value": "{duration.150}"
+      },
+      "base": {
+        "$value": "{duration.250}"
+      },
+      "loop": {
+        "$value": "{duration.1000}",
+        "$description": "One turn of an animation that repeats while something loads."
+      }
     },
     "easing": {
       "$type": "cubicBezier",
-      "standard": { "$value": "{easing.ease}" }
+      "standard": {
+        "$value": "{easing.ease}"
+      }
     },
     "scale": {
       "$type": "number",

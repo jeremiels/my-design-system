@@ -1,0 +1,9 @@
+/* The tokens are in tag.tokens.css, generated from tokens/component/tag/
+   (ADR 0002), and shared with tag. These rules only read them. */
+
+:host {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--u-tag-group-gap);
+}

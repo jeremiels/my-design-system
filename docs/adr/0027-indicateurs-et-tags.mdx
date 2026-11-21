@@ -1,0 +1,117 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Documentation/ADR/0027 Indicateurs et tags" />
+
+# ADR 0027 — Indicateurs et tags
+
+**Statut :** accepté · **Date :** 21 novembre 2026
+
+## Contexte
+
+Une application montre qu'une tâche avance, l'état d'un dossier et les filtres appliqués à une liste.
+
+- Le pattern ARIA d'une progression est `role="progressbar"`, avec `aria-valuenow`, `aria-valuemin`, `aria-valuemax` et `aria-valuetext`. Sans valeur, la durée est inconnue.
+- `<progress>` est natif, mais ses pseudo-éléments diffèrent selon les moteurs.
+- Les comboboxes nomment déjà leur chargement `loadingLabel` ([ADR 0026](?path=/docs/documentation-adr-0026-grandes-listes-et-options-chargées--docs)). `labels` de `designSystem()` traduit un texte par le nom de sa propriété.
+
+### Ce que font les bibliothèques
+
+<table>
+  <thead>
+    <tr>
+      <th>Bibliothèque</th>
+      <th>Chargement et progression</th>
+      <th>Badge</th>
+      <th>Tag</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Web Awesome</td>
+      <td>
+        `wa-spinner` : `role="progressbar"`, nommé « Loading ». `wa-progress-bar` : `value` de 0 à
+        100, `indeterminate`, `label`.
+      </td>
+      <td>`wa-badge` : `role="status"`, des variantes.</td>
+      <td>`wa-tag` : `with-remove`, un bouton « Remove », l'événement `wa-remove`.</td>
+    </tr>
+    <tr>
+      <td>Spectrum Web Components</td>
+      <td>
+        `sp-progress-bar` et `sp-progress-circle` : `role="progressbar"` sur l'hôte,
+        `indeterminate`.
+      </td>
+      <td>`sp-badge` : des variantes, sans rôle.</td>
+      <td>
+        `sp-tag` : `deletable`, Retour arrière et Suppr, l'événement `delete`. `sp-tags` : une
+        liste, un seul arrêt de Tab.
+      </td>
+    </tr>
+    <tr>
+      <td>React Aria</td>
+      <td>`ProgressBar` : `minValue`, `maxValue`, `isIndeterminate`, `valueText`.</td>
+      <td>—</td>
+      <td>`TagGroup` : une grille, `onRemove`, une sélection.</td>
+    </tr>
+    <tr>
+      <td>DSFR</td>
+      <td>—</td>
+      <td>
+        Un `<p>` ou un `<span>`, sans rôle. Plusieurs badges forment une liste. L'icône est
+        décorative.
+      </td>
+      <td>
+        Un texte, un lien, un bouton `aria-pressed`, ou un bouton qui retire, nommé « Retirer » et
+        le texte du tag. Le focus va à un endroit utile après le retrait.
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## D1 — `spinner` et `progress`
+
+- Les deux portent `role="progressbar"`, dans le shadow root.
+- `progress` suit `<progress>` : sans `value`, la durée est inconnue et la barre bouge. `max` vaut 100.
+- Son `label` s'affiche au-dessus de la barre et la nomme. `valueMessage(value, max)` écrit la valeur : un pourcentage dans la langue de la page par défaut.
+- `spinner` est nommé par `label`, sinon par `loadingLabel`, le nom des comboboxes. Une marque le traduit une fois.
+- Ni l'un ni l'autre n'est une live region : une application annonce le début et la fin d'un chargement attendu.
+
+Avec le mouvement réduit, les indicateurs tournent plus lentement, sans s'arrêter : un chargement immobile semblerait fini. `motion.duration.loop` vaut 1 s, et 2 s en mouvement réduit.
+
+## D2 — `badge`
+
+- **Option A — `role="status"`**, comme Web Awesome. Chaque badge devient une live region : un changement s'annonce, mais pas son apparition.
+- **Option B — Du texte, sans rôle**, comme le DSFR et Spectrum.
+
+**Décision : B.** Le texte dit l'état ; `variant` le colore, comme `alert`. Une application annonce un changement par une live region.
+
+## D3 — `tag` et `tag-group`
+
+- Un `tag` est du texte. `removable` ajoute un bouton nommé par `removeMessage(texte)`, « Remove Paris » : le nom contient le texte, comme le demande le DSFR.
+- Le bouton émet `u-remove`. L'application retire le tag de ses données, comme avec Web Awesome.
+- `tag-group` est une liste nommée par `label`. Quand l'application retire un tag, le focus va au tag suivant, sinon au précédent, sinon au groupe.
+- Chaque bouton reste un arrêt de Tab, comme une liste de boutons. Retour arrière et Suppr ne retirent rien : le bouton suffit.
+
+## Conséquences
+
+- **Code :** `Spinner`, `Progress`, `Badge`, `Tag`, `TagGroup`, l'événement `TagRemoveEvent`.
+- **Tokens :** les groupes `spinner`, `progress`, `badge` et `tag`. Les tokens sémantiques `size.indicator-sm`, `size.indicator-md`, `size.indicator-lg`, `border.width-thick` et `motion.duration.loop`. Le contraste de `color.action.background` sur les surfaces est vérifié (3:1).
+- **Tests :** les stories dans trois moteurs, `tag-group.test.ts` avec le vrai clavier.
+- **Limites :**
+  - Le texte d'un tag est lu après son premier rendu : le premier rendu ne dépend que des propriétés ([ADR 0014](?path=/docs/documentation-adr-0014-vue-et-rendu-serveur--docs)).
+  - Beaucoup de tags retirables font beaucoup d'arrêts de Tab.
+
+## Questions ouvertes
+
+- **Tags à presser :** un filtre `aria-pressed`, comme le DSFR, avec `state/selection.ts`.
+- **Tags liens :** un `href` par tag.
+- **Badge à icône :** un slot `icon`, décoratif.
+
+## Sources
+
+Consultées le 21 novembre 2026.
+
+- [spinner.ts](https://github.com/shoelace-style/webawesome/blob/next/packages/webawesome/src/components/spinner/spinner.ts), [progress-bar.ts](https://github.com/shoelace-style/webawesome/blob/next/packages/webawesome/src/components/progress-bar/progress-bar.ts), [badge.ts](https://github.com/shoelace-style/webawesome/blob/next/packages/webawesome/src/components/badge/badge.ts) et [tag.ts](https://github.com/shoelace-style/webawesome/blob/next/packages/webawesome/src/components/tag/tag.ts) (Web Awesome).
+- [ProgressBar.ts](https://github.com/adobe/spectrum-web-components/blob/main/1st-gen/packages/progress-bar/src/ProgressBar.ts), [Badge.ts](https://github.com/adobe/spectrum-web-components/blob/main/1st-gen/packages/badge/src/Badge.ts), [Tag.ts](https://github.com/adobe/spectrum-web-components/blob/main/1st-gen/packages/tags/src/Tag.ts) et [Tags.ts](https://github.com/adobe/spectrum-web-components/blob/main/1st-gen/packages/tags/src/Tags.ts) (Adobe, Spectrum Web Components).
+- [ProgressBar.tsx](https://github.com/adobe/react-spectrum/blob/main/packages/react-aria-components/src/ProgressBar.tsx) et [TagGroup.tsx](https://github.com/adobe/react-spectrum/blob/main/packages/react-aria-components/src/TagGroup.tsx) (Adobe, React Aria).
+- [Accessibilité du badge](https://github.com/GouvernementFR/dsfr/blob/main/src/dsfr/component/badge/_part/doc/accessibility/index.md) et [du tag](https://github.com/GouvernementFR/dsfr/blob/main/src/dsfr/component/tag/_part/doc/accessibility/index.md) (DSFR).

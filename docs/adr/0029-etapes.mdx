@@ -1,0 +1,87 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Documentation/ADR/0029 Étapes" />
+
+# ADR 0029 — Étapes
+
+**Statut :** accepté · **Date :** 21 novembre 2026
+
+## Contexte
+
+Une démarche en ligne tient sur plusieurs pages : l'identité, l'adresse, les pièces, la relecture. L'usager voit où il en est, et ce qui reste.
+
+- `aria-current="step"` marque l'étape en cours d'une suite d'étapes.
+- La couleur seule ne dit pas qu'une étape est finie (WCAG 1.4.1).
+- `tabs` et `tree` posent les rôles de leurs enfants sur leurs hôtes ([ADR 0020](?path=/docs/documentation-adr-0020-onglets-détails-et-navigation--docs), [ADR 0024](?path=/docs/documentation-adr-0024-arbre-et-débordement--docs)).
+
+### Ce que font les bibliothèques
+
+<table>
+  <thead>
+    <tr>
+      <th>Bibliothèque</th>
+      <th>Structure</th>
+      <th>Navigation</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>DSFR</td>
+      <td>
+        Un titre `hx` avec « Étape 1 sur 3 », une barre de segments sans ARIA, « Étape suivante »
+        et son titre. Les autres étapes ne sont pas nommées.
+      </td>
+      <td>Aucune : un indicateur.</td>
+    </tr>
+    <tr>
+      <td>Web Awesome</td>
+      <td>
+        `wa-stepper` : un `<ol>` de `wa-step`, `role="listitem"` sur l'hôte, `aria-current` sur
+        l'étape active, un état caché (finie, à faire, verrouillée).
+      </td>
+      <td>
+        `clickable` : les étapes deviennent des boutons, dans un `nav`. `linear` verrouille les
+        étapes après la première non finie.
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## D1 — Une liste d'étapes
+
+- **Option A — L'étape en cours et la suivante**, comme le DSFR. Le stepper lirait les titres de ses enfants : son premier rendu dépendrait d'autre chose que ses propriétés.
+- **Option B — Toutes les étapes, en liste**, comme Web Awesome.
+
+**Décision : B.** `stepper` contient des `step` ; chaque `step` rend sa barre et son libellé, sur le serveur aussi.
+
+- L'hôte de `stepper` est une liste nommée par `label`, et chaque `step` un élément de liste.
+- `value` est celle de l'étape en cours, qui porte `aria-current="step"`. Sans `value`, c'est la première.
+- Les étapes avant elle sont finies : `completed-label`, caché à l'écran, suit leur libellé.
+- Les barres reprennent les segments du DSFR : pleines jusqu'à l'étape en cours.
+
+## D2 — Montrer, sans naviguer
+
+Le stepper ne contient aucun bouton. Les boutons « Précédent » et « Suivant » de la page changent d'étape, et l'application pose `value`. Un retour à une étape finie passe par ces boutons, ou par un lien du récapitulatif.
+
+## D3 — La direction
+
+`orientation="vertical"` empile les étapes, pour une colonne étroite. L'application choisit, par ses propres media queries : une container query ne lit pas de token.
+
+## Conséquences
+
+- **Code :** `Stepper`, `Step` et le type `StepStatus`.
+- **Tokens :** le groupe `stepper`, partagé par `step`. La barre d'une étape à venir prend `color.border.control`, contrastée à 3:1.
+- **Tests :** les stories dans trois moteurs. Le rendu serveur hydrate un `step` dont le stepper change le statut : son gabarit reste le même dans chaque statut.
+- **Limites :** au-delà de cinq étapes à l'horizontale, les libellés se resserrent et passent à la ligne.
+
+## Questions ouvertes
+
+- **Étapes cliquables :** des boutons vers les étapes finies, dans un `nav`, comme Web Awesome.
+- **Étape en erreur :** une étape finie avec des erreurs, et son texte caché.
+
+## Sources
+
+Consultées le 21 novembre 2026.
+
+- [Accessibilité](https://github.com/GouvernementFR/dsfr/blob/main/src/dsfr/component/stepper/_part/doc/accessibility/index.md) et [code](https://github.com/GouvernementFR/dsfr/blob/main/src/dsfr/component/stepper/_part/doc/code/index.md) de l'indicateur d'étapes (DSFR).
+- [stepper.ts](https://github.com/shoelace-style/webawesome/blob/next/packages/webawesome/src/components/stepper/stepper.ts) et [step.ts](https://github.com/shoelace-style/webawesome/blob/next/packages/webawesome/src/components/step/step.ts) (Web Awesome).

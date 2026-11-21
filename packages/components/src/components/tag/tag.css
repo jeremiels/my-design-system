@@ -1,0 +1,61 @@
+/* The tokens are in tag.tokens.css, generated from tokens/component/tag/
+   (ADR 0002), and shared with tag-group. These rules only read them. */
+
+:host {
+  display: inline-block;
+  vertical-align: baseline;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--u-tag-gap);
+  padding-inline: var(--u-tag-padding-inline);
+  padding-block: var(--u-tag-padding-block);
+  background-color: var(--u-tag-background-color);
+  color: var(--u-tag-text-color);
+  border: var(--u-tag-border-width) solid var(--u-tag-border-color);
+  border-radius: var(--u-tag-border-radius);
+  font-family: var(--u-tag-font-family);
+  font-size: var(--u-tag-font-size);
+  line-height: 1.25;
+}
+:host([removable]) .tag {
+  padding-inline-end: var(--u-tag-padding-block);
+}
+
+/* The remove button: a round target around its icon. */
+.remove {
+  display: inline-grid;
+  place-items: center;
+  inline-size: var(--u-tag-remove-size);
+  block-size: var(--u-tag-remove-size);
+  padding: 0;
+  margin: 0;
+  border: none;
+  border-radius: 50%;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+.remove > * {
+  inline-size: 100%;
+  block-size: 100%;
+}
+.remove:hover {
+  background-color: var(--u-tag-remove-background-color-hover);
+}
+.remove:focus-visible {
+  outline: var(--u-tag-focus-ring-width) solid var(--u-tag-focus-ring-color);
+  outline-offset: 0;
+}
+
+@media (forced-colors: active) {
+  .tag {
+    border-color: CanvasText;
+  }
+  .remove:focus-visible {
+    outline-color: Highlight;
+  }
+}

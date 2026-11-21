@@ -35,3 +35,19 @@ export function toggleValue(
     ? values.filter((chosen) => chosen !== value)
     : orderedValues(items, [...values, value]);
 }
+
+/**
+ * Chooses every enabled item, or none of them when they are all chosen
+ * already: a "select all" box. The disabled items keep their choice.
+ */
+export function toggleAll(
+  items: readonly SelectionItem[],
+  values: readonly string[],
+): readonly string[] {
+  const chosen = new Set(values);
+  const enabled = items.filter((item) => !item.disabled);
+  const all = enabled.length > 0 && enabled.every((item) => chosen.has(item.value));
+  return items
+    .filter((item) => (item.disabled ? chosen.has(item.value) : !all))
+    .map((item) => item.value);
+}

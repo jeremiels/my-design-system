@@ -1,0 +1,7 @@
+{
+  "spinner": {
+    "size": {
+      "$value": "{size.indicator-sm}"
+    }
+  }
+}

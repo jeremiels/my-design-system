@@ -97,6 +97,8 @@
     --u-duration-0: 0ms;
     --u-duration-150: 150ms;
     --u-duration-250: 250ms;
+    --u-duration-1000: 1000ms;
+    --u-duration-2000: 2000ms;
     --u-easing-ease: cubic-bezier(0.25, 0.1, 0.25, 1);
     --u-scale-95: 0.95;
     --u-scale-100: 1;
@@ -120,6 +122,10 @@
     --u-size-choice: var(--u-dimension-400);
     --u-size-panel: var(--u-dimension-8000);
     --u-size-popup: var(--u-dimension-6400);
+    --u-size-indicator-sm: var(--u-dimension-400);
+    --u-size-indicator-md: var(--u-dimension-600);
+    --u-size-indicator-lg: var(--u-dimension-1200);
+    --u-size-table: var(--u-dimension-full);
     --u-radius-sm: var(--u-dimension-50);
     --u-radius-md: var(--u-dimension-100);
     --u-radius-lg: var(--u-dimension-200);
@@ -133,6 +139,7 @@
     --u-font-weight-semibold: var(--u-font-weight-600);
     --u-font-line-height-body: var(--u-line-height-150);
     --u-border-width: var(--u-dimension-25);
+    --u-border-width-thick: var(--u-dimension-50);
     --u-focus-ring-width: var(--u-dimension-50);
     --u-focus-ring-offset: var(--u-dimension-50);
     --u-opacity-disabled: var(--u-opacity-60);
@@ -141,6 +148,7 @@
     --u-shadow-overlay: var(--u-shadow-300);
     --u-motion-duration-fast: var(--u-duration-150);
     --u-motion-duration-base: var(--u-duration-250);
+    --u-motion-duration-loop: var(--u-duration-1000);
     --u-motion-easing-standard: var(--u-easing-ease);
     --u-motion-scale-enter: var(--u-scale-95);
     --u-color-action-background: var(--u-palette-brand-600);
@@ -306,6 +314,7 @@
     [data-brand] {
       --u-motion-duration-fast: var(--u-duration-0);
       --u-motion-duration-base: var(--u-duration-0);
+      --u-motion-duration-loop: var(--u-duration-2000);
       --u-motion-scale-enter: var(--u-scale-100);
     }
   }

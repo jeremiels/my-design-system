@@ -1,11 +1,20 @@
 {
   "motion": {
     "duration": {
-      "fast": { "$value": "{duration.0}" },
-      "base": { "$value": "{duration.0}" }
+      "fast": {
+        "$value": "{duration.0}"
+      },
+      "base": {
+        "$value": "{duration.0}"
+      },
+      "loop": {
+        "$value": "{duration.2000}"
+      }
     },
     "scale": {
-      "enter": { "$value": "{scale.100}" }
+      "enter": {
+        "$value": "{scale.100}"
+      }
     }
   }
 }

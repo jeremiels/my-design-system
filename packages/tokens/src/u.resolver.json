@@ -6,49 +6,142 @@
     "primitive": {
       "description": "Raw values, no theme: what a brand changes first.",
       "sources": [
-        { "$ref": "primitive/palette.tokens.json" },
-        { "$ref": "primitive/dimension.tokens.json" },
-        { "$ref": "primitive/typography.tokens.json" },
-        { "$ref": "primitive/motion.tokens.json" },
-        { "$ref": "primitive/effect.tokens.json" }
+        {
+          "$ref": "primitive/palette.tokens.json"
+        },
+        {
+          "$ref": "primitive/dimension.tokens.json"
+        },
+        {
+          "$ref": "primitive/typography.tokens.json"
+        },
+        {
+          "$ref": "primitive/motion.tokens.json"
+        },
+        {
+          "$ref": "primitive/effect.tokens.json"
+        }
       ]
     },
     "semantic": {
       "description": "Intents, aliases of primitives. The colors are in the theme modifier.",
-      "sources": [{ "$ref": "semantic/semantic.tokens.json" }]
+      "sources": [
+        {
+          "$ref": "semantic/semantic.tokens.json"
+        }
+      ]
     },
     "component": {
       "description": "Each component's tokens, aliases of semantic tokens. Their defaults; the variants are modifiers.",
       "sources": [
-        { "$ref": "component/button/button.tokens.json" },
-        { "$ref": "component/alert/alert.tokens.json" },
-        { "$ref": "component/modal/modal.tokens.json" },
-        { "$ref": "component/icon/icon.tokens.json" },
-        { "$ref": "component/field/field.tokens.json" },
-        { "$ref": "component/combobox/combobox.tokens.json" },
-        { "$ref": "component/listbox/listbox.tokens.json" },
-        { "$ref": "component/toggle/toggle.tokens.json" },
-        { "$ref": "component/checkbox/checkbox.tokens.json" },
-        { "$ref": "component/switch/switch.tokens.json" },
-        { "$ref": "component/radio/radio.tokens.json" },
-        { "$ref": "component/choice-group/choice-group.tokens.json" },
-        { "$ref": "component/picker/picker.tokens.json" },
-        { "$ref": "component/select/select.tokens.json" },
-        { "$ref": "component/slider/slider.tokens.json" },
-        { "$ref": "component/tabs/tabs.tokens.json" },
-        { "$ref": "component/tab/tab.tokens.json" },
-        { "$ref": "component/details/details.tokens.json" },
-        { "$ref": "component/breadcrumb/breadcrumb.tokens.json" },
-        { "$ref": "component/pagination/pagination.tokens.json" },
-        { "$ref": "component/toolbar/toolbar.tokens.json" },
-        { "$ref": "component/popup/popup.tokens.json" },
-        { "$ref": "component/drawer/drawer.tokens.json" },
-        { "$ref": "component/popover/popover.tokens.json" },
-        { "$ref": "component/tooltip/tooltip.tokens.json" },
-        { "$ref": "component/toaster/toaster.tokens.json" },
-        { "$ref": "component/calendar/calendar.tokens.json" },
-        { "$ref": "component/date-picker/date-picker.tokens.json" },
-        { "$ref": "component/tree/tree.tokens.json" }
+        {
+          "$ref": "component/button/button.tokens.json"
+        },
+        {
+          "$ref": "component/alert/alert.tokens.json"
+        },
+        {
+          "$ref": "component/modal/modal.tokens.json"
+        },
+        {
+          "$ref": "component/icon/icon.tokens.json"
+        },
+        {
+          "$ref": "component/field/field.tokens.json"
+        },
+        {
+          "$ref": "component/combobox/combobox.tokens.json"
+        },
+        {
+          "$ref": "component/listbox/listbox.tokens.json"
+        },
+        {
+          "$ref": "component/toggle/toggle.tokens.json"
+        },
+        {
+          "$ref": "component/checkbox/checkbox.tokens.json"
+        },
+        {
+          "$ref": "component/switch/switch.tokens.json"
+        },
+        {
+          "$ref": "component/radio/radio.tokens.json"
+        },
+        {
+          "$ref": "component/choice-group/choice-group.tokens.json"
+        },
+        {
+          "$ref": "component/picker/picker.tokens.json"
+        },
+        {
+          "$ref": "component/select/select.tokens.json"
+        },
+        {
+          "$ref": "component/slider/slider.tokens.json"
+        },
+        {
+          "$ref": "component/tabs/tabs.tokens.json"
+        },
+        {
+          "$ref": "component/tab/tab.tokens.json"
+        },
+        {
+          "$ref": "component/details/details.tokens.json"
+        },
+        {
+          "$ref": "component/breadcrumb/breadcrumb.tokens.json"
+        },
+        {
+          "$ref": "component/pagination/pagination.tokens.json"
+        },
+        {
+          "$ref": "component/toolbar/toolbar.tokens.json"
+        },
+        {
+          "$ref": "component/popup/popup.tokens.json"
+        },
+        {
+          "$ref": "component/drawer/drawer.tokens.json"
+        },
+        {
+          "$ref": "component/popover/popover.tokens.json"
+        },
+        {
+          "$ref": "component/tooltip/tooltip.tokens.json"
+        },
+        {
+          "$ref": "component/toaster/toaster.tokens.json"
+        },
+        {
+          "$ref": "component/calendar/calendar.tokens.json"
+        },
+        {
+          "$ref": "component/date-picker/date-picker.tokens.json"
+        },
+        {
+          "$ref": "component/tree/tree.tokens.json"
+        },
+        {
+          "$ref": "component/spinner/spinner.tokens.json"
+        },
+        {
+          "$ref": "component/progress/progress.tokens.json"
+        },
+        {
+          "$ref": "component/badge/badge.tokens.json"
+        },
+        {
+          "$ref": "component/tag/tag.tokens.json"
+        },
+        {
+          "$ref": "component/file-field/file-field.tokens.json"
+        },
+        {
+          "$ref": "component/stepper/stepper.tokens.json"
+        },
+        {
+          "$ref": "component/table/table.tokens.json"
+        }
       ]
     }
   },
@@ -57,16 +150,28 @@
       "description": "Light or dark: the semantic colors.",
       "default": "light",
       "contexts": {
-        "light": [{ "$ref": "semantic/theme.light.tokens.json" }],
-        "dark": [{ "$ref": "semantic/theme.dark.tokens.json" }]
+        "light": [
+          {
+            "$ref": "semantic/theme.light.tokens.json"
+          }
+        ],
+        "dark": [
+          {
+            "$ref": "semantic/theme.dark.tokens.json"
+          }
+        ]
       }
     },
     "motion": {
-      "description": "Reduced motion: no duration, no scale.",
+      "description": "Reduced motion: no duration but a slower loop, no scale.",
       "default": "full",
       "contexts": {
         "full": [],
-        "reduced": [{ "$ref": "semantic/motion.reduced.tokens.json" }]
+        "reduced": [
+          {
+            "$ref": "semantic/motion.reduced.tokens.json"
+          }
+        ]
       }
     },
     "button-variant": {
@@ -74,20 +179,48 @@
       "default": "primary",
       "contexts": {
         "primary": [],
-        "secondary": [{ "$ref": "component/button/variant.secondary.tokens.json" }],
-        "success": [{ "$ref": "component/button/variant.success.tokens.json" }],
-        "warning": [{ "$ref": "component/button/variant.warning.tokens.json" }],
-        "danger": [{ "$ref": "component/button/variant.danger.tokens.json" }],
-        "information": [{ "$ref": "component/button/variant.information.tokens.json" }]
+        "secondary": [
+          {
+            "$ref": "component/button/variant.secondary.tokens.json"
+          }
+        ],
+        "success": [
+          {
+            "$ref": "component/button/variant.success.tokens.json"
+          }
+        ],
+        "warning": [
+          {
+            "$ref": "component/button/variant.warning.tokens.json"
+          }
+        ],
+        "danger": [
+          {
+            "$ref": "component/button/variant.danger.tokens.json"
+          }
+        ],
+        "information": [
+          {
+            "$ref": "component/button/variant.information.tokens.json"
+          }
+        ]
       }
     },
     "button-size": {
       "description": "The `size` attribute of `button` and `button-link`.",
       "default": "medium",
       "contexts": {
-        "small": [{ "$ref": "component/button/size.small.tokens.json" }],
+        "small": [
+          {
+            "$ref": "component/button/size.small.tokens.json"
+          }
+        ],
         "medium": [],
-        "large": [{ "$ref": "component/button/size.large.tokens.json" }]
+        "large": [
+          {
+            "$ref": "component/button/size.large.tokens.json"
+          }
+        ]
       }
     },
     "alert-variant": {
@@ -95,20 +228,93 @@
       "default": "information",
       "contexts": {
         "information": [],
-        "success": [{ "$ref": "component/alert/variant.success.tokens.json" }],
-        "warning": [{ "$ref": "component/alert/variant.warning.tokens.json" }],
-        "danger": [{ "$ref": "component/alert/variant.danger.tokens.json" }]
+        "success": [
+          {
+            "$ref": "component/alert/variant.success.tokens.json"
+          }
+        ],
+        "warning": [
+          {
+            "$ref": "component/alert/variant.warning.tokens.json"
+          }
+        ],
+        "danger": [
+          {
+            "$ref": "component/alert/variant.danger.tokens.json"
+          }
+        ]
+      }
+    },
+    "spinner-size": {
+      "description": "The `size` attribute of `spinner`.",
+      "default": "medium",
+      "contexts": {
+        "small": [
+          {
+            "$ref": "component/spinner/size.small.tokens.json"
+          }
+        ],
+        "medium": [],
+        "large": [
+          {
+            "$ref": "component/spinner/size.large.tokens.json"
+          }
+        ]
+      }
+    },
+    "badge-variant": {
+      "description": "The `variant` attribute of `badge`.",
+      "default": "information",
+      "contexts": {
+        "information": [],
+        "success": [
+          {
+            "$ref": "component/badge/variant.success.tokens.json"
+          }
+        ],
+        "warning": [
+          {
+            "$ref": "component/badge/variant.warning.tokens.json"
+          }
+        ],
+        "danger": [
+          {
+            "$ref": "component/badge/variant.danger.tokens.json"
+          }
+        ]
       }
     }
   },
   "resolutionOrder": [
-    { "$ref": "#/sets/primitive" },
-    { "$ref": "#/sets/semantic" },
-    { "$ref": "#/modifiers/theme" },
-    { "$ref": "#/modifiers/motion" },
-    { "$ref": "#/sets/component" },
-    { "$ref": "#/modifiers/button-variant" },
-    { "$ref": "#/modifiers/button-size" },
-    { "$ref": "#/modifiers/alert-variant" }
+    {
+      "$ref": "#/sets/primitive"
+    },
+    {
+      "$ref": "#/sets/semantic"
+    },
+    {
+      "$ref": "#/modifiers/theme"
+    },
+    {
+      "$ref": "#/modifiers/motion"
+    },
+    {
+      "$ref": "#/sets/component"
+    },
+    {
+      "$ref": "#/modifiers/button-variant"
+    },
+    {
+      "$ref": "#/modifiers/button-size"
+    },
+    {
+      "$ref": "#/modifiers/alert-variant"
+    },
+    {
+      "$ref": "#/modifiers/spinner-size"
+    },
+    {
+      "$ref": "#/modifiers/badge-variant"
+    }
   ]
 }

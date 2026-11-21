@@ -1,0 +1,65 @@
+/* The tokens are in stepper.tokens.css, generated from tokens/component/stepper/
+   (ADR 0002), and shared with stepper. These rules only read them. */
+
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--u-stepper-label-gap);
+  flex: 1 1 0;
+  min-inline-size: 0;
+  font-family: var(--u-stepper-font-family);
+  font-size: var(--u-stepper-font-size);
+  color: var(--u-stepper-text-color);
+}
+
+.bar {
+  block-size: var(--u-stepper-bar-block-size);
+  background-color: var(--u-stepper-bar-color);
+  border-radius: var(--u-stepper-bar-border-radius);
+}
+:host([status="complete"]) .bar,
+:host([status="current"]) .bar {
+  background-color: var(--u-stepper-bar-color-done);
+}
+
+.label {
+  overflow-wrap: anywhere;
+}
+:host([status="current"]) .label {
+  font-weight: var(--u-stepper-current-font-weight);
+}
+
+/* In a vertical stepper: the bar along the inline start of the label. */
+:host([orientation="vertical"]) {
+  flex-direction: row;
+  flex: none;
+}
+:host([orientation="vertical"]) .bar {
+  flex: none;
+  block-size: auto;
+  inline-size: var(--u-stepper-bar-block-size);
+}
+
+/* `completed-label`, for assistive technologies only. */
+.visually-hidden {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (forced-colors: active) {
+  .bar {
+    border: 1px solid CanvasText;
+    background-color: Canvas;
+  }
+  :host([status="complete"]) .bar,
+  :host([status="current"]) .bar {
+    background-color: CanvasText;
+  }
+}

@@ -1,0 +1,98 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Documentation/ADR/0028 Champ de fichiers" />
+
+# ADR 0028 — Champ de fichiers
+
+**Statut :** accepté · **Date :** 21 novembre 2026
+
+## Contexte
+
+Un formulaire demande des pièces justificatives : un justificatif de domicile, des bulletins de salaire.
+
+- `<input type="file">` ouvre le sélecteur du système, au clavier comme au pointeur. Il accepte aussi un fichier déposé sur lui.
+- `::file-selector-button` style son bouton dans toute la [matrice](?path=/docs/documentation-référence-support-navigateurs--docs). Le navigateur écrit son texte, « Aucun fichier choisi », dans sa propre langue.
+- `ElementInternals.setFormValue()` accepte un `FormData` : un champ du socle envoie des fichiers.
+- `DataTransfer` construit une liste de fichiers, que `input.files` accepte.
+
+### Ce que font les bibliothèques
+
+<table>
+  <thead>
+    <tr>
+      <th>Bibliothèque</th>
+      <th>Contrôle</th>
+      <th>Dépôt</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>DSFR</td>
+      <td>
+        L'`<input type="file">` natif, un libellé, une aide avec les formats et la taille, des
+        messages dans une live region. `accept` est conseillé, et ne remplace pas la vérification
+        du serveur.
+      </td>
+      <td>Aucun, hors de l'input.</td>
+    </tr>
+    <tr>
+      <td>React Aria</td>
+      <td>
+        `FileTrigger` : un input caché, qu'un bouton ouvre. `acceptedFileTypes`,
+        `allowsMultiple`, `onSelect`.
+      </td>
+      <td>`DropZone` : une zone, et un bouton caché pour le clavier et le collage.</td>
+    </tr>
+    <tr>
+      <td>Spectrum Web Components</td>
+      <td>—</td>
+      <td>`sp-dropzone` : les événements du glisser-déposer, annulables, sans input.</td>
+    </tr>
+  </tbody>
+</table>
+
+## D1 — L'input natif
+
+- **Option A — L'input natif**, comme le DSFR. Le clavier, les lecteurs d'écran et le dépôt sur l'input sont ceux du navigateur.
+- **Option B — Un input caché et un bouton**, comme React Aria. Le texte du bouton est celui du socle, mais le bouton refait ce que l'input fait déjà.
+
+**Décision : A.** `file-field` étend `FieldBase` : libellé, aide, erreur et validité sont ceux des champs ([ADR 0007](?path=/docs/documentation-adr-0007-champs-de-formulaire--docs)).
+
+## D2 — La liste des fichiers
+
+- Sous l'input, un `tag-group` liste les fichiers choisis ([ADR 0027](?path=/docs/documentation-adr-0027-indicateurs-et-tags--docs)). `fileMessage(file)` écrit leur nom et leur taille, dans la langue de la page.
+- Chaque tag retire son fichier : l'utilisateur corrige un choix de plusieurs fichiers sans tout reprendre. Le retrait émet `input`, puis `change`.
+- Le champ donne à l'input les fichiers restants, par un `DataTransfer` : la validité du navigateur les suit.
+- Le focus va au fichier suivant, puis à l'input après le dernier.
+
+## D3 — Le formulaire
+
+- Le formulaire reçoit chaque fichier sous `name`.
+- `required` demande un fichier, par la validité de l'input.
+- `accept` filtre le sélecteur, comme sur l'input natif. Le serveur vérifie les fichiers.
+- `value` est celle de l'input natif ; `files` donne les fichiers.
+- Un champ en lecture seule montre ses fichiers, sans bouton.
+
+## Conséquences
+
+- **Code :** `FileField`, sur `FieldBase`, avec `TagGroup` et `Tag` en dépendances.
+- **Tokens :** le groupe `file-field`, pour le bouton de l'input.
+- **Tests :** les stories dans trois moteurs. Elles choisissent les fichiers par un `DataTransfer`, comme le sélecteur : `userEvent.upload()` remplace `files` par un accesseur en lecture seule.
+- **Limites :**
+  - Le texte de l'input est celui du navigateur, dans sa langue.
+  - Le champ ne vérifie pas le format d'un fichier déposé sur l'input : `accept` filtre le sélecteur.
+
+## Questions ouvertes
+
+- **Taille maximale :** `max-size`, et un message par fichier trop lourd.
+- **Formats :** un message pour un fichier hors d'`accept`, déposé.
+- **Zone de dépôt :** une zone plus grande que l'input, avec un bouton pour le clavier.
+- **Envoi progressif :** une `progress` par fichier, pendant son envoi à un serveur.
+
+## Sources
+
+Consultées le 21 novembre 2026.
+
+- [Accessibilité](https://github.com/GouvernementFR/dsfr/blob/main/src/dsfr/component/upload/_part/doc/accessibility/index.md) et [code](https://github.com/GouvernementFR/dsfr/blob/main/src/dsfr/component/upload/_part/doc/code/index.md) de l'ajout de fichier (DSFR).
+- [FileTrigger.tsx](https://github.com/adobe/react-spectrum/blob/main/packages/react-aria-components/src/FileTrigger.tsx) et [DropZone.tsx](https://github.com/adobe/react-spectrum/blob/main/packages/react-aria-components/src/DropZone.tsx) (Adobe, React Aria).
+- [Dropzone.ts](https://github.com/adobe/spectrum-web-components/blob/main/1st-gen/packages/dropzone/src/Dropzone.ts) (Adobe, Spectrum Web Components).

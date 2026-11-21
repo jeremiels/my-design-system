@@ -14483,6 +14483,212 @@
     },
     {
       "kind": "javascript-module",
+      "path": "src/components/badge/badge.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "A badge: a short status next to what it qualifies, \"Sent\" or \"Draft\" for\ninstance (ADR 0027). It is text, without a role nor any interaction: its\ntext says the status, its colors repeat it. A status that changes while\nthe user looks is announced by a live region, not by the badge.\n\nSeveral badges in a row form a list: put them in a `<ul>`.",
+          "name": "Badge",
+          "cssProperties": [
+            {
+              "description": "Background color (variants change the default).",
+              "name": "--u-badge-background-color",
+              "default": "var(--u-color-information-background)"
+            },
+            {
+              "description": "Text color (variants change the default).",
+              "name": "--u-badge-text-color",
+              "default": "var(--u-color-information-text)"
+            },
+            {
+              "description": "Horizontal padding.",
+              "name": "--u-badge-padding-inline",
+              "default": "var(--u-spacing-xs)"
+            },
+            {
+              "description": "Vertical padding.",
+              "name": "--u-badge-padding-block",
+              "default": "var(--u-spacing-2xs)"
+            },
+            {
+              "description": "Corner radius.",
+              "name": "--u-badge-border-radius",
+              "default": "var(--u-radius-sm)"
+            },
+            {
+              "description": "Font family.",
+              "name": "--u-badge-font-family",
+              "default": "var(--u-font-family-body)"
+            },
+            {
+              "description": "Font size.",
+              "name": "--u-badge-font-size",
+              "default": "var(--u-font-size-sm)"
+            },
+            {
+              "description": "Font weight.",
+              "name": "--u-badge-font-weight",
+              "default": "var(--u-font-weight-semibold)"
+            }
+          ],
+          "cssParts": [
+            {
+              "description": "The badge.",
+              "name": "badge"
+            }
+          ],
+          "slots": [
+            {
+              "description": "The text of the badge.",
+              "name": ""
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "componentName",
+              "type": {
+                "text": "string"
+              },
+              "static": true,
+              "default": "\"badge\"",
+              "description": "Name of the component in the catalog, without any tag prefix: the\nregistered tag is `<prefix>-<componentName>`. Every concrete component\nsets it; abstract bases (e.g. `ButtonBase`) don't.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "variant",
+              "type": {
+                "text": "BadgeVariant"
+              },
+              "default": "\"information\"",
+              "description": "The intent of the status: sets its colors. Its text must say it too.",
+              "attribute": "variant",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "dependencies",
+              "type": {
+                "text": "readonly (typeof DSBaseElement)[]"
+              },
+              "static": true,
+              "default": "[]",
+              "description": "Components this one renders (ADR 0001, D2): `defineComponents()`\nregisters them too, and `tagFor()` resolves their tag. Never hard-code\nanother component's tag in a template, nor create one with\n`document.createElement` — a brand's override would be bypassed.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "forDesignSystem",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "T"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "this",
+                  "type": {
+                    "text": "T"
+                  }
+                },
+                {
+                  "name": "_settings",
+                  "type": {
+                    "text": "DesignSystemSettings"
+                  }
+                }
+              ],
+              "description": "The class a design system registers for this component, given its\nsettings: this class by default. A component that depends on a setting\nreturns a subclass that applies it, and leaves this class unchanged:\n`Icon` returns a subclass with the design system's `icons` over its own.\n`designSystem()` calls it once per class, after choosing the brand's\noverride, so the subclass extends the override.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "language",
+              "type": {
+                "text": "string | undefined"
+              },
+              "privacy": "protected",
+              "description": "The language of the component, for `Intl`: the `lang` of its closest\nancestor, through the shadow roots, or the document's. `undefined` on a\nserver, and without any: `Intl` takes its default.",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "tagFor",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "StaticValue"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "component",
+                  "type": {
+                    "text": "typeof DSBaseElement"
+                  }
+                }
+              ],
+              "description": "The tag of a component declared in `static dependencies`, for templates\nfrom `lit/static-html.js`: `` html`<${this.tagFor(Button)}>…</${…}>` ``.\nIt follows the registration of this element: `u-modal` renders\n`u-button`, `acme-modal` renders `acme-button` — the brand's override\nof `Button` if it has one.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            }
+          ],
+          "attributes": [
+            {
+              "name": "variant",
+              "type": {
+                "text": "BadgeVariant"
+              },
+              "default": "\"information\"",
+              "description": "The intent of the status: sets its colors. Its text must say it too.",
+              "fieldName": "variant"
+            }
+          ],
+          "superclass": {
+            "name": "DSBaseElement",
+            "module": "/src/bases/base-element.js"
+          },
+          "tagName": "u-badge",
+          "customElement": true,
+          "summary": "A short status, as colored text."
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "Badge",
+          "declaration": {
+            "name": "Badge",
+            "module": "src/components/badge/badge.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/components/badge/badge.type.ts",
+      "declarations": [],
+      "exports": []
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/components/breadcrumb-item/breadcrumb-item.ts",
       "declarations": [
         {
@@ -26083,6 +26289,1512 @@
     },
     {
       "kind": "javascript-module",
+      "path": "src/components/file-field/file-field.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "A file field: the user picks files, or drops them on its button, and the\nform submits them (ADR 0028). Its control is a native\n`<input type=\"file\">`: its button opens the system's picker, and the\nbrowser writes its text, in the browser's language.\n\nUnder it, a `tag-group` lists the files chosen, each with its name and\nsize (`fileMessage`), and a button that removes it: the user corrects a\nchoice of several files without picking them all again. A removal fires\n`input`, then `change`.\n\nThe form receives each file under `name`. `required` needs a file.\n`accept` filters the picker, as on a native input: the server checks the\nfiles it receives. `value` is that of the native input, the name of the\nfirst file after a fake path; `files` holds the files.\n\nA read-only field shows its files, and changes nothing.",
+          "name": "FileField",
+          "cssProperties": [
+            {
+              "description": "Background color of the button that opens the file picker.",
+              "name": "--u-file-field-button-background-color",
+              "default": "var(--u-color-surface-default)"
+            },
+            {
+              "description": "Background color of the button under the pointer.",
+              "name": "--u-file-field-button-background-color-hover",
+              "default": "var(--u-color-surface-raised)"
+            },
+            {
+              "description": "Text color of the button.",
+              "name": "--u-file-field-button-text-color",
+              "default": "var(--u-color-text-default)"
+            },
+            {
+              "description": "Border color of the button.",
+              "name": "--u-file-field-button-border-color",
+              "default": "var(--u-color-border-control)"
+            },
+            {
+              "description": "Corner radius of the button.",
+              "name": "--u-file-field-button-border-radius",
+              "default": "var(--u-radius-md)"
+            },
+            {
+              "description": "Horizontal padding of the button.",
+              "name": "--u-file-field-button-padding-inline",
+              "default": "var(--u-spacing-sm)"
+            },
+            {
+              "description": "Vertical padding of the button.",
+              "name": "--u-file-field-button-padding-block",
+              "default": "var(--u-spacing-xs)"
+            },
+            {
+              "description": "Space between the button and the names of the files.",
+              "name": "--u-file-field-button-gap",
+              "default": "var(--u-spacing-sm)"
+            },
+            {
+              "description": "Background color.",
+              "name": "--u-tag-background-color",
+              "default": "var(--u-color-surface-raised)"
+            },
+            {
+              "description": "Text color.",
+              "name": "--u-tag-text-color",
+              "default": "var(--u-color-text-default)"
+            },
+            {
+              "description": "Border color.",
+              "name": "--u-tag-border-color",
+              "default": "var(--u-color-border-default)"
+            },
+            {
+              "description": "Border width.",
+              "name": "--u-tag-border-width",
+              "default": "var(--u-border-width)"
+            },
+            {
+              "description": "Corner radius.",
+              "name": "--u-tag-border-radius",
+              "default": "var(--u-radius-full)"
+            },
+            {
+              "description": "Horizontal padding.",
+              "name": "--u-tag-padding-inline",
+              "default": "var(--u-spacing-sm)"
+            },
+            {
+              "description": "Vertical padding.",
+              "name": "--u-tag-padding-block",
+              "default": "var(--u-spacing-2xs)"
+            },
+            {
+              "description": "Space between the text and the remove button.",
+              "name": "--u-tag-gap",
+              "default": "var(--u-spacing-xs)"
+            },
+            {
+              "description": "Font family.",
+              "name": "--u-tag-font-family",
+              "default": "var(--u-font-family-body)"
+            },
+            {
+              "description": "Font size.",
+              "name": "--u-tag-font-size",
+              "default": "var(--u-font-size-sm)"
+            },
+            {
+              "description": "Width and height of the remove button, and of its icon.",
+              "name": "--u-tag-remove-size",
+              "default": "var(--u-size-indicator-sm)"
+            },
+            {
+              "description": "Background color of the remove button under the pointer.",
+              "name": "--u-tag-remove-background-color-hover",
+              "default": "var(--u-color-border-default)"
+            },
+            {
+              "description": "Space between the tags of a `tag-group`.",
+              "name": "--u-tag-group-gap",
+              "default": "var(--u-spacing-xs)"
+            },
+            {
+              "description": "Color of the focus ring of the remove button.",
+              "name": "--u-tag-focus-ring-color",
+              "default": "var(--u-color-focus-ring)"
+            },
+            {
+              "description": "Width of the focus ring of the remove button.",
+              "name": "--u-tag-focus-ring-width",
+              "default": "var(--u-focus-ring-width)"
+            },
+            {
+              "description": "Space between the label, the hint, the control and the error message.",
+              "name": "--u-field-gap",
+              "default": "var(--u-spacing-xs)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Font family.",
+              "name": "--u-field-font-family",
+              "default": "var(--u-font-family-body)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Font size of the label and the control.",
+              "name": "--u-field-font-size",
+              "default": "var(--u-font-size-md)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Line height.",
+              "name": "--u-field-line-height",
+              "default": "var(--u-font-line-height-body)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Text color of the label, the hint and the control.",
+              "name": "--u-field-text-color",
+              "default": "var(--u-color-text-default)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Font weight of the label.",
+              "name": "--u-field-label-font-weight",
+              "default": "var(--u-font-weight-medium)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Color of the indicator after the label of a required field.",
+              "name": "--u-field-required-indicator-color",
+              "default": "var(--u-color-text-danger)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Space between the label and the indicator of a required field.",
+              "name": "--u-field-required-indicator-gap",
+              "default": "var(--u-spacing-2xs)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Font size of the hint.",
+              "name": "--u-field-hint-font-size",
+              "default": "var(--u-font-size-sm)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Background color of the control.",
+              "name": "--u-field-background-color",
+              "default": "var(--u-color-surface-default)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Border color of the control.",
+              "name": "--u-field-border-color",
+              "default": "var(--u-color-border-control)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Border color of the control while an error shows.",
+              "name": "--u-field-border-color-invalid",
+              "default": "var(--u-color-text-danger)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Border width of the control.",
+              "name": "--u-field-border-width",
+              "default": "var(--u-border-width)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Corner radius of the control.",
+              "name": "--u-field-border-radius",
+              "default": "var(--u-radius-md)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Horizontal padding of the control.",
+              "name": "--u-field-padding-inline",
+              "default": "var(--u-spacing-sm)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Vertical padding of the control.",
+              "name": "--u-field-padding-block",
+              "default": "var(--u-spacing-xs)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Focus outline color.",
+              "name": "--u-field-focus-ring-color",
+              "default": "var(--u-color-focus-ring)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Focus outline width.",
+              "name": "--u-field-focus-ring-width",
+              "default": "var(--u-focus-ring-width)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Focus outline offset.",
+              "name": "--u-field-focus-ring-offset",
+              "default": "var(--u-focus-ring-offset)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Text color of the error message.",
+              "name": "--u-field-error-text-color",
+              "default": "var(--u-color-text-danger)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Font size of the error message.",
+              "name": "--u-field-error-font-size",
+              "default": "var(--u-font-size-sm)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "description": "Space between the error icon and the message.",
+              "name": "--u-field-error-gap",
+              "default": "var(--u-spacing-xs)",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            }
+          ],
+          "cssParts": [
+            {
+              "description": "The native `<input type=\"file\">`.",
+              "name": "input"
+            },
+            {
+              "description": "The `tag-group` of the files chosen.",
+              "name": "files"
+            },
+            {
+              "description": "The `tag` of a file.",
+              "name": "file"
+            },
+            {
+              "description": "The native `<label>`.",
+              "name": "label",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "description": "The indicator after the label, hidden from assistive technologies. Hidden unless the field is `required` and has a `requiredIndicator`.",
+              "name": "required-indicator",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "description": "The hint, between the label and the control. Hidden without `hint`.",
+              "name": "hint",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "description": "The error message, after the control. Hidden while no error shows.",
+              "name": "error",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "componentName",
+              "type": {
+                "text": "string"
+              },
+              "static": true,
+              "default": "\"file-field\"",
+              "description": "Name of the component in the catalog, without any tag prefix: the\nregistered tag is `<prefix>-<componentName>`. Every concrete component\nsets it; abstract bases (e.g. `ButtonBase`) don't.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "dependencies",
+              "type": {
+                "text": "readonly (typeof DSBaseElement)[]"
+              },
+              "static": true,
+              "default": "[...FieldBase.dependencies, TagGroup, Tag]",
+              "description": "Lists the files with the `tag-group` and `tag` of its own registration.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "accept",
+              "type": {
+                "text": "string | undefined"
+              },
+              "description": "The types of file the picker offers: extensions or MIME types, as on a native input.",
+              "attribute": "accept"
+            },
+            {
+              "kind": "field",
+              "name": "multiple",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether the user can choose several files.",
+              "attribute": "multiple"
+            },
+            {
+              "kind": "field",
+              "name": "filesLabel",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"Files chosen\"",
+              "description": "The accessible name of the list of files chosen.",
+              "attribute": "files-label"
+            },
+            {
+              "kind": "field",
+              "name": "fileMessage",
+              "type": {
+                "text": "(file: File) => string"
+              },
+              "description": "Writes the text of a file in the list: its name and its size, in the\npage's language, by default. The remove button's name holds it.\nProperty only."
+            },
+            {
+              "kind": "field",
+              "name": "chosen",
+              "type": {
+                "text": "readonly File[]"
+              },
+              "privacy": "private",
+              "default": "[]",
+              "description": "The files chosen."
+            },
+            {
+              "kind": "field",
+              "name": "files",
+              "type": {
+                "text": "readonly File[]"
+              },
+              "description": "The files chosen, in order. Read-only: the user chooses them.",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "formValue",
+              "type": {
+                "text": "FormValue"
+              },
+              "privacy": "protected",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "withFormControl",
+                "module": "src/mixins/withFormControl.ts"
+              },
+              "description": "Each file under `name`, as a native file input submits them."
+            },
+            {
+              "kind": "method",
+              "name": "renderControl",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "unknown"
+                }
+              },
+              "description": "Renders the native control, between the hint and the error message. It\nhas `id=\"control\"` (the label's `for`), `class=\"control\"` (the styles)\nand its own part. It binds `.value=${live(this.value)}`, `required`,\n`readonly` (`readOnly`), `disabled` (`isDisabled`), `autocomplete`, its constraints,\n`controlInvalid`, `controlDescribedBy`, `handleInput` and\n`handleChange`. A single-line control also binds\n`@keydown=${this.submitOnEnter}`.",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "handleInput",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "event",
+                  "type": {
+                    "text": "Event"
+                  }
+                }
+              ],
+              "description": "The user chose files: the field takes them.",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "#setFiles",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "files",
+                  "type": {
+                    "text": "readonly File[]"
+                  }
+                }
+              ],
+              "description": "Gives the native input `files`: the browser validates them, and the field shows them."
+            },
+            {
+              "kind": "method",
+              "name": "#remove",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "file",
+                  "type": {
+                    "text": "File"
+                  }
+                }
+              ],
+              "description": "The user removed `file`: as a new choice, `input` then `change`. The\nlist moves the focus to another file; after the last one, it goes to\nthe input."
+            },
+            {
+              "kind": "method",
+              "name": "#size",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "string"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "size",
+                  "type": {
+                    "text": "number"
+                  }
+                }
+              ],
+              "description": "`size` bytes, in the unit that keeps it below 1000, in the page's language."
+            },
+            {
+              "kind": "field",
+              "name": "formAssociated",
+              "type": {
+                "text": "boolean"
+              },
+              "static": true,
+              "default": "true",
+              "description": "Takes part in its form: value, validity, reset, `<fieldset disabled>`.",
+              "inheritedFrom": {
+                "name": "withFormControl",
+                "module": "src/mixins/withFormControl.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "name",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "Name of the value in the form's data. Reflected: the form reads the attribute.",
+              "attribute": "name",
+              "reflects": true,
+              "inheritedFrom": {
+                "name": "withFormControl",
+                "module": "src/mixins/withFormControl.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "value",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "The value, submitted with the form. The `value` attribute is the\ndefault value: the form's reset restores it.",
+              "attribute": "value",
+              "inheritedFrom": {
+                "name": "withFormControl",
+                "module": "src/mixins/withFormControl.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "required",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "The form can't be submitted while the control is empty.",
+              "attribute": "required",
+              "inheritedFrom": {
+                "name": "withFormControl",
+                "module": "src/mixins/withFormControl.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "readOnly",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "The user can't change the value; the form still submits it. Barred\nfrom validation, as a native control: `required` doesn't apply.\nReflected to `readonly`: the browser reads the attribute.",
+              "attribute": "readonly",
+              "reflects": true,
+              "inheritedFrom": {
+                "name": "withFormControl",
+                "module": "src/mixins/withFormControl.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "#customValidity",
+              "privacy": "private",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "inheritedFrom": {
+                "name": "withFormControl",
+                "module": "src/mixins/withFormControl.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "form",
+              "type": {
+                "text": "HTMLFormElement | null"
+              },
+              "description": "The form of the control, or `null`.",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "withFormControl",
+                "module": "src/mixins/withFormControl.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "validity",
+              "type": {
+                "text": "ValidityState"
+              },
+              "description": "The validity of the value, as on a native control.",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "withFormControl",
+                "module": "src/mixins/withFormControl.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "validationMessage",
+              "type": {
+                "text": "string"
+              },
+              "description": "The message of the first constraint the value fails, `\"\"` when valid.",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "withFormControl",
+                "module": "src/mixins/withFormControl.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "willValidate",
+              "type": {
+                "text": "boolean"
+              },
+              "description": "Whether the control is validated with its form: `false` while disabled or read-only.",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "withFormControl",
+                "module": "src/mixins/withFormControl.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "checkValidity",
+              "return": {
+                "type": {
+                  "text": "boolean"
+                }
+              },
+              "description": "Whether the value is valid. If not, fires `invalid`.",
+              "inheritedFrom": {
+                "name": "withFormControl",
+                "module": "src/mixins/withFormControl.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "reportValidity",
+              "return": {
+                "type": {
+                  "text": "boolean"
+                }
+              },
+              "description": "As `checkValidity()`, and the browser reports the error, focusing the control.",
+              "inheritedFrom": {
+                "name": "withFormControl",
+                "module": "src/mixins/withFormControl.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "setCustomValidity",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "message",
+                  "type": {
+                    "text": "string"
+                  }
+                }
+              ],
+              "description": "Makes the value invalid with this message, as on a native control: a\ncheck of the application, such as a username already taken. `\"\"` makes\nthe value valid again.",
+              "inheritedFrom": {
+                "name": "withFormControl",
+                "module": "src/mixins/withFormControl.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "customValidity",
+              "type": {
+                "text": "string"
+              },
+              "privacy": "protected",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "withFormControl",
+                "module": "src/mixins/withFormControl.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "updateValidity",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "description": "Gives the host its validity, with `syncValidity()`, then shows its error.",
+              "inheritedFrom": {
+                "name": "withFormControl",
+                "module": "src/mixins/withFormControl.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "internals",
+              "type": {
+                "text": "ElementInternals | undefined"
+              },
+              "privacy": "protected",
+              "inheritedFrom": {
+                "name": "withInternals",
+                "module": "src/mixins/withInternals.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "customStates",
+              "type": {
+                "text": "object"
+              },
+              "privacy": "protected",
+              "default": "{ set: (name: string, active: boolean) => { if (!supportsCustomStates || !this.internals?.states) { return; } if (active) { this.internals.states.add(name); } else { this.internals.states.delete(name); } }, has: (name: string): boolean => { if (!supportsCustomStates || !this.internals?.states) { return false; } return this.internals.states.has(name); }, }",
+              "description": "Wraps `internals.states` so components can toggle `:state(x)` selectors\n(e.g. `:state(open)`) instead of reflecting extra boolean attributes.\nA no-op where `:state()` is unsupported (see `supportsCustomStates`), so\n`:state()` styling must stay an enhancement — reflect an attribute too\nwhen the state is needed for the component to look right.",
+              "inheritedFrom": {
+                "name": "withInternals",
+                "module": "src/mixins/withInternals.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "disabled",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Disables interaction; also sets `aria-disabled=\"true\"` on the host.",
+              "attribute": "disabled",
+              "reflects": true,
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "formDisabled",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "private",
+              "default": "false",
+              "description": "The browser's disabled state of a form-associated element.",
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "styles",
+              "type": {
+                "text": "array"
+              },
+              "static": true,
+              "default": "[(Base as unknown as typeof LitElement).styles ?? [], disabledStyles]",
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "isDisabled",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "protected",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "shadowRootOptions",
+              "type": {
+                "text": "ShadowRootInit"
+              },
+              "static": true,
+              "default": "{ ...super.shadowRootOptions, delegatesFocus: true }",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "label",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "The visible label, and the accessible name of the control. Required.",
+              "attribute": "label",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "hint",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "A help text between the label and the control, read with the control.",
+              "attribute": "hint",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "requiredIndicator",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"*\"",
+              "description": "Shown after the label of a required field, and hidden from assistive\ntechnologies: they announce the control as required. `\"\"` shows none.",
+              "attribute": "required-indicator",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "autocomplete",
+              "type": {
+                "text": "string | undefined"
+              },
+              "description": "The `autocomplete` of the control: what the browser can fill in (`email`, `name`…).",
+              "attribute": "autocomplete",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "errorMessage",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "The error message, in place of the browser's. Say how to fix the error.",
+              "attribute": "error-message",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "errorLabel",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"Error:\"",
+              "description": "Read by assistive technologies before the error message, which a\ndecorative icon starts: \"Error:\" in the page's language, with its\npunctuation (`Erreur :` in French).",
+              "attribute": "error-label",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "interacted",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "private",
+              "default": "false",
+              "description": "Whether the user has changed the value, or validation has run, since the last reset.",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "error",
+              "type": {
+                "text": "string"
+              },
+              "privacy": "private",
+              "default": "\"\"",
+              "description": "The error message shown, `\"\"` while none.",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "controlDescribedBy",
+              "type": {
+                "text": "string | typeof nothing"
+              },
+              "privacy": "protected",
+              "description": "For `renderControl()`: the `aria-describedby` of the control, the hint and the error shown.",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "controlInvalid",
+              "type": {
+                "text": "\"true\" | \"false\""
+              },
+              "privacy": "protected",
+              "description": "For `renderControl()`: the `aria-invalid` of the control, `\"true\"` while an error shows.",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "handleChange",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "description": "For `renderControl()`: the `change` listener of the control.",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "markInteracted",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "description": "The user has changed the value: the error shows from now on, as after `change`.",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "submitOnEnter",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "event",
+                  "type": {
+                    "text": "KeyboardEvent"
+                  }
+                }
+              ],
+              "description": "For the `keydown` listener of a single-line control: Enter submits the\nform, as HTML's implicit submission does for a native `<input>`. With a\nsubmit button in the form, the first one is clicked, unless it is\ndisabled: a component submit button submits on `click()`. Without any, it is submitted when this field is its only\nsingle-line one. Does nothing for a key another listener has handled,\nnor while an input method composes the text.",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "#control",
+              "privacy": "private",
+              "type": {
+                "text": "FieldControl | null"
+              },
+              "description": "The native control, once rendered.",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "#messageOf",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "string"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "control",
+                  "type": {
+                    "text": "FieldControl"
+                  }
+                }
+              ],
+              "description": "The message of the control's error, `\"\"` while valid or read-only.",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "syncValidity",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "description": "Gives the host the validity of its value: by default, that of the native\ncontrol, the browser's constraints and ours. A field without a native\ncontrol overrides it (`ChoiceGroupBase`).",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "syncValueValidity",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "missing",
+                  "type": {
+                    "text": "boolean"
+                  }
+                },
+                {
+                  "name": "anchor",
+                  "optional": true,
+                  "type": {
+                    "text": "HTMLElement"
+                  }
+                }
+              ],
+              "description": "For `syncValidity()` of a field without a native control: the value is\nmissing (`required` and empty), invalid with the message of\n`setCustomValidity()`, or valid. A read-only field is valid. The message\nof a missing value is `errorMessage`, or else that of the hidden native\ncontrol the field renders with `class=\"validity-proxy\"` and `required`:\nthe browser's, in its language. `anchor` gets the focus on a failed\nsubmission.",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "#showError",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "description": "Shows the message of the host's validity, once the user has interacted.",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "hasError",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "protected",
+              "description": "Whether an error shows: for the layout of `render()`, and `aria-invalid`.",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "renderLabelContent",
+              "privacy": "protected",
+              "description": "The label's text and the indicator of a required field.",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "renderLabel",
+              "privacy": "protected",
+              "description": "The `<label>` of the control: `id=\"label\"`, `for=\"control\"`.",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "renderHint",
+              "privacy": "protected",
+              "description": "The hint: `id=\"hint\"`, hidden without `hint`.",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "renderError",
+              "privacy": "protected",
+              "description": "The error message: `id=\"error\"`, hidden while no error shows.",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "forDesignSystem",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "T"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "this",
+                  "type": {
+                    "text": "T"
+                  }
+                },
+                {
+                  "name": "_settings",
+                  "type": {
+                    "text": "DesignSystemSettings"
+                  }
+                }
+              ],
+              "description": "The class a design system registers for this component, given its\nsettings: this class by default. A component that depends on a setting\nreturns a subclass that applies it, and leaves this class unchanged:\n`Icon` returns a subclass with the design system's `icons` over its own.\n`designSystem()` calls it once per class, after choosing the brand's\noverride, so the subclass extends the override.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "language",
+              "type": {
+                "text": "string | undefined"
+              },
+              "privacy": "protected",
+              "description": "The language of the component, for `Intl`: the `lang` of its closest\nancestor, through the shadow roots, or the document's. `undefined` on a\nserver, and without any: `Intl` takes its default.",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "tagFor",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "StaticValue"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "component",
+                  "type": {
+                    "text": "typeof DSBaseElement"
+                  }
+                }
+              ],
+              "description": "The tag of a component declared in `static dependencies`, for templates\nfrom `lit/static-html.js`: `` html`<${this.tagFor(Button)}>…</${…}>` ``.\nIt follows the registration of this element: `u-modal` renders\n`u-button`, `acme-modal` renders `acme-button` — the brand's override\nof `Button` if it has one.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            }
+          ],
+          "events": [
+            {
+              "description": "The native `input` event of the inner control, on each change of the value by the user.",
+              "name": "input",
+              "type": {
+                "text": "InputEvent"
+              },
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "name": "change",
+              "type": {
+                "text": "Event"
+              },
+              "description": "When the user commits a change of the value, as on a native control (the inner `change` doesn't leave the shadow root: the host fires its own).",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            }
+          ],
+          "attributes": [
+            {
+              "name": "accept",
+              "type": {
+                "text": "string | undefined"
+              },
+              "description": "The types of file the picker offers: extensions or MIME types, as on a native input.",
+              "fieldName": "accept"
+            },
+            {
+              "name": "multiple",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether the user can choose several files.",
+              "fieldName": "multiple"
+            },
+            {
+              "name": "files-label",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"Files chosen\"",
+              "description": "The accessible name of the list of files chosen.",
+              "fieldName": "filesLabel"
+            },
+            {
+              "name": "name",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "Name of the value in the form's data. Reflected: the form reads the attribute.",
+              "fieldName": "name",
+              "inheritedFrom": {
+                "name": "withFormControl",
+                "module": "src/mixins/withFormControl.ts"
+              }
+            },
+            {
+              "name": "value",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "The value, submitted with the form. The `value` attribute is the\ndefault value: the form's reset restores it.",
+              "fieldName": "value",
+              "inheritedFrom": {
+                "name": "withFormControl",
+                "module": "src/mixins/withFormControl.ts"
+              }
+            },
+            {
+              "name": "required",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "The form can't be submitted while the control is empty.",
+              "fieldName": "required",
+              "inheritedFrom": {
+                "name": "withFormControl",
+                "module": "src/mixins/withFormControl.ts"
+              }
+            },
+            {
+              "name": "readonly",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "The user can't change the value; the form still submits it. Barred\nfrom validation, as a native control: `required` doesn't apply.\nReflected to `readonly`: the browser reads the attribute.",
+              "fieldName": "readOnly",
+              "inheritedFrom": {
+                "name": "withFormControl",
+                "module": "src/mixins/withFormControl.ts"
+              }
+            },
+            {
+              "name": "disabled",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Disables interaction; also sets `aria-disabled=\"true\"` on the host.",
+              "fieldName": "disabled",
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "name": "label",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "The visible label, and the accessible name of the control. Required.",
+              "fieldName": "label",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "name": "hint",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "A help text between the label and the control, read with the control.",
+              "fieldName": "hint",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "name": "required-indicator",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"*\"",
+              "description": "Shown after the label of a required field, and hidden from assistive\ntechnologies: they announce the control as required. `\"\"` shows none.",
+              "fieldName": "requiredIndicator",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "name": "autocomplete",
+              "type": {
+                "text": "string | undefined"
+              },
+              "description": "The `autocomplete` of the control: what the browser can fill in (`email`, `name`…).",
+              "fieldName": "autocomplete",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "name": "error-message",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "The error message, in place of the browser's. Say how to fix the error.",
+              "fieldName": "errorMessage",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "name": "error-label",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"Error:\"",
+              "description": "Read by assistive technologies before the error message, which a\ndecorative icon starts: \"Error:\" in the page's language, with its\npunctuation (`Erreur :` in French).",
+              "fieldName": "errorLabel",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            }
+          ],
+          "superclass": {
+            "name": "FieldBase",
+            "module": "/src/bases/field/field-base.js"
+          },
+          "tagName": "u-file-field",
+          "customElement": true,
+          "summary": "A labelled field that picks files to submit with a form.",
+          "cssStates": [
+            {
+              "description": "The error shows: the user has changed the value and left the field, or validation has run.",
+              "name": "user-invalid",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "FileField",
+          "declaration": {
+            "name": "FileField",
+            "module": "src/components/file-field/file-field.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/components/icon/icon.ts",
       "declarations": [
         {
@@ -30591,6 +32303,314 @@
           "declaration": {
             "name": "Popover",
             "module": "src/components/popover/popover.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/components/progress/progress.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "A progress bar: how much of a task is done, a file sent for instance\n(ADR 0027). Without `value`, the task's length is unknown, as with a\nnative `<progress>`: the bar moves without showing a share. For a short\nwait next to a control, use `spinner`.\n\nThe bar is a `role=\"progressbar\"` named by its visible `label`, with\n`aria-valuenow`, `aria-valuemax` and the text of `valueMessage` as\n`aria-valuetext`. The value also shows after the label. Assistive\ntechnologies read the bar where it is: announce its end with a live\nregion, an `alert` for instance.",
+          "name": "Progress",
+          "cssProperties": [
+            {
+              "description": "Space between the label and the bar.",
+              "name": "--u-progress-gap",
+              "default": "var(--u-spacing-xs)"
+            },
+            {
+              "description": "Font family of the label and the value.",
+              "name": "--u-progress-font-family",
+              "default": "var(--u-font-family-body)"
+            },
+            {
+              "description": "Font size of the label.",
+              "name": "--u-progress-label-font-size",
+              "default": "var(--u-font-size-md)"
+            },
+            {
+              "description": "Font size of the value, after the label.",
+              "name": "--u-progress-value-font-size",
+              "default": "var(--u-font-size-sm)"
+            },
+            {
+              "description": "Text color of the label and the value.",
+              "name": "--u-progress-text-color",
+              "default": "var(--u-color-text-default)"
+            },
+            {
+              "description": "Height of the bar.",
+              "name": "--u-progress-block-size",
+              "default": "var(--u-spacing-sm)"
+            },
+            {
+              "description": "Corner radius of the bar and of its indicator.",
+              "name": "--u-progress-border-radius",
+              "default": "var(--u-radius-full)"
+            },
+            {
+              "description": "Color of the bar, behind its indicator.",
+              "name": "--u-progress-track-color",
+              "default": "var(--u-color-surface-raised)"
+            },
+            {
+              "description": "Color of the border of the bar: where it ends (WCAG 1.4.11).",
+              "name": "--u-progress-track-border-color",
+              "default": "var(--u-color-border-control)"
+            },
+            {
+              "description": "Width of the border of the bar.",
+              "name": "--u-progress-track-border-width",
+              "default": "var(--u-border-width)"
+            },
+            {
+              "description": "Color of the part done.",
+              "name": "--u-progress-indicator-color",
+              "default": "var(--u-color-action-background)"
+            },
+            {
+              "description": "Duration of one pass of an indeterminate bar: slower with reduced motion.",
+              "name": "--u-progress-duration",
+              "default": "var(--u-motion-duration-loop)"
+            }
+          ],
+          "cssParts": [
+            {
+              "description": "The label, above the bar.",
+              "name": "label"
+            },
+            {
+              "description": "The value, after the label: the text of `valueMessage`.",
+              "name": "value"
+            },
+            {
+              "description": "The bar, with `role=\"progressbar\"`.",
+              "name": "track"
+            },
+            {
+              "description": "The part of the bar done.",
+              "name": "indicator"
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "componentName",
+              "type": {
+                "text": "string"
+              },
+              "static": true,
+              "default": "\"progress\"",
+              "description": "Name of the component in the catalog, without any tag prefix: the\nregistered tag is `<prefix>-<componentName>`. Every concrete component\nsets it; abstract bases (e.g. `ButtonBase`) don't.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "label",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "What progresses, shown above the bar: its accessible name. `loadingLabel` when empty.",
+              "attribute": "label"
+            },
+            {
+              "kind": "field",
+              "name": "loadingLabel",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"Loading…\"",
+              "description": "The accessible name when `label` is empty.",
+              "attribute": "loading-label"
+            },
+            {
+              "kind": "field",
+              "name": "value",
+              "type": {
+                "text": "number | undefined"
+              },
+              "description": "How much is done, from 0 to `max`. `undefined` while the task's length\nis unknown: the attribute is absent, as on a native `<progress>`.",
+              "attribute": "value"
+            },
+            {
+              "kind": "field",
+              "name": "max",
+              "type": {
+                "text": "number"
+              },
+              "default": "100",
+              "description": "The value of a finished task. `1` or more; `100` by default.",
+              "attribute": "max"
+            },
+            {
+              "kind": "field",
+              "name": "valueMessage",
+              "type": {
+                "text": "(value: number, max: number) => string"
+              },
+              "description": "Writes the value, shown after the label and read by assistive\ntechnologies: a percentage in the page's language by default. Give it\nfor another text, \"3 files of 10\" for instance. Property only."
+            },
+            {
+              "kind": "field",
+              "name": "#max",
+              "privacy": "private",
+              "type": {
+                "text": "number"
+              },
+              "description": "The finished value: `max`, or 100 when it isn't a positive number.",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "#value",
+              "privacy": "private",
+              "type": {
+                "text": "number | undefined"
+              },
+              "description": "The value between 0 and the finished value, `undefined` while unknown.",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "dependencies",
+              "type": {
+                "text": "readonly (typeof DSBaseElement)[]"
+              },
+              "static": true,
+              "default": "[]",
+              "description": "Components this one renders (ADR 0001, D2): `defineComponents()`\nregisters them too, and `tagFor()` resolves their tag. Never hard-code\nanother component's tag in a template, nor create one with\n`document.createElement` — a brand's override would be bypassed.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "forDesignSystem",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "T"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "this",
+                  "type": {
+                    "text": "T"
+                  }
+                },
+                {
+                  "name": "_settings",
+                  "type": {
+                    "text": "DesignSystemSettings"
+                  }
+                }
+              ],
+              "description": "The class a design system registers for this component, given its\nsettings: this class by default. A component that depends on a setting\nreturns a subclass that applies it, and leaves this class unchanged:\n`Icon` returns a subclass with the design system's `icons` over its own.\n`designSystem()` calls it once per class, after choosing the brand's\noverride, so the subclass extends the override.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "language",
+              "type": {
+                "text": "string | undefined"
+              },
+              "privacy": "protected",
+              "description": "The language of the component, for `Intl`: the `lang` of its closest\nancestor, through the shadow roots, or the document's. `undefined` on a\nserver, and without any: `Intl` takes its default.",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "tagFor",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "StaticValue"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "component",
+                  "type": {
+                    "text": "typeof DSBaseElement"
+                  }
+                }
+              ],
+              "description": "The tag of a component declared in `static dependencies`, for templates\nfrom `lit/static-html.js`: `` html`<${this.tagFor(Button)}>…</${…}>` ``.\nIt follows the registration of this element: `u-modal` renders\n`u-button`, `acme-modal` renders `acme-button` — the brand's override\nof `Button` if it has one.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            }
+          ],
+          "attributes": [
+            {
+              "name": "label",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "What progresses, shown above the bar: its accessible name. `loadingLabel` when empty.",
+              "fieldName": "label"
+            },
+            {
+              "name": "loading-label",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"Loading…\"",
+              "description": "The accessible name when `label` is empty.",
+              "fieldName": "loadingLabel"
+            },
+            {
+              "name": "value",
+              "type": {
+                "text": "number | undefined"
+              },
+              "description": "How much is done, from 0 to `max`. `undefined` while the task's length\nis unknown: the attribute is absent, as on a native `<progress>`.",
+              "fieldName": "value"
+            },
+            {
+              "name": "max",
+              "type": {
+                "text": "number"
+              },
+              "default": "100",
+              "description": "The value of a finished task. `1` or more; `100` by default.",
+              "fieldName": "max"
+            }
+          ],
+          "superclass": {
+            "name": "DSBaseElement",
+            "module": "/src/bases/base-element.js"
+          },
+          "tagName": "u-progress",
+          "customElement": true,
+          "summary": "A labelled bar of how much of a task is done."
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "Progress",
+          "declaration": {
+            "name": "Progress",
+            "module": "src/components/progress/progress.ts"
           }
         }
       ]
@@ -35908,6 +37928,761 @@
     },
     {
       "kind": "javascript-module",
+      "path": "src/components/spinner/spinner.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "A spinner: something loads, for an unknown time (ADR 0027). For a known\nshare done, use `progress`.\n\nIt is a `role=\"progressbar\"` without a value, named by `label`, or else\nby `loadingLabel`. Assistive technologies read it where it is; they don't\nhear it appear: announce a load that the user waits for with a live\nregion, or put the spinner in a region with `aria-busy`.\n\nThe ring turns, slower when the user asks for reduced motion: a load that\nstops showing would look finished.",
+          "name": "Spinner",
+          "cssProperties": [
+            {
+              "description": "Width and height of the spinner (sizes change the default).",
+              "name": "--u-spinner-size",
+              "default": "var(--u-size-indicator-md)"
+            },
+            {
+              "description": "Thickness of its ring.",
+              "name": "--u-spinner-width",
+              "default": "var(--u-border-width-thick)"
+            },
+            {
+              "description": "Color of the ring.",
+              "name": "--u-spinner-track-color",
+              "default": "var(--u-color-border-default)"
+            },
+            {
+              "description": "Color of the arc that turns on the ring.",
+              "name": "--u-spinner-indicator-color",
+              "default": "var(--u-color-action-background)"
+            },
+            {
+              "description": "Duration of one turn: slower with reduced motion.",
+              "name": "--u-spinner-duration",
+              "default": "var(--u-motion-duration-loop)"
+            }
+          ],
+          "cssParts": [
+            {
+              "description": "The ring, with `role=\"progressbar\"`.",
+              "name": "spinner"
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "componentName",
+              "type": {
+                "text": "string"
+              },
+              "static": true,
+              "default": "\"spinner\"",
+              "description": "Name of the component in the catalog, without any tag prefix: the\nregistered tag is `<prefix>-<componentName>`. Every concrete component\nsets it; abstract bases (e.g. `ButtonBase`) don't.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "label",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "What loads: the accessible name, \"Sending the file\" for instance. `loadingLabel` when empty.",
+              "attribute": "label"
+            },
+            {
+              "kind": "field",
+              "name": "loadingLabel",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"Loading…\"",
+              "description": "The accessible name when `label` is empty.",
+              "attribute": "loading-label"
+            },
+            {
+              "kind": "field",
+              "name": "size",
+              "type": {
+                "text": "ComponentSize"
+              },
+              "default": "\"medium\"",
+              "description": "The size: `small` inside a control, `medium` next to text, `large` for a region.",
+              "attribute": "size",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "dependencies",
+              "type": {
+                "text": "readonly (typeof DSBaseElement)[]"
+              },
+              "static": true,
+              "default": "[]",
+              "description": "Components this one renders (ADR 0001, D2): `defineComponents()`\nregisters them too, and `tagFor()` resolves their tag. Never hard-code\nanother component's tag in a template, nor create one with\n`document.createElement` — a brand's override would be bypassed.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "forDesignSystem",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "T"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "this",
+                  "type": {
+                    "text": "T"
+                  }
+                },
+                {
+                  "name": "_settings",
+                  "type": {
+                    "text": "DesignSystemSettings"
+                  }
+                }
+              ],
+              "description": "The class a design system registers for this component, given its\nsettings: this class by default. A component that depends on a setting\nreturns a subclass that applies it, and leaves this class unchanged:\n`Icon` returns a subclass with the design system's `icons` over its own.\n`designSystem()` calls it once per class, after choosing the brand's\noverride, so the subclass extends the override.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "language",
+              "type": {
+                "text": "string | undefined"
+              },
+              "privacy": "protected",
+              "description": "The language of the component, for `Intl`: the `lang` of its closest\nancestor, through the shadow roots, or the document's. `undefined` on a\nserver, and without any: `Intl` takes its default.",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "tagFor",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "StaticValue"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "component",
+                  "type": {
+                    "text": "typeof DSBaseElement"
+                  }
+                }
+              ],
+              "description": "The tag of a component declared in `static dependencies`, for templates\nfrom `lit/static-html.js`: `` html`<${this.tagFor(Button)}>…</${…}>` ``.\nIt follows the registration of this element: `u-modal` renders\n`u-button`, `acme-modal` renders `acme-button` — the brand's override\nof `Button` if it has one.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            }
+          ],
+          "attributes": [
+            {
+              "name": "label",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "What loads: the accessible name, \"Sending the file\" for instance. `loadingLabel` when empty.",
+              "fieldName": "label"
+            },
+            {
+              "name": "loading-label",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"Loading…\"",
+              "description": "The accessible name when `label` is empty.",
+              "fieldName": "loadingLabel"
+            },
+            {
+              "name": "size",
+              "type": {
+                "text": "ComponentSize"
+              },
+              "default": "\"medium\"",
+              "description": "The size: `small` inside a control, `medium` next to text, `large` for a region.",
+              "fieldName": "size"
+            }
+          ],
+          "superclass": {
+            "name": "DSBaseElement",
+            "module": "/src/bases/base-element.js"
+          },
+          "tagName": "u-spinner",
+          "customElement": true,
+          "summary": "An indicator that something loads, for an unknown time."
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "Spinner",
+          "declaration": {
+            "name": "Spinner",
+            "module": "src/components/spinner/spinner.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/components/step/step.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "A step of a `stepper`: a bar, then its label (ADR 0029). Its `stepper`\nsets its `status` from its own `value`: a step has no use outside a\n`stepper`.\n\nThe host has `role=\"listitem\"`, and `aria-current=\"step\"` while it is the\ncurrent step. A complete step adds `completedLabel` to its label, for\nassistive technologies: its color alone doesn't say it.",
+          "name": "Step",
+          "cssProperties": [
+            {
+              "description": "Space between two steps.",
+              "name": "--u-stepper-gap",
+              "default": "var(--u-spacing-xs)"
+            },
+            {
+              "description": "Space between the bar of a step and its label.",
+              "name": "--u-stepper-label-gap",
+              "default": "var(--u-spacing-xs)"
+            },
+            {
+              "description": "Height of the bar of a step.",
+              "name": "--u-stepper-bar-block-size",
+              "default": "var(--u-spacing-xs)"
+            },
+            {
+              "description": "Corner radius of the bar of a step.",
+              "name": "--u-stepper-bar-border-radius",
+              "default": "var(--u-radius-full)"
+            },
+            {
+              "description": "Color of the bar of a step to come (WCAG 1.4.11).",
+              "name": "--u-stepper-bar-color",
+              "default": "var(--u-color-border-control)"
+            },
+            {
+              "description": "Color of the bar of a completed step, and of the current one.",
+              "name": "--u-stepper-bar-color-done",
+              "default": "var(--u-color-action-background)"
+            },
+            {
+              "description": "Font family.",
+              "name": "--u-stepper-font-family",
+              "default": "var(--u-font-family-body)"
+            },
+            {
+              "description": "Font size of the labels.",
+              "name": "--u-stepper-font-size",
+              "default": "var(--u-font-size-sm)"
+            },
+            {
+              "description": "Text color of the labels.",
+              "name": "--u-stepper-text-color",
+              "default": "var(--u-color-text-default)"
+            },
+            {
+              "description": "Font weight of the label of the current step.",
+              "name": "--u-stepper-current-font-weight",
+              "default": "var(--u-font-weight-semibold)"
+            }
+          ],
+          "cssParts": [
+            {
+              "description": "The bar: filled once the step is current or complete.",
+              "name": "bar"
+            },
+            {
+              "description": "The label.",
+              "name": "label"
+            }
+          ],
+          "slots": [
+            {
+              "description": "The label of the step.",
+              "name": ""
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "componentName",
+              "type": {
+                "text": "string"
+              },
+              "static": true,
+              "default": "\"step\"",
+              "description": "Name of the component in the catalog, without any tag prefix: the\nregistered tag is `<prefix>-<componentName>`. Every concrete component\nsets it; abstract bases (e.g. `ButtonBase`) don't.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "value",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "The value of its `stepper` while it is the current step.",
+              "attribute": "value"
+            },
+            {
+              "kind": "field",
+              "name": "status",
+              "type": {
+                "text": "StepStatus"
+              },
+              "default": "\"upcoming\"",
+              "description": "Where the step stands. Set by its `stepper`, from the `value` of the `stepper`. Reflected.",
+              "attribute": "status",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "orientation",
+              "type": {
+                "text": "Orientation"
+              },
+              "default": "\"horizontal\"",
+              "description": "The direction of its `stepper`: set by it. Reflected.",
+              "attribute": "orientation",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "completedLabel",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"(completed)\"",
+              "description": "Read after the label of a complete step, by assistive technologies only.",
+              "attribute": "completed-label"
+            },
+            {
+              "kind": "field",
+              "name": "dependencies",
+              "type": {
+                "text": "readonly (typeof DSBaseElement)[]"
+              },
+              "static": true,
+              "default": "[]",
+              "description": "Components this one renders (ADR 0001, D2): `defineComponents()`\nregisters them too, and `tagFor()` resolves their tag. Never hard-code\nanother component's tag in a template, nor create one with\n`document.createElement` — a brand's override would be bypassed.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "forDesignSystem",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "T"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "this",
+                  "type": {
+                    "text": "T"
+                  }
+                },
+                {
+                  "name": "_settings",
+                  "type": {
+                    "text": "DesignSystemSettings"
+                  }
+                }
+              ],
+              "description": "The class a design system registers for this component, given its\nsettings: this class by default. A component that depends on a setting\nreturns a subclass that applies it, and leaves this class unchanged:\n`Icon` returns a subclass with the design system's `icons` over its own.\n`designSystem()` calls it once per class, after choosing the brand's\noverride, so the subclass extends the override.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "language",
+              "type": {
+                "text": "string | undefined"
+              },
+              "privacy": "protected",
+              "description": "The language of the component, for `Intl`: the `lang` of its closest\nancestor, through the shadow roots, or the document's. `undefined` on a\nserver, and without any: `Intl` takes its default.",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "tagFor",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "StaticValue"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "component",
+                  "type": {
+                    "text": "typeof DSBaseElement"
+                  }
+                }
+              ],
+              "description": "The tag of a component declared in `static dependencies`, for templates\nfrom `lit/static-html.js`: `` html`<${this.tagFor(Button)}>…</${…}>` ``.\nIt follows the registration of this element: `u-modal` renders\n`u-button`, `acme-modal` renders `acme-button` — the brand's override\nof `Button` if it has one.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            }
+          ],
+          "attributes": [
+            {
+              "name": "value",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "The value of its `stepper` while it is the current step.",
+              "fieldName": "value"
+            },
+            {
+              "name": "status",
+              "type": {
+                "text": "StepStatus"
+              },
+              "default": "\"upcoming\"",
+              "description": "Where the step stands. Set by its `stepper`, from the `value` of the `stepper`. Reflected.",
+              "fieldName": "status"
+            },
+            {
+              "name": "orientation",
+              "type": {
+                "text": "Orientation"
+              },
+              "default": "\"horizontal\"",
+              "description": "The direction of its `stepper`: set by it. Reflected.",
+              "fieldName": "orientation"
+            },
+            {
+              "name": "completed-label",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"(completed)\"",
+              "description": "Read after the label of a complete step, by assistive technologies only.",
+              "fieldName": "completedLabel"
+            }
+          ],
+          "superclass": {
+            "name": "DSBaseElement",
+            "module": "/src/bases/base-element.js"
+          },
+          "tagName": "u-step",
+          "customElement": true,
+          "summary": "A step of a stepper."
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "Step",
+          "declaration": {
+            "name": "Step",
+            "module": "src/components/step/step.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/components/step/step.type.ts",
+      "declarations": [],
+      "exports": []
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/components/stepper/stepper.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "A stepper: where the user stands in a task done in several steps, a form\nover several pages for instance (ADR 0029). It contains `step` elements,\nin order; `value` is that of the current step. It shows, and doesn't\nnavigate: the page's own buttons move to the next step.\n\nThe host is a list (`role=\"list\"`), named by `label`. The steps before the\ncurrent one are complete, those after it upcoming. Without `value`, the\nfirst step is the current one.",
+          "name": "Stepper",
+          "cssProperties": [
+            {
+              "description": "Space between two steps.",
+              "name": "--u-stepper-gap",
+              "default": "var(--u-spacing-xs)"
+            },
+            {
+              "description": "Space between the bar of a step and its label.",
+              "name": "--u-stepper-label-gap",
+              "default": "var(--u-spacing-xs)"
+            },
+            {
+              "description": "Height of the bar of a step.",
+              "name": "--u-stepper-bar-block-size",
+              "default": "var(--u-spacing-xs)"
+            },
+            {
+              "description": "Corner radius of the bar of a step.",
+              "name": "--u-stepper-bar-border-radius",
+              "default": "var(--u-radius-full)"
+            },
+            {
+              "description": "Color of the bar of a step to come (WCAG 1.4.11).",
+              "name": "--u-stepper-bar-color",
+              "default": "var(--u-color-border-control)"
+            },
+            {
+              "description": "Color of the bar of a completed step, and of the current one.",
+              "name": "--u-stepper-bar-color-done",
+              "default": "var(--u-color-action-background)"
+            },
+            {
+              "description": "Font family.",
+              "name": "--u-stepper-font-family",
+              "default": "var(--u-font-family-body)"
+            },
+            {
+              "description": "Font size of the labels.",
+              "name": "--u-stepper-font-size",
+              "default": "var(--u-font-size-sm)"
+            },
+            {
+              "description": "Text color of the labels.",
+              "name": "--u-stepper-text-color",
+              "default": "var(--u-color-text-default)"
+            },
+            {
+              "description": "Font weight of the label of the current step.",
+              "name": "--u-stepper-current-font-weight",
+              "default": "var(--u-font-weight-semibold)"
+            }
+          ],
+          "slots": [
+            {
+              "description": "The steps, `step` elements.",
+              "name": ""
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "componentName",
+              "type": {
+                "text": "string"
+              },
+              "static": true,
+              "default": "\"stepper\"",
+              "description": "Name of the component in the catalog, without any tag prefix: the\nregistered tag is `<prefix>-<componentName>`. Every concrete component\nsets it; abstract bases (e.g. `ButtonBase`) don't.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "label",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "The accessible name of the list: what the steps are of, \"Your request\" for instance.",
+              "attribute": "label"
+            },
+            {
+              "kind": "field",
+              "name": "value",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "The `value` of the current step.",
+              "attribute": "value"
+            },
+            {
+              "kind": "field",
+              "name": "orientation",
+              "type": {
+                "text": "Orientation"
+              },
+              "default": "\"horizontal\"",
+              "description": "The direction of the steps: `horizontal`, or `vertical` for a narrow column. Reflected.",
+              "attribute": "orientation",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "#observer",
+              "privacy": "private",
+              "type": {
+                "text": "MutationObserver | undefined"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "#steps",
+              "privacy": "private",
+              "type": {
+                "text": "Step[]"
+              },
+              "description": "The steps, in order. None on a server: the element has no children there.",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "dependencies",
+              "type": {
+                "text": "readonly (typeof DSBaseElement)[]"
+              },
+              "static": true,
+              "default": "[]",
+              "description": "Components this one renders (ADR 0001, D2): `defineComponents()`\nregisters them too, and `tagFor()` resolves their tag. Never hard-code\nanother component's tag in a template, nor create one with\n`document.createElement` — a brand's override would be bypassed.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "forDesignSystem",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "T"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "this",
+                  "type": {
+                    "text": "T"
+                  }
+                },
+                {
+                  "name": "_settings",
+                  "type": {
+                    "text": "DesignSystemSettings"
+                  }
+                }
+              ],
+              "description": "The class a design system registers for this component, given its\nsettings: this class by default. A component that depends on a setting\nreturns a subclass that applies it, and leaves this class unchanged:\n`Icon` returns a subclass with the design system's `icons` over its own.\n`designSystem()` calls it once per class, after choosing the brand's\noverride, so the subclass extends the override.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "language",
+              "type": {
+                "text": "string | undefined"
+              },
+              "privacy": "protected",
+              "description": "The language of the component, for `Intl`: the `lang` of its closest\nancestor, through the shadow roots, or the document's. `undefined` on a\nserver, and without any: `Intl` takes its default.",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "tagFor",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "StaticValue"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "component",
+                  "type": {
+                    "text": "typeof DSBaseElement"
+                  }
+                }
+              ],
+              "description": "The tag of a component declared in `static dependencies`, for templates\nfrom `lit/static-html.js`: `` html`<${this.tagFor(Button)}>…</${…}>` ``.\nIt follows the registration of this element: `u-modal` renders\n`u-button`, `acme-modal` renders `acme-button` — the brand's override\nof `Button` if it has one.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            }
+          ],
+          "attributes": [
+            {
+              "name": "label",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "The accessible name of the list: what the steps are of, \"Your request\" for instance.",
+              "fieldName": "label"
+            },
+            {
+              "name": "value",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "The `value` of the current step.",
+              "fieldName": "value"
+            },
+            {
+              "name": "orientation",
+              "type": {
+                "text": "Orientation"
+              },
+              "default": "\"horizontal\"",
+              "description": "The direction of the steps: `horizontal`, or `vertical` for a narrow column. Reflected.",
+              "fieldName": "orientation"
+            }
+          ],
+          "superclass": {
+            "name": "DSBaseElement",
+            "module": "/src/bases/base-element.js"
+          },
+          "tagName": "u-stepper",
+          "customElement": true,
+          "summary": "The steps of a task, and the current one."
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "Stepper",
+          "declaration": {
+            "name": "Stepper",
+            "module": "src/components/stepper/stepper.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/components/switch/switch.ts",
       "declarations": [
         {
@@ -37778,6 +40553,616 @@
     },
     {
       "kind": "javascript-module",
+      "path": "src/components/table/table.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "A table of data: rows and columns, a caption, headers that sort, and\nrows the user selects (ADR 0030). It renders a native `<table>`, from\n`columns` and `rows`: assistive technologies read it as any table.\n\nA sortable column has a button in its header. A press fires `u-sort`,\nthen shows the new sort: `aria-sort` and an arrow. The table keeps the\norder of `rows`: the application sorts them, with `sortRows()` or on its\nserver.\n\nWith `selectable`, a column of checkboxes selects rows, and a box in its\nheader all of them. `values` holds the keys of the rows selected, from\n`row-key`; each choice of the user fires `change`. A checkbox is named by\n`select-label` and its row's header cell.\n\nThe table scrolls past the width of the page, and past\n`--u-table-max-block-size` under its header row. While it scrolls, it\ntakes the focus, for the keyboard, as a region named by its caption.",
+          "name": "Table",
+          "cssProperties": [
+            {
+              "description": "Font family.",
+              "name": "--u-table-font-family",
+              "default": "var(--u-font-family-body)"
+            },
+            {
+              "description": "Font size of the cells.",
+              "name": "--u-table-font-size",
+              "default": "var(--u-font-size-md)"
+            },
+            {
+              "description": "Text color.",
+              "name": "--u-table-text-color",
+              "default": "var(--u-color-text-default)"
+            },
+            {
+              "description": "Background color of the rows.",
+              "name": "--u-table-background-color",
+              "default": "var(--u-color-surface-default)"
+            },
+            {
+              "description": "Background color of the header row.",
+              "name": "--u-table-header-background-color",
+              "default": "var(--u-color-surface-raised)"
+            },
+            {
+              "description": "Font weight of the column headers.",
+              "name": "--u-table-header-font-weight",
+              "default": "var(--u-font-weight-semibold)"
+            },
+            {
+              "description": "Color of the lines between the rows, and of the border.",
+              "name": "--u-table-border-color",
+              "default": "var(--u-color-border-default)"
+            },
+            {
+              "description": "Width of the lines and of the border.",
+              "name": "--u-table-border-width",
+              "default": "var(--u-border-width)"
+            },
+            {
+              "description": "Corner radius of the table.",
+              "name": "--u-table-border-radius",
+              "default": "var(--u-radius-md)"
+            },
+            {
+              "description": "Horizontal padding of a cell.",
+              "name": "--u-table-cell-padding-inline",
+              "default": "var(--u-spacing-sm)"
+            },
+            {
+              "description": "Vertical padding of a cell.",
+              "name": "--u-table-cell-padding-block",
+              "default": "var(--u-spacing-xs)"
+            },
+            {
+              "description": "Space between the caption and the table.",
+              "name": "--u-table-caption-gap",
+              "default": "var(--u-spacing-xs)"
+            },
+            {
+              "description": "Font size of the caption.",
+              "name": "--u-table-caption-font-size",
+              "default": "var(--u-font-size-lg)"
+            },
+            {
+              "description": "Font weight of the caption.",
+              "name": "--u-table-caption-font-weight",
+              "default": "var(--u-font-weight-semibold)"
+            },
+            {
+              "description": "Background color of a selected row.",
+              "name": "--u-table-row-background-color-selected",
+              "default": "var(--u-color-surface-raised)"
+            },
+            {
+              "description": "Width and height of the sort arrow of a column header.",
+              "name": "--u-table-sort-icon-size",
+              "default": "var(--u-spacing-sm)"
+            },
+            {
+              "description": "Largest height of the table: its rows scroll past it, under the header row.",
+              "name": "--u-table-max-block-size",
+              "default": "var(--u-size-table)"
+            },
+            {
+              "description": "Opacity of the arrow of a sortable column that doesn't sort the rows.",
+              "name": "--u-table-sort-icon-opacity",
+              "default": "var(--u-opacity-disabled)"
+            },
+            {
+              "description": "Color of a checked checkbox.",
+              "name": "--u-table-checkbox-color",
+              "default": "var(--u-color-action-background)"
+            },
+            {
+              "description": "Color of the focus ring of a sort button, and of the table while it scrolls.",
+              "name": "--u-table-focus-ring-color",
+              "default": "var(--u-color-focus-ring)"
+            },
+            {
+              "description": "Width of the focus ring.",
+              "name": "--u-table-focus-ring-width",
+              "default": "var(--u-focus-ring-width)"
+            },
+            {
+              "description": "Space between the focus ring and what it surrounds.",
+              "name": "--u-table-focus-ring-offset",
+              "default": "var(--u-focus-ring-offset)"
+            }
+          ],
+          "cssParts": [
+            {
+              "description": "The box that scrolls around the table.",
+              "name": "scroller"
+            },
+            {
+              "description": "The `<table>`.",
+              "name": "table"
+            },
+            {
+              "description": "The caption: `label`.",
+              "name": "caption"
+            },
+            {
+              "description": "The header of a column.",
+              "name": "column-header"
+            },
+            {
+              "description": "The button of a sortable column's header.",
+              "name": "sort-button"
+            },
+            {
+              "description": "A row of the body. A selected one has `aria-selected=\"true\"`.",
+              "name": "row"
+            },
+            {
+              "description": "A cell of the body, row headers included.",
+              "name": "cell"
+            },
+            {
+              "description": "The checkbox of a row.",
+              "name": "select"
+            },
+            {
+              "description": "The checkbox of the header, for every row.",
+              "name": "select-all"
+            }
+          ],
+          "slots": [
+            {
+              "description": "What shows in place of the rows while there are none: \"No request yet\" for instance.",
+              "name": "empty"
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "componentName",
+              "type": {
+                "text": "string"
+              },
+              "static": true,
+              "default": "\"table\"",
+              "description": "Name of the component in the catalog, without any tag prefix: the\nregistered tag is `<prefix>-<componentName>`. Every concrete component\nsets it; abstract bases (e.g. `ButtonBase`) don't.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "label",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "The caption of the table: its accessible name.",
+              "attribute": "label"
+            },
+            {
+              "kind": "field",
+              "name": "columns",
+              "type": {
+                "text": "readonly TableColumn[]"
+              },
+              "default": "[]",
+              "description": "The columns, in order. Property only."
+            },
+            {
+              "kind": "field",
+              "name": "rows",
+              "type": {
+                "text": "readonly TableRow[]"
+              },
+              "default": "[]",
+              "description": "The rows, in the order the table shows them. Property only."
+            },
+            {
+              "kind": "field",
+              "name": "rowKey",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"id\"",
+              "description": "The key of a row's value that identifies it, for `values`. Its index when the row has none.",
+              "attribute": "row-key"
+            },
+            {
+              "kind": "field",
+              "name": "sortKey",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "The `key` of the column that sorts the rows, `\"\"` when none.",
+              "attribute": "sort-key"
+            },
+            {
+              "kind": "field",
+              "name": "sortDirection",
+              "type": {
+                "text": "SortDirection"
+              },
+              "default": "\"ascending\"",
+              "description": "The direction of the sort.",
+              "attribute": "sort-direction"
+            },
+            {
+              "kind": "field",
+              "name": "selectable",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether the user selects rows, with a column of checkboxes.",
+              "attribute": "selectable",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "values",
+              "type": {
+                "text": "readonly string[]"
+              },
+              "default": "[]",
+              "description": "The keys of the rows selected, in their order. Property only."
+            },
+            {
+              "kind": "field",
+              "name": "selectLabel",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"Select\"",
+              "description": "Read before the name of a row, in the name of its checkbox: \"Select Dupont\".",
+              "attribute": "select-label"
+            },
+            {
+              "kind": "field",
+              "name": "selectAllLabel",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"Select all rows\"",
+              "description": "The name of the checkbox of the header, which selects every row.",
+              "attribute": "select-all-label"
+            },
+            {
+              "kind": "field",
+              "name": "#overflow",
+              "privacy": "private",
+              "default": "new OverflowController(this, () => this.renderRoot?.querySelector<HTMLElement>(\".scroller\"), )"
+            },
+            {
+              "kind": "field",
+              "name": "#keys",
+              "privacy": "private",
+              "type": {
+                "text": "string[]"
+              },
+              "description": "The keys of the rows, by index.",
+              "readonly": true
+            },
+            {
+              "kind": "method",
+              "name": "#renderHeader",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "column",
+                  "type": {
+                    "text": "TableColumn"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "#renderSelectAll",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "keys",
+                  "type": {
+                    "text": "readonly string[]"
+                  }
+                },
+                {
+                  "name": "selected",
+                  "type": {
+                    "text": "ReadonlySet<string>"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "#renderRow",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "row",
+                  "type": {
+                    "text": "TableRow"
+                  }
+                },
+                {
+                  "name": "index",
+                  "type": {
+                    "text": "number"
+                  }
+                },
+                {
+                  "name": "key",
+                  "type": {
+                    "text": "string"
+                  }
+                },
+                {
+                  "name": "selected",
+                  "type": {
+                    "text": "ReadonlySet<string>"
+                  }
+                },
+                {
+                  "name": "named",
+                  "type": {
+                    "text": "number"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "#format",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "string"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "value",
+                  "type": {
+                    "text": "unknown"
+                  }
+                }
+              ],
+              "description": "A value as text: numbers and dates in the page's language."
+            },
+            {
+              "kind": "method",
+              "name": "#sort",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "key",
+                  "type": {
+                    "text": "string"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "#select",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "key",
+                  "type": {
+                    "text": "string"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "field",
+              "name": "#selectAll",
+              "privacy": "private"
+            },
+            {
+              "kind": "field",
+              "name": "dependencies",
+              "type": {
+                "text": "readonly (typeof DSBaseElement)[]"
+              },
+              "static": true,
+              "default": "[]",
+              "description": "Components this one renders (ADR 0001, D2): `defineComponents()`\nregisters them too, and `tagFor()` resolves their tag. Never hard-code\nanother component's tag in a template, nor create one with\n`document.createElement` — a brand's override would be bypassed.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "forDesignSystem",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "T"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "this",
+                  "type": {
+                    "text": "T"
+                  }
+                },
+                {
+                  "name": "_settings",
+                  "type": {
+                    "text": "DesignSystemSettings"
+                  }
+                }
+              ],
+              "description": "The class a design system registers for this component, given its\nsettings: this class by default. A component that depends on a setting\nreturns a subclass that applies it, and leaves this class unchanged:\n`Icon` returns a subclass with the design system's `icons` over its own.\n`designSystem()` calls it once per class, after choosing the brand's\noverride, so the subclass extends the override.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "language",
+              "type": {
+                "text": "string | undefined"
+              },
+              "privacy": "protected",
+              "description": "The language of the component, for `Intl`: the `lang` of its closest\nancestor, through the shadow roots, or the document's. `undefined` on a\nserver, and without any: `Intl` takes its default.",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "tagFor",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "StaticValue"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "component",
+                  "type": {
+                    "text": "typeof DSBaseElement"
+                  }
+                }
+              ],
+              "description": "The tag of a component declared in `static dependencies`, for templates\nfrom `lit/static-html.js`: `` html`<${this.tagFor(Button)}>…</${…}>` ``.\nIt follows the registration of this element: `u-modal` renders\n`u-button`, `acme-modal` renders `acme-button` — the brand's override\nof `Button` if it has one.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            }
+          ],
+          "events": [
+            {
+              "name": "change",
+              "type": {
+                "text": "Event"
+              },
+              "description": "When the user selects or deselects rows. `values` gives the selection."
+            },
+            {
+              "type": {
+                "text": "TableSortEvent"
+              },
+              "description": "When the user presses a sortable header, before the table shows the new sort. Its `key` and `direction` give it. Cancelable: `preventDefault()` keeps the sort shown.",
+              "name": "u-sort"
+            }
+          ],
+          "attributes": [
+            {
+              "name": "label",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "The caption of the table: its accessible name.",
+              "fieldName": "label"
+            },
+            {
+              "name": "row-key",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"id\"",
+              "description": "The key of a row's value that identifies it, for `values`. Its index when the row has none.",
+              "fieldName": "rowKey"
+            },
+            {
+              "name": "sort-key",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "The `key` of the column that sorts the rows, `\"\"` when none.",
+              "fieldName": "sortKey"
+            },
+            {
+              "name": "sort-direction",
+              "type": {
+                "text": "SortDirection"
+              },
+              "default": "\"ascending\"",
+              "description": "The direction of the sort.",
+              "fieldName": "sortDirection"
+            },
+            {
+              "name": "selectable",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether the user selects rows, with a column of checkboxes.",
+              "fieldName": "selectable"
+            },
+            {
+              "name": "select-label",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"Select\"",
+              "description": "Read before the name of a row, in the name of its checkbox: \"Select Dupont\".",
+              "fieldName": "selectLabel"
+            },
+            {
+              "name": "select-all-label",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"Select all rows\"",
+              "description": "The name of the checkbox of the header, which selects every row.",
+              "fieldName": "selectAllLabel"
+            }
+          ],
+          "superclass": {
+            "name": "DSBaseElement",
+            "module": "/src/bases/base-element.js"
+          },
+          "tagName": "u-table",
+          "customElement": true,
+          "summary": "A table of data, sortable, whose rows the user may select."
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "Table",
+          "declaration": {
+            "name": "Table",
+            "module": "src/components/table/table.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/components/table/table.type.ts",
+      "declarations": [],
+      "exports": []
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/components/tabs/tabs.ts",
       "declarations": [
         {
@@ -38130,6 +41515,562 @@
           "declaration": {
             "name": "Tabs",
             "module": "src/components/tabs/tabs.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/components/tag-group/tag-group.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "A group of tags: a list, named by `label`, whose items are its children,\n`tag` elements (ADR 0027).\n\nThe host has `role=\"list\"`, and each child `role=\"listitem\"`. When the\napplication removes a tag after its `u-remove`, the focus moves to the\ntag that takes its place, or else to the one before it, or else to the\ngroup: it doesn't fall back to the top of the page.",
+          "name": "TagGroup",
+          "cssProperties": [
+            {
+              "description": "Background color.",
+              "name": "--u-tag-background-color",
+              "default": "var(--u-color-surface-raised)"
+            },
+            {
+              "description": "Text color.",
+              "name": "--u-tag-text-color",
+              "default": "var(--u-color-text-default)"
+            },
+            {
+              "description": "Border color.",
+              "name": "--u-tag-border-color",
+              "default": "var(--u-color-border-default)"
+            },
+            {
+              "description": "Border width.",
+              "name": "--u-tag-border-width",
+              "default": "var(--u-border-width)"
+            },
+            {
+              "description": "Corner radius.",
+              "name": "--u-tag-border-radius",
+              "default": "var(--u-radius-full)"
+            },
+            {
+              "description": "Horizontal padding.",
+              "name": "--u-tag-padding-inline",
+              "default": "var(--u-spacing-sm)"
+            },
+            {
+              "description": "Vertical padding.",
+              "name": "--u-tag-padding-block",
+              "default": "var(--u-spacing-2xs)"
+            },
+            {
+              "description": "Space between the text and the remove button.",
+              "name": "--u-tag-gap",
+              "default": "var(--u-spacing-xs)"
+            },
+            {
+              "description": "Font family.",
+              "name": "--u-tag-font-family",
+              "default": "var(--u-font-family-body)"
+            },
+            {
+              "description": "Font size.",
+              "name": "--u-tag-font-size",
+              "default": "var(--u-font-size-sm)"
+            },
+            {
+              "description": "Width and height of the remove button, and of its icon.",
+              "name": "--u-tag-remove-size",
+              "default": "var(--u-size-indicator-sm)"
+            },
+            {
+              "description": "Background color of the remove button under the pointer.",
+              "name": "--u-tag-remove-background-color-hover",
+              "default": "var(--u-color-border-default)"
+            },
+            {
+              "description": "Space between the tags of a `tag-group`.",
+              "name": "--u-tag-group-gap",
+              "default": "var(--u-spacing-xs)"
+            },
+            {
+              "description": "Color of the focus ring of the remove button.",
+              "name": "--u-tag-focus-ring-color",
+              "default": "var(--u-color-focus-ring)"
+            },
+            {
+              "description": "Width of the focus ring of the remove button.",
+              "name": "--u-tag-focus-ring-width",
+              "default": "var(--u-focus-ring-width)"
+            }
+          ],
+          "slots": [
+            {
+              "description": "The tags.",
+              "name": ""
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "componentName",
+              "type": {
+                "text": "string"
+              },
+              "static": true,
+              "default": "\"tag-group\"",
+              "description": "Name of the component in the catalog, without any tag prefix: the\nregistered tag is `<prefix>-<componentName>`. Every concrete component\nsets it; abstract bases (e.g. `ButtonBase`) don't.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "label",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "The accessible name of the list: what the tags are, \"Filters applied\" for instance.",
+              "attribute": "label"
+            },
+            {
+              "kind": "field",
+              "name": "#removing",
+              "privacy": "private",
+              "type": {
+                "text": "{ tag: Element; index: number } | undefined"
+              },
+              "description": "The tag whose `u-remove` came last, and its place, until the application removes it."
+            },
+            {
+              "kind": "field",
+              "name": "#observer",
+              "privacy": "private",
+              "type": {
+                "text": "MutationObserver | undefined"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "#markItems",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "description": "Each child is an item of the list."
+            },
+            {
+              "kind": "method",
+              "name": "#focusAfterRemoval",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "description": "The focus was in the tag the application removed: to a neighbor, or to the group."
+            },
+            {
+              "kind": "field",
+              "name": "dependencies",
+              "type": {
+                "text": "readonly (typeof DSBaseElement)[]"
+              },
+              "static": true,
+              "default": "[]",
+              "description": "Components this one renders (ADR 0001, D2): `defineComponents()`\nregisters them too, and `tagFor()` resolves their tag. Never hard-code\nanother component's tag in a template, nor create one with\n`document.createElement` — a brand's override would be bypassed.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "forDesignSystem",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "T"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "this",
+                  "type": {
+                    "text": "T"
+                  }
+                },
+                {
+                  "name": "_settings",
+                  "type": {
+                    "text": "DesignSystemSettings"
+                  }
+                }
+              ],
+              "description": "The class a design system registers for this component, given its\nsettings: this class by default. A component that depends on a setting\nreturns a subclass that applies it, and leaves this class unchanged:\n`Icon` returns a subclass with the design system's `icons` over its own.\n`designSystem()` calls it once per class, after choosing the brand's\noverride, so the subclass extends the override.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "language",
+              "type": {
+                "text": "string | undefined"
+              },
+              "privacy": "protected",
+              "description": "The language of the component, for `Intl`: the `lang` of its closest\nancestor, through the shadow roots, or the document's. `undefined` on a\nserver, and without any: `Intl` takes its default.",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "tagFor",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "StaticValue"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "component",
+                  "type": {
+                    "text": "typeof DSBaseElement"
+                  }
+                }
+              ],
+              "description": "The tag of a component declared in `static dependencies`, for templates\nfrom `lit/static-html.js`: `` html`<${this.tagFor(Button)}>…</${…}>` ``.\nIt follows the registration of this element: `u-modal` renders\n`u-button`, `acme-modal` renders `acme-button` — the brand's override\nof `Button` if it has one.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            }
+          ],
+          "attributes": [
+            {
+              "name": "label",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "The accessible name of the list: what the tags are, \"Filters applied\" for instance.",
+              "fieldName": "label"
+            }
+          ],
+          "superclass": {
+            "name": "DSBaseElement",
+            "module": "/src/bases/base-element.js"
+          },
+          "tagName": "u-tag-group",
+          "customElement": true,
+          "summary": "A labelled list of tags."
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "TagGroup",
+          "declaration": {
+            "name": "TagGroup",
+            "module": "src/components/tag-group/tag-group.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/components/tag/tag.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "A tag: a keyword that classifies something, a filter applied, or a\nvalue chosen among several (ADR 0027). Several tags in a row form a\nlist: put them in a `tag-group`.\n\nA `removable` tag has a remove button after its text, named by\n`removeMessage`: the name holds the text of the tag. Pressing it fires\n`u-remove`; the application removes the tag, and a `tag-group` moves the\nfocus to a neighbor.",
+          "name": "Tag",
+          "cssProperties": [
+            {
+              "description": "Background color.",
+              "name": "--u-tag-background-color",
+              "default": "var(--u-color-surface-raised)"
+            },
+            {
+              "description": "Text color.",
+              "name": "--u-tag-text-color",
+              "default": "var(--u-color-text-default)"
+            },
+            {
+              "description": "Border color.",
+              "name": "--u-tag-border-color",
+              "default": "var(--u-color-border-default)"
+            },
+            {
+              "description": "Border width.",
+              "name": "--u-tag-border-width",
+              "default": "var(--u-border-width)"
+            },
+            {
+              "description": "Corner radius.",
+              "name": "--u-tag-border-radius",
+              "default": "var(--u-radius-full)"
+            },
+            {
+              "description": "Horizontal padding.",
+              "name": "--u-tag-padding-inline",
+              "default": "var(--u-spacing-sm)"
+            },
+            {
+              "description": "Vertical padding.",
+              "name": "--u-tag-padding-block",
+              "default": "var(--u-spacing-2xs)"
+            },
+            {
+              "description": "Space between the text and the remove button.",
+              "name": "--u-tag-gap",
+              "default": "var(--u-spacing-xs)"
+            },
+            {
+              "description": "Font family.",
+              "name": "--u-tag-font-family",
+              "default": "var(--u-font-family-body)"
+            },
+            {
+              "description": "Font size.",
+              "name": "--u-tag-font-size",
+              "default": "var(--u-font-size-sm)"
+            },
+            {
+              "description": "Width and height of the remove button, and of its icon.",
+              "name": "--u-tag-remove-size",
+              "default": "var(--u-size-indicator-sm)"
+            },
+            {
+              "description": "Background color of the remove button under the pointer.",
+              "name": "--u-tag-remove-background-color-hover",
+              "default": "var(--u-color-border-default)"
+            },
+            {
+              "description": "Space between the tags of a `tag-group`.",
+              "name": "--u-tag-group-gap",
+              "default": "var(--u-spacing-xs)"
+            },
+            {
+              "description": "Color of the focus ring of the remove button.",
+              "name": "--u-tag-focus-ring-color",
+              "default": "var(--u-color-focus-ring)"
+            },
+            {
+              "description": "Width of the focus ring of the remove button.",
+              "name": "--u-tag-focus-ring-width",
+              "default": "var(--u-focus-ring-width)"
+            }
+          ],
+          "cssParts": [
+            {
+              "description": "The tag.",
+              "name": "tag"
+            },
+            {
+              "description": "The remove button of a `removable` tag.",
+              "name": "remove-button"
+            },
+            {
+              "description": "Its icon: the `icon` component of the same registration.",
+              "name": "remove-icon"
+            }
+          ],
+          "slots": [
+            {
+              "description": "The text of the tag.",
+              "name": ""
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "componentName",
+              "type": {
+                "text": "string"
+              },
+              "static": true,
+              "default": "\"tag\"",
+              "description": "Name of the component in the catalog, without any tag prefix: the\nregistered tag is `<prefix>-<componentName>`. Every concrete component\nsets it; abstract bases (e.g. `ButtonBase`) don't.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "dependencies",
+              "type": {
+                "text": "readonly (typeof DSBaseElement)[]"
+              },
+              "static": true,
+              "default": "[Icon]",
+              "description": "Renders its remove icon with the `icon` of its own registration.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "shadowRootOptions",
+              "type": {
+                "text": "ShadowRootInit"
+              },
+              "static": true,
+              "default": "{ ...super.shadowRootOptions, delegatesFocus: true }"
+            },
+            {
+              "kind": "field",
+              "name": "removable",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether the tag has a remove button. Reflected.",
+              "attribute": "removable",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "removeMessage",
+              "type": {
+                "text": "(text: string) => string"
+              },
+              "description": "Writes the accessible name of the remove button from the text of the\ntag: it must hold that text. Give it in the page's language. Property\nonly."
+            },
+            {
+              "kind": "field",
+              "name": "text",
+              "type": {
+                "text": "string"
+              },
+              "privacy": "private",
+              "default": "\"\"",
+              "description": "The text of the tag, read once rendered: the first render depends on properties only."
+            },
+            {
+              "kind": "field",
+              "name": "#readText",
+              "privacy": "private"
+            },
+            {
+              "kind": "field",
+              "name": "#remove",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "forDesignSystem",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "T"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "this",
+                  "type": {
+                    "text": "T"
+                  }
+                },
+                {
+                  "name": "_settings",
+                  "type": {
+                    "text": "DesignSystemSettings"
+                  }
+                }
+              ],
+              "description": "The class a design system registers for this component, given its\nsettings: this class by default. A component that depends on a setting\nreturns a subclass that applies it, and leaves this class unchanged:\n`Icon` returns a subclass with the design system's `icons` over its own.\n`designSystem()` calls it once per class, after choosing the brand's\noverride, so the subclass extends the override.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "language",
+              "type": {
+                "text": "string | undefined"
+              },
+              "privacy": "protected",
+              "description": "The language of the component, for `Intl`: the `lang` of its closest\nancestor, through the shadow roots, or the document's. `undefined` on a\nserver, and without any: `Intl` takes its default.",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "tagFor",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "StaticValue"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "component",
+                  "type": {
+                    "text": "typeof DSBaseElement"
+                  }
+                }
+              ],
+              "description": "The tag of a component declared in `static dependencies`, for templates\nfrom `lit/static-html.js`: `` html`<${this.tagFor(Button)}>…</${…}>` ``.\nIt follows the registration of this element: `u-modal` renders\n`u-button`, `acme-modal` renders `acme-button` — the brand's override\nof `Button` if it has one.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            }
+          ],
+          "events": [
+            {
+              "type": {
+                "text": "TagRemoveEvent"
+              },
+              "description": "When the user presses the remove button. The tag stays until the application removes it.",
+              "name": "u-remove"
+            }
+          ],
+          "attributes": [
+            {
+              "name": "removable",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether the tag has a remove button. Reflected.",
+              "fieldName": "removable"
+            }
+          ],
+          "superclass": {
+            "name": "DSBaseElement",
+            "module": "/src/bases/base-element.js"
+          },
+          "tagName": "u-tag",
+          "customElement": true,
+          "summary": "A keyword, which the user may remove."
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "Tag",
+          "declaration": {
+            "name": "Tag",
+            "module": "src/components/tag/tag.ts"
           }
         }
       ]
@@ -43838,7 +47779,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "Reactive controller: tells whether the content of a scrolling container\ngoes past its start or its end, along the inline axis, and scrolls it.\n`Tabs` creates one, to show its scroll buttons.\n\nIt measures the container after each render of the host, when its size\nchanges (`ResizeObserver`) and when it scrolls, and renders the host\nagain when an edge changes. It works in either text direction.",
+          "description": "Reactive controller: tells whether the content of a scrolling container\ngoes past its start or its end, along the inline axis, and scrolls it.\n`Tabs` creates one, to show its scroll buttons. It also tells whether the\ncontainer scrolls at all, along either axis: `Table` makes it focusable\nthen, for the keyboard.\n\nIt measures the container after each render of the host, when its size\nchanges (`ResizeObserver`) and when it scrolls, and renders the host\nagain when an edge changes. It works in either text direction.",
           "name": "OverflowController",
           "members": [
             {
@@ -43894,6 +47835,15 @@
               },
               "default": "false",
               "description": "Some content goes past the end."
+            },
+            {
+              "kind": "field",
+              "name": "scrolls",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "The container scrolls, along either axis."
             },
             {
               "kind": "method",
@@ -44197,6 +48147,78 @@
           "declaration": {
             "name": "PopupToggleEvent",
             "module": "src/events/popup-toggle.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/events/table-sort.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "Fired by `table` when the user presses the header of a sortable column,\nbefore the table shows the new sort. The application sorts its rows, by\n`key` and `direction`. Cancelable: `preventDefault()` keeps the sort\nshown.",
+          "name": "TableSortEvent",
+          "members": [
+            {
+              "kind": "field",
+              "name": "key",
+              "type": {
+                "text": "string"
+              },
+              "readonly": true,
+              "description": "The key of the column that sorts the rows.",
+              "default": "key"
+            },
+            {
+              "kind": "field",
+              "name": "direction",
+              "type": {
+                "text": "SortDirection"
+              },
+              "readonly": true,
+              "description": "The direction of the sort.",
+              "default": "direction"
+            }
+          ],
+          "superclass": {
+            "name": "Event",
+            "module": "src/events/table-sort.ts"
+          }
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "TableSortEvent",
+          "declaration": {
+            "name": "TableSortEvent",
+            "module": "src/events/table-sort.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/events/tag-remove.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "Fired by `tag` when the user presses its remove button. The tag stays:\nthe application removes it, from its data for instance. Inside a\n`tag-group`, the focus then moves to a neighbor.",
+          "name": "TagRemoveEvent",
+          "superclass": {
+            "name": "Event",
+            "module": "src/events/tag-remove.ts"
+          }
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "TagRemoveEvent",
+          "declaration": {
+            "name": "TagRemoveEvent",
+            "module": "src/events/tag-remove.ts"
           }
         }
       ]
@@ -44634,6 +48656,78 @@
           "name": "*",
           "declaration": {
             "name": "*",
+            "module": "src/components/spinner/spinner.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "*",
+          "declaration": {
+            "name": "*",
+            "module": "src/components/progress/progress.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "*",
+          "declaration": {
+            "name": "*",
+            "module": "src/components/badge/badge.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "*",
+          "declaration": {
+            "name": "*",
+            "module": "src/components/tag/tag.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "*",
+          "declaration": {
+            "name": "*",
+            "module": "src/components/tag-group/tag-group.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "*",
+          "declaration": {
+            "name": "*",
+            "module": "src/components/file-field/file-field.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "*",
+          "declaration": {
+            "name": "*",
+            "module": "src/components/step/step.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "*",
+          "declaration": {
+            "name": "*",
+            "module": "src/components/stepper/stepper.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "*",
+          "declaration": {
+            "name": "*",
+            "module": "src/components/table/table.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "*",
+          "declaration": {
+            "name": "*",
             "module": "src/mixins/withDisabled.js"
           }
         },
@@ -44810,6 +48904,14 @@
           "name": "*",
           "declaration": {
             "name": "*",
+            "module": "src/state/table.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "*",
+          "declaration": {
+            "name": "*",
             "module": "src/events/modal-cancel.js"
           }
         },
@@ -44850,6 +48952,22 @@
           "name": "*",
           "declaration": {
             "name": "*",
+            "module": "src/events/tag-remove.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "*",
+          "declaration": {
+            "name": "*",
+            "module": "src/events/table-sort.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "*",
+          "declaration": {
+            "name": "*",
             "module": "src/types/common.js"
           }
         },
@@ -44883,6 +49001,30 @@
           "declaration": {
             "name": "*",
             "module": "src/components/drawer/drawer.type.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "*",
+          "declaration": {
+            "name": "*",
+            "module": "src/components/badge/badge.type.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "*",
+          "declaration": {
+            "name": "*",
+            "module": "src/components/step/step.type.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "*",
+          "declaration": {
+            "name": "*",
+            "module": "src/components/table/table.type.js"
           }
         },
         {
@@ -46513,6 +50655,30 @@
             }
           ],
           "description": "Chooses `value` if it isn't chosen, or leaves it out if it is, in the order\nof `items`. A disabled item doesn't change: the same array comes back."
+        },
+        {
+          "kind": "function",
+          "name": "toggleAll",
+          "return": {
+            "type": {
+              "text": "readonly string[]"
+            }
+          },
+          "parameters": [
+            {
+              "name": "items",
+              "type": {
+                "text": "readonly SelectionItem[]"
+              }
+            },
+            {
+              "name": "values",
+              "type": {
+                "text": "readonly string[]"
+              }
+            }
+          ],
+          "description": "Chooses every enabled item, or none of them when they are all chosen\nalready: a \"select all\" box. The disabled items keep their choice."
         }
       ],
       "exports": [
@@ -46530,6 +50696,93 @@
           "declaration": {
             "name": "toggleValue",
             "module": "src/state/selection.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "toggleAll",
+          "declaration": {
+            "name": "toggleAll",
+            "module": "src/state/selection.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/state/table.ts",
+      "declarations": [
+        {
+          "kind": "function",
+          "name": "nextSort",
+          "return": {
+            "type": {
+              "text": "TableSort"
+            }
+          },
+          "parameters": [
+            {
+              "name": "current",
+              "type": {
+                "text": "TableSort | undefined"
+              }
+            },
+            {
+              "name": "key",
+              "type": {
+                "text": "string"
+              }
+            }
+          ],
+          "description": "The sort after a press on the header of column `key`: the other\ndirection on the column already sorting, ascending on another one."
+        },
+        {
+          "kind": "function",
+          "name": "sortRows",
+          "return": {
+            "type": {
+              "text": "Row[]"
+            }
+          },
+          "parameters": [
+            {
+              "name": "rows",
+              "type": {
+                "text": "readonly Row[]"
+              }
+            },
+            {
+              "name": "sort",
+              "type": {
+                "text": "TableSort"
+              }
+            },
+            {
+              "name": "locale",
+              "optional": true,
+              "type": {
+                "text": "string"
+              }
+            }
+          ],
+          "description": "A copy of `rows`, sorted by their value at `sort.key`. Numbers and dates\ncompare as such, the rest as text in the order of `locale`, with its\nnumbers in it (\"item 2\" before \"item 10\"). Empty values go last. Equal\nrows keep their order."
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "nextSort",
+          "declaration": {
+            "name": "nextSort",
+            "module": "src/state/table.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "sortRows",
+          "declaration": {
+            "name": "sortRows",
+            "module": "src/state/table.ts"
           }
         }
       ]

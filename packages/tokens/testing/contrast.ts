@@ -57,6 +57,12 @@ export const contrastPairs: readonly ContrastPair[] = [
     background,
     minimum: 4.5,
   })),
+  // What a spinner, a progress bar or a stepper has done or turns (WCAG 1.4.11).
+  ...SURFACES.map((background) => ({
+    foreground: "var(--u-color-action-background)",
+    background,
+    minimum: 3,
+  })),
   // The border that shows where a form control is (WCAG 1.4.11).
   ...SURFACES.map((background) => ({
     foreground: "var(--u-color-border-control)",

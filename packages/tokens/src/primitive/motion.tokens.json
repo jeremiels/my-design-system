@@ -1,9 +1,36 @@
 {
   "duration": {
     "$type": "duration",
-    "0": { "$value": { "value": 0, "unit": "ms" } },
-    "150": { "$value": { "value": 150, "unit": "ms" } },
-    "250": { "$value": { "value": 250, "unit": "ms" } }
+    "0": {
+      "$value": {
+        "value": 0,
+        "unit": "ms"
+      }
+    },
+    "150": {
+      "$value": {
+        "value": 150,
+        "unit": "ms"
+      }
+    },
+    "250": {
+      "$value": {
+        "value": 250,
+        "unit": "ms"
+      }
+    },
+    "1000": {
+      "$value": {
+        "value": 1000,
+        "unit": "ms"
+      }
+    },
+    "2000": {
+      "$value": {
+        "value": 2000,
+        "unit": "ms"
+      }
+    }
   },
   "easing": {
     "$type": "cubicBezier",
@@ -14,7 +41,11 @@
   },
   "scale": {
     "$type": "number",
-    "95": { "$value": 0.95 },
-    "100": { "$value": 1 }
+    "95": {
+      "$value": 0.95
+    },
+    "100": {
+      "$value": 1
+    }
   }
 }

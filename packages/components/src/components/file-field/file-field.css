@@ -1,0 +1,35 @@
+/* The tokens are in file-field.tokens.css, generated from
+   tokens/component/file-field/ (ADR 0002), with those of the fields
+   (field.tokens.css) and of the tags (tag.tokens.css). These rules only read them. */
+
+/* The native input: its button, then the browser's text. Not the box of a
+   text field: the button shows where it is. */
+.control {
+  padding: 0;
+  background: none;
+  border: none;
+  border-radius: var(--u-file-field-button-border-radius);
+}
+
+.control::file-selector-button {
+  margin-inline-end: var(--u-file-field-button-gap);
+  padding-inline: var(--u-file-field-button-padding-inline);
+  padding-block: var(--u-file-field-button-padding-block);
+  background-color: var(--u-file-field-button-background-color);
+  color: var(--u-file-field-button-text-color);
+  border: var(--u-field-border-width) solid var(--u-file-field-button-border-color);
+  border-radius: var(--u-file-field-button-border-radius);
+  font: inherit;
+  cursor: pointer;
+}
+.control:enabled::file-selector-button:hover {
+  background-color: var(--u-file-field-button-background-color-hover);
+}
+/* Read-only or disabled: the host shows it (withDisabled), the button keeps still. */
+.control:disabled::file-selector-button {
+  cursor: default;
+}
+
+.field--invalid .control::file-selector-button {
+  border-color: var(--u-field-border-color-invalid);
+}
