@@ -17296,7 +17296,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "A calendar: the days of a month in a grid, to pick a date. It shows the\nmonth of its `value`, or of today; the previous and next buttons, and the\nkeys, change the month. `date-picker` shows one in its popup (ADR 0023).\n\nThe grid follows the ARIA date picker: one Tab stop, on the focused day;\nthe arrows move by a day or a week, along the text direction; Home and\nEnd to the start and end of the week; PageUp and PageDown by a month, by a\nyear with Shift. Enter, Space and a click pick the focused day: `value`\ntakes it, and the calendar fires `change`.\n\nThe names of the months and days, the full date of each day and the first\nday of the week follow the language of the page (`lang`), through `Intl`.\nA day outside `min` and `max` shows, but can't be picked.",
+          "description": "A calendar: the days of a month in a grid, to pick a date. It shows the\nmonth of its `value`, or of today; the previous and next buttons, and the\nkeys, change the month. `date-picker` shows one in its popup (ADR 0023).\n\nThe grid follows the ARIA date picker: one Tab stop, on the focused day;\nthe arrows move by a day or a week, along the text direction; Home and\nEnd to the start and end of the week; PageUp and PageDown by a month, by a\nyear with Shift. Enter, Space and a click pick the focused day: `value`\ntakes it, and the calendar fires `change`.\n\nThe names of the months and days, the full date of each day and the first\nday of the week follow the language of the page (`lang`), through `Intl`.\nA day outside `min` and `max` shows, but can't be picked.\n\nWith `range`, the user picks a first day, then a last one (ADR 0037):\n`value` takes the range as an ISO 8601 interval,\n`YYYY-MM-DD/YYYY-MM-DD`, and the calendar fires `change` once. After the\nfirst day, a live region says `rangeStartMessage`, and the days up to\nthe focused or hovered one show the range to come. Every day of the\nrange has `aria-selected=\"true\"`. Escape forgets the first day.",
           "name": "Calendar",
           "cssProperties": [
             {
@@ -17353,6 +17353,11 @@
               "description": "Text color of the chosen day.",
               "name": "--u-calendar-selected-text-color",
               "default": "var(--u-color-action-text)"
+            },
+            {
+              "description": "Background of the days between the first and the last day of a range.",
+              "name": "--u-calendar-range-background-color",
+              "default": "var(--u-color-neutral-background-active)"
             },
             {
               "description": "Border color of today.",
@@ -17412,7 +17417,7 @@
               "name": "grid"
             },
             {
-              "description": "A day. The chosen one has `aria-selected=\"true\"`, today `aria-current=\"date\"`.",
+              "description": "A day. The chosen one, or those of the range, have `aria-selected=\"true\"`, today `aria-current=\"date\"`.",
               "name": "day"
             }
           ],
@@ -17452,8 +17457,27 @@
                 "text": "string"
               },
               "default": "\"\"",
-              "description": "The chosen date, `YYYY-MM-DD`, or `\"\"`.",
+              "description": "The chosen date, `YYYY-MM-DD`, or the chosen range with `range`, `YYYY-MM-DD/YYYY-MM-DD`; or `\"\"`.",
               "attribute": "value"
+            },
+            {
+              "kind": "field",
+              "name": "range",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether the user picks a range of days, from a first to a last one. Reflected.",
+              "attribute": "range",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "rangeStartMessage",
+              "type": {
+                "text": "(date: string) => string"
+              },
+              "description": "What a live region says once the first day of a range is picked, in the page's language: its full date given. Property only."
             },
             {
               "kind": "field",
@@ -17508,6 +17532,40 @@
               "privacy": "private",
               "default": "new DirectionController(this)",
               "description": "The text direction: the chevrons point back and forward along it."
+            },
+            {
+              "kind": "field",
+              "name": "#announcer",
+              "privacy": "private",
+              "default": "new AnnounceController(this)"
+            },
+            {
+              "kind": "field",
+              "name": "anchor",
+              "type": {
+                "text": "PlainDate | undefined"
+              },
+              "privacy": "private",
+              "description": "With `range`: the first day picked, until the last one."
+            },
+            {
+              "kind": "field",
+              "name": "hovered",
+              "type": {
+                "text": "PlainDate | undefined"
+              },
+              "privacy": "private",
+              "description": "With `range`: the day under the pointer, while the first day waits for the last."
+            },
+            {
+              "kind": "field",
+              "name": "#range",
+              "privacy": "private",
+              "type": {
+                "text": "DateRange | undefined"
+              },
+              "description": "The chosen range, with `range`.",
+              "readonly": true
             },
             {
               "kind": "method",
@@ -17591,7 +17649,26 @@
                   }
                 }
               ],
-              "description": "Picks `date` at the user's request: `value`, then `change`."
+              "description": "Picks `date` at the user's request: `value`, then `change`. With\n`range`, a first day waits for the last one."
+            },
+            {
+              "kind": "method",
+              "name": "#fullDate",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "string"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "date",
+                  "type": {
+                    "text": "PlainDate"
+                  }
+                }
+              ],
+              "description": "The full date of a day, in the page's language."
             },
             {
               "kind": "field",
@@ -17602,6 +17679,12 @@
               "kind": "field",
               "name": "#onClick",
               "privacy": "private"
+            },
+            {
+              "kind": "field",
+              "name": "#onPointerOver",
+              "privacy": "private",
+              "description": "With a first day waiting: the range to come follows the pointer."
             },
             {
               "kind": "method",
@@ -17704,8 +17787,17 @@
                 "text": "string"
               },
               "default": "\"\"",
-              "description": "The chosen date, `YYYY-MM-DD`, or `\"\"`.",
+              "description": "The chosen date, `YYYY-MM-DD`, or the chosen range with `range`, `YYYY-MM-DD/YYYY-MM-DD`; or `\"\"`.",
               "fieldName": "value"
+            },
+            {
+              "name": "range",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether the user picks a range of days, from a first to a last one. Reflected.",
+              "fieldName": "range"
             },
             {
               "name": "min",
@@ -24592,7 +24684,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "A date picker: a form field whose control shows a date, and opens a\n`calendar` below it to pick another one. The value is in the format of\nHTML, `YYYY-MM-DD`, or `\"\"`. To type a date, use `date-field`. The label,\nthe hint, the error and the form behavior are those of `FieldBase`; the\ncontrol is that of `PickerBase` (ADR 0023).\n\nThe control shows the date in the language of the page (`Intl`, `long`).\nArrowDown, Enter, Space and a click open the calendar, and give it the\nfocus, on the picked date or today. Its keys are those of the calendar.\nA picked day closes it, fires `input` and `change`, and gives the focus\nback to the control; so does Escape, without a change. Tab and a press\noutside close it.",
+          "description": "A date picker: a form field whose control shows a date, and opens a\n`calendar` below it to pick another one. The value is in the format of\nHTML, `YYYY-MM-DD`, or `\"\"`. To type a date, use `date-field`. The label,\nthe hint, the error and the form behavior are those of `FieldBase`; the\ncontrol is that of `PickerBase` (ADR 0023).\n\nThe control shows the date in the language of the page (`Intl`, `long`).\nArrowDown, Enter, Space and a click open the calendar, and give it the\nfocus, on the picked date or today. Its keys are those of the calendar.\nA picked day closes it, fires `input` and `change`, and gives the focus\nback to the control; so does Escape, without a change. Tab and a press\noutside close it.\n\nWith `range`, the calendar picks a first day, then a last one, and the\nvalue is an ISO 8601 interval, `YYYY-MM-DD/YYYY-MM-DD` (ADR 0037). The\ncontrol shows the range in the language of the page:\n`2–6 novembre 2026`. The calendar closes on the last day.",
           "name": "DatePicker",
           "cssProperties": [
             {
@@ -24973,6 +25065,17 @@
                 "name": "DSBaseElement",
                 "module": "src/bases/base-element.ts"
               }
+            },
+            {
+              "kind": "field",
+              "name": "range",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether the user picks a range of days: the value is then `YYYY-MM-DD/YYYY-MM-DD`. Reflected.",
+              "attribute": "range",
+              "reflects": true
             },
             {
               "kind": "field",
@@ -26347,6 +26450,15 @@
             }
           ],
           "attributes": [
+            {
+              "name": "range",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether the user picks a range of days: the value is then `YYYY-MM-DD/YYYY-MM-DD`. Reflected.",
+              "fieldName": "range"
+            },
             {
               "name": "min",
               "type": {
@@ -55956,6 +56068,90 @@
             }
           ],
           "description": "The date a key moves the focus to, from `date`, as in the ARIA date\npicker: the arrows by a day or a week, Home and End to the start or end\nof the week, PageUp and PageDown by a month, or a year with Shift.\n`undefined` for another key."
+        },
+        {
+          "kind": "function",
+          "name": "orderRange",
+          "return": {
+            "type": {
+              "text": "DateRange"
+            }
+          },
+          "parameters": [
+            {
+              "name": "a",
+              "type": {
+                "text": "PlainDate"
+              }
+            },
+            {
+              "name": "b",
+              "type": {
+                "text": "PlainDate"
+              }
+            }
+          ],
+          "description": "The range from `a` to `b`, in order."
+        },
+        {
+          "kind": "function",
+          "name": "parseRange",
+          "return": {
+            "type": {
+              "text": "DateRange | undefined"
+            }
+          },
+          "parameters": [
+            {
+              "name": "text",
+              "type": {
+                "text": "string"
+              }
+            }
+          ],
+          "description": "The range of an ISO 8601 interval of dates, `YYYY-MM-DD/YYYY-MM-DD`, in\norder; `undefined` for any other text."
+        },
+        {
+          "kind": "function",
+          "name": "formatRange",
+          "return": {
+            "type": {
+              "text": "string"
+            }
+          },
+          "parameters": [
+            {
+              "name": "{ start, end }",
+              "type": {
+                "text": "DateRange"
+              }
+            }
+          ],
+          "description": "A range as an ISO 8601 interval of dates: `YYYY-MM-DD/YYYY-MM-DD`."
+        },
+        {
+          "kind": "function",
+          "name": "isInRange",
+          "return": {
+            "type": {
+              "text": "boolean"
+            }
+          },
+          "parameters": [
+            {
+              "name": "date",
+              "type": {
+                "text": "PlainDate"
+              }
+            },
+            {
+              "name": "{ start, end }",
+              "type": {
+                "text": "DateRange"
+              }
+            }
+          ],
+          "description": "Whether `date` is in `range`, its start and end included."
         }
       ],
       "exports": [
@@ -56044,6 +56240,38 @@
           "name": "calendarKeyMove",
           "declaration": {
             "name": "calendarKeyMove",
+            "module": "src/state/calendar.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "orderRange",
+          "declaration": {
+            "name": "orderRange",
+            "module": "src/state/calendar.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "parseRange",
+          "declaration": {
+            "name": "parseRange",
+            "module": "src/state/calendar.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "formatRange",
+          "declaration": {
+            "name": "formatRange",
+            "module": "src/state/calendar.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "isInRange",
+          "declaration": {
+            "name": "isInRange",
             "module": "src/state/calendar.ts"
           }
         }

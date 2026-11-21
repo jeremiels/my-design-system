@@ -133,3 +133,38 @@ export function calendarKeyMove(
       return undefined;
   }
 }
+
+/** A range of dates: its start comes before its end, or is the same day. */
+export interface DateRange {
+  readonly start: PlainDate;
+  readonly end: PlainDate;
+}
+
+/** The range from `a` to `b`, in order. */
+export function orderRange(a: PlainDate, b: PlainDate): DateRange {
+  return compareDates(a, b) <= 0 ? { start: a, end: b } : { start: b, end: a };
+}
+
+/**
+ * The range of an ISO 8601 interval of dates, `YYYY-MM-DD/YYYY-MM-DD`, in
+ * order; `undefined` for any other text.
+ */
+export function parseRange(text: string): DateRange | undefined {
+  const [first, second, ...rest] = text.split("/");
+  if (rest.length > 0 || first === undefined || second === undefined) {
+    return undefined;
+  }
+  const start = parseDate(first);
+  const end = parseDate(second);
+  return start && end ? orderRange(start, end) : undefined;
+}
+
+/** A range as an ISO 8601 interval of dates: `YYYY-MM-DD/YYYY-MM-DD`. */
+export function formatRange({ start, end }: DateRange): string {
+  return `${formatDate(start)}/${formatDate(end)}`;
+}
+
+/** Whether `date` is in `range`, its start and end included. */
+export function isInRange(date: PlainDate, { start, end }: DateRange): boolean {
+  return compareDates(date, start) >= 0 && compareDates(date, end) <= 0;
+}

@@ -2,7 +2,7 @@ import { property } from "lit/decorators.js";
 import { html } from "lit/static-html.js";
 import type { DSBaseElement } from "../../bases/base-element.js";
 import { PickerBase } from "../../bases/picker/picker-base.js";
-import { parseDate } from "../../state/calendar.js";
+import { parseDate, parseRange, type PlainDate } from "../../state/calendar.js";
 import { Calendar } from "../calendar/calendar.js";
 import { Icon } from "../icon/icon.js";
 import datePickerStyles from "./date-picker.css" with { type: "css" };
@@ -22,6 +22,11 @@ import datePickerTokens from "./date-picker.tokens.css" with { type: "css" };
  * back to the control; so does Escape, without a change. Tab and a press
  * outside close it.
  *
+ * With `range`, the calendar picks a first day, then a last one, and the
+ * value is an ISO 8601 interval, `YYYY-MM-DD/YYYY-MM-DD` (ADR 0037). The
+ * control shows the range in the language of the page:
+ * `2–6 novembre 2026`. The calendar closes on the last day.
+ *
  * @element u-date-picker
  * @summary A labelled field that picks a date in a calendar.
  * @csspart panel - The panel of the popup, a dialog around the calendar.
@@ -35,6 +40,10 @@ export class DatePicker extends PickerBase {
   static override dependencies: readonly (typeof DSBaseElement)[] = [Icon, Calendar];
 
   static styles = [super.styles ?? [], datePickerTokens, datePickerStyles];
+
+  /** Whether the user picks a range of days: the value is then `YYYY-MM-DD/YYYY-MM-DD`. Reflected. */
+  @property({ type: Boolean, reflect: true })
+  range = false;
 
   /** The first date that can be picked, `YYYY-MM-DD`. */
   @property({ type: String })
@@ -61,13 +70,14 @@ export class DatePicker extends PickerBase {
   }
 
   protected override get displayText(): string {
-    const date = parseDate(this.value);
-    if (!date) {
-      return "";
+    const format = new Intl.DateTimeFormat(this.language, { dateStyle: "long", timeZone: "UTC" });
+    const instant = ({ year, month, day }: PlainDate) => Date.UTC(year, month - 1, day);
+    if (this.range) {
+      const range = parseRange(this.value);
+      return range ? format.formatRange(instant(range.start), instant(range.end)) : "";
     }
-    return new Intl.DateTimeFormat(this.language, { dateStyle: "long", timeZone: "UTC" }).format(
-      Date.UTC(date.year, date.month - 1, date.day),
-    );
+    const date = parseDate(this.value);
+    return date ? format.format(instant(date)) : "";
   }
 
   get #calendar(): Calendar | null {
@@ -116,6 +126,7 @@ export class DatePicker extends PickerBase {
         <${calendar}
           part="calendar"
           .value=${this.value}
+          .range=${this.range}
           .min=${this.min}
           .max=${this.max}
           previous-month-label=${this.previousMonthLabel}

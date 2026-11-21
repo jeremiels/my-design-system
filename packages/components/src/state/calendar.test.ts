@@ -6,9 +6,13 @@ import {
   clampDate,
   dayOfWeek,
   formatDate,
+  formatRange,
+  isInRange,
   isWithin,
   monthWeeks,
+  orderRange,
   parseDate,
+  parseRange,
 } from "./calendar.ts";
 
 const date = (text: string) => parseDate(text)!;
@@ -99,5 +103,31 @@ describe("calendarKeyMove()", () => {
 
   it("ignores another key", () => {
     expect(calendarKeyMove("Enter", date("2026-11-21"), options)).toBeUndefined();
+  });
+});
+
+describe("ranges", () => {
+  const d = (year: number, month: number, day: number) => ({ year, month, day });
+
+  it("reads an ISO 8601 interval of dates, in order", () => {
+    expect(parseRange("2026-11-02/2026-11-06")).toEqual({
+      start: d(2026, 11, 2),
+      end: d(2026, 11, 6),
+    });
+    expect(parseRange("2026-11-06/2026-11-02")).toEqual({
+      start: d(2026, 11, 2),
+      end: d(2026, 11, 6),
+    });
+    expect(parseRange("2026-11-02")).toBeUndefined();
+    expect(parseRange("2026-11-02/nope")).toBeUndefined();
+    expect(parseRange("a/b/c")).toBeUndefined();
+  });
+
+  it("writes a range as an interval, and tells the days in it", () => {
+    const range = orderRange(d(2026, 11, 6), d(2026, 11, 2));
+    expect(formatRange(range)).toBe("2026-11-02/2026-11-06");
+    expect(isInRange(d(2026, 11, 2), range)).toBe(true);
+    expect(isInRange(d(2026, 11, 4), range)).toBe(true);
+    expect(isInRange(d(2026, 11, 7), range)).toBe(false);
   });
 });

@@ -56,6 +56,11 @@
       "$value": "{color.action.text}",
       "$description": "Text color of the chosen day."
     },
+    "range-background-color": {
+      "$type": "color",
+      "$value": "{color.neutral.background-active}",
+      "$description": "Background of the days between the first and the last day of a range."
+    },
     "today-border-color": {
       "$type": "color",
       "$value": "{color.border.control}",

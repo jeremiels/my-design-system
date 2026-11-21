@@ -81,3 +81,36 @@ it("takes the language of the page through the shadow roots", async () => {
     "novembre 2026",
   );
 });
+
+it("picks a range: a first day, then a last one, in either order, and one change", async () => {
+  const { calendar, changes, focusedDate } = await mount('range value="2026-11-02/2026-11-04"');
+  const root = calendar.shadowRoot!;
+  const chosen = () =>
+    [...root.querySelectorAll<HTMLElement>('[aria-selected="true"]')].map(
+      (day) => day.dataset.date,
+    );
+  expect(chosen()).toEqual(["2026-11-02", "2026-11-03", "2026-11-04"]);
+
+  calendar.focus();
+  expect(focusedDate()).toBe("2026-11-02");
+  // The first day: nothing changes yet, and a live region says what comes next.
+  await userEvent.keyboard("{ArrowDown}");
+  await userEvent.keyboard("{Enter}");
+  expect(changes).toEqual([]);
+  expect(chosen()).toEqual(["2026-11-09"]);
+  await expect
+    .poll(() => root.querySelector(".announce")?.textContent ?? "")
+    .toContain("pick the last day");
+  // The range to come follows the focus; the last day before the first one is fine.
+  await userEvent.keyboard("{ArrowLeft}{ArrowLeft}");
+  expect(root.querySelectorAll(".day--range").length).toBe(3);
+  await userEvent.keyboard("{Enter}");
+  expect(changes).toEqual(["2026-11-07/2026-11-09"]);
+  expect(calendar.value).toBe("2026-11-07/2026-11-09");
+
+  // Escape forgets a first day.
+  await userEvent.keyboard("{Enter}");
+  await userEvent.keyboard("{Escape}");
+  await userEvent.keyboard("{ArrowRight}{Enter}");
+  expect(changes).toEqual(["2026-11-07/2026-11-09"]);
+});

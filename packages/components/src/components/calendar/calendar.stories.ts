@@ -81,3 +81,29 @@ export const Bounds = meta.story({
     );
   },
 });
+
+export const Range = meta.story({
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "With `range`, the user picks a first day, then a last one: `value` is an ISO 8601 interval, `2026-11-02/2026-11-06`, and `change` fires once. Between the two picks, a live region says to pick the last day, and the days up to the focused or hovered one show the range to come.",
+      },
+    },
+  },
+  render: () => html`<u-calendar lang="en-GB" range value="2026-11-02/2026-11-06"></u-calendar>`,
+  play: async ({ canvasElement }) => {
+    const calendar = canvasElement.querySelector<Calendar>("u-calendar")!;
+    await calendar.updateComplete;
+    const day = (date: string) =>
+      calendar.shadowRoot!.querySelector<HTMLElement>(`[data-date="${date}"]`)!;
+    expect(day("2026-11-04").getAttribute("aria-selected")).toBe("true");
+    const onChange = fn();
+    calendar.addEventListener("change", onChange);
+    await userEvent.click(day("2026-11-16"));
+    expect(onChange).not.toHaveBeenCalled();
+    await userEvent.click(day("2026-11-12"));
+    expect(onChange).toHaveBeenCalledOnce();
+    expect(calendar.value).toBe("2026-11-12/2026-11-16");
+  },
+});

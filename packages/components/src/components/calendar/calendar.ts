@@ -4,15 +4,21 @@ import { nothing, type PropertyValues } from "lit";
 import { property, state } from "lit/decorators.js";
 import { html } from "lit/static-html.js";
 import { DSBaseElement } from "../../bases/base-element.js";
+import { AnnounceController, announceStyles } from "../../controllers/announce.js";
 import {
   addMonths,
   calendarKeyMove,
   clampDate,
   compareDates,
   formatDate,
+  formatRange,
+  isInRange,
   isWithin,
   monthWeeks,
+  orderRange,
   parseDate,
+  parseRange,
+  type DateRange,
   type PlainDate,
 } from "../../state/calendar.js";
 import { DirectionController } from "../../controllers/direction.js";
@@ -61,6 +67,13 @@ const instant = ({ year, month, day }: PlainDate) => Date.UTC(year, month - 1, d
  * day of the week follow the language of the page (`lang`), through `Intl`.
  * A day outside `min` and `max` shows, but can't be picked.
  *
+ * With `range`, the user picks a first day, then a last one (ADR 0037):
+ * `value` takes the range as an ISO 8601 interval,
+ * `YYYY-MM-DD/YYYY-MM-DD`, and the calendar fires `change` once. After the
+ * first day, a live region says `rangeStartMessage`, and the days up to
+ * the focused or hovered one show the range to come. Every day of the
+ * range has `aria-selected="true"`. Escape forgets the first day.
+ *
  * @element u-calendar
  * @summary The days of a month, to pick a date.
  * @csspart header - The header: the previous button, the month and year, the next button.
@@ -68,7 +81,7 @@ const instant = ({ year, month, day }: PlainDate) => Date.UTC(year, month - 1, d
  * @csspart previous - The button of the previous month: the `button` component of the same registration, `plain` and `neutral`.
  * @csspart next - The button of the next month, like `previous`.
  * @csspart grid - The grid of the days, `role="grid"`.
- * @csspart day - A day. The chosen one has `aria-selected="true"`, today `aria-current="date"`.
+ * @csspart day - A day. The chosen one, or those of the range, have `aria-selected="true"`, today `aria-current="date"`.
  * @fires change - When the user picks a day: `value` holds it.
  * @tokens calendar - Its tokens (`@cssprop`), from `@unicorne/tokens` (`src/component/calendar/`): `npm run analyze` documents them.
  */
@@ -83,11 +96,19 @@ export class Calendar extends DSBaseElement {
   /** Renders its month buttons with the `button` of its own registration. */
   static override dependencies = [Button, Icon];
 
-  static styles = [super.styles ?? [], calendarTokens, calendarStyles];
+  static styles = [super.styles ?? [], calendarTokens, calendarStyles, announceStyles];
 
-  /** The chosen date, `YYYY-MM-DD`, or `""`. */
+  /** The chosen date, `YYYY-MM-DD`, or the chosen range with `range`, `YYYY-MM-DD/YYYY-MM-DD`; or `""`. */
   @property({ type: String })
   value = "";
+
+  /** Whether the user picks a range of days, from a first to a last one. Reflected. */
+  @property({ type: Boolean, reflect: true })
+  range = false;
+
+  /** What a live region says once the first day of a range is picked, in the page's language: its full date given. Property only. */
+  @property({ attribute: false })
+  rangeStartMessage: (date: string) => string = (date) => `From ${date}: pick the last day.`;
 
   /** The first date that can be picked, `YYYY-MM-DD`. */
   @property({ type: String })
@@ -112,6 +133,21 @@ export class Calendar extends DSBaseElement {
   /** The text direction: the chevrons point back and forward along it. */
   #direction = new DirectionController(this);
 
+  #announcer = new AnnounceController(this);
+
+  /** With `range`: the first day picked, until the last one. */
+  @state()
+  private anchor?: PlainDate;
+
+  /** With `range`: the day under the pointer, while the first day waits for the last. */
+  @state()
+  private hovered?: PlainDate;
+
+  /** The chosen range, with `range`. */
+  get #range(): DateRange | undefined {
+    return this.range ? parseRange(this.value) : undefined;
+  }
+
   /** Gives the focus to the focused day of the grid. */
   override focus(options?: FocusOptions): void {
     this.#activeDay?.focus(options);
@@ -124,7 +160,8 @@ export class Calendar extends DSBaseElement {
       changedProperties.has("min") ||
       changedProperties.has("max")
     ) {
-      this.focused = clampDate(parseDate(this.value) ?? this.focused, this.#min, this.#max);
+      const chosen = this.range ? this.#range?.start : parseDate(this.value);
+      this.focused = clampDate(chosen ?? this.focused, this.#min, this.#max);
     }
   }
 
@@ -147,20 +184,44 @@ export class Calendar extends DSBaseElement {
     this.focus();
   }
 
-  /** Picks `date` at the user's request: `value`, then `change`. */
+  /**
+   * Picks `date` at the user's request: `value`, then `change`. With
+   * `range`, a first day waits for the last one.
+   */
   #pick(date: PlainDate): void {
     if (!isWithin(date, this.#min, this.#max)) {
       return;
     }
     this.focused = date;
-    const value = formatDate(date);
+    if (this.range && !this.anchor) {
+      this.anchor = date;
+      this.#announcer.announce(this.rangeStartMessage(this.#fullDate(date)));
+      return;
+    }
+    const value =
+      this.range && this.anchor ? formatRange(orderRange(this.anchor, date)) : formatDate(date);
+    this.anchor = undefined;
+    this.hovered = undefined;
     if (value !== this.value) {
       this.value = value;
       this.dispatchEvent(new Event("change", { bubbles: true }));
     }
   }
 
+  /** The full date of a day, in the page's language. */
+  #fullDate(date: PlainDate): string {
+    return new Intl.DateTimeFormat(this.language, { dateStyle: "full", timeZone: "UTC" }).format(
+      instant(date),
+    );
+  }
+
   #onKeydown = (event: KeyboardEvent) => {
+    if (event.key === "Escape" && this.anchor) {
+      // Forgets the first day; a date picker closes too.
+      this.anchor = undefined;
+      this.hovered = undefined;
+      return;
+    }
     if (event.key === "Enter" || event.key === " ") {
       event.preventDefault();
       this.#pick(this.focused);
@@ -188,6 +249,19 @@ export class Calendar extends DSBaseElement {
     }
   };
 
+  /** With a first day waiting: the range to come follows the pointer. */
+  #onPointerOver = (event: PointerEvent) => {
+    if (!this.anchor) {
+      return;
+    }
+    const date = parseDate(
+      (event.target as HTMLElement).closest<HTMLElement>("[data-date]")?.dataset.date ?? "",
+    );
+    if (date && isWithin(date, this.#min, this.#max)) {
+      this.hovered = date;
+    }
+  };
+
   #moveMonth(months: number): void {
     this.focused = clampDate(addMonths(this.focused, months), this.#min, this.#max);
   }
@@ -210,7 +284,9 @@ export class Calendar extends DSBaseElement {
       month: 11,
       day: 1 + ((firstDay + index) % 7),
     }));
-    const selected = parseDate(this.value);
+    const selected = this.range ? undefined : parseDate(this.value);
+    // The range: the chosen one, or the one to come from the first day.
+    const range = this.anchor ? orderRange(this.anchor, this.hovered ?? this.focused) : this.#range;
     const button = this.tagFor(Button);
     const icon = this.tagFor(Icon);
     const now = today();
@@ -256,6 +332,7 @@ export class Calendar extends DSBaseElement {
         aria-labelledby="heading"
         @keydown=${this.#onKeydown}
         @click=${this.#onClick}
+        @pointerover=${this.#onPointerOver}
       >
         <thead>
           <tr>
@@ -276,13 +353,23 @@ export class Calendar extends DSBaseElement {
                     return html`<td></td>`;
                   }
                   const isFocused = compareDates(day, this.focused) === 0;
+                  const inRange = range !== undefined && isInRange(day, range);
+                  const edge =
+                    range !== undefined &&
+                    (compareDates(day, range.start) === 0 || compareDates(day, range.end) === 0);
+                  // Chosen: the day, the days of the chosen range, or the first day of one to come.
+                  const chosen = this.anchor
+                    ? compareDates(day, this.anchor) === 0
+                    : selected
+                      ? compareDates(day, selected) === 0
+                      : inRange;
                   return html`<td
                     part="day"
-                    class="day"
+                    class="day${inRange ? " day--range" : ""}${edge ? " day--edge" : ""}"
                     data-date=${formatDate(day)}
                     tabindex=${isFocused ? "0" : "-1"}
                     aria-label=${full.format(instant(day))}
-                    aria-selected=${selected && compareDates(day, selected) === 0 ? "true" : "false"}
+                    aria-selected=${chosen ? "true" : "false"}
                     aria-current=${compareDates(day, now) === 0 ? "date" : nothing}
                     aria-disabled=${isWithin(day, min, max) ? nothing : "true"}
                   >
@@ -293,6 +380,7 @@ export class Calendar extends DSBaseElement {
           )}
         </tbody>
       </table>
+      ${this.#announcer.render()}
     `;
   }
 }
