@@ -13,4 +13,8 @@
   --u-listbox-option-background-color-active: var(--u-color-action-background);
   --u-listbox-option-text-color-active: var(--u-color-action-text);
   --u-listbox-option-opacity-disabled: var(--u-opacity-disabled);
+  --u-listbox-option-check-size: var(--u-size-choice);
+  --u-listbox-option-check-gap: var(--u-spacing-sm);
+  --u-listbox-option-check-border-width: var(--u-border-width);
+  --u-listbox-option-check-border-radius: var(--u-radius-sm);
 }

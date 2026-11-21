@@ -6,7 +6,7 @@ import { property, state } from "lit/decorators.js";
 import { afterEach, describe, expect, it } from "vitest";
 import { userEvent } from "vitest/browser";
 import type { ListboxOption } from "../components/listbox/listbox.type.js";
-import { listboxKeyMove, moveActiveIndex, type ListboxMove } from "../state/listbox.js";
+import { collectionKeyMove, moveIndex, type CollectionMove } from "../state/collection.js";
 import { ListboxController, listboxStyles, listboxTokens } from "./listbox.js";
 
 class List extends LitElement {
@@ -59,10 +59,10 @@ class List extends LitElement {
   }
 
   #keydown = (event: KeyboardEvent) => {
-    const to = listboxKeyMove(event.key);
+    const to = collectionKeyMove(event.key, { axis: "vertical" });
     const active = this.list.activeOption;
     if (to) {
-      this.activeIndex = moveActiveIndex(this.available, this.activeIndex, to);
+      this.activeIndex = moveIndex(this.available, this.activeIndex, to);
     } else if (event.key === "Enter" && active) {
       this.picked.push(active);
     } else {
@@ -71,8 +71,8 @@ class List extends LitElement {
     event.preventDefault();
   };
 
-  move(to: ListboxMove) {
-    this.activeIndex = moveActiveIndex(this.available, this.activeIndex, to);
+  move(to: CollectionMove) {
+    this.activeIndex = moveIndex(this.available, this.activeIndex, to);
     return this.updateComplete;
   }
 
