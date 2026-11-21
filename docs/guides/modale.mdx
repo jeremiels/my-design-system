@@ -149,6 +149,9 @@ modal.addEventListener("u-cancel", (event) => {
 ```
 
 - Le bouton de fermeture, Échap, le clic extérieur et `requestClose()` émettent `u-cancel`.
+- `event.reason` dit sa cause : `close-press`, `escape-key`, `outside-press`, `back` ou `imperative`.
+- `back` est une demande de fermeture du système sans Échap : le bouton ou le geste retour d'Android.
+- `requestClose()` et la commande `--request-close` ont la cause `imperative`.
 - `close()` et `--close` ferment sans `u-cancel`.
 - Échap pressé deux fois sans autre interaction force la fermeture : `event.cancelable` vaut alors `false`.
 
@@ -179,7 +182,8 @@ modal.addEventListener("u-cancel", (event) => {
   </tbody>
 </table>
 
-Safari n'a pas `closedby` : la modale y gère elle-même le clic extérieur et `none`.
+- La modale gère elle-même le clic extérieur, dans tous les navigateurs : elle en connaît ainsi la cause. Son `<dialog>` porte `closedby="closerequest"`.
+- Safari n'a pas `closedby` : la modale y gère aussi `none`.
 
 ## Changer l'animation
 

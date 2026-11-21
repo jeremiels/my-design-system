@@ -4,7 +4,7 @@
  * what the user types. `ComboboxBase` holds a state, reads the context from
  * its properties and its DOM, and sends the events.
  */
-import { moveActiveIndex, type ListboxItem, type ListboxMove } from "./listbox.js";
+import { moveIndex, type CollectionItem, type CollectionMove } from "./collection.js";
 
 /**
  * Where the keyboard enters the popup when it opens it: its first item
@@ -30,11 +30,12 @@ export const closedCombobox: ComboboxState = { open: false, activeIndex: -1, typ
 
 /** What the combobox is like when an event happens. */
 export interface ComboboxContext {
+  /** Whether the field is disabled or read-only: the popup doesn't open. */
   readonly disabled: boolean;
   /** Whether the popup has something to show: it doesn't open empty. */
   readonly hasContent: boolean;
   /** The items the keyboard moves through, in the order of the popup. */
-  readonly items: readonly ListboxItem[];
+  readonly items: readonly CollectionItem[];
   /** Whether the control holds some text. */
   readonly hasText: boolean;
   /** Whether the control has the focus. */
@@ -55,7 +56,7 @@ export type ComboboxEvent =
   /** Before each render: the context may have changed. */
   | { type: "sync" }
   /** The keyboard moves the active item. */
-  | { type: "move"; to: ListboxMove }
+  | { type: "move"; to: CollectionMove }
   /** The pointer is on an item: a disabled one changes nothing. -1: no active item. */
   | { type: "activate"; index: number };
 
@@ -86,7 +87,7 @@ export function comboboxReducer(
       return canOpen
         ? update(state, {
             open: true,
-            activeIndex: moveActiveIndex(context.items, -1, event.entry),
+            activeIndex: moveIndex(context.items, -1, event.entry),
           })
         : state;
     case "request":
@@ -116,7 +117,7 @@ export function comboboxReducer(
     case "move":
       return state.open
         ? update(state, {
-            activeIndex: moveActiveIndex(context.items, state.activeIndex, event.to),
+            activeIndex: moveIndex(context.items, state.activeIndex, event.to),
           })
         : state;
     case "activate": {

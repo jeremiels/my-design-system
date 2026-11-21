@@ -127,7 +127,7 @@ function prefill() {
       </div>
     </form>
 
-    <acme-alert v-if="submitted" id="submitted" type="success">
+    <acme-alert v-if="submitted" id="submitted" variant="success">
       Compte créé : {{ submitted.name }}, {{ submitted.email }}, {{ submitted.username
       }}<template v-if="submitted.city">, {{ submitted.city }}</template>.
       <template v-if="submitted.bio">Présentation : {{ submitted.bio }}</template>
