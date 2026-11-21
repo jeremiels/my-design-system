@@ -4083,7 +4083,36 @@
               "kind": "field",
               "name": "#listbox",
               "privacy": "private",
-              "default": "new ListboxController(this, { labelledBy: fieldIds.label, options: () => this.listboxOptions, activeIndex: () => this.comboboxState.activeIndex, activate: (index) => this.dispatch({ type: \"activate\", index }), select: (option) => this.selectOption(option), renderOption: (option, index) => this.renderOption(option, index), busy: () => this.#loader.loading, status: () => this.#status, })"
+              "default": "new ListboxController(this, { labelledBy: fieldIds.label, options: () => this.listboxOptions, activeIndex: () => this.comboboxState.activeIndex, activate: (index) => this.dispatch({ type: \"activate\", index }), select: (option) => this.selectOption(option), renderOption: (option, index) => this.renderOption(option, index), busy: () => this.#loader.loading, status: () => this.#status, multiple: () => this.listboxMultiple, selected: (option) => this.isOptionSelected(option), })"
+            },
+            {
+              "kind": "field",
+              "name": "listboxMultiple",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "protected",
+              "description": "Whether the list holds several choices: `aria-multiselectable`, and a box per option.",
+              "readonly": true
+            },
+            {
+              "kind": "method",
+              "name": "isOptionSelected",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "boolean"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "_option",
+                  "type": {
+                    "text": "ListboxOption"
+                  }
+                }
+              ],
+              "description": "With `listboxMultiple`: whether the user chose `option`."
             },
             {
               "kind": "field",
@@ -12800,7 +12829,44 @@
               "kind": "field",
               "name": "#listbox",
               "privacy": "private",
-              "default": "new ListboxController(this, { labelledBy: fieldIds.label, options: () => this.listboxOptions, activeIndex: () => this.comboboxState.activeIndex, activate: (index) => this.dispatch({ type: \"activate\", index }), select: (option) => this.selectOption(option), renderOption: (option, index) => this.renderOption(option, index), busy: () => this.#loader.loading, status: () => this.#status, })",
+              "default": "new ListboxController(this, { labelledBy: fieldIds.label, options: () => this.listboxOptions, activeIndex: () => this.comboboxState.activeIndex, activate: (index) => this.dispatch({ type: \"activate\", index }), select: (option) => this.selectOption(option), renderOption: (option, index) => this.renderOption(option, index), busy: () => this.#loader.loading, status: () => this.#status, multiple: () => this.listboxMultiple, selected: (option) => this.isOptionSelected(option), })",
+              "inheritedFrom": {
+                "name": "EditableComboboxBase",
+                "module": "src/bases/editable-combobox/editable-combobox-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "listboxMultiple",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "protected",
+              "description": "Whether the list holds several choices: `aria-multiselectable`, and a box per option.",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "EditableComboboxBase",
+                "module": "src/bases/editable-combobox/editable-combobox-base.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "isOptionSelected",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "boolean"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "_option",
+                  "type": {
+                    "text": "ListboxOption"
+                  }
+                }
+              ],
+              "description": "With `listboxMultiple`: whether the user chose `option`.",
               "inheritedFrom": {
                 "name": "EditableComboboxBase",
                 "module": "src/bases/editable-combobox/editable-combobox-base.ts"
@@ -20808,8 +20874,86 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "A combobox: the user types to filter a list of options, and picks one.\nThe value is always one of the options, or `\"\"`. The user types \"par\",\npicks \"Paris\": the input shows its label, the form receives its value,\n\"75056\". For a free text, use `autocomplete`; for a few options, without\ntyping, `select`. The input, the list, its filter and its keys are those\nof `EditableComboboxBase` (ADR 0025).\n\nTyping filters the options, and leaves `value` as it is. A pick sets it,\nand fires `input`, then `change`. Emptying the input clears it at once,\nwith the `input` of the text; `change` follows when the user leaves the\nfield, as on a text input.\n\nThe user leaving the field ends the typing: the option whose label is the\ntext, if it is the only one, without case nor accents, is picked;\notherwise the input shows the label of `value` again. Escape, list closed,\nshows it again too. Enter without an active option picks the option of\nthe text in the same way, and doesn't submit the form while the text\ndiffers from the label of `value`.\n\n`inputValue` holds the text, and `input` follows each change of it: with\n`filter=\"none\"`, the application reads it to fetch the options;\n`loadOptions` fetches them for it. The options must hold that of `value`:\nthe input shows its label. Otherwise, the input shows the label of the\nlast option picked, or the value. With `loadOptions`, give the option of\nthe first value in `options`.\n\nA `required` combobox can't be submitted while `value` is empty, whatever\nthe text. Its message is the browser's, from a hidden native `<select>`:\ngive `error-message` to write it in the page's language.",
+          "description": "A combobox: the user types to filter a list of options, and picks one.\nThe value is always one of the options, or `\"\"`. The user types \"par\",\npicks \"Paris\": the input shows its label, the form receives its value,\n\"75056\". For a free text, use `autocomplete`; for a few options, without\ntyping, `select`. The input, the list, its filter and its keys are those\nof `EditableComboboxBase` (ADR 0025).\n\nTyping filters the options, and leaves `value` as it is. A pick sets it,\nand fires `input`, then `change`. Emptying the input clears it at once,\nwith the `input` of the text; `change` follows when the user leaves the\nfield, as on a text input.\n\nThe user leaving the field ends the typing: the option whose label is the\ntext, if it is the only one, without case nor accents, is picked;\notherwise the input shows the label of `value` again. Escape, list closed,\nshows it again too. Enter without an active option picks the option of\nthe text in the same way, and doesn't submit the form while the text\ndiffers from the label of `value`.\n\n`inputValue` holds the text, and `input` follows each change of it: with\n`filter=\"none\"`, the application reads it to fetch the options;\n`loadOptions` fetches them for it. The options must hold that of `value`:\nthe input shows its label. Otherwise, the input shows the label of the\nlast option picked, or the value. With `loadOptions`, give the option of\nthe first value in `options`.\n\nA `required` combobox can't be submitted while `value` is empty, whatever\nthe text. Its message is the browser's, from a hidden native `<select>`:\ngive `error-message` to write it in the page's language.\n\nWith `multiple`, the user chooses several options (ADR 0038). A pick adds\nthe option, or leaves it out if chosen already, empties the text and\nkeeps the list open: its options have a box, as in a `select` with\n`multiple`. Under the input, a `tag-group` named by `values-label` lists\nthe chosen options; each tag leaves its option out. `values` holds the\nchosen values, in the order of the picks, `value` the first one, and the\nform receives one entry per value.",
           "name": "Combobox",
+          "cssParts": [
+            {
+              "description": "The `tag-group` of the chosen options, with `multiple`.",
+              "name": "values"
+            },
+            {
+              "description": "The native `<input>`, the combobox.",
+              "name": "input",
+              "inheritedFrom": {
+                "name": "EditableComboboxBase",
+                "module": "src/bases/editable-combobox/editable-combobox-base.ts"
+              }
+            },
+            {
+              "description": "The list of options, in the popup.",
+              "name": "listbox",
+              "inheritedFrom": {
+                "name": "EditableComboboxBase",
+                "module": "src/bases/editable-combobox/editable-combobox-base.ts"
+              }
+            },
+            {
+              "description": "An option. The active one has `aria-selected=\"true\"`, a disabled one `aria-disabled=\"true\"`.",
+              "name": "option",
+              "inheritedFrom": {
+                "name": "EditableComboboxBase",
+                "module": "src/bases/editable-combobox/editable-combobox-base.ts"
+              }
+            },
+            {
+              "description": "The line at the end of the list: a `spinner` and `loadingLabel` during a slow request, or `resultsMessage` when the list doesn't show every option. Hidden from assistive technologies, which hear the live region.",
+              "name": "status",
+              "inheritedFrom": {
+                "name": "EditableComboboxBase",
+                "module": "src/bases/editable-combobox/editable-combobox-base.ts"
+              }
+            },
+            {
+              "description": "The popup, below the control, in the top layer.",
+              "name": "popup",
+              "inheritedFrom": {
+                "name": "ComboboxBase",
+                "module": "src/bases/combobox/combobox-base.ts"
+              }
+            },
+            {
+              "description": "The native `<label>`.",
+              "name": "label",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "description": "The indicator after the label, hidden from assistive technologies. Hidden unless the field is `required` and has a `requiredIndicator`.",
+              "name": "required-indicator",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "description": "The hint, between the label and the control. Hidden without `hint`.",
+              "name": "hint",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "description": "The error message, after the control. Hidden while no error shows.",
+              "name": "error",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            }
+          ],
           "members": [
             {
               "kind": "field",
@@ -20824,6 +20968,57 @@
                 "name": "DSBaseElement",
                 "module": "src/bases/base-element.ts"
               }
+            },
+            {
+              "kind": "field",
+              "name": "dependencies",
+              "type": {
+                "text": "readonly (typeof DSBaseElement)[]"
+              },
+              "static": true,
+              "default": "[...super.dependencies, TagGroup, Tag]",
+              "description": "Lists the chosen options with the `tag-group` and `tag` of its own registration.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "multiple",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "The user chooses several options: `values`. Reflected.",
+              "attribute": "multiple",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "values",
+              "type": {
+                "text": "readonly string[]"
+              },
+              "default": "[]",
+              "description": "The chosen values, with `multiple`, in the order of the picks. Property only."
+            },
+            {
+              "kind": "field",
+              "name": "valuesLabel",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"Chosen options\"",
+              "description": "The accessible name of the list of the chosen options, with `multiple`, in the page's language.",
+              "attribute": "values-label"
+            },
+            {
+              "kind": "field",
+              "name": "#chosen",
+              "privacy": "private",
+              "default": "new Map<string, ListboxOption>()",
+              "description": "The options picked, by value: their labels show in the tags while the options change."
             },
             {
               "kind": "field",
@@ -20860,12 +21055,63 @@
                 "text": "string"
               },
               "privacy": "protected",
-              "description": "What the user typed, or the label of the option of `value`.",
+              "description": "What the user typed, or the label of the option of `value`; only what the user types with `multiple`.",
               "readonly": true,
               "inheritedFrom": {
                 "name": "ComboboxBase",
                 "module": "src/bases/combobox/combobox-base.ts"
               }
+            },
+            {
+              "kind": "field",
+              "name": "listboxMultiple",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "protected",
+              "description": "Whether the list holds several choices: `aria-multiselectable`, and a box per option.",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "EditableComboboxBase",
+                "module": "src/bases/editable-combobox/editable-combobox-base.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "isOptionSelected",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "boolean"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "option",
+                  "type": {
+                    "text": "ListboxOption"
+                  }
+                }
+              ],
+              "description": "With `listboxMultiple`: whether the user chose `option`.",
+              "inheritedFrom": {
+                "name": "EditableComboboxBase",
+                "module": "src/bases/editable-combobox/editable-combobox-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "formValue",
+              "type": {
+                "text": "FormValue"
+              },
+              "privacy": "protected",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "withFormControl",
+                "module": "src/mixins/withFormControl.ts"
+              },
+              "description": "With `multiple`, one entry per chosen value, under `name`."
             },
             {
               "kind": "field",
@@ -20933,6 +21179,40 @@
                 "name": "ComboboxBase",
                 "module": "src/bases/combobox/combobox-base.ts"
               }
+            },
+            {
+              "kind": "method",
+              "name": "renderControl",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "unknown"
+                }
+              },
+              "description": "With `multiple`: the input, its list, then the tags of the chosen options.",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "#leaveOut",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "value",
+                  "type": {
+                    "text": "string"
+                  }
+                }
+              ],
+              "description": "A tag removed: its value leaves `values`, as a user's change."
             },
             {
               "kind": "method",
@@ -21076,20 +21356,6 @@
             },
             {
               "kind": "field",
-              "name": "dependencies",
-              "type": {
-                "text": "readonly (typeof DSBaseElement)[]"
-              },
-              "static": true,
-              "default": "[...super.dependencies, Spinner]",
-              "description": "Renders the spinner of its status line with the `spinner` of its own registration.",
-              "inheritedFrom": {
-                "name": "DSBaseElement",
-                "module": "src/bases/base-element.ts"
-              }
-            },
-            {
-              "kind": "field",
               "name": "options",
               "type": {
                 "text": "readonly ListboxOption[] | undefined"
@@ -21170,7 +21436,7 @@
               "kind": "field",
               "name": "#listbox",
               "privacy": "private",
-              "default": "new ListboxController(this, { labelledBy: fieldIds.label, options: () => this.listboxOptions, activeIndex: () => this.comboboxState.activeIndex, activate: (index) => this.dispatch({ type: \"activate\", index }), select: (option) => this.selectOption(option), renderOption: (option, index) => this.renderOption(option, index), busy: () => this.#loader.loading, status: () => this.#status, })",
+              "default": "new ListboxController(this, { labelledBy: fieldIds.label, options: () => this.listboxOptions, activeIndex: () => this.comboboxState.activeIndex, activate: (index) => this.dispatch({ type: \"activate\", index }), select: (option) => this.selectOption(option), renderOption: (option, index) => this.renderOption(option, index), busy: () => this.#loader.loading, status: () => this.#status, multiple: () => this.listboxMultiple, selected: (option) => this.isOptionSelected(option), })",
               "inheritedFrom": {
                 "name": "EditableComboboxBase",
                 "module": "src/bases/editable-combobox/editable-combobox-base.ts"
@@ -21575,21 +21841,6 @@
               }
             },
             {
-              "kind": "method",
-              "name": "renderControl",
-              "privacy": "protected",
-              "return": {
-                "type": {
-                  "text": "unknown"
-                }
-              },
-              "description": "Renders the control, from `renderCombobox()`, then the popup with the\ncontent of `renderPopup()`, then the live region of `popupStatus`.",
-              "inheritedFrom": {
-                "name": "FieldBase",
-                "module": "src/bases/field/field-base.ts"
-              }
-            },
-            {
               "kind": "field",
               "name": "comboboxExpanded",
               "type": {
@@ -21977,19 +22228,6 @@
               "name": "customValidity",
               "type": {
                 "text": "string"
-              },
-              "privacy": "protected",
-              "readonly": true,
-              "inheritedFrom": {
-                "name": "withFormControl",
-                "module": "src/mixins/withFormControl.ts"
-              }
-            },
-            {
-              "kind": "field",
-              "name": "formValue",
-              "type": {
-                "text": "FormValue"
               },
               "privacy": "protected",
               "readonly": true,
@@ -22516,6 +22754,267 @@
               }
             }
           ],
+          "events": [
+            {
+              "description": "The native `input` event of the inner control, on each change of the value by the user.",
+              "name": "input",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              },
+              "type": {
+                "text": "InputEvent"
+              }
+            },
+            {
+              "type": {
+                "text": "ListboxSelectEvent"
+              },
+              "description": "When the user picks an option, before the field takes its value. Its `option` is the option. Cancelable: `preventDefault()` keeps the value.",
+              "name": "u-select",
+              "inheritedFrom": {
+                "name": "EditableComboboxBase",
+                "module": "src/bases/editable-combobox/editable-combobox-base.ts"
+              }
+            },
+            {
+              "name": "change",
+              "type": {
+                "text": "Event"
+              },
+              "description": "When the user commits a change of the value, as on a native control (the inner `change` doesn't leave the shadow root: the host fires its own).",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            }
+          ],
+          "attributes": [
+            {
+              "name": "multiple",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "The user chooses several options: `values`. Reflected.",
+              "fieldName": "multiple"
+            },
+            {
+              "name": "values-label",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"Chosen options\"",
+              "description": "The accessible name of the list of the chosen options, with `multiple`, in the page's language.",
+              "fieldName": "valuesLabel"
+            },
+            {
+              "name": "filter",
+              "type": {
+                "text": "ComboboxFilter"
+              },
+              "default": "\"contains\"",
+              "description": "Which options match the text, without case nor accents: those that\n`contains` it, those that `starts-with` it, or all of them with `none`,\nwhen the application filters them itself.",
+              "fieldName": "filter",
+              "inheritedFrom": {
+                "name": "EditableComboboxBase",
+                "module": "src/bases/editable-combobox/editable-combobox-base.ts"
+              }
+            },
+            {
+              "name": "max-options",
+              "type": {
+                "text": "number"
+              },
+              "default": "100",
+              "description": "The largest number of options the list shows, the first ones that\nmatch: the user types more to reach the others. `Infinity` shows them\nall.",
+              "fieldName": "maxOptions",
+              "inheritedFrom": {
+                "name": "EditableComboboxBase",
+                "module": "src/bases/editable-combobox/editable-combobox-base.ts"
+              }
+            },
+            {
+              "name": "loading-label",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"Loading…\"",
+              "description": "What the status line shows and the live region announces while a request lasts.",
+              "fieldName": "loadingLabel",
+              "inheritedFrom": {
+                "name": "EditableComboboxBase",
+                "module": "src/bases/editable-combobox/editable-combobox-base.ts"
+              }
+            },
+            {
+              "name": "open",
+              "type": {
+                "text": "boolean"
+              },
+              "description": "Whether the popup is open. Reflected. Follows the real state: it turns\n`false` when the user closes the popup. Set to `true`, it opens only\nwith some content to show.",
+              "fieldName": "open",
+              "inheritedFrom": {
+                "name": "ComboboxBase",
+                "module": "src/bases/combobox/combobox-base.ts"
+              }
+            },
+            {
+              "name": "name",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "Name of the value in the form's data. Reflected: the form reads the attribute.",
+              "fieldName": "name",
+              "inheritedFrom": {
+                "name": "withFormControl",
+                "module": "src/mixins/withFormControl.ts"
+              }
+            },
+            {
+              "name": "value",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "The value, submitted with the form. The `value` attribute is the\ndefault value: the form's reset restores it.",
+              "fieldName": "value",
+              "inheritedFrom": {
+                "name": "withFormControl",
+                "module": "src/mixins/withFormControl.ts"
+              }
+            },
+            {
+              "name": "required",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "The form can't be submitted while the control is empty.",
+              "fieldName": "required",
+              "inheritedFrom": {
+                "name": "withFormControl",
+                "module": "src/mixins/withFormControl.ts"
+              }
+            },
+            {
+              "name": "readonly",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "The user can't change the value; the form still submits it. Barred\nfrom validation, as a native control: `required` doesn't apply.\nReflected to `readonly`: the browser reads the attribute.",
+              "fieldName": "readOnly",
+              "inheritedFrom": {
+                "name": "withFormControl",
+                "module": "src/mixins/withFormControl.ts"
+              }
+            },
+            {
+              "name": "disabled",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Disables interaction; also sets `aria-disabled=\"true\"` on the host.",
+              "fieldName": "disabled",
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "name": "label",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "The visible label, and the accessible name of the control. Required.",
+              "fieldName": "label",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "name": "label-hidden",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Hides the label from the screen: it stays the accessible name of the\ncontrol. For a control whose purpose the layout shows, the checkbox of\na table row for instance. The hint and the error still show. Reflected.",
+              "fieldName": "labelHidden",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "name": "hint",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "A help text between the label and the control, read with the control.",
+              "fieldName": "hint",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "name": "required-indicator",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"*\"",
+              "description": "Shown after the label of a required field, and hidden from assistive\ntechnologies: they announce the control as required. `\"\"` shows none.",
+              "fieldName": "requiredIndicator",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "name": "autocomplete",
+              "type": {
+                "text": "string | undefined"
+              },
+              "description": "The `autocomplete` of the control: what the browser can fill in (`email`, `name`…).",
+              "fieldName": "autocomplete",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "name": "error-message",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "The error message, in place of the browser's. Say how to fix the error.",
+              "fieldName": "errorMessage",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "name": "error-label",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"Error:\"",
+              "description": "Read by assistive technologies before the error message, which a\ndecorative icon starts: \"Error:\" in the page's language, with its\npunctuation (`Erreur :` in French).",
+              "fieldName": "errorLabel",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            }
+          ],
           "superclass": {
             "name": "EditableComboboxBase",
             "module": "/src/bases/editable-combobox/editable-combobox-base.js"
@@ -22530,80 +23029,6 @@
               "inheritedFrom": {
                 "name": "EditableComboboxBase",
                 "module": "src/bases/editable-combobox/editable-combobox-base.ts"
-              }
-            }
-          ],
-          "cssParts": [
-            {
-              "description": "The native `<input>`, the combobox.",
-              "name": "input",
-              "inheritedFrom": {
-                "name": "EditableComboboxBase",
-                "module": "src/bases/editable-combobox/editable-combobox-base.ts"
-              }
-            },
-            {
-              "description": "The list of options, in the popup.",
-              "name": "listbox",
-              "inheritedFrom": {
-                "name": "EditableComboboxBase",
-                "module": "src/bases/editable-combobox/editable-combobox-base.ts"
-              }
-            },
-            {
-              "description": "An option. The active one has `aria-selected=\"true\"`, a disabled one `aria-disabled=\"true\"`.",
-              "name": "option",
-              "inheritedFrom": {
-                "name": "EditableComboboxBase",
-                "module": "src/bases/editable-combobox/editable-combobox-base.ts"
-              }
-            },
-            {
-              "description": "The line at the end of the list: a `spinner` and `loadingLabel` during a slow request, or `resultsMessage` when the list doesn't show every option. Hidden from assistive technologies, which hear the live region.",
-              "name": "status",
-              "inheritedFrom": {
-                "name": "EditableComboboxBase",
-                "module": "src/bases/editable-combobox/editable-combobox-base.ts"
-              }
-            },
-            {
-              "description": "The popup, below the control, in the top layer.",
-              "name": "popup",
-              "inheritedFrom": {
-                "name": "ComboboxBase",
-                "module": "src/bases/combobox/combobox-base.ts"
-              }
-            },
-            {
-              "description": "The native `<label>`.",
-              "name": "label",
-              "inheritedFrom": {
-                "name": "FieldBase",
-                "module": "src/bases/field/field-base.ts"
-              }
-            },
-            {
-              "description": "The indicator after the label, hidden from assistive technologies. Hidden unless the field is `required` and has a `requiredIndicator`.",
-              "name": "required-indicator",
-              "inheritedFrom": {
-                "name": "FieldBase",
-                "module": "src/bases/field/field-base.ts"
-              }
-            },
-            {
-              "description": "The hint, between the label and the control. Hidden without `hint`.",
-              "name": "hint",
-              "inheritedFrom": {
-                "name": "FieldBase",
-                "module": "src/bases/field/field-base.ts"
-              }
-            },
-            {
-              "description": "The error message, after the control. Hidden while no error shows.",
-              "name": "error",
-              "inheritedFrom": {
-                "name": "FieldBase",
-                "module": "src/bases/field/field-base.ts"
               }
             }
           ],
@@ -23008,249 +23433,6 @@
               "description": "Space between the error icon and the message.",
               "name": "--u-field-error-gap",
               "default": "var(--u-spacing-xs)",
-              "inheritedFrom": {
-                "name": "FieldBase",
-                "module": "src/bases/field/field-base.ts"
-              }
-            }
-          ],
-          "attributes": [
-            {
-              "name": "filter",
-              "type": {
-                "text": "ComboboxFilter"
-              },
-              "default": "\"contains\"",
-              "description": "Which options match the text, without case nor accents: those that\n`contains` it, those that `starts-with` it, or all of them with `none`,\nwhen the application filters them itself.",
-              "fieldName": "filter",
-              "inheritedFrom": {
-                "name": "EditableComboboxBase",
-                "module": "src/bases/editable-combobox/editable-combobox-base.ts"
-              }
-            },
-            {
-              "name": "max-options",
-              "type": {
-                "text": "number"
-              },
-              "default": "100",
-              "description": "The largest number of options the list shows, the first ones that\nmatch: the user types more to reach the others. `Infinity` shows them\nall.",
-              "fieldName": "maxOptions",
-              "inheritedFrom": {
-                "name": "EditableComboboxBase",
-                "module": "src/bases/editable-combobox/editable-combobox-base.ts"
-              }
-            },
-            {
-              "name": "loading-label",
-              "type": {
-                "text": "string"
-              },
-              "default": "\"Loading…\"",
-              "description": "What the status line shows and the live region announces while a request lasts.",
-              "fieldName": "loadingLabel",
-              "inheritedFrom": {
-                "name": "EditableComboboxBase",
-                "module": "src/bases/editable-combobox/editable-combobox-base.ts"
-              }
-            },
-            {
-              "name": "open",
-              "type": {
-                "text": "boolean"
-              },
-              "description": "Whether the popup is open. Reflected. Follows the real state: it turns\n`false` when the user closes the popup. Set to `true`, it opens only\nwith some content to show.",
-              "fieldName": "open",
-              "inheritedFrom": {
-                "name": "ComboboxBase",
-                "module": "src/bases/combobox/combobox-base.ts"
-              }
-            },
-            {
-              "name": "name",
-              "type": {
-                "text": "string"
-              },
-              "default": "\"\"",
-              "description": "Name of the value in the form's data. Reflected: the form reads the attribute.",
-              "fieldName": "name",
-              "inheritedFrom": {
-                "name": "withFormControl",
-                "module": "src/mixins/withFormControl.ts"
-              }
-            },
-            {
-              "name": "value",
-              "type": {
-                "text": "string"
-              },
-              "default": "\"\"",
-              "description": "The value, submitted with the form. The `value` attribute is the\ndefault value: the form's reset restores it.",
-              "fieldName": "value",
-              "inheritedFrom": {
-                "name": "withFormControl",
-                "module": "src/mixins/withFormControl.ts"
-              }
-            },
-            {
-              "name": "required",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "false",
-              "description": "The form can't be submitted while the control is empty.",
-              "fieldName": "required",
-              "inheritedFrom": {
-                "name": "withFormControl",
-                "module": "src/mixins/withFormControl.ts"
-              }
-            },
-            {
-              "name": "readonly",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "false",
-              "description": "The user can't change the value; the form still submits it. Barred\nfrom validation, as a native control: `required` doesn't apply.\nReflected to `readonly`: the browser reads the attribute.",
-              "fieldName": "readOnly",
-              "inheritedFrom": {
-                "name": "withFormControl",
-                "module": "src/mixins/withFormControl.ts"
-              }
-            },
-            {
-              "name": "disabled",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "false",
-              "description": "Disables interaction; also sets `aria-disabled=\"true\"` on the host.",
-              "fieldName": "disabled",
-              "inheritedFrom": {
-                "name": "withDisabled",
-                "module": "src/mixins/withDisabled.ts"
-              }
-            },
-            {
-              "name": "label",
-              "type": {
-                "text": "string"
-              },
-              "default": "\"\"",
-              "description": "The visible label, and the accessible name of the control. Required.",
-              "fieldName": "label",
-              "inheritedFrom": {
-                "name": "FieldBase",
-                "module": "src/bases/field/field-base.ts"
-              }
-            },
-            {
-              "name": "label-hidden",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "false",
-              "description": "Hides the label from the screen: it stays the accessible name of the\ncontrol. For a control whose purpose the layout shows, the checkbox of\na table row for instance. The hint and the error still show. Reflected.",
-              "fieldName": "labelHidden",
-              "inheritedFrom": {
-                "name": "FieldBase",
-                "module": "src/bases/field/field-base.ts"
-              }
-            },
-            {
-              "name": "hint",
-              "type": {
-                "text": "string"
-              },
-              "default": "\"\"",
-              "description": "A help text between the label and the control, read with the control.",
-              "fieldName": "hint",
-              "inheritedFrom": {
-                "name": "FieldBase",
-                "module": "src/bases/field/field-base.ts"
-              }
-            },
-            {
-              "name": "required-indicator",
-              "type": {
-                "text": "string"
-              },
-              "default": "\"*\"",
-              "description": "Shown after the label of a required field, and hidden from assistive\ntechnologies: they announce the control as required. `\"\"` shows none.",
-              "fieldName": "requiredIndicator",
-              "inheritedFrom": {
-                "name": "FieldBase",
-                "module": "src/bases/field/field-base.ts"
-              }
-            },
-            {
-              "name": "autocomplete",
-              "type": {
-                "text": "string | undefined"
-              },
-              "description": "The `autocomplete` of the control: what the browser can fill in (`email`, `name`…).",
-              "fieldName": "autocomplete",
-              "inheritedFrom": {
-                "name": "FieldBase",
-                "module": "src/bases/field/field-base.ts"
-              }
-            },
-            {
-              "name": "error-message",
-              "type": {
-                "text": "string"
-              },
-              "default": "\"\"",
-              "description": "The error message, in place of the browser's. Say how to fix the error.",
-              "fieldName": "errorMessage",
-              "inheritedFrom": {
-                "name": "FieldBase",
-                "module": "src/bases/field/field-base.ts"
-              }
-            },
-            {
-              "name": "error-label",
-              "type": {
-                "text": "string"
-              },
-              "default": "\"Error:\"",
-              "description": "Read by assistive technologies before the error message, which a\ndecorative icon starts: \"Error:\" in the page's language, with its\npunctuation (`Erreur :` in French).",
-              "fieldName": "errorLabel",
-              "inheritedFrom": {
-                "name": "FieldBase",
-                "module": "src/bases/field/field-base.ts"
-              }
-            }
-          ],
-          "events": [
-            {
-              "description": "The native `input` event of the inner control, on each change of the value by the user.",
-              "name": "input",
-              "inheritedFrom": {
-                "name": "FieldBase",
-                "module": "src/bases/field/field-base.ts"
-              },
-              "type": {
-                "text": "InputEvent"
-              }
-            },
-            {
-              "type": {
-                "text": "ListboxSelectEvent"
-              },
-              "description": "When the user picks an option, before the field takes its value. Its `option` is the option. Cancelable: `preventDefault()` keeps the value.",
-              "name": "u-select",
-              "inheritedFrom": {
-                "name": "EditableComboboxBase",
-                "module": "src/bases/editable-combobox/editable-combobox-base.ts"
-              }
-            },
-            {
-              "name": "change",
-              "type": {
-                "text": "Event"
-              },
-              "description": "When the user commits a change of the value, as on a native control (the inner `change` doesn't leave the shadow root: the host fires its own).",
               "inheritedFrom": {
                 "name": "FieldBase",
                 "module": "src/bases/field/field-base.ts"

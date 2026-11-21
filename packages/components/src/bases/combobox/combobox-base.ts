@@ -114,7 +114,7 @@ export abstract class ComboboxBase extends FieldBase {
    * Renders the control, from `renderCombobox()`, then the popup with the
    * content of `renderPopup()`, then the live region of `popupStatus`.
    */
-  protected renderControl() {
+  protected renderControl(): unknown {
     return html`
       ${this.renderCombobox()}
       <div part="popup" class="popup" popover="manual">${this.renderPopup()}</div>

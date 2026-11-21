@@ -124,7 +124,19 @@ export abstract class EditableComboboxBase extends ComboboxBase {
     renderOption: (option, index) => this.renderOption(option, index),
     busy: () => this.#loader.loading,
     status: () => this.#status,
+    multiple: () => this.listboxMultiple,
+    selected: (option) => this.isOptionSelected(option),
   });
+
+  /** Whether the list holds several choices: `aria-multiselectable`, and a box per option. */
+  protected get listboxMultiple(): boolean {
+    return false;
+  }
+
+  /** With `listboxMultiple`: whether the user chose `option`. */
+  protected isOptionSelected(_option: ListboxOption): boolean {
+    return false;
+  }
 
   #loader = new LoadController<readonly ListboxOption[]>(this, {
     delay: () => this.loadDelay,

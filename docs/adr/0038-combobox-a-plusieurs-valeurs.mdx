@@ -1,0 +1,88 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Documentation/ADR/0038 Combobox à plusieurs valeurs" />
+
+# ADR 0038 — Combobox à plusieurs valeurs
+
+**Statut :** accepté · **Date :** 21 novembre 2026 · Répond à une question ouverte de l'[ADR 0025](?path=/docs/documentation-adr-0025-combobox-à-valeur-imposée--docs)
+
+## Contexte
+
+Une enquête porte sur plusieurs communes, une demande sur plusieurs dispositifs : l'usager en choisit plusieurs parmi des centaines, en tapant leur nom.
+
+- `select` avec `multiple` choisit plusieurs options, sans saisie ([ADR 0018](?path=/docs/documentation-adr-0018-select--docs)).
+- `combobox` filtre ses options par le texte, et sa valeur est une seule d'entre elles ([ADR 0025](?path=/docs/documentation-adr-0025-combobox-à-valeur-imposée--docs)).
+- `tag-group` liste des tags retirables, et déplace le focus après un retrait ([ADR 0027](?path=/docs/documentation-adr-0027-indicateurs-et-tags--docs)). `file-field` liste ainsi ses fichiers, sous l'input.
+
+### Ce que font les bibliothèques
+
+<table>
+  <thead>
+    <tr>
+      <th>Bibliothèque</th>
+      <th>Composant</th>
+      <th>Choix affichés</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>UI5</td>
+      <td>`ui5-multi-combobox` : l'usager tape pour filtrer, et choisit plusieurs options.</td>
+      <td>Des tokens dans le champ, avant le texte (`Tokenizer`), et « n de plus » au-delà.</td>
+    </tr>
+    <tr>
+      <td>Carbon</td>
+      <td>`cds-multi-select` avec `filterable`.</td>
+      <td>Le nombre de choix dans un tag, qui les efface tous.</td>
+    </tr>
+    <tr>
+      <td>Web Awesome</td>
+      <td>`wa-select` avec `multiple`, sans saisie.</td>
+      <td>Des `wa-tag` dans le champ, et « +n » au-delà de `max-options-visible`.</td>
+    </tr>
+  </tbody>
+</table>
+
+## D1 — `multiple` sur `combobox`
+
+- **Option A — Un composant**, comme UI5 et Carbon. Il refait la saisie, le filtre et le chargement de `EditableComboboxBase`.
+- **Option B — `multiple` sur `combobox`**, comme `select`.
+
+**Décision : B.**
+
+- `values` donne les valeurs choisies, dans l'ordre des choix ; `value` en donne la première. Le formulaire reçoit une entrée par valeur, comme d'un `select` à choix multiples.
+- La liste porte `aria-multiselectable`, et chaque option une case, comme dans `select`.
+- Un choix ajoute l'option, ou la retire si elle l'était. Le texte se vide, et la liste reste ouverte pour le choix suivant.
+- Un champ `required` n'est valide qu'avec une valeur au moins.
+
+## D2 — Les tags sous le champ
+
+- **Option A — Des tags dans le champ, avant le texte**, comme UI5 et Web Awesome. Le champ grandit à chaque choix, et le texte se décale.
+- **Option B — Des tags sous le champ**, comme `file-field`.
+
+**Décision : B.** Un `tag-group`, nommé par `values-label`, liste les options choisies, la part `values`.
+
+- Chaque tag montre le libellé de son option, même après un nouveau chargement d'options.
+- Son bouton retire l'option : le champ émet `input` et `change`, et `tag-group` déplace le focus.
+- Un champ en lecture seule, ou désactivé, montre des tags sans bouton.
+
+## Conséquences
+
+- **Code :** `multiple`, `values` et `valuesLabel` de `Combobox`. `listboxMultiple` et `isOptionSelected()` dans `EditableComboboxBase`, pour une marque. `renderControl()` de `ComboboxBase` renvoie `unknown`, comme celui de `FieldBase`.
+- **Tests :** `combobox.test.ts` avec le vrai clavier, la story `Multiple` dans trois moteurs.
+- **Limites :**
+  - La liste ouverte couvre les tags : Échap, ou un clic ailleurs, la ferme.
+  - Retour arrière dans un texte vide ne retire pas la dernière option.
+
+## Questions ouvertes
+
+- **Beaucoup de choix :** « n de plus » au-delà d'un nombre de tags, comme UI5 et Web Awesome.
+- **Tout effacer :** un bouton qui retire toutes les options, comme Carbon.
+
+## Sources
+
+Consultées le 21 novembre 2026.
+
+- [MultiComboBox.ts](https://github.com/SAP/ui5-webcomponents/blob/main/packages/main/src/MultiComboBox.ts) (SAP, UI5 Web Components).
+- [multi-select.ts](https://github.com/carbon-design-system/carbon/blob/main/packages/web-components/src/components/multi-select/multi-select.ts) (IBM, Carbon).
+- [select.ts](https://github.com/shoelace-style/webawesome/blob/next/packages/webawesome/src/components/select/select.ts) (Web Awesome).
