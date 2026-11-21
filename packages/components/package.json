@@ -74,6 +74,10 @@
       "types": "./dist/components/autocomplete/autocomplete.d.ts",
       "import": "./dist/autocomplete.js"
     },
+    "./combobox": {
+      "types": "./dist/components/combobox/combobox.d.ts",
+      "import": "./dist/combobox.js"
+    },
     "./checkbox": {
       "types": "./dist/components/checkbox/checkbox.d.ts",
       "import": "./dist/checkbox.js"

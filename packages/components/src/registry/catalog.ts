@@ -1,5 +1,6 @@
 import { Alert } from "../components/alert/alert.js";
 import { Autocomplete } from "../components/autocomplete/autocomplete.js";
+import { Combobox } from "../components/combobox/combobox.js";
 import { BreadcrumbItem } from "../components/breadcrumb-item/breadcrumb-item.js";
 import { Breadcrumb } from "../components/breadcrumb/breadcrumb.js";
 import { ButtonLink } from "../components/button-link/button-link.js";
@@ -53,6 +54,7 @@ export const allComponents = [
   TextField,
   Textarea,
   Autocomplete,
+  Combobox,
   Checkbox,
   Switch,
   Radio,
@@ -98,6 +100,7 @@ export interface CatalogEntry {
 export interface Catalog {
   alert: { element: Alert; events: {} };
   autocomplete: { element: Autocomplete; events: { "u-select": ListboxSelectEvent } };
+  combobox: { element: Combobox; events: { "u-select": ListboxSelectEvent } };
   breadcrumb: { element: Breadcrumb; events: {} };
   "breadcrumb-item": { element: BreadcrumbItem; events: {} };
   button: { element: Button; events: {} };

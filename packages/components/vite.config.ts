@@ -50,6 +50,7 @@ export default defineConfig({
         "text-field": resolve(import.meta.dirname, "src/components/text-field/text-field.ts"),
         textarea: resolve(import.meta.dirname, "src/components/textarea/textarea.ts"),
         autocomplete: resolve(import.meta.dirname, "src/components/autocomplete/autocomplete.ts"),
+        combobox: resolve(import.meta.dirname, "src/components/combobox/combobox.ts"),
         checkbox: resolve(import.meta.dirname, "src/components/checkbox/checkbox.ts"),
         switch: resolve(import.meta.dirname, "src/components/switch/switch.ts"),
         radio: resolve(import.meta.dirname, "src/components/radio/radio.ts"),

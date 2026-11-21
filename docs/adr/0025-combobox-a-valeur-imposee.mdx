@@ -1,0 +1,122 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Documentation/ADR/0025 Combobox à valeur imposée" />
+
+# ADR 0025 — Combobox à valeur imposée
+
+**Statut :** accepté · **Date :** 21 novembre 2026
+
+## Contexte
+
+Une application demande une commune parmi 30 000. L'utilisateur tape « par » pour filtrer la liste, et choisit Paris. Le champ affiche « Paris », et le formulaire reçoit le code de la commune, « 75056 ».
+
+- `select` impose une option, mais ne filtre pas par la saisie ([ADR 0018](?path=/docs/documentation-adr-0018-select--docs)).
+- `autocomplete` filtre par la saisie, mais sa valeur est le texte, libre ([ADR 0009](?path=/docs/documentation-adr-0009-autocomplete-combobox-et-popovers-ancrés--docs)).
+- L'APG décrit le combobox éditable : sa valeur peut se limiter à un ensemble de valeurs permises, et la saisie filtre alors les suggestions.
+
+### Ce que font les bibliothèques
+
+<table>
+  <thead>
+    <tr>
+      <th>Bibliothèque</th>
+      <th>Valeur imposée</th>
+      <th>Fin de la saisie</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>React Aria</td>
+      <td>
+        `allowsCustomValue`, faux par défaut. Un texte vide efface la sélection (`setValue(null)`).
+      </td>
+      <td>
+        La perte du focus appelle `commitSelection()` : le texte redevient celui de l'élément
+        choisi. Un libellé tapé en entier ne choisit rien.
+      </td>
+    </tr>
+    <tr>
+      <td>MUI</td>
+      <td>
+        `freeSolo`, faux par défaut. La valeur est l'option, l'input montre son libellé
+        (`getOptionLabel`). Le bouton d'effacement met la valeur à `null`.
+      </td>
+      <td>
+        `clearOnBlur`, vrai sans `freeSolo` : `resetInputValue()` rétablit le libellé de la valeur.
+        `autoSelect`, faux par défaut.
+      </td>
+    </tr>
+    <tr>
+      <td>Spectrum Web Components</td>
+      <td>
+        Aucune : `sp-combobox` a pour valeur le texte. Une option dont le texte est égal est marquée
+        choisie.
+      </td>
+      <td>Échap, liste fermée, vide le texte.</td>
+    </tr>
+    <tr>
+      <td>Web Awesome</td>
+      <td>Aucun combobox sur la branche `next`.</td>
+      <td>—</td>
+    </tr>
+  </tbody>
+</table>
+
+## D1 — Une base commune
+
+`EditableComboboxBase` (`src/bases/editable-combobox/`) sort d'`autocomplete` : l'input, les options, le filtre, la liste, ses touches, l'annonce du nombre d'options et `u-select`. `autocomplete` et `combobox` l'étendent.
+
+- `inputValue` donne le texte de l'input. C'est `value` dans un autocomplete.
+- `ComboboxBase.controlText` donne le texte que le popup suit, `value` par défaut.
+- `filterText` donne le texte que filtrent les options. `combobox` filtre seulement ce que l'utilisateur tape : un libellé affiché montre toutes les options.
+- `optionText()` donne le texte qu'affiche l'input après un choix : la valeur d'une suggestion, le libellé d'une option.
+- `handleTextChange()` reçoit le `change` de l'input : `autocomplete` émet le sien, `combobox` l'ignore.
+
+## D2 — La valeur et le texte
+
+- `value` est la valeur d'une option, ou `""`. L'input montre le libellé de cette option.
+- La saisie filtre les options, et ne change pas `value`. Un choix la change, et émet `input` puis `change`.
+- Vider l'input efface `value`, comme React Aria. `change` suit quand l'utilisateur quitte le champ, comme pour un input texte.
+- `input` suit chaque changement du texte. Avec `filter="none"`, l'application lit `inputValue` et charge les options.
+
+## D3 — La fin de la saisie
+
+L'utilisateur quitte le champ alors que le texte n'est pas le libellé de la valeur.
+
+- **Option A — Le libellé de la valeur revient**, comme React Aria et MUI. Un utilisateur qui tape « Lyon » en entier, puis Tab, perd sa saisie.
+- **Option B — Le texte reste, et le champ devient invalide.** La valeur envoyée diffère du texte affiché.
+- **Option C — A, sauf si le texte est le libellé d'une seule option**, sans casse ni accents : cette option est choisie.
+
+**Décision : C.** Deux communes de même nom ne se devinent pas : l'utilisateur choisit dans la liste.
+
+- Échap, liste ouverte, ferme la liste et garde le texte (APG). Liste fermée, Échap rétablit le libellé de la valeur, et s'arrête là, avant une modale autour du champ.
+- Entrée sans option active choisit l'option du texte, comme C. Elle n'envoie pas le formulaire tant que le texte diffère du libellé de la valeur.
+
+## D4 — La validité
+
+Un `combobox` `required` sans valeur bloque son formulaire, quel que soit le texte. Son message est celui d'un `<select>` caché, comme `select`.
+
+## Conséquences
+
+- **Code :** `EditableComboboxBase`, `Combobox`, `Autocomplete` réduit à son `change`, et `ComboboxBase.controlText`. Le type `AutocompleteFilter` devient `ComboboxFilter`.
+- **Tokens :** aucun. `combobox` lit les groupes `field`, `combobox` et `listbox`.
+- **Tests :** `combobox.test.ts` avec le vrai clavier et une modale, les stories dans trois moteurs.
+- **Limites :**
+  - Les options doivent contenir celle de `value` : l'input montre son libellé. Sinon, il montre le libellé de la dernière option choisie, ou la valeur.
+  - La liste rend toutes les options qui correspondent. Pour 30 000 communes, l'application filtre sur un serveur (`filter="none"`).
+
+## Questions ouvertes
+
+- **Grandes listes :** un nombre maximal d'options affichées, ou une liste virtuelle.
+- **Création :** une option « Ajouter “…” » quand aucune ne correspond.
+- **Valeurs multiples :** des puces dans l'input, `values` comme `select`.
+
+## Sources
+
+Consultées le 21 novembre 2026.
+
+- [useComboBoxState.ts](https://github.com/adobe/react-spectrum/blob/main/packages/react-stately/src/combobox/useComboBoxState.ts) (Adobe, React Stately).
+- [useAutocomplete.js](https://github.com/mui/material-ui/blob/master/packages/mui-material/src/useAutocomplete/useAutocomplete.js) (MUI).
+- [Combobox.ts](https://github.com/adobe/spectrum-web-components/blob/main/1st-gen/packages/combobox/src/Combobox.ts) (Adobe, Spectrum Web Components).
+- [Composants de Web Awesome](https://github.com/shoelace-style/webawesome/tree/next/packages/webawesome/src/components) : aucun combobox.
+- [Combobox Pattern](https://www.w3.org/WAI/ARIA/apg/patterns/combobox/) (W3C, ARIA Authoring Practices Guide) : Échap, et la valeur limitée aux valeurs permises.

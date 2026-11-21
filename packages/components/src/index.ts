@@ -14,8 +14,10 @@ export * from "./bases/field/field-base.js";
 export * from "./components/text-field/text-field.js";
 export * from "./components/textarea/textarea.js";
 export * from "./bases/combobox/combobox-base.js";
+export * from "./bases/editable-combobox/editable-combobox-base.js";
 export * from "./bases/picker/picker-base.js";
 export * from "./components/autocomplete/autocomplete.js";
+export * from "./components/combobox/combobox.js";
 export * from "./bases/toggle/toggle-base.js";
 export * from "./components/checkbox/checkbox.js";
 export * from "./components/switch/switch.js";
@@ -79,7 +81,7 @@ export type * from "./components/drawer/drawer.type.js";
 export type * from "./components/text-field/text-field.type.js";
 export type * from "./controllers/listbox.type.js";
 export type * from "./bases/combobox/combobox.type.js";
-export type * from "./components/autocomplete/autocomplete.type.js";
+export type * from "./bases/editable-combobox/editable-combobox.type.js";
 export type { IconLoader, IconSet, IconSource } from "@unicorne/icons";
 export {
   allComponents,
