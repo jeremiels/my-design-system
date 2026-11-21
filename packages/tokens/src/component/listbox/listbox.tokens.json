@@ -86,6 +86,11 @@
       "$value": "{radius.sm}",
       "$description": "Corner radius of the box."
     },
+    "option-radio-border-radius": {
+      "$type": "dimension",
+      "$value": "{radius.full}",
+      "$description": "Corner radius of the circle before a `menu-item` of type `radio`."
+    },
     "status-font-size": {
       "$type": "dimension",
       "$value": "{font.size.sm}",

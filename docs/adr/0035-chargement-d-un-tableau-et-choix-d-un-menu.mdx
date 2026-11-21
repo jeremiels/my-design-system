@@ -1,0 +1,84 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Documentation/ADR/0035 Chargement d'un tableau et choix d'un menu" />
+
+# ADR 0035 — Chargement d'un tableau et choix d'un menu
+
+**Statut :** accepté · **Date :** 21 novembre 2026 · Répond à des questions ouvertes de l'[ADR 0030](?path=/docs/documentation-adr-0030-tableau--docs) et de l'[ADR 0021](?path=/docs/documentation-adr-0021-menu-et-popups--docs)
+
+## Contexte
+
+- Un tableau trié, filtré ou paginé sur un serveur attend ses nouvelles lignes. `table` n'avait pas d'état de chargement ([ADR 0030](?path=/docs/documentation-adr-0030-tableau--docs)).
+- Un menu « Affichage » coche des options : la grille, la taille des icônes. `menu-item` n'avait que des actions ([ADR 0021](?path=/docs/documentation-adr-0021-menu-et-popups--docs)).
+- Le pattern de menu de l'APG a `menuitemcheckbox` et `menuitemradio`, avec `aria-checked`. Espace change l'état sans fermer le menu ; Entrée le change, puis ferme le menu.
+
+### Ce que font les bibliothèques
+
+<table>
+  <thead>
+    <tr>
+      <th>Bibliothèque</th>
+      <th>Chargement d'un tableau</th>
+      <th>Choix d'un menu</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Web Awesome</td>
+      <td>—</td>
+      <td>
+        `wa-dropdown-item` : `type="checkbox"` et `checked`. Un choix inverse `checked`, émet
+        `wa-select`, puis ferme le menu.
+      </td>
+    </tr>
+    <tr>
+      <td>React Aria</td>
+      <td>`TableLoadMoreItem` et son `isLoading` : une ligne de chargement.</td>
+      <td>`selectionMode` d'un menu ou d'une section, et `shouldCloseOnSelect`.</td>
+    </tr>
+  </tbody>
+</table>
+
+## D1 — `loading` sur `table`
+
+- **Option A — Des lignes squelettes** à la place des lignes. L'utilisateur perd la page qu'il lisait.
+- **Option B — Les lignes restent, et un indicateur les recouvre.**
+
+**Décision : B.**
+
+- Les lignes restent, atténuées (`loading-opacity`). Le tableau porte `aria-busy="true"`.
+- Un `spinner`, nommé par `loading-label`, se place au centre. Sans ligne, il prend la place du message vide.
+- `loading-label` a le sens et le texte de celui des comboboxes : « Loading… » ([ADR 0033](?path=/docs/documentation-adr-0033-retours-d-un-écran-d-application--docs), D2).
+- Le tableau n'annonce rien : l'application annonce la fin d'un chargement attendu.
+
+## D2 — Les choix d'un menu
+
+- **Option A — Un composant par choix**, `menu-item-checkbox`. Une marque surcharge alors trois composants.
+- **Option B — `type` sur `menu-item`**, comme Web Awesome.
+
+**Décision : B.** `type` vaut `normal`, `checkbox` ou `radio`, et donne le rôle : `menuitem`, `menuitemcheckbox` ou `menuitemradio`.
+
+- `checked` donne `aria-checked`. Une case, carrée ou ronde, le montre avant le libellé, comme dans un `select` à choix multiples ([ADR 0018](?path=/docs/documentation-adr-0018-select--docs)).
+- Les éléments `radio` d'un même `name` forment un groupe : en cocher un décoche les autres.
+- Espace coche et garde le menu ouvert. Entrée et le clic cochent, puis ferment le menu, comme l'APG et Web Awesome.
+- Chaque changement émet `change` depuis l'élément. Une action garde son `click`.
+- Parmi des choix, une action garde la place de la case : les libellés s'alignent.
+
+## Conséquences
+
+- **Code :** `loading` et `loadingLabel` de `Table`. `type`, `checked` et `name` de `MenuItem`, le type `MenuItemType`.
+- **Tokens :** `loading-opacity` de `table`, `option-radio-border-radius` de `listbox`.
+- **Tests :** les stories `Loading` de `table` et `Choices` de `menu` dans trois moteurs, `menu.test.ts` avec le vrai clavier.
+
+## Questions ouvertes
+
+- **Charger plus :** une ligne « Charger plus » en bas du tableau, comme `TableLoadMoreItem` de React Aria.
+- **Groupes nommés :** un séparateur et un titre entre les groupes de choix d'un menu (`role="group"`).
+
+## Sources
+
+Consultées le 21 novembre 2026.
+
+- [Menu and Menubar Pattern](https://www.w3.org/WAI/ARIA/apg/patterns/menubar/) (W3C, APG).
+- [dropdown-item.ts](https://github.com/shoelace-style/webawesome/blob/next/packages/webawesome/src/components/dropdown-item/dropdown-item.ts) et [dropdown.ts](https://github.com/shoelace-style/webawesome/blob/next/packages/webawesome/src/components/dropdown/dropdown.ts) (Web Awesome).
+- [Menu.tsx](https://github.com/adobe/react-spectrum/blob/main/packages/react-aria-components/src/Menu.tsx) et [Table.tsx](https://github.com/adobe/react-spectrum/blob/main/packages/react-aria-components/src/Table.tsx) (Adobe, React Aria).

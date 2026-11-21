@@ -1,7 +1,9 @@
 /* No tokens of its own: those of listbox, declared by its menu and inherited.
    The focused item is the active one. */
 :host {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: var(--u-listbox-option-check-gap);
   padding-inline: var(--u-listbox-option-padding-inline);
   padding-block: var(--u-listbox-option-padding-block);
   border-radius: var(--u-listbox-option-border-radius);
@@ -18,9 +20,39 @@
   opacity: var(--u-listbox-option-opacity-disabled);
 }
 
+/* The box of a choice, as in a list of several choices (listbox.css):
+   filled while checked, round for a radio. */
+.check {
+  flex: none;
+  box-sizing: border-box;
+  inline-size: var(--u-listbox-option-check-size);
+  block-size: var(--u-listbox-option-check-size);
+  border: var(--u-listbox-option-check-border-width) solid currentColor;
+  border-radius: var(--u-listbox-option-check-border-radius);
+}
+:host([type="radio"]) .check {
+  border-radius: var(--u-listbox-option-radio-border-radius);
+}
+:host([checked]) .check {
+  background-color: currentColor;
+  box-shadow: inset 0 0 0 var(--u-listbox-option-check-border-width)
+    var(--u-listbox-background-color);
+}
+.check[hidden] {
+  display: none;
+}
+/* An action among choices: the place of the box, empty, aligns the labels. */
+:host([data-indent]) .check[hidden] {
+  display: block;
+  visibility: hidden;
+}
+
 @media (forced-colors: active) {
   :host(:focus) {
     color: HighlightText;
     background-color: Highlight;
+  }
+  :host([checked]) .check {
+    background-color: CanvasText;
   }
 }

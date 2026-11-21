@@ -105,6 +105,7 @@ export type * from "./types/common.js";
 export type * from "./bases/button/button.type.js";
 export type * from "./components/alert/alert.type.js";
 export type * from "./components/notice/notice.type.js";
+export type * from "./components/menu-item/menu-item.type.js";
 export type * from "./bases/modal/modal.type.js";
 export type * from "./components/drawer/drawer.type.js";
 export type * from "./components/badge/badge.type.js";

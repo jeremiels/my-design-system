@@ -105,6 +105,11 @@
       "$type": "dimension",
       "$value": "{focus-ring.offset}",
       "$description": "Space between the focus ring and what it surrounds."
+    },
+    "loading-opacity": {
+      "$type": "number",
+      "$value": "{opacity.disabled}",
+      "$description": "Opacity of the rows while the table loads new ones."
     }
   }
 }

@@ -11,6 +11,7 @@
 /* The box that scrolls: past the width of the page, and past its largest
    height under the header row. */
 .scroller {
+  position: relative;
   overflow: auto;
   max-block-size: var(--u-table-max-block-size);
   border: var(--u-table-border-width) solid var(--u-table-border-color);
@@ -52,8 +53,26 @@
   text-align: center;
 }
 
+/* While the table loads: its rows dimmed, and a spinner over them, in the
+   middle of the box; in place of the empty message without rows. */
+:host([loading]) .body {
+  opacity: var(--u-table-loading-opacity);
+}
+.loading {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+.loading--empty {
+  position: static;
+  padding-block: var(--u-table-cell-padding-block);
+}
+
 .caption[hidden],
-.empty[hidden] {
+.empty[hidden],
+.loading[hidden] {
   display: none;
 }
 
