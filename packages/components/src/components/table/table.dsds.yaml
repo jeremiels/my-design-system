@@ -1,0 +1,80 @@
+# Quand utiliser table, et ses règles (DSDS). Son API vit dans custom-elements.json.
+kind: component
+id: table
+name: Table
+description: Un tableau de données, composé de lignes et de cellules.
+metadata:
+  origin:
+    method: authored
+    author: assisted
+  status:
+    status: experimental
+
+sections:
+  - kind: guidelines
+    for: all
+    framing: when-to-use
+    items:
+      - level: must
+        statement: Utilisez `table` pour comparer des données en lignes et en colonnes.
+        checkedBy: manual
+      - level: must-not
+        statement: N'utilisez pas `table` pour disposer une page ou un formulaire.
+        checkedBy: manual
+      - level: should
+        statement: Au-delà de quelques centaines de lignes, paginez avec <dsds:pagination>.
+        alternatives:
+          - to: pagination
+        checkedBy: manual
+
+  - kind: guidelines
+    for: all
+    title: Données
+    items:
+      - level: must
+        statement: Triez les données de l'application à chaque `u-sort`, avec `sortRows()` ou sur le serveur.
+        checks:
+          - href: ./table.stories.ts#Default
+            role: test
+        checkedBy: automated
+      - level: must
+        statement: Posez `loading` pendant un chargement de lignes, puis annoncez sa fin dans une région live.
+        checks:
+          - href: ./table.stories.ts#Loading
+            role: test
+        checkedBy: automated
+      - level: must
+        statement: Retirez de `values` une ligne que l'application supprime. Une ligne d'une autre page garde son choix.
+        checks:
+          - href: ./table.test.ts
+            role: test
+        checkedBy: automated
+
+  - kind: guidelines
+    for: all
+    title: Accessibilité
+    items:
+      - level: must
+        statement: Donnez au tableau un `label`. Il le nomme, et s'affiche en légende.
+        checkedBy: manual
+      - level: must
+        statement: Marquez l'en-tête de chaque ligne avec `scope="row"`. Il nomme la case de la ligne.
+        checkedBy: manual
+
+refs:
+  - href: ./table.stories.ts
+    rel: demo
+    role: Stories (CSF)
+
+sourceFiles:
+  - platform: web-component
+    file: ./table.ts
+
+imports:
+  - platform: web-component
+    code: import "@unicorne/components/define";
+    package: "@unicorne/components"
+
+specs:
+  - href: ../../../custom-elements.json
+    role: Custom Elements Manifest

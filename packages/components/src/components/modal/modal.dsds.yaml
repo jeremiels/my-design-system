@@ -1,0 +1,69 @@
+# Quand utiliser modal, et ses règles (DSDS). Son API vit dans custom-elements.json.
+kind: component
+id: modal
+name: Modal
+description: Une boîte de dialogue modale, au-dessus de la page.
+metadata:
+  origin:
+    method: authored
+    author: assisted
+  status:
+    status: experimental
+
+sections:
+  - kind: guidelines
+    for: all
+    framing: when-to-use
+    items:
+      - level: must
+        statement: Utilisez `modal` pour une tâche courte qui interrompt la page, comme une confirmation.
+        checkedBy: manual
+      - level: should
+        statement: Pour un formulaire long, ou une tâche à côté de la page, utilisez <dsds:drawer>.
+        alternatives:
+          - to: drawer
+        checkedBy: manual
+      - level: must-not
+        statement: N'ouvrez pas une modale depuis une autre modale.
+        checkedBy: manual
+
+  - kind: guidelines
+    for: all
+    title: Accessibilité
+    items:
+      - level: must
+        statement: Donnez à la modale un `label`. Il s'affiche en titre, et nomme la boîte de dialogue.
+        checks:
+          - href: ./modal.stories.ts#Opened
+            role: test
+        checkedBy: automated
+      - level: must
+        statement: Traduisez `close-label`. Il nomme le bouton de fermeture, qui ne montre qu'une icône.
+        checks:
+          - href: ./modal.stories.ts#CloseButton
+            role: test
+        checkedBy: automated
+      - level: should
+        statement: Placez `autofocus` sur la réponse sans risque d'une confirmation.
+        checks:
+          - href: ./modal.stories.ts#Autofocus
+            role: test
+        checkedBy: automated
+
+refs:
+  - href: ./modal.stories.ts
+    rel: demo
+    role: Stories (CSF)
+
+sourceFiles:
+  - platform: web-component
+    file: ./modal.ts
+
+imports:
+  - platform: web-component
+    code: import "@unicorne/components/define";
+    package: "@unicorne/components"
+
+specs:
+  - href: ../../../custom-elements.json
+    role: Custom Elements Manifest

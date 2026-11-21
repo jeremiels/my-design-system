@@ -1,0 +1,74 @@
+# Quand utiliser notice, et ses règles (DSDS). Son API vit dans custom-elements.json.
+kind: component
+id: notice
+name: Notice
+description: Un bandeau d'information importante, au-dessus de l'en-tête.
+metadata:
+  origin:
+    method: authored
+    author: assisted
+  status:
+    status: experimental
+
+sections:
+  - kind: guidelines
+    for: all
+    framing: when-to-use
+    items:
+      - level: must
+        statement: Utilisez `notice` pour une information importante sur tout le service, comme une panne ou une date limite.
+        checkedBy: manual
+      - level: must-not
+        statement: N'utilisez pas `notice` pour le résultat d'une action. Utilisez <dsds:alert> dans la page, ou un toast.
+        alternatives:
+          - to: alert
+          - to: toaster
+        checkedBy: manual
+      - level: should
+        statement: Placez `notice` dans le slot `banner` de <dsds:page>, avant l'en-tête. Le lien d'évitement ne le saute pas.
+        checkedBy: manual
+
+  - kind: guidelines
+    for: all
+    title: Accessibilité
+    items:
+      - level: must
+        statement: "Commencez le message par sa nature, « Information : » ou « Attention : ». La couleur et l'icône ne la disent pas seules."
+        checkedBy: manual
+      - level: must
+        statement: Après la fermeture d'un bandeau `dismissible`, donnez le focus au contenu, avec `focusContent()` de la page.
+        checks:
+          - href: ../page/page.test.ts
+            role: test
+        checkedBy: automated
+
+refs:
+  - href: ./notice.stories.ts
+    rel: demo
+    role: Stories (CSF)
+
+sourceFiles:
+  - platform: web-component
+    file: ./notice.ts
+
+imports:
+  - platform: web-component
+    code: import "@unicorne/components/define";
+    package: "@unicorne/components"
+
+specs:
+  - href: ../../../custom-elements.json
+    role: Custom Elements Manifest
+
+traits:
+  - traitType: variant
+    kind: enum
+    id: variant
+    description: L'intention du bandeau. Elle fixe ses couleurs et son icône.
+    values:
+      - id: information
+        description: Une information, la valeur par défaut.
+      - id: warning
+        description: Un point qui demande l'attention, comme une date limite.
+      - id: danger
+        description: Une panne, ou un service interrompu.

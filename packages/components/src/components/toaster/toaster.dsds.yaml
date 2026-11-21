@@ -1,0 +1,43 @@
+# Quand utiliser toaster (DSDS). Son API vit dans custom-elements.json.
+kind: component
+id: toaster
+name: Toaster
+description: Les messages brefs qui suivent une action, dans un coin de la page.
+metadata:
+  origin:
+    method: authored
+    author: assisted
+  status:
+    status: experimental
+
+sections:
+  - kind: guidelines
+    for: all
+    framing: when-to-use
+    items:
+      - level: must
+        statement: Utilisez `toaster` pour confirmer une action, comme « Enregistré ».
+        checkedBy: manual
+      - level: must-not
+        statement: N'y placez pas une information que l'usager doit lire ou garder. Utilisez <dsds:alert>.
+        alternatives:
+          - to: alert
+        checkedBy: manual
+
+refs:
+  - href: ./toaster.stories.ts
+    rel: demo
+    role: Stories (CSF)
+
+sourceFiles:
+  - platform: web-component
+    file: ./toaster.ts
+
+imports:
+  - platform: web-component
+    code: import "@unicorne/components/define";
+    package: "@unicorne/components"
+
+specs:
+  - href: ../../../custom-elements.json
+    role: Custom Elements Manifest

@@ -1,0 +1,65 @@
+# Quand utiliser link, et ses règles (DSDS). Son API vit dans custom-elements.json.
+kind: component
+id: link
+name: Link
+description: Un lien vers une page, ou vers un endroit d'une page.
+metadata:
+  origin:
+    method: authored
+    author: assisted
+  status:
+    status: experimental
+
+sections:
+  - kind: guidelines
+    for: all
+    framing: when-to-use
+    items:
+      - level: must
+        statement: Utilisez `link` pour aller vers une page, ou vers un endroit de la page.
+        checkedBy: manual
+      - level: must-not
+        statement: N'utilisez pas `link` pour une action dans la page. Utilisez <dsds:button>.
+        alternatives:
+          - to: button
+        checkedBy: manual
+      - level: should
+        statement: Pour l'action principale d'une zone qui mène à une page, utilisez <dsds:button-link>.
+        alternatives:
+          - to: button-link
+        checkedBy: manual
+
+  - kind: guidelines
+    for: all
+    title: Accessibilité
+    items:
+      - level: must
+        statement: Écrivez un texte qui dit où va le lien, compris hors de sa phrase. Évitez « cliquez ici ».
+        checkedBy: manual
+      - level: should-not
+        statement: N'ouvrez pas de nouvelle fenêtre, sauf si l'usager y perdrait sa saisie.
+        checkedBy: manual
+      - level: must
+        statement: Avec `target="_blank"`, traduisez `new-window-label`. Le lien dit qu'il ouvre une nouvelle fenêtre, à l'écran et dans son nom.
+        checks:
+          - href: ./link.stories.ts#NewWindow
+            role: test
+        checkedBy: automated
+
+refs:
+  - href: ./link.stories.ts
+    rel: demo
+    role: Stories (CSF)
+
+sourceFiles:
+  - platform: web-component
+    file: ./link.ts
+
+imports:
+  - platform: web-component
+    code: import "@unicorne/components/define";
+    package: "@unicorne/components"
+
+specs:
+  - href: ../../../custom-elements.json
+    role: Custom Elements Manifest

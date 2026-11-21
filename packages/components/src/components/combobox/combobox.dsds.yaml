@@ -1,0 +1,65 @@
+# Quand utiliser combobox, et ses règles (DSDS). Son API vit dans custom-elements.json.
+kind: component
+id: combobox
+name: Combobox
+description: Un champ qui filtre des options par le texte, et dont la valeur est l'une d'elles.
+metadata:
+  origin:
+    method: authored
+    author: assisted
+  status:
+    status: experimental
+
+sections:
+  - kind: guidelines
+    for: all
+    framing: when-to-use
+    items:
+      - level: must
+        statement: Utilisez `combobox` quand la valeur est l'une de nombreuses options, que l'usager trouve en tapant.
+        checkedBy: manual
+      - level: must-not
+        statement: N'utilisez pas `combobox` pour un texte libre. Utilisez <dsds:autocomplete>.
+        alternatives:
+          - to: autocomplete
+        checkedBy: manual
+      - level: should
+        statement: Pour quelques options, sans saisie, utilisez <dsds:select>.
+        alternatives:
+          - to: select
+        checkedBy: manual
+
+  - kind: guidelines
+    for: all
+    title: Plusieurs valeurs
+    items:
+      - level: must
+        statement: Avec `multiple`, traduisez `values-label`. Il nomme la liste des options choisies, sous le champ.
+        checks:
+          - href: ./combobox.stories.ts#Multiple
+            role: test
+        checkedBy: automated
+      - level: must
+        statement: Lisez les valeurs dans `values`. Le formulaire reçoit une entrée par valeur, sous `name`.
+        checks:
+          - href: ./combobox.test.ts
+            role: test
+        checkedBy: automated
+
+refs:
+  - href: ./combobox.stories.ts
+    rel: demo
+    role: Stories (CSF)
+
+sourceFiles:
+  - platform: web-component
+    file: ./combobox.ts
+
+imports:
+  - platform: web-component
+    code: import "@unicorne/components/define";
+    package: "@unicorne/components"
+
+specs:
+  - href: ../../../custom-elements.json
+    role: Custom Elements Manifest

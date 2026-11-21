@@ -1,0 +1,43 @@
+# Quand utiliser alert (DSDS). Son API vit dans custom-elements.json.
+kind: component
+id: alert
+name: Alert
+description: Un message dans la page, annoncé aux technologies d'assistance.
+metadata:
+  origin:
+    method: authored
+    author: assisted
+  status:
+    status: experimental
+
+sections:
+  - kind: guidelines
+    for: all
+    framing: when-to-use
+    items:
+      - level: must
+        statement: Utilisez `alert` pour un message lié au contenu qui l'entoure, comme le résultat d'un formulaire.
+        checkedBy: manual
+      - level: should
+        statement: Pour un message bref après une action, sans lien avec un endroit de la page, utilisez <dsds:toaster>.
+        alternatives:
+          - to: toaster
+        checkedBy: manual
+
+refs:
+  - href: ./alert.stories.ts
+    rel: demo
+    role: Stories (CSF)
+
+sourceFiles:
+  - platform: web-component
+    file: ./alert.ts
+
+imports:
+  - platform: web-component
+    code: import "@unicorne/components/define";
+    package: "@unicorne/components"
+
+specs:
+  - href: ../../../custom-elements.json
+    role: Custom Elements Manifest

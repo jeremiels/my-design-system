@@ -1,0 +1,205 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Documentation/Guides/Tester avec un lecteur d'écran" />
+
+# Tester avec un lecteur d'écran
+
+Ce guide teste les composants du socle avec un lecteur d'écran, comme le fait un audit RGAA. Les tests automatiques vérifient les rôles et les noms (axe, dans trois moteurs). Ils ne vérifient pas ce qu'un lecteur d'écran annonce, ni l'ordre de ses annonces.
+
+Aucun de ces tests n'a encore été fait : la colonne « État » le dit.
+
+## Prérequis
+
+- Storybook, lancé par `npm run storybook`, ou sa version construite.
+- Au moins deux des combinaisons suivantes, celles de la plupart des usagers :
+
+<table>
+  <thead>
+    <tr>
+      <th>Lecteur d'écran</th>
+      <th>Navigateur</th>
+      <th>Système</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>NVDA</td>
+      <td>Firefox</td>
+      <td>Windows</td>
+    </tr>
+    <tr>
+      <td>JAWS</td>
+      <td>Chrome</td>
+      <td>Windows</td>
+    </tr>
+    <tr>
+      <td>VoiceOver</td>
+      <td>Safari</td>
+      <td>macOS et iOS</td>
+    </tr>
+    <tr>
+      <td>TalkBack</td>
+      <td>Chrome</td>
+      <td>Android</td>
+    </tr>
+  </tbody>
+</table>
+
+## 1. Préparez chaque test
+
+1. Ouvrez la story du composant seule : `iframe.html?id=<id>&viewMode=story`.
+2. Démarrez le lecteur d'écran, avec ses réglages par défaut.
+3. Placez le focus avant le composant, en haut de la page.
+
+## 2. Testez
+
+1. Parcourez le composant au clavier seul : Tab, les flèches, Entrée, Espace, Échap.
+2. Notez ce que le lecteur d'écran annonce à chaque touche.
+3. Comparez avec l'annonce attendue du tableau de la section 3.
+4. Parcourez-le aussi en mode lecture, avec les flèches du lecteur d'écran.
+
+## 3. Comparez avec les annonces attendues
+
+<table>
+  <thead>
+    <tr>
+      <th>Composant</th>
+      <th>Geste</th>
+      <th>Annonce attendue</th>
+      <th>État</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>`page`</td>
+      <td>Tab, depuis le haut de la page, puis Entrée</td>
+      <td>
+        Le lien d'évitement, dans la navigation « Accès rapide ». Puis la région principale. La
+        tabulation suivante entre dans le contenu.
+      </td>
+      <td>À faire</td>
+    </tr>
+    <tr>
+      <td>`side-nav`</td>
+      <td>Tab sur un groupe, puis Entrée</td>
+      <td>
+        Le nom du groupe, bouton, « réduit » ou « développé », « actuel » s'il contient la page. Le
+        lien de la page courante est « page actuelle ».
+      </td>
+      <td>À faire</td>
+    </tr>
+    <tr>
+      <td>`link`</td>
+      <td>Tab sur un lien vers une nouvelle fenêtre</td>
+      <td>Le texte du lien, puis « nouvelle fenêtre ».</td>
+      <td>À faire</td>
+    </tr>
+    <tr>
+      <td>`notice`</td>
+      <td>Lecture de la page</td>
+      <td>Le message, avant l'en-tête. Aucune annonce à son apparition.</td>
+      <td>À faire</td>
+    </tr>
+    <tr>
+      <td>`combobox`</td>
+      <td>Saisie, Flèche bas, Entrée</td>
+      <td>
+        Le libellé, « zone de liste modifiable ». Le nombre de suggestions pendant la saisie.
+        L'option active à chaque flèche. Avec `multiple`, « sélectionné » sur les options choisies.
+      </td>
+      <td>À faire</td>
+    </tr>
+    <tr>
+      <td>`select`</td>
+      <td>Entrée, flèches, Entrée</td>
+      <td>Le libellé, l'option choisie, « réduit ». L'option active dans la liste.</td>
+      <td>À faire</td>
+    </tr>
+    <tr>
+      <td>`number-field` avec `formatOptions`</td>
+      <td>Tab, Flèche haut</td>
+      <td>Le libellé, « bouton fléché », la valeur formatée : « 1 250,50 euros ».</td>
+      <td>À faire</td>
+    </tr>
+    <tr>
+      <td>`date-picker` avec `range`</td>
+      <td>Entrée, flèches, Entrée, flèches, Entrée</td>
+      <td>
+        Le jour complet à chaque flèche. Après le premier jour : « choisissez le dernier jour ». Le
+        champ annonce la période à la fermeture.
+      </td>
+      <td>À faire</td>
+    </tr>
+    <tr>
+      <td>`menu`</td>
+      <td>Entrée sur le déclencheur, flèches, Espace</td>
+      <td>
+        Le déclencheur, « menu ». Chaque élément, « case à cocher » ou « bouton radio », « coché »
+        ou « non coché ».
+      </td>
+      <td>À faire</td>
+    </tr>
+    <tr>
+      <td>`table`</td>
+      <td>Navigation par cellule du lecteur d'écran</td>
+      <td>
+        La légende, le nombre de lignes et de colonnes. L'en-tête de colonne et de ligne de chaque
+        cellule. « Trié croissant » sur la colonne triée. « Occupé » pendant un chargement.
+      </td>
+      <td>À faire</td>
+    </tr>
+    <tr>
+      <td>`tabs`</td>
+      <td>Tab, flèches</td>
+      <td>L'onglet, « onglet », sa position : « 2 sur 4 ». Le panneau, nommé par son onglet.</td>
+      <td>À faire</td>
+    </tr>
+    <tr>
+      <td>`tree`</td>
+      <td>Tab, flèches</td>
+      <td>L'élément, son niveau, « réduit » ou « développé », sa position dans son niveau.</td>
+      <td>À faire</td>
+    </tr>
+    <tr>
+      <td>`modal` et `drawer`</td>
+      <td>Ouverture, Échap</td>
+      <td>
+        Le titre de la boîte de dialogue, « boîte de dialogue ». Le focus revient au bouton qui l'a
+        ouverte.
+      </td>
+      <td>À faire</td>
+    </tr>
+    <tr>
+      <td>`toaster`</td>
+      <td>Une action qui montre un message</td>
+      <td>
+        Le message, sans interrompre. Un message `warning` ou `danger` interrompt la lecture en
+        cours.
+      </td>
+      <td>À faire</td>
+    </tr>
+    <tr>
+      <td>`toggle-button`</td>
+      <td>Tab, Espace</td>
+      <td>Le libellé, « bouton bascule », « appuyé » ou « non appuyé ».</td>
+      <td>À faire</td>
+    </tr>
+    <tr>
+      <td>`file-field`</td>
+      <td>Choix de deux fichiers, puis retrait du premier</td>
+      <td>
+        La liste « Fichiers choisis », chaque fichier et sa taille. Après le retrait, le focus sur
+        le fichier suivant.
+      </td>
+      <td>À faire</td>
+    </tr>
+  </tbody>
+</table>
+
+Les mots des annonces varient selon le lecteur d'écran et sa langue. Comparez le sens, pas les mots.
+
+## 4. Notez les résultats
+
+1. Remplacez « À faire » par la combinaison testée et son résultat : « NVDA et Firefox : conforme ».
+2. Pour un écart, ouvrez une issue avec le geste, l'annonce entendue et l'annonce attendue.
+3. Une règle d'usage vérifiée à la main garde `checkedBy: manual` dans son document DSDS.

@@ -1,0 +1,43 @@
+# Quand utiliser select (DSDS). Son API vit dans custom-elements.json.
+kind: component
+id: select
+name: Select
+description: Un champ qui choisit une option dans une liste, sans saisie.
+metadata:
+  origin:
+    method: authored
+    author: assisted
+  status:
+    status: experimental
+
+sections:
+  - kind: guidelines
+    for: all
+    framing: when-to-use
+    items:
+      - level: must
+        statement: Utilisez `select` pour choisir parmi quelques options, connues de l'usager.
+        checkedBy: manual
+      - level: should
+        statement: Pour de nombreuses options, que l'usager trouve en tapant, utilisez <dsds:combobox>.
+        alternatives:
+          - to: combobox
+        checkedBy: manual
+
+refs:
+  - href: ./select.stories.ts
+    rel: demo
+    role: Stories (CSF)
+
+sourceFiles:
+  - platform: web-component
+    file: ./select.ts
+
+imports:
+  - platform: web-component
+    code: import "@unicorne/components/define";
+    package: "@unicorne/components"
+
+specs:
+  - href: ../../../custom-elements.json
+    role: Custom Elements Manifest
