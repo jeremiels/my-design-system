@@ -3,19 +3,10 @@
   --u-popup-font-family: var(--u-font-family-body);
   --u-popup-font-size: var(--u-font-size-md);
   --u-popup-text-color: var(--u-color-text-default);
-  --u-popup-trigger-padding-inline: var(--u-spacing-md);
-  --u-popup-trigger-padding-block: var(--u-spacing-sm);
   --u-popup-trigger-gap: var(--u-spacing-sm);
-  --u-popup-trigger-background-color: var(--u-color-surface-default);
-  --u-popup-trigger-background-color-hover: var(--u-color-surface-raised);
-  --u-popup-trigger-border-width: var(--u-border-width);
-  --u-popup-trigger-border-color: var(--u-color-border-control);
-  --u-popup-trigger-border-radius: var(--u-radius-md);
+  --u-popup-chevron-width: var(--u-border-width);
   --u-popup-chevron-size: var(--u-spacing-sm);
   --u-popup-popup-offset: var(--u-spacing-2xs);
   --u-popup-transition-duration: var(--u-motion-duration-fast);
   --u-popup-transition-timing-function: var(--u-motion-easing-standard);
-  --u-popup-focus-ring-color: var(--u-color-focus-ring);
-  --u-popup-focus-ring-width: var(--u-focus-ring-width);
-  --u-popup-focus-ring-offset: var(--u-focus-ring-offset);
 }

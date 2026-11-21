@@ -203,6 +203,28 @@
           {
             "$ref": "component/button/variant.information.tokens.json"
           }
+        ],
+        "neutral": [
+          {
+            "$ref": "component/button/variant.neutral.tokens.json"
+          }
+        ]
+      }
+    },
+    "button-appearance": {
+      "description": "The `appearance` attribute of `button` and `button-link`.",
+      "default": "filled",
+      "contexts": {
+        "filled": [],
+        "outlined": [
+          {
+            "$ref": "component/button/appearance.outlined.tokens.json"
+          }
+        ],
+        "plain": [
+          {
+            "$ref": "component/button/appearance.plain.tokens.json"
+          }
         ]
       }
     },
@@ -303,6 +325,9 @@
     },
     {
       "$ref": "#/modifiers/button-variant"
+    },
+    {
+      "$ref": "#/modifiers/button-appearance"
     },
     {
       "$ref": "#/modifiers/button-size"

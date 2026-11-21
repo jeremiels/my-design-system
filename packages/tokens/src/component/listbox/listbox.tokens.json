@@ -90,6 +90,11 @@
       "$type": "dimension",
       "$value": "{font.size.sm}",
       "$description": "Font size of the status line, at the end of the list: “Loading…”, or the number of options it doesn't show."
+    },
+    "status-gap": {
+      "$type": "dimension",
+      "$value": "{spacing.xs}",
+      "$description": "Space between the spinner of the status line and its text, while the options load."
     }
   }
 }

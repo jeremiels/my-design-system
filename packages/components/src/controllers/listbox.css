@@ -58,6 +58,9 @@
 /* The status line: after the options, and in view at the bottom of the list
    while it scrolls. Its background hides the options that pass under it. */
 .status {
+  display: flex;
+  align-items: center;
+  gap: var(--u-listbox-status-gap);
   position: sticky;
   inset-block-end: calc(-1 * var(--u-listbox-padding));
   margin-block-end: calc(-1 * var(--u-listbox-padding));

@@ -169,7 +169,8 @@ export function levels(sources: ResolverSources): Map<string, Level> {
 /**
  * The three-level rule, as error messages (none when the tokens follow it):
  * only primitives hold values; a semantic token aliases a primitive or another
- * semantic token; a component token aliases a semantic token and has a
+ * semantic token; a component token aliases a semantic token, or a token
+ * of its own component (an appearance reads the variant's color), and has a
  * description. Also: a token stays at one level, a context only changes tokens
  * that exist without it, and every theme declares the same tokens.
  */
@@ -228,7 +229,11 @@ export function checkLevels(sources: ResolverSources): string[] {
         errors.push(
           `${where(declaration)}: a component token aliases a semantic token, not a value.`,
         );
-      } else if (target !== undefined && target !== "semantic") {
+      } else if (target === "component" && alias.split(".")[0] !== declaration.id.split(".")[0]) {
+        errors.push(
+          `${where(declaration)}: a component token aliases a semantic token or a token of its own component, not one of another component.`,
+        );
+      } else if (target !== undefined && target !== "semantic" && target !== "component") {
         errors.push(
           `${where(declaration)}: a component token aliases a semantic token, not a ${target}.`,
         );

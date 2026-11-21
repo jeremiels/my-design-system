@@ -33,7 +33,8 @@ Les tokens d'un composant sont des sources DTCG, dans `packages/tokens/src/compo
 ```
 
 - Adoptez la feuille générée avant la feuille du composant : `static styles = [DSBaseElement.styles ?? [], buttonTokens, buttonStyles]`.
-- Ne déclarez aucun token dans la feuille du composant. Une règle interne ne redéclare jamais un token.
+- Ne déclarez aucun token du composant dans sa feuille. Une règle interne ne redéclare jamais un de ses tokens.
+- Réglez un composant de base que le composant rend par les tokens de ce dernier, sur son hôte, avec les tokens du composant en valeur : `.remove { --u-button-border-radius: var(--u-tag-border-radius); }` (`tag.css`, ADR 0031). N'utilisez pas `::part()` pour cela.
 - Faites lire aux règles internes les tokens du composant, pas les tokens sémantiques. Un besoin nouveau est un token nouveau.
 - N'écrivez pas de valeur de repli littérale dans `var()`. Les deux exceptions sont dans la référence.
 - Ne déclarez pas de token que rien ne lit.

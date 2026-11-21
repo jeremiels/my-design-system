@@ -7,6 +7,7 @@ import { ToastCloseEvent, type ToastCloseReason } from "../../events/toast-close
 import { addToast, emptyToastQueue, removeToast, type ToastQueue } from "../../state/toast.js";
 import type { SemanticVariant } from "../../types/common.js";
 import { DSBaseElement } from "../../bases/base-element.js";
+import { Button } from "../button/button.js";
 import { Icon } from "../icon/icon.js";
 import toasterStyles from "./toaster.css" with { type: "css" };
 import toasterTokens from "./toaster.tokens.css" with { type: "css" };
@@ -37,7 +38,7 @@ export interface ToastOptions {
  * @summary The short messages that follow an action, in a corner of the page.
  * @csspart list - The list of messages, in the top layer.
  * @csspart toast - A message.
- * @csspart close-button - The close button of a message.
+ * @csspart close-button - The close button of a message: the `button` component of the same registration, of the message's variant.
  * @fires {ToastCloseEvent} u-close - When a message closes: its `id`, as `show()` returned it, and the `reason`.
  * @tokens toaster - Its tokens (`@cssprop`), from `@unicorne/tokens` (`src/component/toaster/`): `npm run analyze` documents them.
  */
@@ -45,7 +46,7 @@ export class Toaster extends DSBaseElement {
   static override componentName = "toaster";
 
   /** Renders the icons with the `icon` of its own registration (ADR 0001, D2). */
-  static override dependencies: readonly (typeof DSBaseElement)[] = [Icon];
+  static override dependencies: readonly (typeof DSBaseElement)[] = [Button, Icon];
 
   static styles = [super.styles ?? [], announceStyles, toasterTokens, toasterStyles];
 
@@ -175,6 +176,7 @@ export class Toaster extends DSBaseElement {
   }
 
   render() {
+    const button = this.tagFor(Button);
     const icon = this.tagFor(Icon);
     return html`
       <ol part="list" class="list" role="list" popover="manual">
@@ -185,15 +187,16 @@ export class Toaster extends DSBaseElement {
             <li part="toast" class="toast toast--${toast.variant}">
               <${icon} class="icon" name=${toast.variant}></${icon}>
               <span class="message">${toast.message}</span>
-              <button
+              <${button}
                 part="close-button"
                 class="close"
-                type="button"
-                aria-label=${this.closeLabel}
+                variant=${toast.variant}
+                size="small"
+                label=${this.closeLabel}
                 @click=${() => this.#close(toast.id, "close-press")}
               >
                 <${icon} name="close"></${icon}>
-              </button>
+              </${button}>
             </li>
           `,
         )}

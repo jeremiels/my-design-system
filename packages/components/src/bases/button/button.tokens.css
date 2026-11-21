@@ -4,6 +4,10 @@
   --u-button-background-color-hover: var(--u-color-action-background-hover);
   --u-button-background-color-active: var(--u-color-action-background-active);
   --u-button-text-color: var(--u-color-action-text);
+  --u-button-foreground-color: var(--u-color-action-foreground);
+  --u-button-outlined-border-color: var(--u-color-action-foreground);
+  --u-button-border-color: var(--u-color-transparent);
+  --u-button-border-width: var(--u-border-width);
   --u-button-border-radius: var(--u-radius-md);
   --u-button-font-family: var(--u-font-family-body);
   --u-button-font-size: var(--u-font-size-md);
@@ -22,6 +26,8 @@
   --u-button-background-color-hover: var(--u-color-secondary-background-hover);
   --u-button-background-color-active: var(--u-color-secondary-background-active);
   --u-button-text-color: var(--u-color-secondary-text);
+  --u-button-foreground-color: var(--u-color-secondary-foreground);
+  --u-button-outlined-border-color: var(--u-color-secondary-foreground);
 }
 
 :host([variant="success"]) {
@@ -29,6 +35,8 @@
   --u-button-background-color-hover: var(--u-color-success-background-hover);
   --u-button-background-color-active: var(--u-color-success-background-active);
   --u-button-text-color: var(--u-color-success-text);
+  --u-button-foreground-color: var(--u-color-success-foreground);
+  --u-button-outlined-border-color: var(--u-color-success-foreground);
 }
 
 :host([variant="warning"]) {
@@ -36,6 +44,8 @@
   --u-button-background-color-hover: var(--u-color-warning-background-hover);
   --u-button-background-color-active: var(--u-color-warning-background-active);
   --u-button-text-color: var(--u-color-warning-text);
+  --u-button-foreground-color: var(--u-color-warning-foreground);
+  --u-button-outlined-border-color: var(--u-color-warning-foreground);
 }
 
 :host([variant="danger"]) {
@@ -43,6 +53,8 @@
   --u-button-background-color-hover: var(--u-color-danger-background-hover);
   --u-button-background-color-active: var(--u-color-danger-background-active);
   --u-button-text-color: var(--u-color-danger-text);
+  --u-button-foreground-color: var(--u-color-danger-foreground);
+  --u-button-outlined-border-color: var(--u-color-danger-foreground);
 }
 
 :host([variant="information"]) {
@@ -50,6 +62,32 @@
   --u-button-background-color-hover: var(--u-color-information-background-hover);
   --u-button-background-color-active: var(--u-color-information-background-active);
   --u-button-text-color: var(--u-color-information-text);
+  --u-button-foreground-color: var(--u-color-information-foreground);
+  --u-button-outlined-border-color: var(--u-color-information-foreground);
+}
+
+:host([variant="neutral"]) {
+  --u-button-background-color: var(--u-color-neutral-background);
+  --u-button-background-color-hover: var(--u-color-neutral-background-hover);
+  --u-button-background-color-active: var(--u-color-neutral-background-active);
+  --u-button-text-color: var(--u-color-neutral-text);
+  --u-button-foreground-color: var(--u-color-text-default);
+  --u-button-outlined-border-color: var(--u-color-border-control);
+}
+
+:host([appearance="outlined"]) {
+  --u-button-background-color: var(--u-color-transparent);
+  --u-button-background-color-hover: var(--u-color-neutral-background);
+  --u-button-background-color-active: var(--u-color-neutral-background-hover);
+  --u-button-text-color: var(--u-button-foreground-color);
+  --u-button-border-color: var(--u-button-outlined-border-color);
+}
+
+:host([appearance="plain"]) {
+  --u-button-background-color: var(--u-color-transparent);
+  --u-button-background-color-hover: var(--u-color-neutral-background);
+  --u-button-background-color-active: var(--u-color-neutral-background-hover);
+  --u-button-text-color: var(--u-button-foreground-color);
 }
 
 :host([size="small"]) {

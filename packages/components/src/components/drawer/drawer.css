@@ -78,8 +78,8 @@ dialog[open]:where(:not([data-closing]))::backdrop {
 .close {
   grid-area: 1 / 2;
 }
-.close::part(button) {
-  padding: var(--u-drawer-close-button-padding);
+.close {
+  --u-button-padding-block: var(--u-drawer-close-button-padding);
 }
 .body {
   grid-area: 1 / 1;

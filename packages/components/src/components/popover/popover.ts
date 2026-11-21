@@ -1,7 +1,8 @@
-import { html } from "lit";
+import { html } from "lit/static-html.js";
 import { property } from "lit/decorators.js";
 import type { PopupToggleReason } from "../../events/popup-toggle.js";
 import { PopupBase } from "../../bases/popup/popup-base.js";
+import { Button } from "../button/button.js";
 import popoverStyles from "./popover.css" with { type: "css" };
 import popoverTokens from "./popover.tokens.css" with { type: "css" };
 
@@ -11,20 +12,24 @@ import popoverTokens from "./popover.tokens.css" with { type: "css" };
  * dialog: the page stays usable, and Tab goes from the button into the
  * content. The popup and its closing are those of `PopupBase` (ADR 0022).
  *
- * The component renders its trigger, in the same shadow root as the panel:
- * the trigger's `aria-expanded` and `aria-controls` reach it. Escape closes
+ * The component renders its trigger, an `outlined` and `neutral` `button`
+ * with `popup="dialog"`: its control reports `aria-expanded` (ADR 0031).
+ * `label` names the trigger and the panel. Escape closes
  * the panel and gives the focus back to the trigger; a press outside and
  * the focus leaving the component close it too.
  *
  * @element u-popover
  * @summary A button that shows a panel of content.
  * @slot - The content of the panel.
- * @csspart trigger - The native `<button>` that opens the panel.
+ * @csspart trigger - The button that opens the panel: the `button` component of the same registration.
  * @csspart panel - The panel, `role="dialog"`, in the top layer.
  * @tokens popover - Its panel's tokens (`@cssprop`), from `@unicorne/tokens` (`src/component/popover/`): `npm run analyze` documents them.
  */
 export class Popover extends PopupBase {
   static override componentName = "popover";
+
+  /** Renders its trigger with the `button` of its own registration. */
+  static override dependencies = [Button];
 
   static styles = [super.styles ?? [], popoverTokens, popoverStyles];
 
@@ -40,8 +45,8 @@ export class Popover extends PopupBase {
     return this.#trigger;
   }
 
-  get #trigger(): HTMLButtonElement | null {
-    return this.renderRoot?.querySelector<HTMLButtonElement>('[part~="trigger"]') ?? null;
+  get #trigger(): Button | null {
+    return this.renderRoot?.querySelector<Button>('[part~="trigger"]') ?? null;
   }
 
   protected override popupHidden(reason: PopupToggleReason): void {
@@ -59,26 +64,26 @@ export class Popover extends PopupBase {
   };
 
   render() {
+    const button = this.tagFor(Button);
     return html`
-      <button
+      <${button}
         part="trigger"
         class="trigger"
-        id="trigger"
-        type="button"
-        aria-haspopup="dialog"
-        aria-expanded=${this.open ? "true" : "false"}
-        aria-controls="panel"
+        variant="neutral"
+        appearance="outlined"
+        popup="dialog"
+        .expanded=${this.open}
         ?disabled=${this.isDisabled}
         @click=${this.#onTriggerClick}
       >
         <span class="label">${this.label}</span><span class="chevron" aria-hidden="true"></span>
-      </button>
+      </${button}>
       <div
         part="panel"
         class="popup panel"
         id="panel"
         role="dialog"
-        aria-labelledby="trigger"
+        aria-label=${this.label}
         popover="manual"
       >
         <slot></slot>

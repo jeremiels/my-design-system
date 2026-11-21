@@ -1,0 +1,9 @@
+{
+  "button": {
+    "background-color": { "$value": "{color.transparent}" },
+    "background-color-hover": { "$value": "{color.neutral.background}" },
+    "background-color-active": { "$value": "{color.neutral.background-hover}" },
+    "text-color": { "$value": "{button.foreground-color}" },
+    "border-color": { "$value": "{button.outlined-border-color}" }
+  }
+}

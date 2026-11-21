@@ -35,6 +35,9 @@ sections:
       - level: should-not
         statement: Ne choisissez pas une variante pour sa couleur. Choisissez-la pour l'intention de l'action.
         checkedBy: manual
+      - level: should
+        statement: Donnez l'apparence `outlined` ou `plain` aux actions secondaires d'une zone, et `neutral` aux actions sans intention, comme fermer ou retirer.
+        checkedBy: manual
 
   - kind: guidelines
     for: all
@@ -58,7 +61,7 @@ sections:
     title: Accessibilité
     items:
       - level: must
-        statement: Donnez au bouton un libellé dans son slot. Ce libellé est son nom accessible.
+        statement: Donnez au bouton un libellé dans son slot. Ce libellé est son nom accessible. Un bouton qui ne montre qu'une icône reçoit son nom par `label`.
         checks:
           - href: ./button.stories.ts
             role: test
@@ -83,6 +86,12 @@ sections:
       - level: must-not
         statement: Ne recopiez pas la liste des attributs ou des tokens. Lisez `custom-elements.json`.
         checkedBy: manual
+      - level: must
+        statement: Dans un composant du socle, rendez `button` par `tagFor(Button)` pour tout contrôle qui a l'air d'un bouton, jamais un `<button>` natif (ADR 0031).
+        checks:
+          - href: ../../composition.test.ts
+            role: test
+        checkedBy: automated
 
 refs:
   - href: ./button.stories.ts
@@ -112,6 +121,8 @@ traits:
         description: L'action principale d'une zone.
       - id: secondary
         description: Une action secondaire, à côté de l'action principale.
+      - id: neutral
+        description: Une action sans intention, comme fermer, retirer ou faire défiler.
       - id: success
         description: Une action qui valide ou confirme.
       - id: danger
@@ -120,6 +131,17 @@ traits:
         description: Une action qui demande de l'attention avant de continuer.
       - id: information
         description: Une action qui donne plus d'informations.
+  - traitType: variant
+    kind: enum
+    id: appearance
+    description: Comment la variante peint le bouton.
+    values:
+      - id: filled
+        description: Un fond plein, la valeur par défaut.
+      - id: outlined
+        description: Une bordure, sans fond, comme le déclencheur d'un menu.
+      - id: plain
+        description: Le texte seul, comme le bouton de fermeture d'une modale.
   - traitType: variant
     kind: enum
     id: size
@@ -135,3 +157,7 @@ traits:
     kind: boolean
     id: disabled
     description: Le bouton n'accepte aucune interaction et n'émet aucun `click`.
+  - traitType: state
+    kind: boolean
+    id: loading
+    description: L'action du bouton est en cours. Un spinner couvre le libellé, et le bouton ignore les clics mais garde le focus.

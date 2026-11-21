@@ -1,8 +1,10 @@
-import { html, nothing } from "lit";
+import { nothing } from "lit";
 import { property } from "lit/decorators.js";
+import { html } from "lit/static-html.js";
 import { AnnounceController, announceStyles } from "../../controllers/announce.js";
 import { paginationItems } from "../../state/pagination.js";
 import { DSBaseElement } from "../../bases/base-element.js";
+import { Button } from "../button/button.js";
 import paginationStyles from "./pagination.css" with { type: "css" };
 import paginationTokens from "./pagination.tokens.css" with { type: "css" };
 
@@ -20,13 +22,16 @@ import paginationTokens from "./pagination.tokens.css" with { type: "css" };
  * @element u-pagination
  * @summary The buttons to move through the pages of a list.
  * @csspart nav - The `<nav>` landmark.
- * @csspart button - A button: a page, the previous or the next one.
+ * @csspart button - A button, a page, the previous or the next one: the `button` component of the same registration, `plain` and `neutral`, `filled` and `primary` for the current page.
  * @csspart gap - The gap that stands for the pages left out.
  * @fires change - When the user moves to another page: `page` holds it.
  * @tokens pagination - Its tokens (`@cssprop`), from `@unicorne/tokens` (`src/component/pagination/`): `npm run analyze` documents them.
  */
 export class Pagination extends DSBaseElement {
   static override componentName = "pagination";
+
+  /** Renders its buttons with the `button` of its own registration. */
+  static override dependencies = [Button];
 
   static styles = [super.styles ?? [], announceStyles, paginationTokens, paginationStyles];
 
@@ -89,49 +94,53 @@ export class Pagination extends DSBaseElement {
   }
 
   render() {
+    const button = this.tagFor(Button);
     const current = this.currentPage;
     return html`
       <nav part="nav" class=${this.#rtl ? "rtl" : nothing} aria-label=${this.label}>
         <ul class="list" role="list">
           <li>
-            <button
+            <${button}
               part="button"
               class="button button--previous"
-              type="button"
-              aria-label=${this.previousLabel}
+              variant="neutral"
+              appearance="plain"
+              label=${this.previousLabel}
               ?disabled=${current <= 1}
               @click=${() => this.goTo(current - 1)}
             >
               <span class="chevron" aria-hidden="true"></span>
-            </button>
+            </${button}>
           </li>
           ${paginationItems(current, this.pages).map((item) =>
             item === "gap"
               ? html`<li><span part="gap" class="gap" aria-hidden="true">…</span></li>`
               : html`<li>
-                  <button
+                  <${button}
                     part="button"
                     class="button"
-                    type="button"
-                    aria-label=${this.pageLabel(item)}
-                    aria-current=${item === current ? "page" : nothing}
+                    variant=${item === current ? "primary" : "neutral"}
+                    appearance=${item === current ? "filled" : "plain"}
+                    label=${this.pageLabel(item)}
+                    current=${item === current ? "page" : nothing}
                     @click=${() => this.goTo(item)}
                   >
                     ${item}
-                  </button>
+                  </${button}>
                 </li>`,
           )}
           <li>
-            <button
+            <${button}
               part="button"
               class="button button--next"
-              type="button"
-              aria-label=${this.nextLabel}
+              variant="neutral"
+              appearance="plain"
+              label=${this.nextLabel}
               ?disabled=${current >= this.pages}
               @click=${() => this.goTo(current + 1)}
             >
               <span class="chevron" aria-hidden="true"></span>
-            </button>
+            </${button}>
           </li>
         </ul>
       </nav>

@@ -1,4 +1,4 @@
-import { html } from "lit";
+import { html } from "lit/static-html.js";
 import { property } from "lit/decorators.js";
 import { listboxTokens } from "../../controllers/listbox.js";
 import { RovingFocusController } from "../../controllers/roving-focus.js";
@@ -7,13 +7,15 @@ import { emptyTypeahead, isTypeaheadKey, typeahead } from "../../state/typeahead
 import type { DSBaseElement } from "../../bases/base-element.js";
 import { MenuItem } from "../menu-item/menu-item.js";
 import { PopupBase } from "../../bases/popup/popup-base.js";
+import { Button } from "../button/button.js";
 import menuStyles from "./menu.css" with { type: "css" };
 
 /**
  * A menu button: a button that opens a list of actions, its `menu-item`
- * children. The component renders its trigger, in the same shadow root as
- * the popup: the trigger's `aria-expanded` and `aria-controls` reach it
- * (ADR 0021). The popup and its closing are those of `PopupBase`.
+ * children. The component renders its trigger, an `outlined` and `neutral`
+ * `button` with `popup="menu"`: its control reports `aria-expanded` (ADR
+ * 0021, ADR 0031). `label` names the trigger and the menu. The popup and
+ * its closing are those of `PopupBase`.
  *
  * Keys of the trigger: Enter, Space and ArrowDown open the menu on its
  * first item, ArrowUp on its last. In the menu: the arrows move between the
@@ -25,15 +27,15 @@ import menuStyles from "./menu.css" with { type: "css" };
  * @element u-menu
  * @summary A button that opens a list of actions.
  * @slot - The `menu-item` elements of the same registration.
- * @csspart trigger - The native `<button>` that opens the menu.
+ * @csspart trigger - The button that opens the menu: the `button` component of the same registration.
  * @csspart menu - The popup, `role="menu"`, in the top layer.
  * @tokens listbox - Its list's tokens (`@cssprop`), shared by every list of options, from `@unicorne/tokens` (`src/component/listbox/`): `npm run analyze` documents them.
  */
 export class Menu extends PopupBase {
   static override componentName = "menu";
 
-  /** Recognizes its items of its own registration (ADR 0001, D2). */
-  static override dependencies: readonly (typeof DSBaseElement)[] = [MenuItem];
+  /** Recognizes its items, and renders its trigger, with the components of its own registration (ADR 0001, D2). */
+  static override dependencies: readonly (typeof DSBaseElement)[] = [MenuItem, Button];
 
   static styles = [super.styles ?? [], listboxTokens, menuStyles];
 
@@ -80,8 +82,8 @@ export class Menu extends PopupBase {
     return this.#trigger;
   }
 
-  get #trigger(): HTMLButtonElement | null {
-    return this.renderRoot?.querySelector<HTMLButtonElement>('[part~="trigger"]') ?? null;
+  get #trigger(): Button | null {
+    return this.renderRoot?.querySelector<Button>('[part~="trigger"]') ?? null;
   }
 
   protected override popupShown(_reason: PopupToggleReason): void {
@@ -171,29 +173,22 @@ export class Menu extends PopupBase {
   };
 
   render() {
+    const button = this.tagFor(Button);
     return html`
-      <button
+      <${button}
         part="trigger"
         class="trigger"
-        id="trigger"
-        type="button"
-        aria-haspopup="menu"
-        aria-expanded=${this.open ? "true" : "false"}
-        aria-controls="menu"
+        variant="neutral"
+        appearance="outlined"
+        popup="menu"
+        .expanded=${this.open}
         ?disabled=${this.isDisabled}
         @click=${this.#onTriggerClick}
         @keydown=${this.#onTriggerKeydown}
       >
         <span class="label">${this.label}</span><span class="chevron" aria-hidden="true"></span>
-      </button>
-      <div
-        part="menu"
-        class="menu"
-        id="menu"
-        role="menu"
-        aria-labelledby="trigger"
-        popover="manual"
-      >
+      </${button}>
+      <div part="menu" class="menu" id="menu" role="menu" aria-label=${this.label} popover="manual">
         <slot @slotchange=${() => this.requestUpdate()}></slot>
       </div>
     `;

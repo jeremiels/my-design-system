@@ -1,6 +1,7 @@
 import preview from "#.storybook/preview";
 import { html } from "lit";
 import { expect, waitFor } from "storybook/test";
+import type { Button } from "../button/button";
 import type { Toaster } from "./toaster";
 
 const meta = preview.meta({
@@ -37,8 +38,10 @@ export const Default = meta.story({
     await toaster.updateComplete;
     const list = toaster.shadowRoot!.querySelector<HTMLElement>('[part~="list"]')!;
     await waitFor(() => expect(list.matches(":popover-open")).toBe(true));
-    const closes = [...toaster.shadowRoot!.querySelectorAll('[part~="close-button"]')];
-    expect(closes[0]).toHaveAccessibleName("Close");
+    // The close buttons are `u-button` elements; the native control carries the name.
+    const closes = [...toaster.shadowRoot!.querySelectorAll<Button>('[part~="close-button"]')];
+    await closes[0]!.updateComplete;
+    await expect(closes[0]!.shadowRoot!.querySelector("button")!).toHaveAccessibleName("Close");
     await Promise.allSettled(
       list.getAnimations({ subtree: true }).map((animation) => animation.finished),
     );

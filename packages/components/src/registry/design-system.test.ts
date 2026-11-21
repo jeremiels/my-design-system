@@ -146,7 +146,8 @@ describe("designSystem", () => {
     const prefix = uniquePrefix();
     const tags = await designSystem({ prefix, catalog: ["card"] }).define(Card);
 
-    expect(Object.keys(tags).sort()).toEqual(["button", "card"]);
+    // The button, and its own dependency: the spinner of `loading`.
+    expect(Object.keys(tags).sort()).toEqual(["button", "card", "spinner"]);
     const card = await render<Card>(`${prefix}-card`);
     expect(card.shadowRoot!.querySelector(`${prefix}-button`)).toBeInstanceOf(Button);
   });

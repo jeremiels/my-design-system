@@ -3,6 +3,7 @@
 import { afterEach, expect, it } from "vitest";
 import { userEvent } from "vitest/browser";
 import "../../define.js";
+import type { Button } from "../button/button.js";
 import type { TagGroup } from "./tag-group.js";
 
 afterEach(() => {
@@ -38,6 +39,9 @@ it("leaves the focus alone when the application keeps the tag", async () => {
   const group = document.querySelector<TagGroup>("u-tag-group")!;
   const tag = group.querySelector("u-tag")!;
   await group.updateComplete;
+  // The tag delegates the focus to its remove button, a `u-button` rendered after it.
+  await tag.updateComplete;
+  await tag.shadowRoot!.querySelector<Button>("u-button")!.updateComplete;
   tag.focus();
   await userEvent.keyboard("{Enter}");
   // Another tag added later doesn't take the focus.

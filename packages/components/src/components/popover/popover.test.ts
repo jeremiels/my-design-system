@@ -3,6 +3,7 @@
 import { afterEach, expect, it } from "vitest";
 import { userEvent } from "vitest/browser";
 import "../../define.js";
+import type { Button } from "../button/button.js";
 import type { Popover } from "./popover.js";
 
 afterEach(() => {
@@ -15,9 +16,13 @@ it("opens a named dialog, which Tab enters, and Escape closes back to the trigge
     <button id="outside">Outside</button>`;
   const popover = document.querySelector<Popover>("u-popover")!;
   await popover.updateComplete;
-  const trigger = popover.shadowRoot!.querySelector<HTMLButtonElement>('[part~="trigger"]')!;
+  // The trigger is a `u-button`; its native control carries the ARIA.
+  const trigger = popover.shadowRoot!.querySelector<Button>('[part~="trigger"]')!;
+  await trigger.updateComplete;
+  const control = trigger.shadowRoot!.querySelector("button")!;
   const panel = popover.shadowRoot!.querySelector<HTMLElement>('[part~="panel"]')!;
-  expect(trigger.getAttribute("aria-haspopup")).toBe("dialog");
+  expect(control.getAttribute("aria-haspopup")).toBe("dialog");
+  expect(control.getAttribute("aria-expanded")).toBe("false");
 
   await userEvent.click(trigger);
   await expect.poll(() => panel.matches(":popover-open")).toBe(true);

@@ -30,8 +30,9 @@ import popupTokens from "./popup.tokens.css" with { type: "css" };
  * leaving it close it (`DismissController`). Each change fires `u-toggle`,
  * with its `reason`, but on the first render.
  *
- * The sheet of the base styles the trigger (`class="trigger"`, with a
- * `class="chevron"`) and the popup's transitions (`class="popup"`).
+ * The trigger is a `button` (ADR 0031): declare `Button` in the subclass's
+ * `dependencies`. The sheet of the base styles its `class="chevron"` and the
+ * popup's transitions (`class="popup"`).
  *
  * @fires {PopupToggleEvent} u-toggle - After the popup opens or closes. Its `newState` is `open` or `closed`, its `reason` the cause.
  * @tokens popup - Its tokens (`@cssprop`), shared by every popup anchored to a trigger, from `@unicorne/tokens` (`src/component/popup/`): `npm run analyze` documents them.

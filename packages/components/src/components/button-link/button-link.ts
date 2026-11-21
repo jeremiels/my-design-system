@@ -44,14 +44,17 @@ export class ButtonLink extends ButtonBase {
     return html`
       <a
         part="button"
-        class="button"
+        class=${this.controlClasses}
         href=${ifDefined(this.isDisabled ? undefined : this.href)}
         target=${ifDefined(this.target)}
         rel=${ifDefined(this.relAttribute)}
         role=${ifDefined(this.isDisabled ? "link" : undefined)}
         aria-disabled=${ifDefined(this.isDisabled ? "true" : undefined)}
+        tabindex=${ifDefined(this.controlTabIndex)}
+        aria-label=${ifDefined(this.label || undefined)}
+        aria-current=${ifDefined(this.current)}
         @click=${this.handleClick}
-        ><slot></slot
+        ><span class="content"><slot></slot></span
       ></a>
     `;
   }

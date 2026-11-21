@@ -79,8 +79,8 @@ dialog[open]:where(:not([data-closing]))::backdrop {
   grid-area: 1 / 2;
 }
 /* A square button around the icon: the modal's token, not the button's. */
-.close::part(button) {
-  padding: var(--u-modal-close-button-padding);
+.close {
+  --u-button-padding-block: var(--u-modal-close-button-padding);
 }
 .body {
   grid-area: 1 / 1;

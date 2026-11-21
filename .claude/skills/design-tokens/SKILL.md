@@ -19,7 +19,7 @@ Les chemins de cette section et des deux suivantes partent de `packages/tokens/s
 - Une intention que plusieurs composants partagent : un token sémantique, dans `semantic/`.
 - Un réglage d'un seul composant : un token de composant, dans `component/<composant>/`.
 
-Ne mettez jamais de valeur littérale hors des primitives. Ne faites jamais pointer un composant vers une primitive. N'écrivez rien de propre au web dans les sources : ni sélecteur, ni nom d'attribut.
+Ne mettez jamais de valeur littérale hors des primitives. Ne faites jamais pointer un composant vers une primitive, ni vers un token d'un autre composant. Un contexte peut viser un token de son propre composant : `{button.foreground-color}` dans `appearance.plain.tokens.json`. N'écrivez rien de propre au web dans les sources : ni sélecteur, ni nom d'attribut.
 
 ## 2. Écrivez le token
 

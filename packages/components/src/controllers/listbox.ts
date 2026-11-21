@@ -40,10 +40,12 @@ export interface ListboxControllerOptions {
   /**
    * A line at the end of the list, that stays in view while it scrolls:
    * "Loading…", or the number of options it doesn't show. Hidden from
-   * assistive technologies: announce it with a live region. Nothing by
-   * default, nor when it returns `""`. Read at each render.
+   * assistive technologies: announce it with a live region. A text, or a
+   * template that renders a `spinner` of the host's registration before
+   * it. Nothing by default, nor when it returns `""` or `nothing`. Read at
+   * each render.
    */
-  status?: () => string;
+  status?: () => unknown;
   /** `id` of the list in the shadow root. Default: `listbox`. */
   id?: string;
 }
@@ -164,7 +166,7 @@ export class ListboxController implements ReactiveController {
     const selected = this.#options.multiple?.() ? this.#options.selected : undefined;
     const renderOption =
       this.#options.renderOption ?? ((option: ListboxOption) => option.label || option.value);
-    const status = this.#options.status?.() ?? "";
+    const status = this.#options.status?.() ?? nothing;
     return html`
       <div
         part="listbox"
@@ -199,7 +201,7 @@ export class ListboxController implements ReactiveController {
             `,
           )}
         ${
-          status
+          status !== nothing && status !== ""
             ? html`<div part="status" class="status" aria-hidden="true">${status}</div>`
             : nothing
         }

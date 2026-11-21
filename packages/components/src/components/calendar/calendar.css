@@ -18,26 +18,12 @@
   font-weight: var(--u-calendar-heading-font-weight);
 }
 
+/* The month buttons: a `button`, with the size and the corners of a day. */
 .nav {
-  display: inline-grid;
-  place-items: center;
   inline-size: var(--u-calendar-day-size);
   block-size: var(--u-calendar-day-size);
-  padding: 0;
-  color: inherit;
-  background: none;
-  border: 0;
-  border-radius: var(--u-calendar-day-border-radius);
-  cursor: pointer;
-}
-
-.nav:hover:not(:disabled) {
-  background-color: var(--u-calendar-day-background-color-hover);
-}
-
-.nav:disabled {
-  opacity: var(--u-calendar-disabled-opacity);
-  cursor: default;
+  --u-button-padding-block: 0;
+  --u-button-border-radius: var(--u-calendar-day-border-radius);
 }
 
 /* A chevron that points back or forward, along the text. */
@@ -105,8 +91,7 @@ th {
   cursor: default;
 }
 
-.day:focus-visible,
-.nav:focus-visible {
+.day:focus-visible {
   outline: var(--u-calendar-focus-ring-width) solid var(--u-calendar-focus-ring-color);
   outline-offset: calc(var(--u-calendar-focus-ring-offset) * -1);
 }

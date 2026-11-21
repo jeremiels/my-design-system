@@ -144,11 +144,10 @@ export const CloseButton = meta.story({
     const icon = modal.shadowRoot!.querySelector<Icon>('[part~="close-icon"]')!;
     await icon.updateComplete;
 
+    await modal.shadowRoot!.querySelector<Button>('[part~="close-button"]')!.updateComplete;
     expect(icon.shadowRoot!.querySelector("svg")).toBeTruthy();
-    // The name of the native button comes from its content: the icon's label.
-    const image = icon.shadowRoot!.querySelector('[role="img"]')!;
-    expect(image.getAttribute("aria-label")).toBe("Fermer");
-    expect(closeButton(modal).textContent!.trim()).toBe("");
+    // The close button is a `u-button`: `close-label` is its `label`, the name of its native control.
+    await expect(closeButton(modal)).toHaveAccessibleName("Fermer");
 
     await transitionsEnd(canvasElement);
     // A square button around the icon.

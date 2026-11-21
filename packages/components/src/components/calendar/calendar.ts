@@ -1,5 +1,6 @@
-import { html, nothing, type PropertyValues } from "lit";
+import { nothing, type PropertyValues } from "lit";
 import { property, state } from "lit/decorators.js";
+import { html } from "lit/static-html.js";
 import { DSBaseElement } from "../../bases/base-element.js";
 import {
   addMonths,
@@ -12,6 +13,7 @@ import {
   parseDate,
   type PlainDate,
 } from "../../state/calendar.js";
+import { Button } from "../button/button.js";
 import calendarStyles from "./calendar.css" with { type: "css" };
 import calendarTokens from "./calendar.tokens.css" with { type: "css" };
 
@@ -59,8 +61,8 @@ const instant = ({ year, month, day }: PlainDate) => Date.UTC(year, month - 1, d
  * @summary The days of a month, to pick a date.
  * @csspart header - The header: the previous button, the month and year, the next button.
  * @csspart heading - The month and year, a polite live region.
- * @csspart previous - The button of the previous month.
- * @csspart next - The button of the next month.
+ * @csspart previous - The button of the previous month: the `button` component of the same registration, `plain` and `neutral`.
+ * @csspart next - The button of the next month, like `previous`.
  * @csspart grid - The grid of the days, `role="grid"`.
  * @csspart day - A day. The chosen one has `aria-selected="true"`, today `aria-current="date"`.
  * @fires change - When the user picks a day: `value` holds it.
@@ -68,6 +70,9 @@ const instant = ({ year, month, day }: PlainDate) => Date.UTC(year, month - 1, d
  */
 export class Calendar extends DSBaseElement {
   static override componentName = "calendar";
+
+  /** Renders its month buttons with the `button` of its own registration. */
+  static override dependencies = [Button];
 
   static styles = [super.styles ?? [], calendarTokens, calendarStyles];
 
@@ -207,6 +212,7 @@ export class Calendar extends DSBaseElement {
       day: 1 + ((firstDay + index) % 7),
     }));
     const selected = parseDate(this.value);
+    const button = this.tagFor(Button);
     const now = today();
     const min = this.#min;
     const max = this.#max;
@@ -217,29 +223,31 @@ export class Calendar extends DSBaseElement {
     const canGoForward = !max || nextMonth.year * 12 + nextMonth.month <= max.year * 12 + max.month;
     return html`
       <div part="header" class="header${this.#rtl ? " rtl" : ""}">
-        <button
+        <${button}
           part="previous"
           class="nav nav--previous"
-          type="button"
-          aria-label=${this.previousLabel}
+          variant="neutral"
+          appearance="plain"
+          label=${this.previousLabel}
           ?disabled=${!canGoBack}
           @click=${() => this.#moveMonth(-1)}
         >
           <span class="chevron" aria-hidden="true"></span>
-        </button>
+        </${button}>
         <span part="heading" class="heading" id="heading" aria-live="polite"
           >${heading.format(instant({ year, month, day: 1 }))}</span
         >
-        <button
+        <${button}
           part="next"
           class="nav nav--next"
-          type="button"
-          aria-label=${this.nextLabel}
+          variant="neutral"
+          appearance="plain"
+          label=${this.nextLabel}
           ?disabled=${!canGoForward}
           @click=${() => this.#moveMonth(1)}
         >
           <span class="chevron" aria-hidden="true"></span>
-        </button>
+        </${button}>
       </div>
       <table
         part="grid"

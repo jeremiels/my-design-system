@@ -2,6 +2,7 @@ import preview from "#.storybook/preview";
 import { html } from "lit";
 import { ifDefined } from "lit/directives/if-defined.js";
 import { expect, userEvent, waitFor } from "storybook/test";
+import type { Button } from "../button/button";
 import type { Popover } from "./popover";
 
 /** Waits for the panel's transitions: axe sees its final state. */
@@ -50,12 +51,15 @@ export const Default = meta.story({
   play: async ({ canvasElement }) => {
     const popover = canvasElement.querySelector<Popover>("u-popover")!;
     await popover.updateComplete;
-    const trigger = popover.shadowRoot!.querySelector<HTMLButtonElement>('[part~="trigger"]')!;
+    // The trigger is a `u-button`; its native control carries the name and the ARIA.
+    const trigger = popover.shadowRoot!.querySelector<Button>('[part~="trigger"]')!;
+    await trigger.updateComplete;
+    const control = trigger.shadowRoot!.querySelector("button")!;
     const panel = popover.shadowRoot!.querySelector<HTMLElement>('[part~="panel"]')!;
-    expect(trigger).toHaveAccessibleName("Shipping");
+    await expect(control).toHaveAccessibleName("Shipping");
     await userEvent.click(trigger);
     await waitFor(() => expect(panel.matches(":popover-open")).toBe(true));
-    expect(trigger.getAttribute("aria-expanded")).toBe("true");
+    await waitFor(() => expect(control.getAttribute("aria-expanded")).toBe("true"));
     await settled(panel);
   },
 });

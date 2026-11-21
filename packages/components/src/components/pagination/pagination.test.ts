@@ -4,6 +4,7 @@ import { afterEach, describe, expect, it } from "vitest";
 import { userEvent } from "vitest/browser";
 import "../../define.js";
 import type { Breadcrumb } from "../breadcrumb/breadcrumb.js";
+import type { Button } from "../button/button.js";
 import type { Pagination } from "./pagination.js";
 
 afterEach(() => {
@@ -17,8 +18,9 @@ describe("a pagination", () => {
     await pagination.updateComplete;
     const changes: number[] = [];
     pagination.addEventListener("change", () => changes.push(pagination.page));
+    // Its buttons are `u-button` elements.
     const buttons = () =>
-      Array.from(pagination.shadowRoot!.querySelectorAll<HTMLButtonElement>('[part~="button"]'));
+      Array.from(pagination.shadowRoot!.querySelectorAll<Button>('[part~="button"]'));
     return { pagination, changes, buttons };
   }
 
@@ -36,8 +38,11 @@ describe("a pagination", () => {
       "20",
       "",
     ]);
-    const current = buttons().find((button) => button.hasAttribute("aria-current"))!;
-    await expect.element(current).toHaveAccessibleName("Page 10");
+    const current = buttons().find((button) => button.current === "page")!;
+    await current.updateComplete;
+    const control = current.shadowRoot!.querySelector("button")!;
+    expect(control.getAttribute("aria-current")).toBe("page");
+    await expect.element(control).toHaveAccessibleName("Page 10");
   });
 
   it("moves on a click of a page, of previous or next, with change and an announcement", async () => {

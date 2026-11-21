@@ -406,6 +406,19 @@ describe("the three-level rule", () => {
       "a component token aliases a semantic token, not a primitive",
     ],
     [
+      "a component token aliases a token of another component",
+      {
+        "base/button.tokens.json": {
+          button: {
+            ...BASE["base/button.tokens.json"].button,
+            border: { $value: "{alert.background}", $description: "Border." },
+          },
+          alert: { background: { $value: "{color.action}", $description: "Background." } },
+        },
+      },
+      "not one of another component",
+    ],
+    [
       "a component token has no description",
       {
         "base/button.tokens.json": {

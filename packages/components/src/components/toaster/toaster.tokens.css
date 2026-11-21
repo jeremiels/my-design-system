@@ -18,7 +18,4 @@
   --u-toaster-warning-text-color: var(--u-color-warning-text);
   --u-toaster-danger-background-color: var(--u-color-danger-background);
   --u-toaster-danger-text-color: var(--u-color-danger-text);
-  --u-toaster-focus-ring-color: var(--u-color-focus-ring);
-  --u-toaster-focus-ring-width: var(--u-focus-ring-width);
-  --u-toaster-focus-ring-offset: var(--u-focus-ring-offset);
 }

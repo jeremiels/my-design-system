@@ -29,17 +29,31 @@ export interface ContrastFailure extends ContrastPair {
 }
 
 const INTENTS = ["action", "secondary", "success", "warning", "danger", "information"];
+/** The backgrounds an intent's `foreground` sits on: the surfaces, and the hover and press of an outlined or plain button. */
+const FOREGROUND_BACKGROUNDS = [
+  "var(--u-color-surface-default)",
+  "var(--u-color-surface-raised)",
+  "var(--u-color-neutral-background)",
+  "var(--u-color-neutral-background-hover)",
+];
 const STATES = ["", "-hover", "-active"];
 const SURFACES = ["var(--u-color-surface-default)", "var(--u-color-surface-raised)"];
 
 /** The semantic color pairs the base's components draw, with the contrast each needs. */
 export const contrastPairs: readonly ContrastPair[] = [
-  ...INTENTS.flatMap((intent) =>
+  ...[...INTENTS, "neutral"].flatMap((intent) =>
     STATES.map((state) => ({
       foreground: `var(--u-color-${intent}-text)`,
       background: `var(--u-color-${intent}-background${state})`,
       minimum: 4.5,
     })),
+  ),
+  // The text of an outlined or plain button, and its border (WCAG 1.4.11).
+  ...[
+    ...INTENTS.map((intent) => `var(--u-color-${intent}-foreground)`),
+    "var(--u-color-text-default)",
+  ].flatMap((foreground) =>
+    FOREGROUND_BACKGROUNDS.map((background) => ({ foreground, background, minimum: 4.5 })),
   ),
   ...SURFACES.map((background) => ({
     foreground: "var(--u-color-text-default)",

@@ -45,7 +45,8 @@ describe("defineComponents", () => {
     const prefix = uniquePrefix();
     const tags = defineComponents({ prefix, components: [Modal] });
 
-    expect(Object.keys(tags).sort()).toEqual(["button", "icon", "modal"]);
+    // The close button, its icon, and the spinner of the button.
+    expect(Object.keys(tags).sort()).toEqual(["button", "icon", "modal", "spinner"]);
     const modal = await render<Modal>(`${prefix}-modal`);
     expect(modal.shadowRoot!.querySelector(`${prefix}-button`)).toBeInstanceOf(Button);
     // The close button's icon.

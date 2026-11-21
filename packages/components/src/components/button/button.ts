@@ -1,9 +1,12 @@
-import { html } from "lit";
+import { nothing } from "lit";
 import { property } from "lit/decorators.js";
+import { ifDefined } from "lit/directives/if-defined.js";
+import { html } from "lit/static-html.js";
 import { withInternals } from "../../mixins/withInternals.js";
 import { withInvoker } from "../../mixins/withInvoker.js";
 import { ButtonBase } from "../../bases/button/button-base.js";
-import type { ButtonType } from "../../bases/button/button.type.js";
+import type { ButtonPopup, ButtonType } from "../../bases/button/button.type.js";
+import { Spinner } from "../spinner/spinner.js";
 
 /**
  * A button that triggers an action, or submits or resets its form (`type`).
@@ -20,8 +23,14 @@ import type { ButtonType } from "../../bases/button/button.type.js";
  * sends the command. Implicit submission relies on it: Enter in a field
  * clicks the form's first submit button (`FieldBase.submitOnEnter()`).
  *
+ * With `loading`, a `spinner` covers the label and the button ignores
+ * clicks, but keeps the focus: announce the end of the action in a live
+ * region. With `popup`, it is the trigger of a menu or a dialog, and
+ * `expanded` says whether that popup is open.
+ *
  * @element u-button
  * @summary Triggers an action or submits a form.
+ * @csspart spinner - The `spinner` over the label, with `loading`.
  */
 export class Button extends withInvoker(withInternals(ButtonBase)) {
   static override componentName = "button";
@@ -32,6 +41,8 @@ export class Button extends withInvoker(withInternals(ButtonBase)) {
    * otherwise, so type="submit"/"reset" would silently do nothing.
    */
   static formAssociated = true;
+
+  static override dependencies = [Spinner];
 
   /**
    * Button type.
@@ -55,6 +66,18 @@ export class Button extends withInvoker(withInternals(ButtonBase)) {
   @property({ type: String })
   value = "";
 
+  /** Whether the action of the button is running: a spinner covers the label, and clicks do nothing. */
+  @property({ type: Boolean, reflect: true })
+  loading = false;
+
+  /** The popup the button opens, `menu` or `dialog` for instance: `aria-haspopup`. None by default. */
+  @property({ type: String })
+  popup?: ButtonPopup;
+
+  /** Whether the popup of `popup` is open: `aria-expanded`. */
+  @property({ type: Boolean })
+  expanded = false;
+
   constructor() {
     super();
     // A click aimed at the host itself (`click()`): the inner button gets it
@@ -64,7 +87,7 @@ export class Button extends withInvoker(withInternals(ButtonBase)) {
         return;
       }
       event.stopImmediatePropagation();
-      if (!this.isDisabled) {
+      if (!this.isDisabled && !this.loading) {
         this.renderRoot.querySelector<HTMLButtonElement>(".button")?.click();
       }
     });
@@ -73,6 +96,11 @@ export class Button extends withInvoker(withInternals(ButtonBase)) {
   protected override handleClick(e: MouseEvent) {
     super.handleClick(e);
     if (this.isDisabled) {
+      return;
+    }
+    if (this.loading) {
+      e.preventDefault();
+      e.stopPropagation();
       return;
     }
 
@@ -106,16 +134,32 @@ export class Button extends withInvoker(withInternals(ButtonBase)) {
   }
 
   render() {
+    const spinner = this.tagFor(Spinner);
     return html`
       <button
         part="button"
-        class="button"
+        class=${this.controlClasses}
         ?disabled=${this.isDisabled}
         type=${this.type}
         value=${this.value}
+        tabindex=${ifDefined(this.controlTabIndex)}
+        aria-label=${this.label || nothing}
+        aria-current=${ifDefined(this.current)}
+        aria-haspopup=${ifDefined(this.popup)}
+        aria-expanded=${this.popup ? String(this.expanded) : nothing}
+        aria-disabled=${this.loading && !this.isDisabled ? "true" : nothing}
         @click=${this.handleClick}
       >
-        <slot></slot>
+        <span class="content"><slot></slot></span>${
+          this.loading
+            ? html`<${spinner}
+                part="spinner"
+                class="spinner"
+                size="small"
+                aria-hidden="true"
+              ></${spinner}>`
+            : nothing
+        }
       </button>
     `;
   }
