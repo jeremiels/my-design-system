@@ -1,0 +1,43 @@
+# Quand utiliser checkbox (DSDS). Son API vit dans custom-elements.json.
+kind: component
+id: checkbox
+name: Checkbox
+description: Une case à cocher, dans un formulaire.
+metadata:
+  origin:
+    method: authored
+    author: assisted
+  status:
+    status: experimental
+
+sections:
+  - kind: guidelines
+    for: all
+    framing: when-to-use
+    items:
+      - level: must
+        statement: Utilisez `checkbox` pour un choix oui ou non qu'un formulaire envoie, comme accepter des conditions.
+        checkedBy: manual
+      - level: should
+        statement: Pour un réglage qui s'applique tout de suite, utilisez <dsds:switch>.
+        alternatives:
+          - to: switch
+        checkedBy: manual
+
+refs:
+  - href: ./checkbox.stories.ts
+    rel: demo
+    role: Stories (CSF)
+
+sourceFiles:
+  - platform: web-component
+    file: ./checkbox.ts
+
+imports:
+  - platform: web-component
+    code: import "@unicorne/components/define";
+    package: "@unicorne/components"
+
+specs:
+  - href: ../../../custom-elements.json
+    role: Custom Elements Manifest

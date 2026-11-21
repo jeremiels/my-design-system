@@ -28,7 +28,7 @@ Les ADR 0010, 0012, 0013 et 0014 sont acceptés et appliqués. Les ADR 0011 et 0
 - **Thèmes emboîtés :** les sélecteurs donnent à une marque le thème de la zone la plus proche, sur deux niveaux. La règle « répéter `data-theme` » de la première version de l'ADR 0013 n'existe plus.
 - **`icon` :** le test de rendu serveur a révélé un troisième composant à corriger. Une icône déjà en cache cassait l'hydratation.
 - **Poids d'`autocomplete` :** 7,8 kB en gzip sans Lit, au-dessus du budget de 7,5 kB. L'écart vient de la soumission par Entrée, de l'annonce des suggestions et du réducteur. `text-field` passe de 3,4 à 3,8 kB.
-- **Étape 9 :** les tests manuels avec lecteurs d'écran ne sont pas tracés dans DSDS. Aucun n'a été fait.
+- **Étape 9 :** le protocole des tests manuels avec lecteurs d'écran est écrit, avec les annonces attendues ([Tester avec un lecteur d'écran](../guides/tests-lecteurs-ecran.mdx)). Aucun test n'a été fait.
 
 Constats mineurs traités le 17 novembre 2026 :
 

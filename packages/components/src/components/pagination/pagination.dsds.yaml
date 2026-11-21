@@ -1,0 +1,41 @@
+# Quand utiliser pagination (DSDS). Son API vit dans custom-elements.json.
+kind: component
+id: pagination
+name: Pagination
+description: Les pages d'une longue liste.
+metadata:
+  origin:
+    method: authored
+    author: assisted
+  status:
+    status: experimental
+
+sections:
+  - kind: guidelines
+    for: all
+    framing: when-to-use
+    items:
+      - level: must
+        statement: Utilisez `pagination` sous une liste ou un tableau trop long pour une page.
+        checkedBy: manual
+      - level: must
+        statement: Chargez la page demandée à chaque `change`, et donnez-la dans `page`.
+        checkedBy: manual
+
+refs:
+  - href: ./pagination.stories.ts
+    rel: demo
+    role: Stories (CSF)
+
+sourceFiles:
+  - platform: web-component
+    file: ./pagination.ts
+
+imports:
+  - platform: web-component
+    code: import "@unicorne/components/define";
+    package: "@unicorne/components"
+
+specs:
+  - href: ../../../custom-elements.json
+    role: Custom Elements Manifest

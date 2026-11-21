@@ -1,0 +1,55 @@
+# Quand utiliser page, et ses règles (DSDS). Son API vit dans custom-elements.json.
+kind: component
+id: page
+name: Page
+description: La mise en page d'une page, ses régions et son lien d'évitement.
+metadata:
+  origin:
+    method: authored
+    author: assisted
+  status:
+    status: experimental
+
+sections:
+  - kind: guidelines
+    for: all
+    framing: when-to-use
+    items:
+      - level: must
+        statement: Utilisez une seule `page` par document. Elle porte la région `main` de la page.
+        checkedBy: manual
+      - level: must
+        statement: Placez l'en-tête, la navigation et le pied de page dans les slots `header`, `navigation` et `footer`.
+        checkedBy: manual
+
+  - kind: guidelines
+    for: all
+    title: Accessibilité
+    items:
+      - level: must
+        statement: Traduisez `skip-to-content-label` et `skip-links-label`. Le lien d'évitement vient en premier, et donne le focus au contenu.
+        checks:
+          - href: ./page.test.ts
+            role: test
+        checkedBy: automated
+      - level: must-not
+        statement: N'écrivez pas d'autre élément `<main>` dans le contenu.
+        checkedBy: manual
+
+refs:
+  - href: ./page.stories.ts
+    rel: demo
+    role: Stories (CSF)
+
+sourceFiles:
+  - platform: web-component
+    file: ./page.ts
+
+imports:
+  - platform: web-component
+    code: import "@unicorne/components/define";
+    package: "@unicorne/components"
+
+specs:
+  - href: ../../../custom-elements.json
+    role: Custom Elements Manifest

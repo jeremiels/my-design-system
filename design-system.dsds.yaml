@@ -21,3 +21,33 @@ refs:
     rel: file
   - href: ./packages/components/src/components/button-link/button-link.dsds.yaml
     rel: file
+  - href: ./packages/components/src/components/link/link.dsds.yaml
+    rel: file
+  - href: ./packages/components/src/components/notice/notice.dsds.yaml
+    rel: file
+  - href: ./packages/components/src/components/toggle-button/toggle-button.dsds.yaml
+    rel: file
+  - href: ./packages/components/src/components/combobox/combobox.dsds.yaml
+    rel: file
+  - href: ./packages/components/src/components/table/table.dsds.yaml
+    rel: file
+  - href: ./packages/components/src/components/page/page.dsds.yaml
+    rel: file
+  - href: ./packages/components/src/components/modal/modal.dsds.yaml
+    rel: file
+  - href: ./packages/components/src/components/autocomplete/autocomplete.dsds.yaml
+    rel: file
+  - href: ./packages/components/src/components/select/select.dsds.yaml
+    rel: file
+  - href: ./packages/components/src/components/drawer/drawer.dsds.yaml
+    rel: file
+  - href: ./packages/components/src/components/pagination/pagination.dsds.yaml
+    rel: file
+  - href: ./packages/components/src/components/checkbox/checkbox.dsds.yaml
+    rel: file
+  - href: ./packages/components/src/components/switch/switch.dsds.yaml
+    rel: file
+  - href: ./packages/components/src/components/alert/alert.dsds.yaml
+    rel: file
+  - href: ./packages/components/src/components/toaster/toaster.dsds.yaml
+    rel: file

@@ -1,0 +1,43 @@
+# Quand utiliser autocomplete (DSDS). Son API vit dans custom-elements.json.
+kind: component
+id: autocomplete
+name: Autocomplete
+description: Un champ de texte libre, qui propose des suggestions.
+metadata:
+  origin:
+    method: authored
+    author: assisted
+  status:
+    status: experimental
+
+sections:
+  - kind: guidelines
+    for: all
+    framing: when-to-use
+    items:
+      - level: must
+        statement: Utilisez `autocomplete` pour un texte libre que des suggestions aident à saisir, comme une ville.
+        checkedBy: manual
+      - level: must-not
+        statement: N'utilisez pas `autocomplete` quand la valeur doit être l'une des options. Utilisez <dsds:combobox>.
+        alternatives:
+          - to: combobox
+        checkedBy: manual
+
+refs:
+  - href: ./autocomplete.stories.ts
+    rel: demo
+    role: Stories (CSF)
+
+sourceFiles:
+  - platform: web-component
+    file: ./autocomplete.ts
+
+imports:
+  - platform: web-component
+    code: import "@unicorne/components/define";
+    package: "@unicorne/components"
+
+specs:
+  - href: ../../../custom-elements.json
+    role: Custom Elements Manifest

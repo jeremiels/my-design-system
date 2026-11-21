@@ -1,0 +1,43 @@
+# Quand utiliser switch (DSDS). Son API vit dans custom-elements.json.
+kind: component
+id: switch
+name: Switch
+description: Un interrupteur, pour un réglage qui s'applique tout de suite.
+metadata:
+  origin:
+    method: authored
+    author: assisted
+  status:
+    status: experimental
+
+sections:
+  - kind: guidelines
+    for: all
+    framing: when-to-use
+    items:
+      - level: must
+        statement: Utilisez `switch` pour un réglage qui s'applique dès qu'il change, comme les notifications.
+        checkedBy: manual
+      - level: should
+        statement: Pour un choix qu'un formulaire envoie à sa validation, utilisez <dsds:checkbox>.
+        alternatives:
+          - to: checkbox
+        checkedBy: manual
+
+refs:
+  - href: ./switch.stories.ts
+    rel: demo
+    role: Stories (CSF)
+
+sourceFiles:
+  - platform: web-component
+    file: ./switch.ts
+
+imports:
+  - platform: web-component
+    code: import "@unicorne/components/define";
+    package: "@unicorne/components"
+
+specs:
+  - href: ../../../custom-elements.json
+    role: Custom Elements Manifest

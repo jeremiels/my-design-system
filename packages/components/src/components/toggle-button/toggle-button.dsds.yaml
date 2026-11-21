@@ -1,0 +1,63 @@
+# Quand utiliser toggle-button, et ses règles (DSDS). Son API vit dans custom-elements.json.
+kind: component
+id: toggle-button
+name: Toggle button
+description: Un bouton qui reste appuyé ou relâché.
+metadata:
+  origin:
+    method: authored
+    author: assisted
+  status:
+    status: experimental
+
+sections:
+  - kind: guidelines
+    for: all
+    framing: when-to-use
+    items:
+      - level: must
+        statement: Utilisez `toggle-button` pour un état qui dure, comme le gras d'un texte ou un filtre d'une liste.
+        checkedBy: manual
+      - level: must-not
+        statement: N'utilisez pas `toggle-button` pour une action. Utilisez <dsds:button>.
+        alternatives:
+          - to: button
+        checkedBy: manual
+      - level: should
+        statement: Pour un choix qu'un formulaire envoie, utilisez <dsds:checkbox> ou <dsds:switch>.
+        alternatives:
+          - to: checkbox
+          - to: switch
+        checkedBy: manual
+
+  - kind: guidelines
+    for: all
+    title: Accessibilité
+    items:
+      - level: must-not
+        statement: Ne changez pas le libellé avec l'état. `aria-pressed` dit l'état.
+        checkedBy: manual
+      - level: must
+        statement: Lisez l'état dans `pressed`, à chaque `change`.
+        checks:
+          - href: ./toggle-button.stories.ts#Default
+            role: test
+        checkedBy: automated
+
+refs:
+  - href: ./toggle-button.stories.ts
+    rel: demo
+    role: Stories (CSF)
+
+sourceFiles:
+  - platform: web-component
+    file: ./toggle-button.ts
+
+imports:
+  - platform: web-component
+    code: import "@unicorne/components/define";
+    package: "@unicorne/components"
+
+specs:
+  - href: ../../../custom-elements.json
+    role: Custom Elements Manifest
