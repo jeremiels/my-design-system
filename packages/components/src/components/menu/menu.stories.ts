@@ -18,7 +18,7 @@ async function menuIn(canvasElement: HTMLElement) {
   };
 }
 
-/** Waits for the popup's transitions: axe and the capture see its final state. */
+/** Waits for the popup's transitions: axe sees its final state. */
 async function popupSettled(popup: HTMLElement) {
   for (;;) {
     await new Promise(requestAnimationFrame);

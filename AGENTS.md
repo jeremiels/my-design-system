@@ -67,7 +67,6 @@ Les pages sont dans `docs/` et dans Storybook. Elles suivent la [charte de réda
 - `terrazzo.config.ts` : la liaison web des tokens de composant. Il associe chaque modifier à un attribut et génère les feuilles `:host`.
 - `plugins/` : `css-import-attributes.ts` (Vite) compile les imports `with { type: "css" }`. `cem-plugin.ts` (analyseur) documente les tokens de composant.
 - `custom-elements.json` : l'API publique, générée par `npm run analyze` et commitée.
-- `src/components/*/__screenshots__/` : la capture de référence de chaque story, dans Chromium sous Linux. Elles sont commitées.
 - `src/components/*/*.dsds.yaml` : les règles d'usage des composants, au format [DSDS](https://designsystemdocspec.org) (pilote sur `button` et `button-link`). `design-system.dsds.yaml`, à la racine, les liste.
 
 À la racine :
@@ -104,7 +103,6 @@ npm run build                    # les trois packages, tokens puis icônes d'abo
 npm run check                    # oxlint, oxfmt --check, tsc, tokens:check, icons:check, api:check, dsds, Vitest : ce que la CI exige
 npx vitest run --project browser # un projet Vitest : unit (Node), browser (Chromium), ssr et storybook (3 moteurs)
 npm run coverage                 # la couverture des tests, mesurée dans Chromium → coverage/
-npm run screenshots              # régénère les captures de référence des stories ; relisez les images avant de commiter
 npm run example                  # archives du socle → build et test d'ACME, puis archive d'ACME → build et test de l'app Vue
 npm run dsds                     # valide et vérifie le format des documents DSDS
 npm run compat                   # es-check et doiuse contre la matrice

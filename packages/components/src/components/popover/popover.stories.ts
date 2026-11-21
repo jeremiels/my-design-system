@@ -4,7 +4,7 @@ import { ifDefined } from "lit/directives/if-defined.js";
 import { expect, userEvent, waitFor } from "storybook/test";
 import type { Popover } from "./popover";
 
-/** Waits for the panel's transitions: axe and the capture see its final state. */
+/** Waits for the panel's transitions: axe sees its final state. */
 async function settled(panel: HTMLElement) {
   for (;;) {
     await new Promise(requestAnimationFrame);
