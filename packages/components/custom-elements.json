@@ -32435,11 +32435,11 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "A number field: a label, an optional hint, a native `<input\ntype=\"number\">` and its error message. The browser validates the number,\n`min`, `max` and `step`, and its arrows and ArrowUp and ArrowDown step the\nvalue. The value is the number as text, in the format of HTML (`3.5`), or\n`\"\"`. For a code made of digits (a postal code, a card number), use\n`text-field` (ADR 0019).",
+          "description": "A number field: a label, an optional hint, a native `<input\ntype=\"number\">` and its error message. The browser validates the number,\n`min`, `max` and `step`, and its arrows and ArrowUp and ArrowDown step the\nvalue. The value is the number as text, in the format of HTML (`3.5`), or\n`\"\"`. For a code made of digits (a postal code, a card number), use\n`text-field` (ADR 0019).\n\nWith `formatOptions`, the field shows its number formatted in the\nlanguage of the page, `1 250,50 €`, while it doesn't have the focus\n(ADR 0036). With the focus, the user edits the number alone, `1250,5`,\nand writes it in the language of the page; a pasted `1 250,50 €` reads\ntoo. The control is then a text input with `role=\"spinbutton\"`:\nArrowUp and ArrowDown step the value, and a hidden native number input\ngives the browser's validation of `min`, `max` and `step`. The value\nstays in the format of HTML.",
           "name": "NumberField",
           "cssParts": [
             {
-              "description": "The native `<input type=\"number\">`.",
+              "description": "The native `<input type=\"number\">`, or the text input of a formatted number.",
               "name": "input"
             },
             {
@@ -32491,6 +32491,52 @@
               }
             },
             {
+              "kind": "field",
+              "name": "formatOptions",
+              "type": {
+                "text": "Intl.NumberFormatOptions | undefined"
+              },
+              "description": "How the number shows while the field doesn't have the focus, as the\noptions of `Intl.NumberFormat`, in the language of the page:\n`{ style: \"currency\", currency: \"EUR\" }`, `{ style: \"percent\" }`,\n`{ style: \"unit\", unit: \"kilometer\" }`. A percentage is a fraction:\n`0.25` shows `25 %`. Property only."
+            },
+            {
+              "kind": "field",
+              "name": "badInputMessage",
+              "type": {
+                "text": "(text: string) => string"
+              },
+              "description": "The message of a text that isn't a number, with `formatOptions`, in the page's language. Property only."
+            },
+            {
+              "kind": "field",
+              "name": "editing",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "private",
+              "default": "false",
+              "description": "Whether the user edits the number: it shows without its format."
+            },
+            {
+              "kind": "field",
+              "name": "#text",
+              "privacy": "private",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "The text the user writes, while editing, or a text that isn't a number."
+            },
+            {
+              "kind": "field",
+              "name": "#badInput",
+              "privacy": "private",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether the text isn't a number: the value is then `\"\"`, as in a native number input."
+            },
+            {
               "kind": "method",
               "name": "renderControl",
               "privacy": "protected",
@@ -32500,6 +32546,47 @@
                 }
               },
               "description": "Renders the native control, between the hint and the error message. It\nhas `id=\"control\"` (the label's `for`), `class=\"control\"` (the styles)\nand its own part. It binds `.value=${live(this.value)}`, `required`,\n`readonly` (`readOnly`), `disabled` (`isDisabled`), `autocomplete`, its constraints,\n`controlInvalid`, `controlDescribedBy`, `handleInput` and\n`handleChange`. A single-line control also binds\n`@keydown=${this.submitOnEnter}`.",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "#renderFormatted",
+              "privacy": "private"
+            },
+            {
+              "kind": "field",
+              "name": "#onFocus",
+              "privacy": "private"
+            },
+            {
+              "kind": "field",
+              "name": "#onBlur",
+              "privacy": "private"
+            },
+            {
+              "kind": "field",
+              "name": "#onInput",
+              "privacy": "private"
+            },
+            {
+              "kind": "field",
+              "name": "#onKeydown",
+              "privacy": "private",
+              "description": "ArrowUp and ArrowDown step the value, as on a native number input; Enter submits."
+            },
+            {
+              "kind": "method",
+              "name": "syncValidity",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "description": "With `formatOptions`: the validity of the hidden number input, or of a text that isn't a number.",
               "inheritedFrom": {
                 "name": "FieldBase",
                 "module": "src/bases/field/field-base.ts"
@@ -33197,21 +33284,6 @@
                 }
               ],
               "description": "The message of the control's error, `\"\"` while valid or read-only.",
-              "inheritedFrom": {
-                "name": "FieldBase",
-                "module": "src/bases/field/field-base.ts"
-              }
-            },
-            {
-              "kind": "method",
-              "name": "syncValidity",
-              "privacy": "protected",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              },
-              "description": "Gives the host the validity of its value: by default, that of the native\ncontrol, the browser's constraints and ours. A field without a native\ncontrol overrides it (`ChoiceGroupBase`).",
               "inheritedFrom": {
                 "name": "FieldBase",
                 "module": "src/bases/field/field-base.ts"
@@ -54450,6 +54522,14 @@
           "name": "*",
           "declaration": {
             "name": "*",
+            "module": "src/state/number.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "*",
+          "declaration": {
+            "name": "*",
             "module": "src/events/modal-cancel.js"
           }
         },
@@ -56132,6 +56212,166 @@
           "declaration": {
             "name": "comboboxReducer",
             "module": "src/state/combobox.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/state/number.ts",
+      "declarations": [
+        {
+          "kind": "function",
+          "name": "formatNumber",
+          "return": {
+            "type": {
+              "text": "string"
+            }
+          },
+          "parameters": [
+            {
+              "name": "value",
+              "type": {
+                "text": "string"
+              }
+            },
+            {
+              "name": "language",
+              "type": {
+                "text": "string | undefined"
+              }
+            },
+            {
+              "name": "options",
+              "type": {
+                "text": "Intl.NumberFormatOptions | undefined"
+              }
+            }
+          ],
+          "description": "The number `value`, in the format of HTML (`\"1250.5\"`), as `options` show\nit in `language`: `\"1 250,50 €\"`. `\"\"` for `\"\"`, the text itself for a\ntext that isn't a number."
+        },
+        {
+          "kind": "function",
+          "name": "editableNumber",
+          "return": {
+            "type": {
+              "text": "string"
+            }
+          },
+          "parameters": [
+            {
+              "name": "value",
+              "type": {
+                "text": "string"
+              }
+            },
+            {
+              "name": "language",
+              "type": {
+                "text": "string | undefined"
+              }
+            },
+            {
+              "name": "options",
+              "type": {
+                "text": "Intl.NumberFormatOptions | undefined"
+              }
+            }
+          ],
+          "description": "The text the user edits: the number in `language`, without groups nor\nsymbols, a percentage times a hundred: `\"1250,5\"`, `\"25\"` for 25 %."
+        },
+        {
+          "kind": "function",
+          "name": "parseNumber",
+          "return": {
+            "type": {
+              "text": "string | undefined"
+            }
+          },
+          "parameters": [
+            {
+              "name": "text",
+              "type": {
+                "text": "string"
+              }
+            },
+            {
+              "name": "language",
+              "type": {
+                "text": "string | undefined"
+              }
+            },
+            {
+              "name": "options",
+              "type": {
+                "text": "Intl.NumberFormatOptions | undefined"
+              }
+            }
+          ],
+          "description": "The number a user wrote in `language`, in the format of HTML: `\"1250.5\"`\nfor `\"1 250,50 €\"`. `\"\"` for an empty text, `undefined` for a text that\nisn't a number. A percentage reads a hundred times smaller."
+        },
+        {
+          "kind": "function",
+          "name": "stepNumber",
+          "return": {
+            "type": {
+              "text": "string"
+            }
+          },
+          "parameters": [
+            {
+              "name": "value",
+              "type": {
+                "text": "string"
+              }
+            },
+            {
+              "name": "direction",
+              "type": {
+                "text": "1 | -1"
+              }
+            },
+            {
+              "name": "bounds",
+              "type": {
+                "text": "NumberBounds"
+              }
+            }
+          ],
+          "description": "The value after one step up (`1`) or down (`-1`), within the bounds and on\nthe step from `min`, as ArrowUp and ArrowDown do on a native number input.\nFrom an empty value, the first step gives `min`, or else 0."
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "formatNumber",
+          "declaration": {
+            "name": "formatNumber",
+            "module": "src/state/number.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "editableNumber",
+          "declaration": {
+            "name": "editableNumber",
+            "module": "src/state/number.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "parseNumber",
+          "declaration": {
+            "name": "parseNumber",
+            "module": "src/state/number.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "stepNumber",
+          "declaration": {
+            "name": "stepNumber",
+            "module": "src/state/number.ts"
           }
         }
       ]

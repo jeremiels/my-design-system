@@ -93,6 +93,7 @@ export * from "./state/selection.js";
 export * from "./state/calendar.js";
 export * from "./state/tree.js";
 export * from "./state/table.js";
+export * from "./state/number.js";
 export * from "./events/modal-cancel.js";
 export * from "./events/modal-close.js";
 export * from "./events/notice-close.js";
