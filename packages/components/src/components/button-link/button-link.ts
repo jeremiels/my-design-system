@@ -1,7 +1,7 @@
 import { html } from "lit";
 import { property } from "lit/decorators.js";
 import { ifDefined } from "lit/directives/if-defined.js";
-import { ButtonBase } from "./button-base.js";
+import { ButtonBase } from "../../bases/button/button-base.js";
 import buttonLinkStyles from "./button-link.css" with { type: "css" };
 
 type LinkTarget = "_blank" | "_self" | "_parent" | "_top";

@@ -43,7 +43,7 @@ export default defineConfig({
         styles: resolve(import.meta.dirname, "src/styles/main.css"),
         reset: resolve(import.meta.dirname, "src/styles/reset.css"),
         button: resolve(import.meta.dirname, "src/components/button/button.ts"),
-        "button-link": resolve(import.meta.dirname, "src/components/button/button-link.ts"),
+        "button-link": resolve(import.meta.dirname, "src/components/button-link/button-link.ts"),
         alert: resolve(import.meta.dirname, "src/components/alert/alert.ts"),
         modal: resolve(import.meta.dirname, "src/components/modal/modal.ts"),
         icon: resolve(import.meta.dirname, "src/components/icon/icon.ts"),

@@ -5,9 +5,9 @@ import { ListboxController, listboxStyles, listboxTokens } from "../../controlle
 import { ListboxSelectEvent } from "../../events/listbox-select.js";
 import { collectionKeyMove } from "../../state/collection.js";
 import { normalizeText } from "../../state/typeahead.js";
-import { ComboboxBase } from "../combobox/combobox-base.js";
-import { fieldIds } from "../field/field-base.js";
-import type { ListboxOption } from "../listbox/listbox.type.js";
+import { ComboboxBase } from "../../bases/combobox/combobox-base.js";
+import { fieldIds } from "../../bases/field/field-base.js";
+import type { ListboxOption } from "../../controllers/listbox.type.js";
 import type { AutocompleteFilter } from "./autocomplete.type.js";
 
 /**

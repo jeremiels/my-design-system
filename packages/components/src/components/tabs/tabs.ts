@@ -3,7 +3,7 @@ import { property } from "lit/decorators.js";
 import { ifDefined } from "lit/directives/if-defined.js";
 import { RovingFocusController } from "../../controllers/roving-focus.js";
 import type { Orientation } from "../../types/common.js";
-import { DSBaseElement } from "../base-element.js";
+import { DSBaseElement } from "../../bases/base-element.js";
 import { TabPanel } from "../tab-panel/tab-panel.js";
 import { Tab } from "../tab/tab.js";
 import tabsStyles from "./tabs.css" with { type: "css" };

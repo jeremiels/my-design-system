@@ -1,6 +1,6 @@
 import { html, type PropertyValues } from "lit";
 import { property, query } from "lit/decorators.js";
-import { DSBaseElement } from "../base-element.js";
+import { DSBaseElement } from "../../bases/base-element.js";
 import detailsStyles from "./details.css" with { type: "css" };
 import detailsTokens from "./details.tokens.css" with { type: "css" };
 

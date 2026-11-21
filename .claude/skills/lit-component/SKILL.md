@@ -7,7 +7,7 @@ description: Écrire ou modifier la classe d'un composant Lit du socle (packages
 
 Les marques étendent les classes du socle et les enregistrent sous leur préfixe (ADR 0001, `docs/adr/0001-architecture-multi-marque.mdx`). Chaque règle de ce skill garde ces extensions fonctionnelles.
 
-Exemples : `packages/components/src/components/alert/alert.ts` (simple), `packages/components/src/components/button/button-base.ts` et `button.ts` (base partagée, mixins, formulaire), `packages/components/src/components/modal/modal.ts` (rend un autre composant), `examples/acme-design-system/src/components/acme-card/acme-card.ts` (composant de marque).
+Exemples : `packages/components/src/components/alert/alert.ts` (simple), `packages/components/src/bases/button/button-base.ts` et `button.ts` (base partagée, mixins, formulaire), `packages/components/src/components/modal/modal.ts` (rend un autre composant), `examples/acme-design-system/src/components/acme-card/acme-card.ts` (composant de marque).
 
 ## Anatomie
 
@@ -92,7 +92,7 @@ Un bouton contrôle un autre élément sans script : `<u-button commandfor="id" 
 
 - Passez par `withInternals()` (`this.internals`). N'appelez jamais `attachInternals()` vous-même : le second appel lève une erreur.
 - Contrôle de formulaire (valeur, validité, réinitialisation, `readonly`) : appliquez `withFormControl` sur `withInternals` et `withDisabled`. Un bouton de soumission déclare seulement `static formAssociated = true` (voir `button.ts`).
-- Champ de formulaire (libellé, indice, erreur, validation) : étendez `FieldBase` et écrivez seulement `renderControl()`. Le contrat est dans la JSDoc de `packages/components/src/components/field/field-base.ts`, et `text-field.ts` en est l'exemple.
+- Champ de formulaire (libellé, indice, erreur, validation) : étendez `FieldBase` et écrivez seulement `renderControl()`. Le contrat est dans la JSDoc de `packages/components/src/bases/field/field-base.ts`, et `text-field.ts` en est l'exemple.
 - Champ dont le contrôle ouvre un popup (autocomplete, select, date picker) : étendez `ComboboxBase` et écrivez `renderCombobox()`, `renderPopup()` et `comboboxControls`. Son état est celui de `comboboxReducer()` : envoyez-lui des événements avec `dispatch()`, ne tenez pas l'ouverture dans un champ. Pour une liste d'options, créez un `ListboxController`. `packages/components/src/components/autocomplete/autocomplete.ts` en est l'exemple (ADR 0009, ADR 0010).
 - Case à cocher ou interrupteur, libellé après le contrôle : étendez `ToggleBase` et écrivez `renderIndicator()` (voir `checkbox.ts`). Groupe de choix, contrôle de formulaire de ses enfants : étendez `ChoiceGroupBase` et écrivez `items` et `groupRole` (voir `radio-group.ts`, ADR 0017).
 - Champ borné (`min`, `max`, `step`) sur un input natif : étendez `RangeFieldBase` et appelez `renderInput(type)` (voir `number-field.ts`, ADR 0019).

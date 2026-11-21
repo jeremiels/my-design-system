@@ -5,7 +5,7 @@
 // First import: Lit reads the hydration support when its own module loads.
 import "@lit-labs/ssr-client/lit-element-hydrate-support.js";
 import { afterEach, describe, expect, inject, it } from "vitest";
-import type { DSBaseElement } from "./components/base-element.js";
+import type { DSBaseElement } from "./bases/base-element.js";
 import "./define.js";
 import close from "@unicorne/icons/close";
 import { Icon } from "./components/icon/icon.js";

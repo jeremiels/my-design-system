@@ -1,7 +1,7 @@
 import { isServer, type PropertyValues } from "lit";
 import { property, state } from "lit/decorators.js";
 import { html } from "lit/static-html.js";
-import { DSBaseElement } from "../base-element.js";
+import { DSBaseElement } from "../../bases/base-element.js";
 import { Icon } from "../icon/icon.js";
 import alertStyles from "./alert.css" with { type: "css" };
 import alertTokens from "./alert.tokens.css" with { type: "css" };

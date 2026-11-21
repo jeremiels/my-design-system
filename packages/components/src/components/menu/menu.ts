@@ -4,9 +4,9 @@ import { listboxTokens } from "../../controllers/listbox.js";
 import { RovingFocusController } from "../../controllers/roving-focus.js";
 import type { PopupToggleReason } from "../../events/popup-toggle.js";
 import { emptyTypeahead, isTypeaheadKey, typeahead } from "../../state/typeahead.js";
-import type { DSBaseElement } from "../base-element.js";
+import type { DSBaseElement } from "../../bases/base-element.js";
 import { MenuItem } from "../menu-item/menu-item.js";
-import { PopupBase } from "../popup/popup-base.js";
+import { PopupBase } from "../../bases/popup/popup-base.js";
 import menuStyles from "./menu.css" with { type: "css" };
 
 /**

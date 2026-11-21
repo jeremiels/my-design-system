@@ -1,8 +1,8 @@
 import { html } from "lit/static-html.js";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { Alert } from "../components/alert/alert.js";
-import { DSBaseElement } from "../components/base-element.js";
-import { ButtonLink } from "../components/button/button-link.js";
+import { DSBaseElement } from "../bases/base-element.js";
+import { ButtonLink } from "../components/button-link/button-link.js";
 import { Button } from "../components/button/button.js";
 import { Icon } from "../components/icon/icon.js";
 import { Modal } from "../components/modal/modal.js";

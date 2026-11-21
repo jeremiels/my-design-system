@@ -1,4 +1,4 @@
-import type { ListboxOption } from "../components/listbox/listbox.type.js";
+import type { ListboxOption } from "../controllers/listbox.type.js";
 
 /**
  * Fired when the user picks an option of a list (`ListboxController`), by a click

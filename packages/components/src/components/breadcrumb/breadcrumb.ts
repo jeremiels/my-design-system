@@ -1,6 +1,6 @@
 import { html } from "lit";
 import { property } from "lit/decorators.js";
-import { DSBaseElement } from "../base-element.js";
+import { DSBaseElement } from "../../bases/base-element.js";
 import { BreadcrumbItem } from "../breadcrumb-item/breadcrumb-item.js";
 import breadcrumbStyles from "./breadcrumb.css" with { type: "css" };
 import breadcrumbTokens from "./breadcrumb.tokens.css" with { type: "css" };

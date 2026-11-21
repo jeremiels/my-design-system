@@ -1,7 +1,7 @@
 import { html, nothing } from "lit";
 import { property } from "lit/decorators.js";
 import { ifDefined } from "lit/directives/if-defined.js";
-import { DSBaseElement } from "../base-element.js";
+import { DSBaseElement } from "../../bases/base-element.js";
 import breadcrumbItemStyles from "./breadcrumb-item.css" with { type: "css" };
 
 /**

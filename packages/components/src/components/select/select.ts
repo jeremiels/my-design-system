@@ -10,9 +10,9 @@ import {
   typeahead,
   type TypeaheadState,
 } from "../../state/typeahead.js";
-import { ComboboxBase } from "../combobox/combobox-base.js";
-import { fieldIds } from "../field/field-base.js";
-import type { ListboxOption } from "../listbox/listbox.type.js";
+import { ComboboxBase } from "../../bases/combobox/combobox-base.js";
+import { fieldIds } from "../../bases/field/field-base.js";
+import type { ListboxOption } from "../../controllers/listbox.type.js";
 import selectStyles from "./select.css" with { type: "css" };
 import selectTokens from "./select.tokens.css" with { type: "css" };
 

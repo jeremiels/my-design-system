@@ -11,8 +11,8 @@ import {
   isClosing,
 } from "../../controllers/exit-transition.js";
 import { DSBaseElement } from "../base-element.js";
-import { Button } from "../button/button.js";
-import { Icon } from "../icon/icon.js";
+import { Button } from "../../components/button/button.js";
+import { Icon } from "../../components/icon/icon.js";
 import type { ModalCancelReason, ModalClosedBy } from "./modal.type.js";
 
 /**

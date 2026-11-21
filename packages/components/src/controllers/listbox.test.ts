@@ -5,7 +5,7 @@ import { html, LitElement } from "lit";
 import { property, state } from "lit/decorators.js";
 import { afterEach, describe, expect, it } from "vitest";
 import { userEvent } from "vitest/browser";
-import type { ListboxOption } from "../components/listbox/listbox.type.js";
+import type { ListboxOption } from "./listbox.type.js";
 import { collectionKeyMove, moveIndex, type CollectionMove } from "../state/collection.js";
 import { ListboxController, listboxStyles, listboxTokens } from "./listbox.js";
 

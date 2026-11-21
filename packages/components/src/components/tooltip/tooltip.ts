@@ -1,7 +1,7 @@
 import { html } from "lit";
 import type { DismissReason } from "../../controllers/dismiss.js";
 import { HoverIntentController } from "../../controllers/hover-intent.js";
-import { PopupBase } from "../popup/popup-base.js";
+import { PopupBase } from "../../bases/popup/popup-base.js";
 import tooltipStyles from "./tooltip.css" with { type: "css" };
 import tooltipTokens from "./tooltip.tokens.css" with { type: "css" };
 

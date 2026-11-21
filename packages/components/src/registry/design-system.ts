@@ -1,5 +1,5 @@
 import type { IconSet } from "@unicorne/icons";
-import type { DesignSystemSettings, DSBaseElement } from "../components/base-element.js";
+import type { DesignSystemSettings, DSBaseElement } from "../bases/base-element.js";
 import { assertPrefix, defineComponents, nameOf } from "./define-components.js";
 
 type ComponentClass = typeof DSBaseElement;
