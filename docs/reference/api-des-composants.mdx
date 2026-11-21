@@ -1,0 +1,476 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Documentation/Référence/API des composants" />
+
+# API des composants
+
+Ces règles s'appliquent à chaque composant du socle et des marques. Elles fixent les noms et les formes de l'API publique.
+
+- Une règle qui commence par « De préférence » est un défaut : une revue peut la discuter. Les autres sont des règles.
+- Avant d'ajouter un nom, cherchez-le dans cette page, puis dans `packages/components/custom-elements.json`.
+- La JSDoc reste la source de l'API de chaque composant (skill `component-api-docs`).
+- Le partage de l'API avec Figma est décidé dans l'[ADR 0016](?path=/docs/documentation-adr-0016-api-partagée-entre-le-code-et-figma--docs).
+
+## 1. Trois zones
+
+Chaque élément de l'API appartient à une zone.
+
+<table>
+  <thead>
+    <tr>
+      <th>Zone</th>
+      <th>Contenu</th>
+      <th>Dans le code</th>
+      <th>Dans Figma</th>
+      <th>Qui la change</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Partagée</td>
+      <td>
+        Ce que le designer choisit et voit : variantes, tailles, états posés par un attribut, textes
+        affichés, slots, parts
+      </td>
+      <td>Attribut, slot, part</td>
+      <td>Propriété ou calque du même nom, en minuscules</td>
+      <td>Une PR relue par un designer et un développeur</td>
+    </tr>
+    <tr>
+      <td>Code</td>
+      <td>
+        Événements, méthodes, commandes, attributs de formulaire, textes pour les technologies
+        d'assistance, comportements sans effet visible
+      </td>
+      <td>API publique</td>
+      <td>Absente</td>
+      <td>Les développeurs</td>
+    </tr>
+    <tr>
+      <td>Figma</td>
+      <td>
+        Ce que le navigateur décide seul, comme le survol, et l'affichage des parts optionnelles
+      </td>
+      <td>Absente</td>
+      <td>Propriété dont le nom commence par une majuscule</td>
+      <td>Les designers</td>
+    </tr>
+  </tbody>
+</table>
+
+- Un nom en minuscules dans Figma est un nom du code, à l'identique.
+- Un nom qui commence par une majuscule est propre à Figma. Le code n'a aucun nom de cette forme.
+- Un élément partagé a le même nom, les mêmes valeurs et la même valeur par défaut des deux côtés.
+- Un attribut lié à un modifier de tokens est partagé : `variant` et `size` de `button`, `variant` d'`alert` (`packages/components/terrazzo.config.ts`).
+- Un trait d'un document DSDS est partagé. Le document donne le sens de chaque valeur.
+- Un élément du code absent de Figma est propre au code.
+- Une propriété sans effet visible, que le designer décide pour chaque instance, est partagée. Exemple : le `label` d'une icône qui porte un sens.
+- Figma porte une telle propriété par une propriété de texte, liée à un calque masqué `metadata`, à la racine du composant.
+
+## 2. Correspondance avec Figma
+
+<table>
+  <thead>
+    <tr>
+      <th>Code</th>
+      <th>Figma</th>
+      <th>Dans `<nom>.figma.ts`</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Attribut énuméré : `variant`, `size`</td>
+      <td>Propriété de variante, mêmes valeurs</td>
+      <td>Valeur recopiée</td>
+    </tr>
+    <tr>
+      <td>Attribut booléen qui change l'apparence : `disabled`, `open`</td>
+      <td>Propriété de variante, valeurs `false` et `true`</td>
+      <td>Attribut écrit si `true`</td>
+    </tr>
+    <tr>
+      <td>Attribut texte affiché : `label`, `value`</td>
+      <td>Propriété de texte</td>
+      <td>Texte recopié</td>
+    </tr>
+    <tr>
+      <td>Attribut texte optionnel, sans part quand il est vide : `hint`, `error-message`</td>
+      <td>Propriété de texte, et un booléen `Show <part>` : `Show hint`, `Show error`</td>
+      <td>Attribut omis si le booléen vaut `false`</td>
+    </tr>
+    <tr>
+      <td>Slot nommé</td>
+      <td>Propriété de slot du même nom</td>
+      <td>Contenu du slot</td>
+    </tr>
+    <tr>
+      <td>Slot par défaut</td>
+      <td>Propriété de slot `content`</td>
+      <td>Contenu de l'hôte</td>
+    </tr>
+    <tr>
+      <td>Composant du catalogue dans un slot : une icône</td>
+      <td>Propriété d'échange d'instance, au nom du slot</td>
+      <td>Le code que le `.figma.ts` de ce composant écrit</td>
+    </tr>
+    <tr>
+      <td>Part : `label`, `close-button`</td>
+      <td>Calque du même nom</td>
+      <td>Aucune</td>
+    </tr>
+    <tr>
+      <td>Token de composant</td>
+      <td>
+        Variable Figma du même token ([ADR
+        0004](?path=/docs/documentation-adr-0004-plateformes-natives-et-figma--docs))
+      </td>
+      <td>Aucune</td>
+    </tr>
+    <tr>
+      <td>`:hover`, `:active`, `:focus-visible`</td>
+      <td>Variante `Interaction` : `rest`, `hover`, `active`, `focus`</td>
+      <td>Ignorée</td>
+    </tr>
+    <tr>
+      <td>Événement, méthode, commande, attribut de formulaire</td>
+      <td>Absent</td>
+      <td>Écrit dans l'exemple, ou omis</td>
+    </tr>
+  </tbody>
+</table>
+
+- Un booléen Figma montre ou masque un calque, rien d'autre. Un booléen qui change plusieurs calques est donc une variante.
+- Une propriété propre à Figma commence par une majuscule. Les designers l'ajoutent sans PR.
+- `Interaction` et `Show <part>` sont réservés aux usages du tableau. `<part>` est le nom de la part, en minuscules.
+- La correspondance d'un composant vit dans `<nom>.figma.ts`, un gabarit Code Connect à côté de sa classe. Il écrit le HTML d'une instance Figma.
+- `<nom>.figma.ts` change dans la même PR que l'API du composant.
+- Un élément partagé se crée, se renomme ou se retire par une PR. Le fichier Figma suit après le merge.
+
+## 3. Noms
+
+### Balises
+
+- La balise est `<préfixe>-<nom>`. Le nom est en anglais, en kebab-case.
+- Un composant prend le nom du motif APG qu'il réalise (`autocomplete`, `modal`), ou de l'élément natif qu'il remplace (`textarea`).
+- Un champ rend un libellé et un contrôle : il étend `FieldBase` et se nomme `<sorte>-field` (`text-field`). Un nom natif ou APG passe avant cette règle.
+- Un composant qui mène à une autre page est un lien : `<nom>-link` (`button-link`).
+- Un groupe est un composant, nommé `<membre>-group` : `radio-group` contient des `radio`.
+
+### Attributs et propriétés
+
+- Un attribut est en anglais, en minuscules, en kebab-case : `error-message`. Sa propriété porte le même nom en camelCase : `errorMessage`.
+- Un attribut copié de HTML garde l'orthographe de HTML : `minlength`, `closedby`, `commandfor`. Sa propriété garde celle du DOM : `minLength`, `readOnly`.
+- Un attribut est un nom ou un adjectif, sans `is`, `has` ni `should` : `open`, `disabled`, `required`, comme en HTML.
+- Une propriété sans attribut porte une valeur riche : un tableau, un objet ou une fonction (`options`, `resultsMessage`).
+
+### Booléens
+
+- Un booléen vaut `false` par défaut. Il nomme le cas qui n'est pas le défaut : `disabled`, jamais `enabled`.
+- Un attribut booléen présent vaut `true`, même écrit `disabled="false"`, comme en HTML.
+- Un booléen dit une seule chose. Trois cas ou plus, ou deux booléens qui s'excluent, forment une énumération.
+
+### Énumérations
+
+- Une valeur est en anglais, en minuscules, en kebab-case : `primary`, `medium`, `contains`.
+- Une valeur copiée de HTML garde son orthographe : `closerequest`, `_self`, `submit`.
+- Le type est une union exportée par `<nom>.type.ts`. Une union commune à plusieurs composants vit dans `packages/components/src/types/common.ts` : `ComponentSize`, `SemanticVariant`.
+- Un alignement vaut `start`, `center` ou `end`, qui suivent le sens de lecture. Jamais `left` ni `right`.
+- Aucun composant n'a d'attribut `dir` : il lit la direction dans le DOM.
+
+### Même idée, même nom
+
+<table>
+  <thead>
+    <tr>
+      <th>Idée</th>
+      <th>Nom</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>L'intention, qui fixe les couleurs</td>
+      <td>`variant` : `primary`, `secondary`, `success`, `danger`, `warning`, `information`</td>
+    </tr>
+    <tr>
+      <td>La taille</td>
+      <td>`size` : `small`, `medium`, `large`</td>
+    </tr>
+    <tr>
+      <td>Ouvert</td>
+      <td>`open`</td>
+    </tr>
+    <tr>
+      <td>Désactivé</td>
+      <td>`disabled`, par `withDisabled`</td>
+    </tr>
+    <tr>
+      <td>Obligatoire</td>
+      <td>`required`</td>
+    </tr>
+    <tr>
+      <td>En lecture seule</td>
+      <td>`readonly`</td>
+    </tr>
+    <tr>
+      <td>Plusieurs choix</td>
+      <td>`multiple`</td>
+    </tr>
+    <tr>
+      <td>Coché</td>
+      <td>`checked`</td>
+    </tr>
+    <tr>
+      <td>L'axe</td>
+      <td>`orientation` : `horizontal`, `vertical`</td>
+    </tr>
+    <tr>
+      <td>La valeur</td>
+      <td>`value`</td>
+    </tr>
+    <tr>
+      <td>Le nom accessible</td>
+      <td>`label`</td>
+    </tr>
+    <tr>
+      <td>Le texte d'aide d'un champ</td>
+      <td>`hint`</td>
+    </tr>
+    <tr>
+      <td>Le message d'erreur d'un champ</td>
+      <td>`error-message`</td>
+    </tr>
+    <tr>
+      <td>Les options d'une liste</td>
+      <td>`options`, une propriété, ou des `<option>` enfants</td>
+    </tr>
+    <tr>
+      <td>Comment une liste filtre ses options</td>
+      <td>`filter`</td>
+    </tr>
+    <tr>
+      <td>Un texte écrit par le composant pour les technologies d'assistance</td>
+      <td>`<élément>-label` : `close-label`, `error-label`</td>
+    </tr>
+    <tr>
+      <td>Un texte visible écrit par le composant</td>
+      <td>Le nom de sa part : `required-indicator`</td>
+    </tr>
+    <tr>
+      <td>Un texte qui dépend d'une valeur</td>
+      <td>Une propriété fonction `<sujet>Message` : `resultsMessage(count)`</td>
+    </tr>
+    <tr>
+      <td>L'élément qu'un bouton commande</td>
+      <td>`commandfor` et `command`, comme en HTML</td>
+    </tr>
+  </tbody>
+</table>
+
+## 4. État et valeur
+
+- Un état que l'application lit ou pose est une propriété réactive. Elle a un attribut quand sa valeur est une chaîne, un nombre ou un booléen.
+- Changer l'attribut change la propriété, à tout moment, comme sur un élément natif.
+- L'attribut reflète la propriété quand le CSS ou l'ARIA le lit (skill `lit-component`).
+- Un état s'appelle `open`, `value` ou `checked`. Un autre nom désigne un état sans équivalent parmi eux.
+- Une valeur multiple s'appelle `values` : un tableau, propriété seule. `value` en donne la première, comme un `<select multiple>`, et le formulaire reçoit une entrée par valeur.
+- `value` est une chaîne. Rien de choisi vaut `""`, comme dans un `<input>`.
+- Une valeur formatée suit le format de HTML : `YYYY-MM-DD` pour une date, `HH:mm` pour une heure.
+- Un composant n'émet aucun événement à son premier rendu. Une valeur par défaut n'est pas un changement.
+- Un composant émet ses événements comme l'élément natif qu'il imite. `input` et `change` suivent un geste de l'utilisateur, jamais une propriété posée par script.
+- L'état interne est privé : champs privés (`#nom`), `@state()`, ou fonctions de `src/state/` ([ADR 0010](?path=/docs/documentation-adr-0010-état-contrôleurs-et-mixins--docs)).
+
+## 5. Événements
+
+- Un composant émet l'événement natif quand il existe : `click`, `input`, `change`.
+- Sinon, il émet `u-<verbe>` : `u-close`, `u-cancel`, `u-select`. Le verbe reprend l'événement natif du même rôle, comme `close` et `cancel` de `<dialog>`.
+- Le préfixe reste `u-` pour toutes les marques. Une application écoute ainsi les mêmes événements avec chaque marque.
+- Chaque événement est une classe de `packages/components/src/events/` : `ModalCloseEvent`. Ses données sont des champs `readonly` (`value`, `option`), jamais `detail`.
+- Un événement remonte et traverse les shadow roots : `bubbles` et `composed` valent `true`.
+- Un événement émis avant une action est annulable : `preventDefault()` empêche l'action. `u-cancel` garde la modale ouverte, `u-select` garde le texte du champ.
+- Un événement qui a plusieurs causes porte `reason`, une union exportée. Ses valeurs viennent du tableau suivant.
+
+<table>
+  <thead>
+    <tr>
+      <th>Cause</th>
+      <th>Sens</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>`trigger-press`</td>
+      <td>Clic, Entrée ou Espace sur l'élément qui ouvre, ferme ou bascule</td>
+    </tr>
+    <tr>
+      <td>`close-press`</td>
+      <td>Le bouton de fermeture du composant</td>
+    </tr>
+    <tr>
+      <td>`item-press`</td>
+      <td>Le choix d'un membre d'une liste : option, onglet, élément de menu</td>
+    </tr>
+    <tr>
+      <td>`list-navigation`</td>
+      <td>Les flèches, Début ou Fin déplacent la sélection</td>
+    </tr>
+    <tr>
+      <td>`input-change`</td>
+      <td>La saisie dans un champ</td>
+    </tr>
+    <tr>
+      <td>`outside-press`</td>
+      <td>Un clic hors du composant</td>
+    </tr>
+    <tr>
+      <td>`escape-key`</td>
+      <td>Échap</td>
+    </tr>
+    <tr>
+      <td>`focus-out`</td>
+      <td>Le focus quitte le composant</td>
+    </tr>
+    <tr>
+      <td>`back`</td>
+      <td>Le geste retour d'Android</td>
+    </tr>
+    <tr>
+      <td>`reset`</td>
+      <td>La réinitialisation du formulaire</td>
+    </tr>
+    <tr>
+      <td>`hover`</td>
+      <td>Le pointeur reste sur le déclencheur, ou le quitte</td>
+    </tr>
+    <tr>
+      <td>`focus-in`</td>
+      <td>Le focus du clavier arrive sur le déclencheur</td>
+    </tr>
+    <tr>
+      <td>`timeout`</td>
+      <td>Le délai d'un message passe</td>
+    </tr>
+    <tr>
+      <td>`imperative`</td>
+      <td>Une méthode ou une commande</td>
+    </tr>
+  </tbody>
+</table>
+
+- Une cause entre dans ce tableau avant qu'un composant l'émette.
+
+## 6. Méthodes et commandes
+
+- Une méthode reprend le nom de la méthode native du même rôle : `showModal()`, `close()`, `requestClose()`, `focus()`.
+- Une méthode ne masque jamais une méthode de `HTMLElement` : un popup a `show()`, `hide()` et `toggle()`, pas `showPopover()`.
+- Une méthode est un verbe. Un état se lit et se pose par sa propriété, jamais par `getX()` ni `setX()`.
+- Un composant qui s'ouvre, se ferme ou bascule reçoit des commandes ([ADR 0008](?path=/docs/documentation-adr-0008-commandes-et-modale--docs)).
+- Une commande s'écrit `--<verbe>`, comme les commandes natives : `--show-modal`, `--close`.
+- Chaque commande a une méthode publique du même nom, en camelCase : `--show-modal` et `showModal()`.
+
+## 7. Formulaires
+
+- Un champ est un contrôle de formulaire (`withFormControl`). Il prend les attributs d'un contrôle natif : `name`, `value`, `disabled`, `required`, `readonly`, `autocomplete`.
+- Il expose les membres de validation natifs : `form`, `validity`, `validationMessage`, `willValidate`, `checkValidity()`, `reportValidity()`, `setCustomValidity()`.
+- Il suit la réinitialisation du formulaire, la restauration par le navigateur et le `disabled` d'un `<fieldset>` parent (`withFormControl`, `withDisabled`).
+- `readonly` agit comme sur un contrôle natif : le champ est focusable et soumis, mais pas validé.
+- Un champ d'une ligne soumet son formulaire par Entrée, comme un `<input>`.
+- `disabled` agit comme sur un contrôle natif : le champ n'est ni focusable, ni validé, ni soumis.
+- L'erreur s'affiche comme `:user-invalid` : après une interaction, ou après une soumission. Le composant l'expose par `:state(user-invalid)`.
+- Le socle n'a pas de composant formulaire : un `<form>` natif contient les champs.
+
+## 8. Parts, slots et états CSS
+
+- Une part est en kebab-case. Elle porte le nom de son élément (`button`, `input`, `dialog`) ou de sa fonction (`hint`, `error`).
+- Une part qui contient un composant se nomme `<fonction>-<composant>` : `close-button`, `close-icon`.
+- Le calque Figma d'une part porte le nom de la part.
+- Le slot par défaut reçoit le contenu principal. Un slot nommé est en kebab-case.
+- Une fonction qui demande son propre élément est un slot, jamais un booléen : un slot `icon`, pas un attribut `has-icon`.
+- Un état que l'application cible en CSS est un état personnalisé : `:state(user-invalid)`. Son nom est un adjectif en kebab-case, celui de la pseudo-classe native quand elle existe.
+- Aucun composant n'a d'attribut `data-state`.
+- Les tokens d'un composant suivent [Tokens et couches CSS](?path=/docs/documentation-référence-tokens-et-couches-css--docs).
+
+## 9. Textes et noms accessibles
+
+- Un composant n'écrit aucun texte en dur. Chaque texte est un slot, ou une propriété avec une valeur par défaut en anglais.
+- `labels` de `designSystem()` traduit ces textes par nom de propriété. Un même texte porte donc le même nom dans chaque composant : `error-label`.
+- Le nom accessible vient du contenu, sinon de `label`. Le composant le reporte sur son contrôle, dans son shadow root.
+- De préférence, ne demandez pas `aria-label` sur l'hôte : il nomme l'hôte, pas le contrôle du shadow root.
+
+## 10. Extension par les marques
+
+- Un membre `protected` documenté est une API pour les sous-classes d'une marque.
+- Renommer ou retirer un élément public est une rupture ([ADR 0015](?path=/docs/documentation-adr-0015-versions-et-contrat-api--docs)).
+- Un composant de marque suit ces règles, avec la balise et les tokens de la marque.
+
+## 11. Choix arrêtés
+
+<table>
+  <thead>
+    <tr>
+      <th>Choix</th>
+      <th>Raison</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Le préfixe des événements reste `u-` dans chaque marque</td>
+      <td>Une application change de marque sans changer ses écouteurs</td>
+    </tr>
+    <tr>
+      <td>Un booléen vaut `false` par défaut</td>
+      <td>Un attribut absent donne le défaut : un défaut `true` ne s'éteint qu'avec une valeur</td>
+    </tr>
+    <tr>
+      <td>Les données d'un événement sont des champs de sa classe</td>
+      <td>TypeScript les lit par le type de l'événement, sans `detail` à typer</td>
+    </tr>
+    <tr>
+      <td>Les événements remontent</td>
+      <td>Une application écoute un formulaire entier depuis un ancêtre, comme avec `input`</td>
+    </tr>
+    <tr>
+      <td>`label` plutôt qu'`aria-label` sur l'hôte</td>
+      <td>`aria-label` sur l'hôte n'atteint pas le contrôle du shadow root</td>
+    </tr>
+    <tr>
+      <td>Le libellé et le contrôle dans le même shadow root</td>
+      <td>
+        Un `id` ne traverse pas un shadow root ([ADR
+        0007](?path=/docs/documentation-adr-0007-champs-de-formulaire--docs))
+      </td>
+    </tr>
+    <tr>
+      <td>Pas de `data-state`</td>
+      <td>`:state()` et les attributs reflétés couvrent le CSS</td>
+    </tr>
+    <tr>
+      <td>Pas de composant formulaire</td>
+      <td>Le `<form>` natif soumet, valide et réinitialise</td>
+    </tr>
+    <tr>
+      <td>La casse distingue les noms propres à Figma</td>
+      <td>Un script trouve la zone de chaque nom, sans liste à tenir (ADR 0016)</td>
+    </tr>
+    <tr>
+      <td>Une variante Figma `Interaction`, ignorée par le code</td>
+      <td>Le navigateur pose `:hover`, `:active` et `:focus-visible` (ADR 0016)</td>
+    </tr>
+  </tbody>
+</table>
+
+## Écarts du catalogue
+
+<table>
+  <thead>
+    <tr>
+      <th>Écart</th>
+      <th>Règle</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Aucun composant n'a de fichier `<nom>.figma.ts`</td>
+      <td>Section 2 et ADR 0016</td>
+    </tr>
+  </tbody>
+</table>

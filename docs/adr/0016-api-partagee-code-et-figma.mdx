@@ -1,0 +1,268 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Documentation/ADR/0016 API partagée entre le code et Figma" />
+
+# ADR 0016 — API partagée entre le code et Figma
+
+**Statut :** proposé · **Date :** 20 novembre 2026
+
+## Contexte
+
+Chaque composant existe deux fois : une classe Lit dans le code, et un composant dans le fichier Figma du socle. Une partie de leur API est commune : les variantes, les tailles, les textes affichés. Le reste est propre à un côté. Les événements n'existent que dans le code. Figma demande des propriétés pour montrer un survol ou masquer un calque.
+
+L'[ADR 0004](?path=/docs/documentation-adr-0004-plateformes-natives-et-figma--docs) relie les tokens à Figma : git est la source, Figma reçoit. Aucun ADR ne relie l'API des composants. Les règles de nommage sont dans [API des composants](?path=/docs/documentation-référence-api-des-composants--docs).
+
+Faits vérifiés le 20 novembre 2026, avec leurs sources en fin de page :
+
+- **Propriétés de composant Figma :** cinq types. Variante, booléen, échange d'instance, texte et slot.
+- **Booléen Figma :** il montre ou masque un calque, rien d'autre.
+- **Slots Figma :** disponibles sur tous les plans depuis juin 2026. Un slot a un nom, un nombre minimal et maximal de calques, des instances préférées et un contenu par défaut. Aucune propriété de composant ne s'applique à un calque d'un slot.
+- **API REST de Figma :** `GET /v1/files/{file_key}/nodes` renvoie les nœuds d'un fichier, avec un personal access token. Un composant et un ensemble de composants portent `componentPropertyDefinitions` : le nom, le type et la valeur par défaut de chaque propriété.
+- **Code Connect :** il affiche le code d'une instance dans Dev Mode et le transmet au serveur MCP de Figma. Il demande un siège Dev ou Full, sur un plan Professional, Organization ou Enterprise. Le plan Professional a une bibliothèque et un framework actifs.
+- **Fichiers de gabarit Code Connect :** des fichiers `.figma.ts`, indépendants du framework. Ils lisent les propriétés d'une instance par leur nom (`getBoolean`, `getEnum`, `getString`, `getSlot`, `getInstanceSwap`) et écrivent un exemple de code. Les parsers par framework, dont celui des web components, ne reçoivent plus de mises à jour.
+- **Code Connect UI :** il relie un composant à un fichier de code depuis Figma, sans correspondance des propriétés.
+- **Erreurs de Code Connect :** une propriété absente lève `PROPERTY_NOT_FOUND` à l'exécution du gabarit, dans le panneau de Code Connect. La documentation ne dit pas si `figma connect publish` vérifie les noms.
+
+### Pratiques établies
+
+<table>
+  <thead>
+    <tr>
+      <th>Source</th>
+      <th>Noms partagés</th>
+      <th>Propre à Figma</th>
+      <th>Propre au code</th>
+      <th>Correspondance</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Firefox (composants Lit `moz-*`)</td>
+      <td>Les attributs du composant</td>
+      <td>`State` (`Hover`, `Active`, `Focus`), `Show icon`</td>
+      <td>Absent de Figma</td>
+      <td>
+        `moz-<nom>.figma.ts` dans le dossier du composant ; `Hover`, `Active` et `Focus` ne sont pas
+        reliés
+      </td>
+    </tr>
+    <tr>
+      <td>Nathan Curtis, « The Sorry State of States » (décembre 2024)</td>
+      <td>Mêmes noms, valeurs en minuscules</td>
+      <td>`state` : `rest`, `hover`, `active`, `focus`</td>
+      <td>—</td>
+      <td>`disabled` est un booléen séparé de `state` ; `validation` vaut `none`, `error` ou `success`</td>
+    </tr>
+    <tr>
+      <td>Nathan Curtis, « Code Only Props in Figma » (janvier 2026)</td>
+      <td>—</td>
+      <td>—</td>
+      <td>Un calque masqué à la racine du composant, lié à des propriétés de texte</td>
+      <td>Un outil lit le calque pour écrire la spécification ; le calque alourdit le fichier Figma</td>
+    </tr>
+    <tr>
+      <td>Spectrum Design Data (`1.0.0-draft`)</td>
+      <td>Un fichier neutre par composant : options, anatomie, états</td>
+      <td>Les alias d'une part : le nom que Figma lui donne</td>
+      <td>Ni événement ni méthode dans le fichier neutre</td>
+      <td>Une plateforme ajoute, sans surcharger le schéma neutre</td>
+    </tr>
+    <tr>
+      <td>DSDS 0.23.1</td>
+      <td>Un trait porte le nom réel de l'API</td>
+      <td>Figma est un lien (`rel: design`), pas une plateforme</td>
+      <td>Renvoyé au Custom Elements Manifest</td>
+      <td>Aucune</td>
+    </tr>
+    <tr>
+      <td>vercel-labs/ui, `contributing/api-guide.md`</td>
+      <td>Un guide de noms pour cinq frameworks</td>
+      <td>Pas de Figma</td>
+      <td>—</td>
+      <td>Une table par framework</td>
+    </tr>
+  </tbody>
+</table>
+
+### Critères de décision
+
+1. Un nom partagé a une seule source, relue par un designer et un développeur.
+2. Chaque côté ajoute ce qui lui est propre sans demander à l'autre.
+3. Un écart entre Figma et le code se détecte par un script, sans relecture.
+4. Un designer voit dans Figma ce qu'il choisit, et rien de ce que le code seul décide.
+5. Dev Mode et le serveur MCP de Figma donnent le code réel d'une instance.
+
+## D1 — Source des noms partagés
+
+- **Option A — Figma est la source, le code suit.** Figma ne relit pas par PR. L'ADR 0004 (D2) écarte déjà ce sens pour les tokens.
+- **Option B — Un fichier neutre de plus par composant**, comme Spectrum Design Data. Trois sources décrivent alors la même API : ce fichier, la JSDoc et Figma. DSDS refuse de recopier l'API pour cette raison.
+- **Option C — Le code est la source.** La JSDoc déclare chaque nom, et `custom-elements.json` le publie. Figma reprend les noms partagés à l'identique.
+
+**Décision : C.**
+
+- Un nom partagé se décide avant le travail, par un designer et un développeur.
+- Il arrive dans git par une PR : la JSDoc, le trait DSDS et le fichier `.figma.ts`.
+- Le fichier Figma suit après le merge, comme les tokens.
+
+## D2 — Zones de l'API
+
+- **Option A — Tout dans Figma.** Chaque propriété du code passe dans Figma par un calque masqué (Curtis). Le fichier Figma s'alourdit, et un événement n'a aucune forme dans Figma.
+- **Option B — Une liste des zones par composant.** Une source de plus, à tenir à jour à chaque changement.
+- **Option C — La forme du nom donne la zone.** Un nom en minuscules dans Figma est un nom du code. Un nom avec une majuscule initiale est propre à Figma. Un nom du code absent de Figma est propre au code.
+
+**Décision : C.**
+
+- Un attribut lié à un modifier de tokens est toujours partagé. `terrazzo.config.ts` liste ces attributs.
+- Un trait d'un document DSDS est toujours partagé.
+- Une propriété sans effet visible, que le designer décide par instance, passe dans Figma par un calque masqué `metadata`. Exemple : le `label` d'une icône.
+- Les autres propriétés propres au code restent hors de Figma.
+
+## D3 — États d'interaction
+
+- **Option A — Une variante `State` qui contient `Disabled`**, comme Firefox. `disabled` est un attribut du code, `hover` une pseudo-classe : la variante mêle deux zones.
+- **Option B — Une variante `Interaction`, propre à Figma**, avec `rest`, `hover`, `active` et `focus`. `disabled` et les autres états posés par un attribut sont des propriétés partagées, séparées.
+
+**Décision : B.**
+
+- Le nom n'est pas `State` : dans le socle, « état » désigne `:state()` et `src/state/`.
+- La valeur est `active`, la pseudo-classe `:active`. `pressed` reste libre pour l'état d'un bouton bascule (`aria-pressed`).
+- Le fichier `.figma.ts` ignore `Interaction`.
+
+## D4 — Lieu de la correspondance
+
+- **Option A — Code Connect UI**, dans Figma. Il ne relie pas les propriétés.
+- **Option B — Le parser HTML de Code Connect** (`@figma/code-connect/html`). Il ne reçoit plus de mises à jour.
+- **Option C — Un fichier de gabarit `<nom>.figma.ts` à côté de la classe**, comme Firefox. Il écrit le HTML d'une instance, et change dans la même PR que l'API.
+
+**Décision : C.** `figma.config.json`, à la racine, liste ces fichiers.
+
+## D5 — Contrôle des écarts
+
+- **Option A — La relecture.** Un écart passe inaperçu jusqu'à ce qu'un développeur recopie une maquette.
+- **Option B — `figma connect publish --dry-run`.** La documentation ne dit pas s'il vérifie les noms des propriétés.
+- **Option C — Un script qui compare Figma et le manifest.** Il lit les propriétés par l'API REST, et les compare à `custom-elements.json`.
+
+**Décision : C**, la commande `npm run figma:check`. Elle échoue dans ces cas :
+
+1. Une propriété Figma en minuscules n'existe pas dans le manifest, avec les mêmes valeurs et la même valeur par défaut.
+2. Un attribut lié à un modifier de tokens, ou un trait DSDS, manque dans Figma.
+3. Une propriété Figma `Show <part>` nomme une part absente du manifest.
+
+La commande demande un token Figma. Elle ne fait pas partie de `npm run check` : un job planifié et une commande locale la lancent.
+
+## D6 — Qui change quoi
+
+<table>
+  <thead>
+    <tr>
+      <th>Zone</th>
+      <th>Qui la change</th>
+      <th>Comment</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Partagée</td>
+      <td>Un designer et un développeur</td>
+      <td>
+        Une PR : JSDoc, trait DSDS et `.figma.ts`. `CODEOWNERS` demande la relecture d'un designer.
+        Figma suit après le merge
+      </td>
+    </tr>
+    <tr>
+      <td>Code</td>
+      <td>Les développeurs</td>
+      <td>Une PR. Un attribut qui change l'apparence est partagé : la PR passe dans la zone partagée</td>
+    </tr>
+    <tr>
+      <td>Figma</td>
+      <td>Les designers</td>
+      <td>Dans Figma, sans PR. Le `.figma.ts` change quand un `Show <part>` est ajouté</td>
+    </tr>
+  </tbody>
+</table>
+
+## Récapitulatif
+
+<table>
+  <thead>
+    <tr>
+      <th>Décision</th>
+      <th>Choix</th>
+      <th>Pourquoi</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>D1 — Source</td>
+      <td>La JSDoc et `custom-elements.json`</td>
+      <td>Une source, relue par PR</td>
+    </tr>
+    <tr>
+      <td>D2 — Zones</td>
+      <td>La casse du nom dans Figma</td>
+      <td>Aucune liste à tenir, un script la vérifie</td>
+    </tr>
+    <tr>
+      <td>D3 — Interaction</td>
+      <td>Une variante `Interaction`, propre à Figma</td>
+      <td>Le navigateur pose ces états, pas l'application</td>
+    </tr>
+    <tr>
+      <td>D4 — Correspondance</td>
+      <td>`<nom>.figma.ts` à côté de la classe</td>
+      <td>Le code et sa correspondance changent ensemble</td>
+    </tr>
+    <tr>
+      <td>D5 — Contrôle</td>
+      <td>`npm run figma:check`, planifié</td>
+      <td>Un écart se détecte sans relecture</td>
+    </tr>
+    <tr>
+      <td>D6 — Rôles</td>
+      <td>Chaque zone a ses auteurs</td>
+      <td>Personne ne change seul ce que l'autre côté lit</td>
+    </tr>
+  </tbody>
+</table>
+
+## Conséquences
+
+Cet ADR ne change aucun fichier de code.
+
+- **Documentation :** les règles de nommage et la correspondance sont dans [API des composants](?path=/docs/documentation-référence-api-des-composants--docs).
+- **Code Connect :** `figma.config.json`, et un `<nom>.figma.ts` par composant du catalogue.
+- **Contrôle :** le script `figma:check` et son job planifié, avec un secret pour le token Figma.
+- **Dépôt :** `CODEOWNERS` pour `*.figma.ts` et `*.dsds.yaml`.
+- **Figma :** les propriétés des composants suivent la casse et la variante `Interaction`.
+
+## Questions ouvertes
+
+- **Plan Figma :** Code Connect demande un plan Professional au moins, et un siège Dev ou Full pour chaque développeur.
+- **Marques :** une marque a son propre fichier Figma (ADR 0004, D2). Ses gabarits changent l'URL et le préfixe. Les copier, ou les générer depuis ceux du socle, reste à décider.
+- **Slots :** la lecture d'un slot par `getSlot` reste à essayer sur le slot par défaut.
+- **iOS et Android :** les noms partagés valent aussi pour SwiftUI et Compose. Leur casse change selon la plateforme (ADR 0004, D4).
+
+## Sources
+
+Consultées le 20 novembre 2026.
+
+**Figma**
+
+- [Component property fundamentals](https://help.figma.com/hc/en-us/articles/39636407507735-Components-collection-Component-property-fundamentals) (aide de Figma) : les cinq types de propriétés ; un booléen montre ou masque un calque.
+- [Use slots to build flexible components](https://help.figma.com/hc/en-us/articles/38231200344599-Use-slots-to-build-flexible-components-in-Figma) (aide de Figma) : tous les plans, réglages d'un slot, propriétés interdites dans un slot.
+- [Slots GA](https://developers.figma.com/docs/plugins/updates/2026/06/10/update/) (API des plugins, 10 juin 2026) : type `SLOT`, `SlotNode`, réglages.
+- [Figma REST API](https://unpkg.com/@figma/rest-api-spec/openapi/openapi.yaml) (spécification OpenAPI 0.47.0) : `GET /v1/files/{file_key}/nodes`, `componentPropertyDefinitions`.
+- [Code Connect](https://developers.figma.com/docs/code-connect) (documentation développeur) : plans, sièges, Dev Mode et serveur MCP.
+- [Comparing Code Connect UI and CLI](https://developers.figma.com/docs/code-connect/comparing-cc/) : Code Connect UI ne relie pas les propriétés.
+- [Template files](https://developers.figma.com/docs/code-connect/template-files/) et [Template API](https://developers.figma.com/docs/code-connect/template-api/) : fichiers `.figma.ts`, méthodes de lecture, erreurs.
+- [Connecting Web components](https://developers.figma.com/docs/code-connect/html) : parser HTML, sans mises à jour.
+
+**Design systems**
+
+- [Figma Code Connect](https://firefox-source-docs.mozilla.org/browser/components/storybook/docs/README.figma-code-connect.stories.html) (Firefox) : gabarits `moz-<nom>.figma.ts`, états d'interaction non reliés.
+- [The Sorry State of States](https://nathanacurtis.substack.com/p/the-sorry-state-of-states-89dd4668737e) (Nathan Curtis, décembre 2024) : `state`, `disabled`, `validation`.
+- [Code Only Props in Figma](https://nathanacurtis.substack.com/p/code-only-props-in-figma) (Nathan Curtis, janvier 2026) : calque masqué, compromis.
+- [Component format](https://opensource.adobe.com/spectrum-design-data/spec/component-format/), [Anatomy format](https://opensource.adobe.com/spectrum-design-data/spec/anatomy-format/) et [Manifest](https://opensource.adobe.com/spectrum-design-data/spec/manifest) (Spectrum Design Data, `1.0.0-draft`) : options neutres, alias des parts, extensions par plateforme.
+- [Interoperability](https://designsystemdocspec.org/interoperability.html) et [Schema](https://designsystemdocspec.org/schema.html) (DSDS 0.23.1) : traits, renvoi au manifest, Figma en lien.
+- [API guide](https://github.com/vercel-labs/ui/blob/main/contributing/api-guide.md) (vercel-labs/ui, commit `fb6945a`) : règles de nommage, d'état, de causes et de parts.
