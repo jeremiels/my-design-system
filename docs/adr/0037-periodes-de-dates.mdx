@@ -1,0 +1,87 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Documentation/ADR/0037 Périodes de dates" />
+
+# ADR 0037 — Périodes de dates
+
+**Statut :** accepté · **Date :** 21 novembre 2026 · Répond à une question ouverte de l'[ADR 0023](?path=/docs/documentation-adr-0023-calendrier-et-date-picker--docs)
+
+## Contexte
+
+Un formulaire demande une période : des congés, une réservation, les dates d'un séjour. `calendar` et `date-picker` choisissent un seul jour ([ADR 0023](?path=/docs/documentation-adr-0023-calendrier-et-date-picker--docs)).
+
+- HTML n'a pas de champ de période. ISO 8601 écrit un intervalle de dates `2026-11-02/2026-11-06`.
+- `Intl.DateTimeFormat.formatRange()` écrit une période dans une langue : `2–6 novembre 2026`. Elle est dans toute la [matrice](?path=/docs/documentation-référence-support-navigateurs--docs).
+- Le pattern de date picker de l'APG ne décrit pas de période.
+
+### Ce que font les bibliothèques
+
+<table>
+  <thead>
+    <tr>
+      <th>Bibliothèque</th>
+      <th>Composant</th>
+      <th>Valeur</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>React Aria</td>
+      <td>
+        `RangeCalendar` et `DateRangePicker` : un premier jour, puis un dernier ; la période à venir
+        suit le pointeur et le focus.
+      </td>
+      <td>Un objet `{ start, end }`.</td>
+    </tr>
+    <tr>
+      <td>Carbon</td>
+      <td>`cds-date-picker` en mode `range`, deux champs, le calendrier de flatpickr.</td>
+      <td>Les dates au format ISO 8601, séparées par `/`.</td>
+    </tr>
+  </tbody>
+</table>
+
+## D1 — `range`, et un intervalle ISO 8601
+
+- **Option A — Deux propriétés, `start` et `end`.** Le formulaire reçoit deux valeurs sous un seul `name`, et `v-model` n'en lie qu'une.
+- **Option B — Un intervalle dans `value`**, comme Carbon.
+
+**Décision : B.** Avec `range`, `value` vaut `YYYY-MM-DD/YYYY-MM-DD`, ou `""`.
+
+- `state/calendar.ts` lit et écrit l'intervalle : `parseRange()`, `formatRange()`, `orderRange()`, `isInRange()`.
+- Le formulaire reçoit l'intervalle sous `name`. `v-model` le lie comme une date.
+
+## D2 — Un premier jour, puis un dernier
+
+- Le premier choix, au clavier ou au pointeur, garde le jour : `value` ne change pas encore. Une région live dit `rangeStartMessage(date)` : « From … : pick the last day ».
+- Jusqu'au dernier choix, les jours entre le premier et le jour qui a le focus, ou sous le pointeur, montrent la période à venir.
+- Le dernier choix, avant ou après le premier, donne la période dans l'ordre. `value` la prend, et le calendrier émet `change` une fois.
+- Échap oublie le premier jour. Dans `date-picker`, il ferme aussi le calendrier.
+- Chaque jour de la période choisie a `aria-selected="true"`. Le premier et le dernier ont l'apparence d'un jour choisi, ceux d'entre eux `range-background-color`.
+
+## D3 — `date-picker`
+
+- `range` passe au calendrier. Le contrôle montre la période avec `formatRange()`, dans la langue de la page.
+- Le calendrier se ferme au dernier jour, et le champ émet `input` et `change`.
+
+## Conséquences
+
+- **Code :** `range` et `rangeStartMessage` de `Calendar`, `range` de `DatePicker`, les fonctions de période de `state/calendar.ts`.
+- **Tokens :** `range-background-color` de `calendar`.
+- **Tests :** `state/calendar.test.ts` dans Node, `calendar.test.ts` avec le vrai clavier, les stories `Range` de `calendar` et de `date-picker` dans trois moteurs.
+- **Limites :**
+  - Un seul mois s'affiche : une période sur deux mois se choisit en changeant de mois entre les deux jours.
+  - `min` et `max` bornent chaque jour, pas la durée de la période.
+
+## Questions ouvertes
+
+- **Deux mois :** deux grilles côte à côte, comme React Aria avec `visibleDuration`.
+- **Durée :** une durée minimale et maximale.
+
+## Sources
+
+Consultées le 21 novembre 2026.
+
+- [Calendar.tsx](https://github.com/adobe/react-spectrum/blob/main/packages/react-aria-components/src/Calendar.tsx) et [DatePicker.tsx](https://github.com/adobe/react-spectrum/blob/main/packages/react-aria-components/src/DatePicker.tsx) (Adobe, React Aria).
+- [date-picker.ts](https://github.com/carbon-design-system/carbon/blob/main/packages/web-components/src/components/date-picker/date-picker.ts) (IBM, Carbon).
+- [Intl.DateTimeFormat.prototype.formatRange()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat/formatRange) (MDN).

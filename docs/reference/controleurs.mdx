@@ -701,6 +701,7 @@ dialog[open]:where(:not([data-closing])) {
 - `isWithin()` et `clampDate()` tiennent une date entre `min` et `max`.
 - `monthWeeks(année, mois, premierJour)` donne les semaines d'un mois. Un jour d'un mois voisin vaut `undefined`.
 - `calendarKeyMove(touche, date, options)` donne la date d'une touche de la grille, dans le sens du texte.
+- `parseRange(texte)` et `formatRange(période)` lisent et écrivent un intervalle ISO 8601, `YYYY-MM-DD/YYYY-MM-DD` ([ADR 0037](?path=/docs/documentation-adr-0037-périodes-de-dates--docs)). `orderRange(a, b)` met deux dates dans l'ordre, `isInRange(date, période)` dit si une date en fait partie.
 
 ## Nœuds d'un arbre
 

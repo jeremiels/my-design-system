@@ -64,6 +64,18 @@ th {
   background-color: var(--u-calendar-selected-background-color);
 }
 
+/* A range: its first and last days as a chosen day, the days between on a
+   lighter background, joined. */
+.day--edge {
+  color: var(--u-calendar-selected-text-color);
+  background-color: var(--u-calendar-selected-background-color);
+}
+.day--range:not(.day--edge) {
+  color: inherit;
+  background-color: var(--u-calendar-range-background-color);
+  border-radius: 0;
+}
+
 .day[aria-disabled] {
   opacity: var(--u-calendar-disabled-opacity);
   cursor: default;
@@ -75,7 +87,9 @@ th {
 }
 
 @media (forced-colors: active) {
-  .day[aria-selected="true"] {
+  .day[aria-selected="true"],
+  .day--range {
+    forced-color-adjust: none;
     color: HighlightText;
     background-color: Highlight;
   }

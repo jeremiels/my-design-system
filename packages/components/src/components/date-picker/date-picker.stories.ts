@@ -117,3 +117,39 @@ export const Open = meta.story({
     await popupSettled(popup);
   },
 });
+
+export const Range = meta.story({
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "With `range`, the calendar picks a first day, then a last one, and closes. The value is an ISO 8601 interval, `2026-11-02/2026-11-06`; the control shows the range in the language of the page.",
+      },
+    },
+  },
+  render: () => html`
+    <div lang="fr">
+      <u-date-picker label="Période de congés" range value="2026-11-02/2026-11-06"></u-date-picker>
+    </div>
+  `,
+  play: async ({ canvasElement }) => {
+    const picker = canvasElement.querySelector<DatePicker>("u-date-picker")!;
+    await picker.updateComplete;
+    const root = picker.shadowRoot!;
+    const control = root.querySelector<HTMLElement>('[part~="button"]')!;
+    const text = () => control.textContent!.replace(/\s/g, "");
+    expect(text()).toBe("2–6novembre2026");
+    await userEvent.click(control);
+    const popup = root.querySelector<HTMLElement>('[part~="popup"]')!;
+    await waitFor(() => expect(popup.matches(":popover-open")).toBe(true));
+    const calendar = root.querySelector<Calendar>('[part~="calendar"]')!;
+    const day = (date: string) =>
+      calendar.shadowRoot!.querySelector<HTMLElement>(`[data-date="${date}"]`)!;
+    await userEvent.click(day("2026-11-09"));
+    expect(popup.matches(":popover-open")).toBe(true);
+    await userEvent.click(day("2026-11-13"));
+    await waitFor(() => expect(popup.matches(":popover-open")).toBe(false));
+    expect(picker.value).toBe("2026-11-09/2026-11-13");
+    expect(text()).toBe("9–13novembre2026");
+  },
+});
