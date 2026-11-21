@@ -92,6 +92,12 @@ export default defineConfig({
         step: resolve(import.meta.dirname, "src/components/step/step.ts"),
         stepper: resolve(import.meta.dirname, "src/components/stepper/stepper.ts"),
         table: resolve(import.meta.dirname, "src/components/table/table.ts"),
+        "table-row": resolve(import.meta.dirname, "src/components/table-row/table-row.ts"),
+        "table-cell": resolve(import.meta.dirname, "src/components/table-cell/table-cell.ts"),
+        "table-header-cell": resolve(
+          import.meta.dirname,
+          "src/components/table-header-cell/table-header-cell.ts",
+        ),
         "menu-item": resolve(import.meta.dirname, "src/components/menu-item/menu-item.ts"),
       },
       formats: ["es"],

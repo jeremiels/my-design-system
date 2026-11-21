@@ -221,6 +221,18 @@
     "./table": {
       "types": "./dist/components/table/table.d.ts",
       "import": "./dist/table.js"
+    },
+    "./table-row": {
+      "types": "./dist/components/table-row/table-row.d.ts",
+      "import": "./dist/table-row.js"
+    },
+    "./table-cell": {
+      "types": "./dist/components/table-cell/table-cell.d.ts",
+      "import": "./dist/table-cell.js"
+    },
+    "./table-header-cell": {
+      "types": "./dist/components/table-header-cell/table-header-cell.d.ts",
+      "import": "./dist/table-header-cell.js"
     }
   },
   "scripts": {

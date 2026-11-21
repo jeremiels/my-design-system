@@ -1,49 +1,51 @@
 import { html, nothing, type PropertyValues } from "lit";
-import { property } from "lit/decorators.js";
-import { repeat } from "lit/directives/repeat.js";
+import { property, state } from "lit/decorators.js";
 import { DSBaseElement } from "../../bases/base-element.js";
 import { OverflowController } from "../../controllers/overflow.js";
 import { TableSortEvent } from "../../events/table-sort.js";
 import { toggleAll, toggleValue } from "../../state/selection.js";
 import { nextSort, type SortDirection } from "../../state/table.js";
+import { TableHeaderCell } from "../table-header-cell/table-header-cell.js";
+import { TableRow } from "../table-row/table-row.js";
 import tableStyles from "./table.css" with { type: "css" };
 import tableTokens from "./table.tokens.css" with { type: "css" };
-import type { TableColumn, TableRow } from "./table.type.js";
 
 /**
- * A table of data: rows and columns, a caption, headers that sort, and
- * rows the user selects (ADR 0030). It renders a native `<table>`, from
- * `columns` and `rows`: assistive technologies read it as any table.
+ * A table of data, written with elements as an HTML table: `table-row`
+ * children, whose cells are `table-cell` and `table-header-cell` (ADR 0030).
+ * Any row fits: a row of details across the columns (`colspan`), a group
+ * heading, a cell holding links, buttons or a `badge`.
  *
- * A sortable column has a button in its header. A press fires `u-sort`,
- * then shows the new sort: `aria-sort` and an arrow. The table keeps the
- * order of `rows`: the application sorts them, with `sortRows()` or on its
- * server.
+ * The rows with `slot="head"` form its header, which stays in view while
+ * the other rows scroll under it. `label` is its caption and its name.
  *
- * With `selectable`, a column of checkboxes selects rows, and a box in its
- * header all of them. `values` holds the keys of the rows selected, from
- * `row-key`; each choice of the user fires `change`. A checkbox is named by
- * `select-label` and its row's header cell.
+ * A header cell with `sort-key` sorts the rows: a press fires `u-sort`, then
+ * the table shows the new sort, `aria-sort` and an arrow. The table keeps
+ * the order of its rows: the application sorts them, with `sortRows()` or
+ * on its server, and renders them again.
+ *
+ * With `selectable`, each row gets a `checkbox` before its cells, named by
+ * `selectMessage` and its row header; the head gets one for every row.
+ * `values` holds the `value` of the rows selected; each choice of the user
+ * fires `change`. A row without `value`, a row of details for instance, has
+ * an empty cell there.
  *
  * The table scrolls past the width of the page, and past
- * `--u-table-max-block-size` under its header row. While it scrolls, it
- * takes the focus, for the keyboard, as a region named by its caption.
+ * `--u-table-max-block-size`. While it scrolls, it takes the focus, for the
+ * keyboard, as a region named by its caption.
  *
  * @element u-table
- * @summary A table of data, sortable, whose rows the user may select.
+ * @summary A table of data, written with row and cell elements, sortable, whose rows the user may select.
+ * @slot - The rows of the body, `table-row` elements.
+ * @slot head - The rows of the header, `table-row` elements of `table-header-cell`.
  * @slot empty - What shows in place of the rows while there are none: "No request yet" for instance.
  * @csspart scroller - The box that scrolls around the table.
- * @csspart table - The `<table>`.
+ * @csspart table - The table, `role="table"`.
  * @csspart caption - The caption: `label`.
- * @csspart column-header - The header of a column.
- * @csspart sort-button - The button of a sortable column's header.
- * @csspart row - A row of the body. A selected one has `aria-selected="true"`.
- * @csspart cell - A cell of the body, row headers included.
- * @csspart select - The checkbox of a row.
- * @csspart select-all - The checkbox of the header, for every row.
+ * @csspart empty - The box of the `empty` slot.
  * @fires {TableSortEvent} u-sort - When the user presses a sortable header, before the table shows the new sort. Its `key` and `direction` give it. Cancelable: `preventDefault()` keeps the sort shown.
  * @fires {Event} change - When the user selects or deselects rows. `values` gives the selection.
- * @tokens table - Its tokens (`@cssprop`), from `@unicorne/tokens` (`src/component/table/`): `npm run analyze` documents them.
+ * @tokens table - Its tokens (`@cssprop`), shared by its rows and cells, from `@unicorne/tokens` (`src/component/table/`): `npm run analyze` documents them.
  */
 export class Table extends DSBaseElement {
   static override componentName = "table";
@@ -54,19 +56,7 @@ export class Table extends DSBaseElement {
   @property({ type: String })
   label = "";
 
-  /** The columns, in order. Property only. */
-  @property({ attribute: false })
-  columns: readonly TableColumn[] = [];
-
-  /** The rows, in the order the table shows them. Property only. */
-  @property({ attribute: false })
-  rows: readonly TableRow[] = [];
-
-  /** The key of a row's value that identifies it, for `values`. Its index when the row has none. */
-  @property({ type: String, attribute: "row-key" })
-  rowKey = "id";
-
-  /** The `key` of the column that sorts the rows, `""` when none. */
+  /** The `sort-key` of the header cell that sorts the rows, `""` when none. */
   @property({ type: String, attribute: "sort-key" })
   sortKey = "";
 
@@ -74,54 +64,140 @@ export class Table extends DSBaseElement {
   @property({ type: String, attribute: "sort-direction" })
   sortDirection: SortDirection = "ascending";
 
-  /** Whether the user selects rows, with a column of checkboxes. */
+  /** Whether the user selects rows, with a checkbox before each one. Reflected. */
   @property({ type: Boolean, reflect: true })
   selectable = false;
 
-  /** The keys of the rows selected, in their order. Property only. */
+  /** The `value` of the rows selected, in their order. Property only. */
   @property({ attribute: false })
   values: readonly string[] = [];
 
-  /** Read before the name of a row, in the name of its checkbox: "Select Dupont". */
-  @property({ type: String, attribute: "select-label" })
-  selectLabel = "Select";
+  /**
+   * Writes the name of a row's checkbox from the name of the row: the text
+   * of its row header, or else of its first cell. Give it in the page's
+   * language. Property only.
+   */
+  @property({ attribute: false })
+  selectMessage: (name: string) => string = (name) => `Select ${name}`.trim();
 
-  /** The name of the checkbox of the header, which selects every row. */
+  /** The name of the checkbox of the head, which selects every row. */
   @property({ type: String, attribute: "select-all-label" })
   selectAllLabel = "Select all rows";
+
+  /** Whether the body has no row: the `empty` slot shows. */
+  @state()
+  private empty = true;
 
   #overflow = new OverflowController(this, () =>
     this.renderRoot?.querySelector<HTMLElement>(".scroller"),
   );
 
-  /** The keys of the rows, by index. */
-  get #keys(): string[] {
-    return this.rows.map((row, index) => {
-      const key = row[this.rowKey];
-      return key === undefined || key === null ? String(index) : String(key);
-    });
+  #observer?: MutationObserver;
+
+  /** The name of the head's checkbox, as a row's: the same function at each render. */
+  #selectAllLabel = () => this.selectAllLabel;
+
+  connectedCallback(): void {
+    super.connectedCallback();
+    // The rows, their cells, and the header cells of the head.
+    this.#observer ??= new MutationObserver(() => this.requestUpdate());
+    this.#observer.observe(this, { childList: true, subtree: true });
+  }
+
+  disconnectedCallback(): void {
+    super.disconnectedCallback();
+    this.#observer?.disconnect();
+  }
+
+  /** The rows of the head. None on a server: the element has no children there. */
+  get #headRows(): TableRow[] {
+    return Array.from(this.children ?? []).filter(
+      (child): child is TableRow => child instanceof TableRow && child.slot === "head",
+    );
+  }
+
+  /** The rows of the body, in order. */
+  get #bodyRows(): TableRow[] {
+    return Array.from(this.children ?? []).filter(
+      (child): child is TableRow => child instanceof TableRow && child.slot === "",
+    );
+  }
+
+  /** The rows the user can select, as items: those with a `value`. */
+  get #items(): { value: string }[] {
+    return this.#bodyRows.filter((row) => row.value !== "").map((row) => ({ value: row.value }));
+  }
+
+  /**
+   * Called by a header cell of the table when the user presses it: fires
+   * `u-sort`, then shows the sort, unless canceled.
+   * @internal
+   */
+  requestSort(key: string): void {
+    const current = this.sortKey ? { key: this.sortKey, direction: this.sortDirection } : undefined;
+    const next = nextSort(current, key);
+    if (this.dispatchEvent(new TableSortEvent(next.key, next.direction))) {
+      this.sortKey = next.key;
+      this.sortDirection = next.direction;
+    }
+  }
+
+  /**
+   * Called by a row of the table when the user checks or unchecks it; by a
+   * row of the head, for every row.
+   * @internal
+   */
+  toggleRow(row: TableRow): void {
+    this.values =
+      row.slot === "head"
+        ? toggleAll(this.#items, this.values)
+        : toggleValue(this.#items, this.values, row.value);
+    this.dispatchEvent(new Event("change", { bubbles: true }));
   }
 
   protected override willUpdate(changedProperties: PropertyValues<this>): void {
     super.willUpdate(changedProperties);
+    const rows = this.#bodyRows;
+    this.empty = rows.length === 0;
     // The selection holds rows of the table only.
-    if (changedProperties.has("rows") && this.values.length > 0) {
-      const keys = new Set(this.#keys);
-      const values = this.values.filter((value) => keys.has(value));
-      if (values.length !== this.values.length) {
-        this.values = values;
+    if (this.values.length > 0) {
+      const values = new Set(rows.map((row) => row.value));
+      const kept = this.values.filter((value) => values.has(value));
+      if (kept.length !== this.values.length) {
+        this.values = kept;
+      }
+    }
+  }
+
+  protected override updated(changedProperties: PropertyValues<this>): void {
+    super.updated(changedProperties);
+    const selected = new Set(this.values);
+    const items = this.#items;
+    const count = items.filter((item) => selected.has(item.value)).length;
+    const all = items.length > 0 && count === items.length;
+    for (const row of [...this.#headRows, ...this.#bodyRows]) {
+      // A row a server rendered hydrates first, as it was rendered there.
+      if (!row.hasUpdated) {
+        void row.updateComplete.then(() => this.requestUpdate());
+        continue;
+      }
+      const head = row.slot === "head";
+      row.selectable = this.selectable;
+      row.selected = head ? all : selected.has(row.value);
+      row.indeterminate = head && count > 0 && !all;
+      row.selectLabel = head ? this.#selectAllLabel : this.selectMessage;
+      if (head) {
+        for (const cell of row.children) {
+          if (cell instanceof TableHeaderCell) {
+            cell.sorted =
+              cell.sortKey !== "" && cell.sortKey === this.sortKey ? this.sortDirection : undefined;
+          }
+        }
       }
     }
   }
 
   render() {
-    const keys = this.#keys;
-    const selected = new Set(this.values);
-    const columnCount = this.columns.length + (this.selectable ? 1 : 0);
-    const named = Math.max(
-      this.columns.findIndex((column) => column.rowHeader),
-      0,
-    );
     const scrolls = this.#overflow.scrolls;
     return html`
       <div
@@ -131,140 +207,26 @@ export class Table extends DSBaseElement {
         role=${scrolls ? "region" : nothing}
         aria-labelledby=${scrolls && this.label ? "caption" : nothing}
       >
-        <table part="table" class="table">
-          ${
-            this.label
-              ? html`<caption part="caption" id="caption">
-                  ${this.label}
-                </caption>`
-              : nothing
-          }
-          <thead>
-            <tr>
-              ${this.selectable ? this.#renderSelectAll(keys, selected) : nothing}
-              ${this.columns.map((column) => this.#renderHeader(column))}
-            </tr>
-          </thead>
-          <tbody>
-            <tr class="empty" ?hidden=${this.rows.length > 0}>
-              <td colspan=${columnCount}><slot name="empty"></slot></td>
-            </tr>
-            ${repeat(
-              this.rows,
-              (_row, index) => keys[index],
-              (row, index) => this.#renderRow(row, index, keys[index]!, selected, named),
-            )}
-          </tbody>
-        </table>
+        <div
+          part="table"
+          class="table"
+          role="table"
+          aria-labelledby=${this.label ? "caption" : nothing}
+        >
+          <div
+            part="caption"
+            class="caption"
+            id="caption"
+            aria-hidden="true"
+            ?hidden=${!this.label}
+          >
+            ${this.label}
+          </div>
+          <div class="head" role="rowgroup"><slot name="head"></slot></div>
+          <div class="body" role="rowgroup"><slot></slot></div>
+        </div>
+        <div part="empty" class="empty" ?hidden=${!this.empty}><slot name="empty"></slot></div>
       </div>
-      <span id="select-label" hidden>${this.selectLabel}</span>
     `;
   }
-
-  #renderHeader(column: TableColumn) {
-    const sorted = this.sortKey !== "" && this.sortKey === column.key;
-    return html`<th
-      part="column-header"
-      class=${column.align === "end" ? "end" : "start"}
-      scope="col"
-      aria-sort=${sorted ? this.sortDirection : nothing}
-    >
-      ${
-        column.sortable
-          ? html`<button
-              part="sort-button"
-              class="sort"
-              type="button"
-              data-sorted=${sorted ? this.sortDirection : nothing}
-              @click=${() => this.#sort(column.key)}
-            >
-              ${column.label}<span class="sort-icon" aria-hidden="true"></span>
-            </button>`
-          : column.label
-      }
-    </th>`;
-  }
-
-  #renderSelectAll(keys: readonly string[], selected: ReadonlySet<string>) {
-    const count = keys.filter((key) => selected.has(key)).length;
-    return html`<th class="select" scope="col">
-      <input
-        part="select-all"
-        type="checkbox"
-        aria-label=${this.selectAllLabel}
-        .checked=${count > 0 && count === keys.length}
-        .indeterminate=${count > 0 && count < keys.length}
-        ?disabled=${keys.length === 0}
-        @change=${this.#selectAll}
-      />
-    </th>`;
-  }
-
-  #renderRow(
-    row: TableRow,
-    index: number,
-    key: string,
-    selected: ReadonlySet<string>,
-    named: number,
-  ) {
-    const isSelected = selected.has(key);
-    return html`<tr part="row" aria-selected=${this.selectable ? String(isSelected) : nothing}>
-      ${
-        this.selectable
-          ? html`<td class="select">
-              <input
-                part="select"
-                type="checkbox"
-                aria-labelledby="select-label name-${index}"
-                .checked=${isSelected}
-                @change=${() => this.#select(key)}
-              />
-            </td>`
-          : nothing
-      }
-      ${this.columns.map((column, columnIndex) => {
-        const content = column.render ? column.render(row) : this.#format(row[column.key]);
-        const id = columnIndex === named ? `name-${index}` : nothing;
-        const align = column.align === "end" ? "end" : "start";
-        return column.rowHeader
-          ? html`<th part="cell" class=${align} scope="row" id=${id}>${content}</th>`
-          : html`<td part="cell" class=${align} id=${id}>${content}</td>`;
-      })}
-    </tr>`;
-  }
-
-  /** A value as text: numbers and dates in the page's language. */
-  #format(value: unknown): string {
-    if (value === undefined || value === null) {
-      return "";
-    }
-    if (typeof value === "number") {
-      return new Intl.NumberFormat(this.language).format(value);
-    }
-    if (value instanceof Date) {
-      return new Intl.DateTimeFormat(this.language, { dateStyle: "medium" }).format(value);
-    }
-    return String(value);
-  }
-
-  #sort(key: string): void {
-    const current = this.sortKey ? { key: this.sortKey, direction: this.sortDirection } : undefined;
-    const next = nextSort(current, key);
-    if (this.dispatchEvent(new TableSortEvent(next.key, next.direction))) {
-      this.sortKey = next.key;
-      this.sortDirection = next.direction;
-    }
-  }
-
-  #select(key: string): void {
-    const items = this.#keys.map((value) => ({ value }));
-    this.values = toggleValue(items, this.values, key);
-    this.dispatchEvent(new Event("change", { bubbles: true }));
-  }
-
-  #selectAll = () => {
-    const items = this.#keys.map((value) => ({ value }));
-    this.values = toggleAll(items, this.values);
-    this.dispatchEvent(new Event("change", { bubbles: true }));
-  };
 }

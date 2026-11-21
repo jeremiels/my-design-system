@@ -79,7 +79,9 @@ function hostAttributeStates(root: ShadowRoot): [string, string][] {
 const attributesFor: Record<string, Record<string, string>> = {
   "u-pagination": { pages: "20" },
   "u-tag": { removable: "" },
-  "u-table": { selectable: "", label: "Requests" },
+  "u-table": { label: "Requests" },
+  "u-table-row": { value: "R-104" },
+  "u-table-header-cell": { "sort-key": "id" },
 };
 
 /**
@@ -95,7 +97,7 @@ async function capped(element: HTMLElement) {
 /**
  * What some parts need besides: a message of `toaster`, tabs past the edge
  * of `tabs`, a capped list of `autocomplete` and `combobox`, a file of
- * `file-field`, a row of `table`.
+ * `file-field`, the checkbox of a `table-row`.
  */
 const setupFor: Record<string, (element: HTMLElement) => Promise<void> | void> = {
   "u-autocomplete": capped,
@@ -109,12 +111,9 @@ const setupFor: Record<string, (element: HTMLElement) => Promise<void> | void> =
     input.dispatchEvent(new Event("input", { bubbles: true, composed: true }));
     await (element as DSBaseElement).updateComplete;
   },
-  // A sortable column and a row, for the header's button and the cells.
-  "u-table": (element) => {
-    Object.assign(element, {
-      columns: [{ key: "name", label: "Name", sortable: true, rowHeader: true }],
-      rows: [{ id: "1", name: "Ada" }],
-    });
+  // The checkbox its table gives a row of a selectable table.
+  "u-table-row": (element) => {
+    (element as unknown as { selectable: boolean }).selectable = true;
   },
   "u-toaster": (element) =>
     (element as unknown as { show(message: string, options: object): void }).show("Saved", {

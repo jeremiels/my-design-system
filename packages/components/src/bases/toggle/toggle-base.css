@@ -24,6 +24,12 @@
   gap: var(--u-toggle-text-gap);
 }
 
+/* Without a visible label, the control alone on its line: the hint and the
+   error go under it. */
+:host([label-hidden]) .toggle {
+  grid-template-columns: auto;
+}
+
 /* The native control: invisible, over the drawn one, it takes the clicks and
    the focus. The rules of field-base.css for a text control don't apply. */
 .control {

@@ -1,0 +1,37 @@
+/* The tokens are in table.tokens.css, generated from tokens/component/table/
+   (ADR 0002), and shared with table and its cells. These rules only read them. */
+
+/* A row of the table's CSS table: a line above each row of the body. */
+:host {
+  display: table-row;
+  border-block-start: var(--u-table-border-width) solid var(--u-table-border-color);
+}
+:host([slot="head"]) {
+  border-block-start: none;
+}
+
+:host([selected]:not([slot="head"])) {
+  background-color: var(--u-table-row-background-color-selected);
+}
+
+/* The cell of the checkbox: as narrow as it. */
+.select {
+  display: table-cell;
+  inline-size: 1%;
+  padding-inline: var(--u-table-cell-padding-inline);
+  padding-block: var(--u-table-cell-padding-block);
+  vertical-align: top;
+}
+:host([slot="head"]) .select {
+  position: sticky;
+  inset-block-start: 0;
+  z-index: 1;
+  background-color: var(--u-table-header-background-color);
+}
+
+@media (forced-colors: active) {
+  :host([selected]:not([slot="head"])) {
+    outline: 2px solid Highlight;
+    outline-offset: -2px;
+  }
+}

@@ -1,6 +1,6 @@
 {
   "table": {
-    "$description": "Tokens of `table`.",
+    "$description": "Tokens of `table`, shared by `table-row`, `table-cell` and `table-header-cell`.",
     "font-family": {
       "$type": "fontFamily",
       "$value": "{font.family.body}",
@@ -90,11 +90,6 @@
       "$type": "number",
       "$value": "{opacity.disabled}",
       "$description": "Opacity of the arrow of a sortable column that doesn't sort the rows."
-    },
-    "checkbox-color": {
-      "$type": "color",
-      "$value": "{color.action.background}",
-      "$description": "Color of a checked checkbox."
     },
     "focus-ring-color": {
       "$type": "color",

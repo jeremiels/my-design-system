@@ -1,0 +1,18 @@
+/* The tokens are in table.tokens.css, generated from tokens/component/table/
+   (ADR 0002), and shared with table and its rows. These rules only read them. */
+
+/* The <td> of the shadow root is the box of the cell: `colspan` spans it. */
+:host {
+  display: contents;
+}
+
+.cell {
+  padding-inline: var(--u-table-cell-padding-inline);
+  padding-block: var(--u-table-cell-padding-block);
+  text-align: start;
+  vertical-align: top;
+}
+:host([align="end"]) .cell {
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+}

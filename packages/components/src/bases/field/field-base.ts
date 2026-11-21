@@ -117,6 +117,14 @@ export abstract class FieldBase extends withFormControl(
   @property({ type: String })
   label = "";
 
+  /**
+   * Hides the label from the screen: it stays the accessible name of the
+   * control. For a control whose purpose the layout shows, the checkbox of
+   * a table row for instance. The hint and the error still show. Reflected.
+   */
+  @property({ type: Boolean, reflect: true, attribute: "label-hidden" })
+  labelHidden = false;
+
   /** A help text between the label and the control, read with the control. */
   @property({ type: String })
   hint = "";

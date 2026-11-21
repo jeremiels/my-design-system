@@ -1,26 +1,33 @@
 import preview from "#.storybook/preview";
-import { html } from "lit";
+import { html, render, type TemplateResult } from "lit";
+import { repeat } from "lit/directives/repeat.js";
 import { expect, fn, userEvent, waitFor } from "storybook/test";
 import type { TableSortEvent } from "../../events/table-sort";
 import { sortRows } from "../../state/table";
+import type { Checkbox } from "../checkbox/checkbox";
+import type { TableRow } from "../table-row/table-row";
 import type { Table } from "./table";
-import type { TableColumn } from "./table.type";
 
 const meta = preview.meta({
   title: "Components/Table",
   component: "u-table",
+  subcomponents: {
+    TableRow: "u-table-row",
+    TableCell: "u-table-cell",
+    TableHeaderCell: "u-table-header-cell",
+  },
   tags: ["autodocs"],
   parameters: {
     docs: {
       description: {
         component:
-          "The `u-table` component renders a native table from `columns` and `rows`. A sortable header fires `u-sort`, and the application sorts its rows, with `sortRows()` or on its server. With `selectable`, checkboxes select rows, in `values`.",
+          'The `u-table` component is written as an HTML table: `u-table-row` children, whose cells are `u-table-cell` and `u-table-header-cell`. The rows with `slot="head"` form its header. Any row fits: a row of details across the columns (`colspan`), a group heading. A header cell with `sort-key` fires `u-sort`, and the application sorts its rows. With `selectable`, a `u-checkbox` starts each row.',
       },
     },
   },
 });
 
-interface Request extends Record<string, unknown> {
+interface Request {
   id: string;
   subject: string;
   applicant: string;
@@ -65,36 +72,52 @@ const requests: Request[] = [
 ];
 
 const variants = { Received: "information", Accepted: "success", Refused: "danger" } as const;
+const date = new Intl.DateTimeFormat("en", { dateStyle: "medium" });
+const amount = new Intl.NumberFormat("en", { minimumFractionDigits: 2 });
 
-const columns: TableColumn<Request>[] = [
-  { key: "id", label: "Request", rowHeader: true, sortable: true },
-  { key: "applicant", label: "Applicant", sortable: true },
-  { key: "subject", label: "Subject" },
-  { key: "date", label: "Received on", sortable: true },
-  { key: "amount", label: "Amount (€)", align: "end", sortable: true },
-  {
-    key: "status",
-    label: "Status",
-    render: (row) => html`<u-badge variant=${variants[row.status]}>${row.status}</u-badge>`,
-  },
-];
+const head = html`
+  <u-table-row slot="head">
+    <u-table-header-cell sort-key="id">Request</u-table-header-cell>
+    <u-table-header-cell sort-key="applicant">Applicant</u-table-header-cell>
+    <u-table-header-cell>Subject</u-table-header-cell>
+    <u-table-header-cell sort-key="date">Received on</u-table-header-cell>
+    <u-table-header-cell sort-key="amount" align="end">Amount (€)</u-table-header-cell>
+    <u-table-header-cell>Status</u-table-header-cell>
+  </u-table-row>
+`;
+
+/** The row of a request. */
+function row(request: Request, extra: TemplateResult | string = "") {
+  return html`
+    <u-table-row value=${request.id}>
+      <u-table-header-cell scope="row">${request.id}</u-table-header-cell>
+      <u-table-cell>${request.applicant}</u-table-cell>
+      <u-table-cell>${request.subject}</u-table-cell>
+      <u-table-cell>${date.format(request.date)}</u-table-cell>
+      <u-table-cell align="end">${amount.format(request.amount)}</u-table-cell>
+      <u-table-cell
+        ><u-badge variant=${variants[request.status]}>${request.status}</u-badge
+        >${extra}</u-table-cell
+      >
+    </u-table-row>
+  `;
+}
 
 /** The table of the story, once rendered, and what it shows. */
 async function tableIn(canvasElement: HTMLElement) {
   const table = canvasElement.querySelector<Table>("u-table")!;
+  const rows = () => [...table.querySelectorAll<TableRow>("u-table-row:not([slot])")];
   await table.updateComplete;
-  const root = table.shadowRoot!;
+  await Promise.all(rows().map((element) => element.updateComplete));
+  await table.updateComplete;
   return {
     table,
-    root,
+    rows,
     header: (label: string) =>
-      [...root.querySelectorAll<HTMLElement>('[part~="column-header"]')].find((header) =>
-        header.textContent!.includes(label),
+      [...table.querySelectorAll<HTMLElement>("u-table-header-cell")].find((cell) =>
+        cell.textContent!.includes(label),
       )!,
-    firstColumn: () =>
-      [...root.querySelectorAll('tbody tr:not([hidden]) > th[scope="row"]')].map((cell) =>
-        cell.textContent!.trim(),
-      ),
+    ids: () => rows().map((element) => element.querySelector('[scope="row"]')!.textContent!.trim()),
   };
 }
 
@@ -103,46 +126,125 @@ export const Default = meta.story({
     docs: {
       description: {
         story:
-          "Requests, sorted by the application on `u-sort` with `sortRows()`. The status column renders a badge; numbers and dates show in the page's language.",
+          "Requests. On `u-sort`, the application sorts them with `sortRows()` and renders the rows again. The status cell holds a `u-badge`.",
       },
     },
   },
   render: () => {
-    const sort = (event: TableSortEvent) => {
-      const table = event.currentTarget as Table;
-      table.rows = sortRows(requests, event, table.lang || "en");
-    };
-    return html`
-      <u-table
-        lang="en"
-        label="Requests"
-        .columns=${columns}
-        .rows=${requests}
-        @u-sort=${sort}
-      ></u-table>
-    `;
+    const host = document.createElement("div");
+    const draw = (rows: readonly Request[]) =>
+      render(
+        html`<u-table label="Requests" @u-sort=${sort}>
+          ${head}
+          ${repeat(
+            rows,
+            (request) => request.id,
+            (request) => row(request),
+          )}
+        </u-table>`,
+        host,
+      );
+    const sort = (event: TableSortEvent) => draw(sortRows(requests, event, "en"));
+    draw(requests);
+    return host;
   },
   play: async ({ canvasElement }) => {
-    const { table, root, header, firstColumn } = await tableIn(canvasElement);
-    expect(root.querySelector("caption")!.textContent!.trim()).toBe("Requests");
-    expect(root.querySelector("tbody td.end")!.textContent!.trim()).toBe("310");
-    expect(firstColumn()).toEqual(["R-104", "R-087", "R-112", "R-099"]);
+    const { table, header, ids } = await tableIn(canvasElement);
+    expect(table.shadowRoot!.querySelector('[part~="caption"]')!.textContent!.trim()).toBe(
+      "Requests",
+    );
+    expect(ids()).toEqual(["R-104", "R-087", "R-112", "R-099"]);
 
     const onSort = fn();
     table.addEventListener("u-sort", onSort);
-    const amount = header("Amount");
-    await userEvent.click(amount.querySelector("button")!);
-    await table.updateComplete;
+    const cell = header("Amount");
+    const button = () =>
+      cell.shadowRoot!.querySelector<HTMLButtonElement>('[part~="sort-button"]')!;
+    const th = () => cell.shadowRoot!.querySelector('[part~="header-cell"]')!;
+    await userEvent.click(button());
+    await waitFor(() => expect(th().getAttribute("aria-sort")).toBe("ascending"));
     expect(onSort).toHaveBeenCalledOnce();
-    expect(amount.getAttribute("aria-sort")).toBe("ascending");
-    expect(firstColumn()).toEqual(["R-112", "R-099", "R-104", "R-087"]);
+    expect(ids()).toEqual(["R-112", "R-099", "R-104", "R-087"]);
 
-    await userEvent.click(amount.querySelector("button")!);
-    await table.updateComplete;
-    expect(amount.getAttribute("aria-sort")).toBe("descending");
-    expect(firstColumn()).toEqual(["R-087", "R-104", "R-099", "R-112"]);
+    await userEvent.click(button());
+    await waitFor(() => expect(th().getAttribute("aria-sort")).toBe("descending"));
+    expect(ids()).toEqual(["R-087", "R-104", "R-099", "R-112"]);
     // A single column has aria-sort.
-    expect(root.querySelectorAll("[aria-sort]")).toHaveLength(1);
+    const sorted = [...table.querySelectorAll("u-table-header-cell")].filter((element) =>
+      element.shadowRoot!.querySelector("[aria-sort]"),
+    );
+    expect(sorted).toHaveLength(1);
+  },
+});
+
+export const CustomRows = meta.story({
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "Rows of any shape: a group heading across the columns, and a row of details under a request, shown by a button of the application. `colspan` spans a cell over the columns.",
+      },
+    },
+  },
+  render: () => {
+    const host = document.createElement("div");
+    const open = new Set<string>();
+    const toggle = (id: string) => {
+      if (!open.delete(id)) {
+        open.add(id);
+      }
+      draw();
+    };
+    const group = (label: string, rows: Request[]) => html`
+      <u-table-row>
+        <u-table-header-cell scope="row" colspan="6">${label}</u-table-header-cell>
+      </u-table-row>
+      ${rows.map(
+        (request) => html`
+          ${row(
+            request,
+            html` <u-button
+              size="small"
+              variant="secondary"
+              aria-expanded=${String(open.has(request.id))}
+              aria-controls="details-${request.id}"
+              @click=${() => toggle(request.id)}
+              >Details</u-button
+            >`,
+          )}
+          <u-table-row id="details-${request.id}" ?hidden=${!open.has(request.id)}>
+            <u-table-cell colspan="6">
+              ${request.applicant} asked for ${request.subject.toLowerCase()} on
+              ${date.format(request.date)}. The file holds 3 supporting documents.
+            </u-table-cell>
+          </u-table-row>
+        `,
+      )}
+    `;
+    const draw = () =>
+      render(
+        html`<u-table label="Requests by month">
+          ${head} ${group("October 2026", [requests[0]!, requests[2]!])}
+          ${group("September 2026", [requests[1]!, requests[3]!])}
+        </u-table>`,
+        host,
+      );
+    draw();
+    return host;
+  },
+  play: async ({ canvasElement }) => {
+    const { table } = await tableIn(canvasElement);
+    const details = table.querySelector<TableRow>("#details-R-104")!;
+    expect(details.hidden).toBe(true);
+    const button = [...table.querySelectorAll("u-button")][0]!;
+    await userEvent.click(button);
+    await waitFor(() => expect(details.hidden).toBe(false));
+    expect(button.getAttribute("aria-expanded")).toBe("true");
+    // The details span the width of the table.
+    const cell = details.querySelector("u-table-cell")!.shadowRoot!.querySelector("td")!;
+    const width = table.shadowRoot!.querySelector('[part~="table"]')!.getBoundingClientRect().width;
+    expect(cell.getBoundingClientRect().width).toBeGreaterThan(width * 0.95);
+    expect(cell.getAttribute("aria-colspan")).toBe("6");
   },
 });
 
@@ -151,39 +253,38 @@ export const Selectable = meta.story({
     docs: {
       description: {
         story:
-          "`selectable`: a checkbox per row, named after its row header, and one for every row. `values` holds the `id` of the rows selected; each choice fires `change`.",
+          "`selectable`: a `u-checkbox` starts each row, named by `selectMessage` and its row header, and one in the head selects every row. `values` holds the `value` of the rows selected; each choice fires `change`.",
       },
     },
   },
   render: () => html`
-    <u-table label="Requests" selectable .columns=${columns} .rows=${requests}></u-table>
+    <u-table label="Requests" selectable>
+      ${head} ${requests.map((request) => row(request))}
+    </u-table>
   `,
   play: async ({ canvasElement }) => {
-    const { table, root } = await tableIn(canvasElement);
+    const { table, rows } = await tableIn(canvasElement);
     const onChange = fn();
     table.addEventListener("change", onChange);
-    const boxes = [...root.querySelectorAll<HTMLInputElement>('[part~="select"]')];
-    const all = root.querySelector<HTMLInputElement>('[part~="select-all"]')!;
-    // The name of a checkbox: select-label, then its row's header.
-    const names = boxes[1]!.getAttribute("aria-labelledby")!.split(" ");
-    expect(names.map((id) => root.getElementById(id)!.textContent!.trim())).toEqual([
-      "Select",
-      "R-087",
-    ]);
+    const boxOf = (element: TableRow) =>
+      element.shadowRoot!.querySelector<Checkbox>('[part~="select"]')!;
+    const all = boxOf(table.querySelector<TableRow>('u-table-row[slot="head"]')!);
+    const second = boxOf(rows()[1]!);
+    await second.updateComplete;
+    expect(second.label).toBe("Select R-087");
+    expect(second.labelHidden).toBe(true);
+    expect(all.label).toBe("Select all rows");
 
-    await userEvent.click(boxes[1]!);
-    await table.updateComplete;
-    expect(table.values).toEqual(["R-087"]);
-    expect(boxes[1]!.closest("tr")!.getAttribute("aria-selected")).toBe("true");
-    expect(all.indeterminate).toBe(true);
+    await userEvent.click(second.shadowRoot!.querySelector("input")!);
+    await waitFor(() => expect(table.values).toEqual(["R-087"]));
+    await waitFor(() => expect(rows()[1]!.getAttribute("aria-selected")).toBe("true"));
+    await waitFor(() => expect(all.indeterminate).toBe(true));
 
-    await userEvent.click(all);
-    await table.updateComplete;
-    expect(table.values).toEqual(["R-104", "R-087", "R-112", "R-099"]);
-    expect(all.checked).toBe(true);
-    await userEvent.click(all);
-    await table.updateComplete;
-    expect(table.values).toEqual([]);
+    await userEvent.click(all.shadowRoot!.querySelector("input")!);
+    await waitFor(() => expect(table.values).toEqual(["R-104", "R-087", "R-112", "R-099"]));
+    await waitFor(() => expect(all.checked).toBe(true));
+    await userEvent.click(all.shadowRoot!.querySelector("input")!);
+    await waitFor(() => expect(table.values).toEqual([]));
     expect(onChange).toHaveBeenCalledTimes(3);
   },
 });
@@ -192,20 +293,19 @@ export const Empty = meta.story({
   parameters: {
     docs: {
       description: {
-        story: "Without rows: the `empty` slot, across the columns.",
+        story: "Without rows in its body: the `empty` slot, under the header.",
       },
     },
   },
   render: () => html`
-    <u-table label="Requests" .columns=${columns}>
+    <u-table label="Requests">
+      ${head}
       <p slot="empty">No request yet.</p>
     </u-table>
   `,
   play: async ({ canvasElement }) => {
-    const { root } = await tableIn(canvasElement);
-    const row = root.querySelector<HTMLElement>("tr.empty")!;
-    expect(row.hidden).toBe(false);
-    expect(row.querySelector("td")!.colSpan).toBe(columns.length);
+    const { table } = await tableIn(canvasElement);
+    expect(table.shadowRoot!.querySelector<HTMLElement>('[part~="empty"]')!.hidden).toBe(false);
   },
 });
 
@@ -224,22 +324,21 @@ export const Scrolling = meta.story({
       id: `R-${String(200 + index)}`,
     }));
     return html`
-      <u-table
-        label="Requests"
-        style="--u-table-max-block-size: 16rem"
-        .columns=${columns}
-        .rows=${many}
-      ></u-table>
+      <u-table label="Requests" style="--u-table-max-block-size: 16rem">
+        ${head} ${many.map((request) => row(request))}
+      </u-table>
     `;
   },
   play: async ({ canvasElement }) => {
-    const { table, root } = await tableIn(canvasElement);
-    const scroller = root.querySelector<HTMLElement>('[part~="scroller"]')!;
+    const { table } = await tableIn(canvasElement);
+    const scroller = table.shadowRoot!.querySelector<HTMLElement>('[part~="scroller"]')!;
     await waitFor(() => expect(scroller.getAttribute("tabindex")).toBe("0"));
     expect(scroller.getAttribute("role")).toBe("region");
     scroller.scrollTop = 200;
-    const head = root.querySelector("thead th")!.getBoundingClientRect();
-    expect(Math.abs(head.top - scroller.getBoundingClientRect().top)).toBeLessThan(2);
-    await table.updateComplete;
+    const th = table
+      .querySelector("u-table-header-cell")!
+      .shadowRoot!.querySelector("th")!
+      .getBoundingClientRect();
+    expect(Math.abs(th.top - scroller.getBoundingClientRect().top)).toBeLessThan(2);
   },
 });

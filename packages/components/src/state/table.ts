@@ -30,12 +30,12 @@ function isEmpty(value: unknown): boolean {
 }
 
 /**
- * A copy of `rows`, sorted by their value at `sort.key`. Numbers and dates
+ * A copy of `rows`, objects, sorted by their value at `sort.key`. Numbers and dates
  * compare as such, the rest as text in the order of `locale`, with its
  * numbers in it ("item 2" before "item 10"). Empty values go last. Equal
  * rows keep their order.
  */
-export function sortRows<Row extends Readonly<Record<string, unknown>>>(
+export function sortRows<Row extends object>(
   rows: readonly Row[],
   sort: TableSort,
   locale?: string,
@@ -43,8 +43,8 @@ export function sortRows<Row extends Readonly<Record<string, unknown>>>(
   const collator = new Intl.Collator(locale, { numeric: true, sensitivity: "base" });
   const sign = sort.direction === "ascending" ? 1 : -1;
   return [...rows].sort((a, b) => {
-    const left = a[sort.key];
-    const right = b[sort.key];
+    const left = (a as Record<string, unknown>)[sort.key];
+    const right = (b as Record<string, unknown>)[sort.key];
     if (isEmpty(left) || isEmpty(right)) {
       return Number(isEmpty(left)) - Number(isEmpty(right));
     }

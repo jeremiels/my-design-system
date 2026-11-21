@@ -36,6 +36,9 @@ import { Progress } from "../components/progress/progress.js";
 import { Spinner } from "../components/spinner/spinner.js";
 import { Step } from "../components/step/step.js";
 import { Stepper } from "../components/stepper/stepper.js";
+import { TableCell } from "../components/table-cell/table-cell.js";
+import { TableHeaderCell } from "../components/table-header-cell/table-header-cell.js";
+import { TableRow } from "../components/table-row/table-row.js";
 import { Table } from "../components/table/table.js";
 import { TagGroup } from "../components/tag-group/tag-group.js";
 import { Tag } from "../components/tag/tag.js";
@@ -101,6 +104,9 @@ export const allComponents = [
   FileField,
   Step,
   Stepper,
+  TableCell,
+  TableHeaderCell,
+  TableRow,
   Table,
 ] as const;
 
@@ -154,6 +160,9 @@ export interface Catalog {
   "tab-panel": { element: TabPanel; events: {} };
   tabs: { element: Tabs; events: {} };
   table: { element: Table; events: { "u-sort": TableSortEvent } };
+  "table-cell": { element: TableCell; events: {} };
+  "table-header-cell": { element: TableHeaderCell; events: {} };
+  "table-row": { element: TableRow; events: {} };
   tag: { element: Tag; events: { "u-remove": TagRemoveEvent } };
   "tag-group": { element: TagGroup; events: {} };
   toaster: { element: Toaster; events: { "u-close": ToastCloseEvent } };
