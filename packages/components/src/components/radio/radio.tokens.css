@@ -1,0 +1,13 @@
+/* Generated from ../tokens/src/u.resolver.json by @unicorne/tokens/terrazzo-plugin (ADR 0002). Do not edit: change the tokens. */
+:host {
+  --u-radio-size: var(--u-size-choice);
+  --u-radio-gap: var(--u-spacing-sm);
+  --u-radio-line-height: var(--u-font-line-height-body);
+  --u-radio-border-width: var(--u-border-width);
+  --u-radio-border-color: var(--u-color-border-control);
+  --u-radio-background-color: var(--u-color-surface-default);
+  --u-radio-checked-color: var(--u-color-action-background);
+  --u-radio-focus-ring-color: var(--u-color-focus-ring);
+  --u-radio-focus-ring-width: var(--u-focus-ring-width);
+  --u-radio-focus-ring-offset: var(--u-focus-ring-offset);
+}

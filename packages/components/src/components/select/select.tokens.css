@@ -1,0 +1,8 @@
+/* Generated from ../tokens/src/u.resolver.json by @unicorne/tokens/terrazzo-plugin (ADR 0002). Do not edit: change the tokens. */
+:host {
+  --u-select-gap: var(--u-spacing-sm);
+  --u-select-chevron-size: var(--u-spacing-sm);
+  --u-select-chevron-color: var(--u-color-text-default);
+  --u-select-placeholder-color: var(--u-color-text-default);
+  --u-select-selected-font-weight: var(--u-font-weight-semibold);
+}

@@ -1,0 +1,30 @@
+{
+  "select": {
+    "$description": "Tokens of `select`: its control, besides those of `field`, and its options, besides those of `listbox`.",
+    "gap": {
+      "$type": "dimension",
+      "$value": "{spacing.sm}",
+      "$description": "Space between the selected option's label and the chevron."
+    },
+    "chevron-size": {
+      "$type": "dimension",
+      "$value": "{spacing.sm}",
+      "$description": "Width and height of the chevron. Its stroke is twice the border's width."
+    },
+    "chevron-color": {
+      "$type": "color",
+      "$value": "{color.text.default}",
+      "$description": "Color of the chevron."
+    },
+    "placeholder-color": {
+      "$type": "color",
+      "$value": "{color.text.default}",
+      "$description": "Text color of the placeholder, while no option is selected."
+    },
+    "selected-font-weight": {
+      "$type": "fontWeight",
+      "$value": "{font.weight.semibold}",
+      "$description": "Font weight of the selected option, in the list."
+    }
+  }
+}

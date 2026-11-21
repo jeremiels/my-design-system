@@ -1,0 +1,60 @@
+{
+  "switch": {
+    "$description": "Tokens of `switch`: its track and its thumb.",
+    "thumb-size": {
+      "$type": "dimension",
+      "$value": "{size.choice}",
+      "$description": "Width and height of the thumb. The track is two thumbs wide."
+    },
+    "padding": {
+      "$type": "dimension",
+      "$value": "{spacing.2xs}",
+      "$description": "Space between the thumb and the edge of the track."
+    },
+    "border-radius": {
+      "$type": "dimension",
+      "$value": "{radius.full}",
+      "$description": "Corner radius of the track and of the thumb."
+    },
+    "track-background-color": {
+      "$type": "color",
+      "$value": "{color.border.control}",
+      "$description": "Color of the track, off."
+    },
+    "track-checked-background-color": {
+      "$type": "color",
+      "$value": "{color.action.background}",
+      "$description": "Color of the track, on."
+    },
+    "thumb-color": {
+      "$type": "color",
+      "$value": "{color.surface.default}",
+      "$description": "Color of the thumb."
+    },
+    "transition-duration": {
+      "$type": "duration",
+      "$value": "{motion.duration.fast}",
+      "$description": "Duration of the thumb's move. Zero with reduced motion."
+    },
+    "transition-timing-function": {
+      "$type": "cubicBezier",
+      "$value": "{motion.easing.standard}",
+      "$description": "Easing of the thumb's move."
+    },
+    "focus-ring-color": {
+      "$type": "color",
+      "$value": "{color.focus-ring}",
+      "$description": "Color of the focus ring."
+    },
+    "focus-ring-width": {
+      "$type": "dimension",
+      "$value": "{focus-ring.width}",
+      "$description": "Width of the focus ring."
+    },
+    "focus-ring-offset": {
+      "$type": "dimension",
+      "$value": "{focus-ring.offset}",
+      "$description": "Space between the control and its focus ring."
+    }
+  }
+}

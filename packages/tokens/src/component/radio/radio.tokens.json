@@ -1,0 +1,55 @@
+{
+  "radio": {
+    "$description": "Tokens of `radio`: its circle, its dot and its label.",
+    "size": {
+      "$type": "dimension",
+      "$value": "{size.choice}",
+      "$description": "Width and height of the circle. The dot is half as wide."
+    },
+    "gap": {
+      "$type": "dimension",
+      "$value": "{spacing.sm}",
+      "$description": "Space between the circle and the label."
+    },
+    "line-height": {
+      "$type": "number",
+      "$value": "{font.line-height.body}",
+      "$description": "Line height of the label: the circle centers on its first line."
+    },
+    "border-width": {
+      "$type": "dimension",
+      "$value": "{border.width}",
+      "$description": "Border width of the circle."
+    },
+    "border-color": {
+      "$type": "color",
+      "$value": "{color.border.control}",
+      "$description": "Border color of the circle."
+    },
+    "background-color": {
+      "$type": "color",
+      "$value": "{color.surface.default}",
+      "$description": "Background color of the circle."
+    },
+    "checked-color": {
+      "$type": "color",
+      "$value": "{color.action.background}",
+      "$description": "Border color of the circle and color of the dot, checked."
+    },
+    "focus-ring-color": {
+      "$type": "color",
+      "$value": "{color.focus-ring}",
+      "$description": "Color of the focus ring."
+    },
+    "focus-ring-width": {
+      "$type": "dimension",
+      "$value": "{focus-ring.width}",
+      "$description": "Width of the focus ring."
+    },
+    "focus-ring-offset": {
+      "$type": "dimension",
+      "$value": "{focus-ring.offset}",
+      "$description": "Space between the control and its focus ring."
+    }
+  }
+}

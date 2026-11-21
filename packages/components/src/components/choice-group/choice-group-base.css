@@ -1,0 +1,22 @@
+/* The tokens are in choice-group.tokens.css, generated from
+   tokens/component/choice-group/ (ADR 0002). The label, the hint and the
+   error take those of field-base.css. */
+.group {
+  display: grid;
+  gap: var(--u-field-gap);
+  font-family: var(--u-field-font-family);
+  font-size: var(--u-field-font-size);
+  line-height: var(--u-field-line-height);
+  color: var(--u-field-text-color);
+}
+
+.choices {
+  display: flex;
+  flex-direction: column;
+  gap: var(--u-choice-group-gap);
+}
+
+:host([orientation="horizontal"]) .choices {
+  flex-direction: row;
+  flex-wrap: wrap;
+}

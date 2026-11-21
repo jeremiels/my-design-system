@@ -9,3 +9,6 @@ export type ComponentSize = "small" | "medium" | "large";
 
 // Semantic variants shared across components
 export type SemanticVariant = "success" | "danger" | "warning" | "information";
+
+// The direction a group of items is laid out in
+export type Orientation = "horizontal" | "vertical";

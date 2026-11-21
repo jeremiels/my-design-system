@@ -1,0 +1,47 @@
+/* The tokens are in toggle.tokens.css, generated from tokens/component/toggle/
+   (ADR 0002). The label, the hint and the error take those of field-base.css. */
+.toggle {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0 var(--u-toggle-gap);
+  align-items: start;
+  font-family: var(--u-field-font-family);
+  font-size: var(--u-field-font-size);
+  line-height: var(--u-field-line-height);
+  color: var(--u-field-text-color);
+}
+
+/* As tall as the first line of the label: the control centers on it. */
+.control-area {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  min-block-size: calc(1em * var(--u-field-line-height));
+}
+
+.text {
+  display: grid;
+  gap: var(--u-toggle-text-gap);
+}
+
+/* The native control: invisible, over the drawn one, it takes the clicks and
+   the focus. The rules of field-base.css for a text control don't apply. */
+.control {
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.control:focus-visible {
+  outline: none;
+}
+
+.control:disabled {
+  cursor: default;
+}

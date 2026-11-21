@@ -1,0 +1,15 @@
+/* Generated from ../tokens/src/u.resolver.json by @unicorne/tokens/terrazzo-plugin (ADR 0002). Do not edit: change the tokens. */
+:host {
+  --u-slider-gap: var(--u-spacing-sm);
+  --u-slider-track-height: var(--u-spacing-xs);
+  --u-slider-track-color: var(--u-color-border-control);
+  --u-slider-fill-color: var(--u-color-action-background);
+  --u-slider-thumb-size: var(--u-size-choice);
+  --u-slider-thumb-color: var(--u-color-surface-default);
+  --u-slider-thumb-border-width: var(--u-focus-ring-width);
+  --u-slider-border-radius: var(--u-radius-full);
+  --u-slider-value-min-width: var(--u-spacing-xl);
+  --u-slider-focus-ring-color: var(--u-color-focus-ring);
+  --u-slider-focus-ring-width: var(--u-focus-ring-width);
+  --u-slider-focus-ring-offset: var(--u-focus-ring-offset);
+}
