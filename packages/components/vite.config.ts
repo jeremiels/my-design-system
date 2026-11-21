@@ -99,6 +99,10 @@ export default defineConfig({
           "src/components/table-header-cell/table-header-cell.ts",
         ),
         "menu-item": resolve(import.meta.dirname, "src/components/menu-item/menu-item.ts"),
+        "toggle-button": resolve(
+          import.meta.dirname,
+          "src/components/toggle-button/toggle-button.ts",
+        ),
       },
       formats: ["es"],
       fileName: (_format, entryName) => `${entryName}.js`,

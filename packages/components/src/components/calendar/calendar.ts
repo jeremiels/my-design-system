@@ -1,3 +1,5 @@
+import chevronLeft from "@unicorne/icons/chevron-left";
+import chevronRight from "@unicorne/icons/chevron-right";
 import { nothing, type PropertyValues } from "lit";
 import { property, state } from "lit/decorators.js";
 import { html } from "lit/static-html.js";
@@ -13,7 +15,9 @@ import {
   parseDate,
   type PlainDate,
 } from "../../state/calendar.js";
+import { DirectionController } from "../../controllers/direction.js";
 import { Button } from "../button/button.js";
+import { Icon } from "../icon/icon.js";
 import calendarStyles from "./calendar.css" with { type: "css" };
 import calendarTokens from "./calendar.tokens.css" with { type: "css" };
 
@@ -69,10 +73,15 @@ const instant = ({ year, month, day }: PlainDate) => Date.UTC(year, month - 1, d
  * @tokens calendar - Its tokens (`@cssprop`), from `@unicorne/tokens` (`src/component/calendar/`): `npm run analyze` documents them.
  */
 export class Calendar extends DSBaseElement {
+  static {
+    // Its chevrons render at once, on a server too (ADR 0032).
+    Icon.bundle({ "chevron-left": chevronLeft, "chevron-right": chevronRight });
+  }
+
   static override componentName = "calendar";
 
   /** Renders its month buttons with the `button` of its own registration. */
-  static override dependencies = [Button];
+  static override dependencies = [Button, Icon];
 
   static styles = [super.styles ?? [], calendarTokens, calendarStyles];
 
@@ -100,18 +109,8 @@ export class Calendar extends DSBaseElement {
   @state()
   private focused: PlainDate = today();
 
-  /** Whether the text runs right to left: the chevrons point the other way. */
-  #rtl = false;
-
-  override connectedCallback(): void {
-    super.connectedCallback();
-    // `:dir()` is missing before Chrome 120.
-    const rtl = getComputedStyle(this).direction === "rtl";
-    if (rtl !== this.#rtl) {
-      this.#rtl = rtl;
-      this.requestUpdate();
-    }
-  }
+  /** The text direction: the chevrons point back and forward along it. */
+  #direction = new DirectionController(this);
 
   /** Gives the focus to the focused day of the grid. */
   override focus(options?: FocusOptions): void {
@@ -213,6 +212,7 @@ export class Calendar extends DSBaseElement {
     }));
     const selected = parseDate(this.value);
     const button = this.tagFor(Button);
+    const icon = this.tagFor(Icon);
     const now = today();
     const min = this.#min;
     const max = this.#max;
@@ -222,7 +222,7 @@ export class Calendar extends DSBaseElement {
       !min || previousMonth.year * 12 + previousMonth.month >= min.year * 12 + min.month;
     const canGoForward = !max || nextMonth.year * 12 + nextMonth.month <= max.year * 12 + max.month;
     return html`
-      <div part="header" class="header${this.#rtl ? " rtl" : ""}">
+      <div part="header" class="header">
         <${button}
           part="previous"
           class="nav nav--previous"
@@ -232,7 +232,7 @@ export class Calendar extends DSBaseElement {
           ?disabled=${!canGoBack}
           @click=${() => this.#moveMonth(-1)}
         >
-          <span class="chevron" aria-hidden="true"></span>
+          <${icon} class="chevron" name="chevron-${this.#direction.side("start")}"></${icon}>
         </${button}>
         <span part="heading" class="heading" id="heading" aria-live="polite"
           >${heading.format(instant({ year, month, day: 1 }))}</span
@@ -246,7 +246,7 @@ export class Calendar extends DSBaseElement {
           ?disabled=${!canGoForward}
           @click=${() => this.#moveMonth(1)}
         >
-          <span class="chevron" aria-hidden="true"></span>
+          <${icon} class="chevron" name="chevron-${this.#direction.side("end")}"></${icon}>
         </${button}>
       </div>
       <table

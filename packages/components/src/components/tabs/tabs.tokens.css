@@ -11,6 +11,5 @@
   --u-tabs-focus-ring-width: var(--u-focus-ring-width);
   --u-tabs-focus-ring-offset: var(--u-focus-ring-offset);
   --u-tabs-scroll-button-size: var(--u-size-icon);
-  --u-tabs-chevron-size: var(--u-spacing-sm);
-  --u-tabs-chevron-width: var(--u-border-width);
+  --u-tabs-chevron-size: var(--u-size-icon-sm);
 }

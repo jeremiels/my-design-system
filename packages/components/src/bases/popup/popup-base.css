@@ -7,16 +7,10 @@
   font-size: var(--u-popup-font-size);
 }
 
-/* The trigger is an outlined `button`; its chevron follows the label. */
+/* The trigger is an outlined `button`; its chevron icon follows the label. */
 .chevron {
-  box-sizing: border-box;
-  inline-size: var(--u-popup-chevron-size);
-  block-size: var(--u-popup-chevron-size);
-  margin-block-start: calc(var(--u-popup-chevron-size) / -2);
+  --u-icon-size: var(--u-popup-chevron-size);
   margin-inline-start: var(--u-popup-trigger-gap);
-  border: solid currentColor;
-  border-width: 0 calc(var(--u-popup-chevron-width) * 2) calc(var(--u-popup-chevron-width) * 2) 0;
-  transform: rotate(45deg);
 }
 
 /* The popup: AnchoredPopoverController places it and hides it while closed.

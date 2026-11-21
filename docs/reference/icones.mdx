@@ -133,6 +133,8 @@ SVGO optimise chaque source en plusieurs passes :
 - La page analyse le markup d'une icône une fois, puis le clone pour chaque élément ([ADR 0005](?path=/docs/documentation-adr-0005-icônes--docs), D6).
 - `updateComplete` se résout quand l'icône est rendue.
 - Un nom absent du set, ou un module qui ne se charge pas, rend une boîte vide et un avertissement dans la console.
+- Un composant qui dessine une icône du socle dans ses contrôles, un chevron, importe son markup et le donne à `Icon.bundle()` : `Icon.bundle({ "chevron-down": chevronDown })`, dans un bloc `static` de sa classe ([ADR 0032](?path=/docs/documentation-adr-0032-bouton-bascule-divulgation-et-chevrons--docs)).
+- Tant que le set garde le chargeur du socle pour ce nom, l'icône rend ce markup dès le premier rendu, sur un serveur aussi. Une icône de marque du même nom l'emporte.
 - Pour un rendu immédiat, un design system donne le markup dans son option `icons` : `icons: { close }`, avec `import close from "@unicorne/icons/close"`.
 - `designSystem()` passe son option `icons` à `Icon.forDesignSystem()`. La méthode renvoie une sous-classe dont le set ajoute ces icônes au sien, surcharge de la marque comprise.
 

@@ -40,6 +40,7 @@ import { TableCell } from "../components/table-cell/table-cell.js";
 import { TableHeaderCell } from "../components/table-header-cell/table-header-cell.js";
 import { TableRow } from "../components/table-row/table-row.js";
 import { Table } from "../components/table/table.js";
+import { ToggleButton } from "../components/toggle-button/toggle-button.js";
 import { TagGroup } from "../components/tag-group/tag-group.js";
 import { Tag } from "../components/tag/tag.js";
 import { TreeItem } from "../components/tree-item/tree-item.js";
@@ -108,6 +109,7 @@ export const allComponents = [
   TableHeaderCell,
   TableRow,
   Table,
+  ToggleButton,
 ] as const;
 
 /** A component of a catalog, as types: its element, and its own events by name. */
@@ -166,6 +168,7 @@ export interface Catalog {
   tag: { element: Tag; events: { "u-remove": TagRemoveEvent } };
   "tag-group": { element: TagGroup; events: {} };
   toaster: { element: Toaster; events: { "u-close": ToastCloseEvent } };
+  "toggle-button": { element: ToggleButton; events: {} };
   toolbar: { element: Toolbar; events: {} };
   tooltip: { element: Tooltip; events: { "u-toggle": PopupToggleEvent } };
   tree: { element: Tree; events: {} };

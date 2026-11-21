@@ -7191,9 +7191,9 @@
               "default": "var(--u-spacing-sm)"
             },
             {
-              "description": "Width and height of the chevron. Its stroke is twice the border's width.",
+              "description": "Size of the chevron icon.",
               "name": "--u-picker-chevron-size",
-              "default": "var(--u-spacing-sm)"
+              "default": "var(--u-size-icon-sm)"
             },
             {
               "description": "Color of the chevron.",
@@ -9017,14 +9017,9 @@
               "default": "var(--u-spacing-sm)"
             },
             {
-              "description": "Stroke width of the chevron, twice this width.",
-              "name": "--u-popup-chevron-width",
-              "default": "var(--u-border-width)"
-            },
-            {
-              "description": "Width and height of the chevron.",
+              "description": "Size of the chevron icon of the trigger.",
               "name": "--u-popup-chevron-size",
-              "default": "var(--u-spacing-sm)"
+              "default": "var(--u-size-icon-sm)"
             },
             {
               "description": "Space between the trigger and the popup.",
@@ -15005,6 +15000,20 @@
             },
             {
               "kind": "field",
+              "name": "dependencies",
+              "type": {
+                "text": "readonly (typeof DSBaseElement)[]"
+              },
+              "static": true,
+              "default": "[Icon]",
+              "description": "Components this one renders (ADR 0001, D2): `defineComponents()`\nregisters them too, and `tagFor()` resolves their tag. Never hard-code\nanother component's tag in a template, nor create one with\n`document.createElement` — a brand's override would be bypassed.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "field",
               "name": "href",
               "type": {
                 "text": "string | undefined"
@@ -15025,27 +15034,10 @@
             },
             {
               "kind": "field",
-              "name": "#rtl",
+              "name": "#direction",
               "privacy": "private",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "false",
-              "description": "Whether the text runs right to left: the chevron points the other way."
-            },
-            {
-              "kind": "field",
-              "name": "dependencies",
-              "type": {
-                "text": "readonly (typeof DSBaseElement)[]"
-              },
-              "static": true,
-              "default": "[]",
-              "description": "Components this one renders (ADR 0001, D2): `defineComponents()`\nregisters them too, and `tagFor()` resolves their tag. Never hard-code\nanother component's tag in a template, nor create one with\n`document.createElement` — a brand's override would be bypassed.",
-              "inheritedFrom": {
-                "name": "DSBaseElement",
-                "module": "src/bases/base-element.ts"
-              }
+              "default": "new DirectionController(this)",
+              "description": "The text direction: the chevron points along it."
             },
             {
               "kind": "method",
@@ -15193,14 +15185,9 @@
               "default": "var(--u-color-border-control)"
             },
             {
-              "description": "Width and height of the separator, a chevron.",
+              "description": "Size of the separator, a chevron icon.",
               "name": "--u-breadcrumb-separator-size",
-              "default": "var(--u-spacing-xs)"
-            },
-            {
-              "description": "Stroke of the separator.",
-              "name": "--u-breadcrumb-separator-width",
-              "default": "var(--u-border-width)"
+              "default": "var(--u-size-icon-sm)"
             },
             {
               "description": "Color of the focus ring.",
@@ -16031,7 +16018,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "A button that triggers an action, or submits or resets its form (`type`).\nWith `commandfor` and `command`, it controls another element without\nscript, like a native invoker button: it opens a `modal` with\n`command=\"--show-modal\"`.\n\nA submit button sends its `name` and `value` with the form data, as a\nnative one does. The `submitter` of the `submit` event is a hidden native\n`<button>` that carries them, removed once the event has run: a button of\na shadow root can't be the submitter of its host's form.\n\n`click()` acts as a click on the inner button: it submits, resets or\nsends the command. Implicit submission relies on it: Enter in a field\nclicks the form's first submit button (`FieldBase.submitOnEnter()`).\n\nWith `loading`, a `spinner` covers the label and the button ignores\nclicks, but keeps the focus: announce the end of the action in a live\nregion. With `popup`, it is the trigger of a menu or a dialog, and\n`expanded` says whether that popup is open.",
+          "description": "A button that triggers an action, or submits or resets its form (`type`).\nWith `commandfor` and `command`, it controls another element without\nscript, like a native invoker button: it opens a `modal` with\n`command=\"--show-modal\"`.\n\nA submit button sends its `name` and `value` with the form data, as a\nnative one does. The `submitter` of the `submit` event is a hidden native\n`<button>` that carries them, removed once the event has run: a button of\na shadow root can't be the submitter of its host's form.\n\n`click()` acts as a click on the inner button: it submits, resets or\nsends the command. Implicit submission relies on it: Enter in a field\nclicks the form's first submit button (`FieldBase.submitOnEnter()`).\n\nWith `loading`, a `spinner` covers the label and the button ignores\nclicks, but keeps the focus: announce the end of the action in a live\nregion. With `popup`, it is the trigger of a menu or a dialog, and\n`expanded` says whether that popup is open. With `expandable`, it shows\nor hides a part of the page, and `expanded` says whether that part shows:\nthe application changes both on `click`. A button that stays pressed is\na `toggle-button`.",
           "name": "Button",
           "cssParts": [
             {
@@ -16138,12 +16125,22 @@
             },
             {
               "kind": "field",
+              "name": "expandable",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether the button shows or hides a part of the page, the disclosure\npattern: `expanded` then says whether that part shows. `popup` implies\nit.",
+              "attribute": "expandable"
+            },
+            {
+              "kind": "field",
               "name": "expanded",
               "type": {
                 "text": "boolean"
               },
               "default": "false",
-              "description": "Whether the popup of `popup` is open: `aria-expanded`.",
+              "description": "Whether the popup of `popup`, or the part of the page of `expandable`, shows: `aria-expanded`.",
               "attribute": "expanded"
             },
             {
@@ -16577,12 +16574,21 @@
               "fieldName": "popup"
             },
             {
+              "name": "expandable",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether the button shows or hides a part of the page, the disclosure\npattern: `expanded` then says whether that part shows. `popup` implies\nit.",
+              "fieldName": "expandable"
+            },
+            {
               "name": "expanded",
               "type": {
                 "text": "boolean"
               },
               "default": "false",
-              "description": "Whether the popup of `popup` is open: `aria-expanded`.",
+              "description": "Whether the popup of `popup`, or the part of the page of `expandable`, shows: `aria-expanded`.",
               "fieldName": "expanded"
             },
             {
@@ -16980,14 +16986,14 @@
               "default": "var(--u-color-border-control)"
             },
             {
-              "description": "Border width of today; the chevrons are twice as thick.",
+              "description": "Border width of today.",
               "name": "--u-calendar-border-width",
               "default": "var(--u-border-width)"
             },
             {
-              "description": "Width and height of the chevrons of the previous and next buttons.",
+              "description": "Size of the chevron icons of the previous and next buttons.",
               "name": "--u-calendar-chevron-size",
-              "default": "var(--u-spacing-sm)"
+              "default": "var(--u-size-icon-sm)"
             },
             {
               "description": "Opacity of a day outside `min` and `max`.",
@@ -17058,7 +17064,7 @@
                 "text": "readonly (typeof DSBaseElement)[]"
               },
               "static": true,
-              "default": "[Button]",
+              "default": "[Button, Icon]",
               "description": "Renders its month buttons with the `button` of its own registration.",
               "inheritedFrom": {
                 "name": "DSBaseElement",
@@ -17124,13 +17130,10 @@
             },
             {
               "kind": "field",
-              "name": "#rtl",
+              "name": "#direction",
               "privacy": "private",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "false",
-              "description": "Whether the text runs right to left: the chevrons point the other way."
+              "default": "new DirectionController(this)",
+              "description": "The text direction: the chevrons point back and forward along it."
             },
             {
               "kind": "method",
@@ -24137,9 +24140,9 @@
               }
             },
             {
-              "description": "Width and height of the chevron. Its stroke is twice the border's width.",
+              "description": "Size of the chevron icon.",
               "name": "--u-picker-chevron-size",
-              "default": "var(--u-spacing-sm)",
+              "default": "var(--u-size-icon-sm)",
               "inheritedFrom": {
                 "name": "PickerBase",
                 "module": "src/bases/picker/picker-base.ts"
@@ -26147,9 +26150,9 @@
               "default": "var(--u-font-weight-medium)"
             },
             {
-              "description": "Width and height of the chevron. Its stroke is twice the border's width.",
+              "description": "Size of the chevron icon.",
               "name": "--u-details-chevron-size",
-              "default": "var(--u-spacing-sm)"
+              "default": "var(--u-size-icon-sm)"
             },
             {
               "description": "Color of the focus ring.",
@@ -26197,6 +26200,20 @@
               "static": true,
               "default": "\"details\"",
               "description": "Name of the component in the catalog, without any tag prefix: the\nregistered tag is `<prefix>-<componentName>`. Every concrete component\nsets it; abstract bases (e.g. `ButtonBase`) don't.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "dependencies",
+              "type": {
+                "text": "readonly (typeof DSBaseElement)[]"
+              },
+              "static": true,
+              "default": "[Icon]",
+              "description": "Components this one renders (ADR 0001, D2): `defineComponents()`\nregisters them too, and `tagFor()` resolves their tag. Never hard-code\nanother component's tag in a template, nor create one with\n`document.createElement` — a brand's override would be bypassed.",
               "inheritedFrom": {
                 "name": "DSBaseElement",
                 "module": "src/bases/base-element.ts"
@@ -26258,20 +26275,6 @@
               "name": "#onToggle",
               "privacy": "private",
               "description": "The native `toggle`: `open` follows, and the host fires its own."
-            },
-            {
-              "kind": "field",
-              "name": "dependencies",
-              "type": {
-                "text": "readonly (typeof DSBaseElement)[]"
-              },
-              "static": true,
-              "default": "[]",
-              "description": "Components this one renders (ADR 0001, D2): `defineComponents()`\nregisters them too, and `tagFor()` resolves their tag. Never hard-code\nanother component's tag in a template, nor create one with\n`document.createElement` — a brand's override would be bypassed.",
-              "inheritedFrom": {
-                "name": "DSBaseElement",
-                "module": "src/bases/base-element.ts"
-              }
             },
             {
               "kind": "method",
@@ -28595,7 +28598,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "An icon of the set of its registration, by name (ADR 0005).\n\nThe set of the base is `@unicorne/icons`: one module per icon, loaded the\nfirst time an icon renders, so a page downloads only the icons it shows.\nThe box keeps its size while the icon loads, and `updateComplete` resolves\nonce the icon is rendered. The icon takes the color of the text\n(`currentColor`).\n\nWithout `label`, the icon is decorative: assistive technologies ignore it.\nGive a `label` to an icon that carries meaning on its own.",
+          "description": "An icon of the set of its registration, by name (ADR 0005).\n\nThe set of the base is `@unicorne/icons`: one module per icon, loaded the\nfirst time an icon renders, so a page downloads only the icons it shows.\nA component that draws an icon of the base in its own controls, a\nchevron, bundles its markup with `Icon.bundle()`: the icon renders at\nonce, on a server too, and a page without that component downloads none.\nThe box keeps its size while the icon loads, and `updateComplete` resolves\nonce the icon is rendered. The icon takes the color of the text\n(`currentColor`).\n\nWithout `label`, the icon is decorative: assistive technologies ignore it.\nGive a `label` to an icon that carries meaning on its own.",
           "name": "Icon",
           "cssProperties": [
             {
@@ -28634,6 +28637,25 @@
               "static": true,
               "default": "icons",
               "description": "The icon set: icon name → its SVG markup, or a loader of its module.\nThe default is the set of `@unicorne/icons`. A brand adds or replaces\nicons by name in a subclass, registered with `overrides: { icon: … }`,\nso every component of the registration renders them:\n`static override icons = { ...Icon.icons, ...brandIcons }`.\nRendered as HTML: trusted markup only, such as the output of `unicorne-icons`."
+            },
+            {
+              "kind": "method",
+              "name": "bundle",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "markup",
+                  "type": {
+                    "text": "Readonly<Record<string, string>>"
+                  }
+                }
+              ],
+              "description": "Gives the markup of icons of the base, by name, from the module of a\ncomponent that draws them: `Icon.bundle({ \"chevron-down\": chevronDown })`,\nwith `import chevronDown from \"@unicorne/icons/chevron-down\"`. While the\nset holds the base's loader for that name, the icon renders this markup\nat once, on a server too. A brand's icon of the same name still wins."
             },
             {
               "kind": "method",
@@ -29219,18 +29241,9 @@
               }
             },
             {
-              "description": "Stroke width of the chevron, twice this width.",
-              "name": "--u-popup-chevron-width",
-              "default": "var(--u-border-width)",
-              "inheritedFrom": {
-                "name": "PopupBase",
-                "module": "src/bases/popup/popup-base.ts"
-              }
-            },
-            {
-              "description": "Width and height of the chevron.",
+              "description": "Size of the chevron icon of the trigger.",
               "name": "--u-popup-chevron-size",
-              "default": "var(--u-spacing-sm)",
+              "default": "var(--u-size-icon-sm)",
               "inheritedFrom": {
                 "name": "PopupBase",
                 "module": "src/bases/popup/popup-base.ts"
@@ -29302,7 +29315,7 @@
                 "text": "readonly (typeof DSBaseElement)[]"
               },
               "static": true,
-              "default": "[MenuItem, Button]",
+              "default": "[MenuItem, Button, Icon]",
               "description": "Recognizes its items, and renders its trigger, with the components of its own registration (ADR 0001, D2).",
               "inheritedFrom": {
                 "name": "DSBaseElement",
@@ -31958,14 +31971,9 @@
               "default": "var(--u-radius-md)"
             },
             {
-              "description": "Width and height of the chevrons of the previous and next buttons.",
+              "description": "Size of the chevron icons of the previous and next buttons.",
               "name": "--u-pagination-chevron-size",
-              "default": "var(--u-spacing-sm)"
-            },
-            {
-              "description": "Stroke of the chevrons. Twice this width.",
-              "name": "--u-pagination-chevron-width",
-              "default": "var(--u-border-width)"
+              "default": "var(--u-size-icon-sm)"
             }
           ],
           "cssParts": [
@@ -32004,7 +32012,7 @@
                 "text": "readonly (typeof DSBaseElement)[]"
               },
               "static": true,
-              "default": "[Button]",
+              "default": "[Button, Icon]",
               "description": "Renders its buttons with the `button` of its own registration.",
               "inheritedFrom": {
                 "name": "DSBaseElement",
@@ -32086,13 +32094,10 @@
             },
             {
               "kind": "field",
-              "name": "#rtl",
+              "name": "#direction",
               "privacy": "private",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "false",
-              "description": "Whether the text runs right to left: the chevron points the other way."
+              "default": "new DirectionController(this)",
+              "description": "The text direction: the chevrons point back and forward along it."
             },
             {
               "kind": "field",
@@ -32347,18 +32352,9 @@
               }
             },
             {
-              "description": "Stroke width of the chevron, twice this width.",
-              "name": "--u-popup-chevron-width",
-              "default": "var(--u-border-width)",
-              "inheritedFrom": {
-                "name": "PopupBase",
-                "module": "src/bases/popup/popup-base.ts"
-              }
-            },
-            {
-              "description": "Width and height of the chevron.",
+              "description": "Size of the chevron icon of the trigger.",
               "name": "--u-popup-chevron-size",
-              "default": "var(--u-spacing-sm)",
+              "default": "var(--u-size-icon-sm)",
               "inheritedFrom": {
                 "name": "PopupBase",
                 "module": "src/bases/popup/popup-base.ts"
@@ -32430,7 +32426,7 @@
                 "text": "readonly (typeof DSBaseElement)[]"
               },
               "static": true,
-              "default": "[Button]",
+              "default": "[Button, Icon]",
               "description": "Renders its trigger with the `button` of its own registration.",
               "inheritedFrom": {
                 "name": "DSBaseElement",
@@ -35148,9 +35144,9 @@
               }
             },
             {
-              "description": "Width and height of the chevron. Its stroke is twice the border's width.",
+              "description": "Size of the chevron icon.",
               "name": "--u-picker-chevron-size",
-              "default": "var(--u-spacing-sm)",
+              "default": "var(--u-size-icon-sm)",
               "inheritedFrom": {
                 "name": "PickerBase",
                 "module": "src/bases/picker/picker-base.ts"
@@ -41390,9 +41386,9 @@
               "default": "var(--u-color-surface-raised)"
             },
             {
-              "description": "Width and height of the sort arrow of a column header.",
+              "description": "Size of the sort icon of a column header: a chevron up, down, or both.",
               "name": "--u-table-sort-icon-size",
-              "default": "var(--u-spacing-sm)"
+              "default": "var(--u-size-icon-sm)"
             },
             {
               "description": "Largest height of the table: its rows scroll past it, under the header row.",
@@ -41674,9 +41670,9 @@
               "default": "var(--u-color-surface-raised)"
             },
             {
-              "description": "Width and height of the sort arrow of a column header.",
+              "description": "Size of the sort icon of a column header: a chevron up, down, or both.",
               "name": "--u-table-sort-icon-size",
-              "default": "var(--u-spacing-sm)"
+              "default": "var(--u-size-icon-sm)"
             },
             {
               "description": "Largest height of the table: its rows scroll past it, under the header row.",
@@ -41730,6 +41726,20 @@
               "static": true,
               "default": "\"table-header-cell\"",
               "description": "Name of the component in the catalog, without any tag prefix: the\nregistered tag is `<prefix>-<componentName>`. Every concrete component\nsets it; abstract bases (e.g. `ButtonBase`) don't.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "dependencies",
+              "type": {
+                "text": "readonly (typeof DSBaseElement)[]"
+              },
+              "static": true,
+              "default": "[Icon]",
+              "description": "Components this one renders (ADR 0001, D2): `defineComponents()`\nregisters them too, and `tagFor()` resolves their tag. Never hard-code\nanother component's tag in a template, nor create one with\n`document.createElement` — a brand's override would be bypassed.",
               "inheritedFrom": {
                 "name": "DSBaseElement",
                 "module": "src/bases/base-element.ts"
@@ -41791,20 +41801,6 @@
               "kind": "field",
               "name": "#sort",
               "privacy": "private"
-            },
-            {
-              "kind": "field",
-              "name": "dependencies",
-              "type": {
-                "text": "readonly (typeof DSBaseElement)[]"
-              },
-              "static": true,
-              "default": "[]",
-              "description": "Components this one renders (ADR 0001, D2): `defineComponents()`\nregisters them too, and `tagFor()` resolves their tag. Never hard-code\nanother component's tag in a template, nor create one with\n`document.createElement` — a brand's override would be bypassed.",
-              "inheritedFrom": {
-                "name": "DSBaseElement",
-                "module": "src/bases/base-element.ts"
-              }
             },
             {
               "kind": "method",
@@ -42016,9 +42012,9 @@
               "default": "var(--u-color-surface-raised)"
             },
             {
-              "description": "Width and height of the sort arrow of a column header.",
+              "description": "Size of the sort icon of a column header: a chevron up, down, or both.",
               "name": "--u-table-sort-icon-size",
-              "default": "var(--u-spacing-sm)"
+              "default": "var(--u-size-icon-sm)"
             },
             {
               "description": "Largest height of the table: its rows scroll past it, under the header row.",
@@ -42340,9 +42336,9 @@
               "default": "var(--u-color-surface-raised)"
             },
             {
-              "description": "Width and height of the sort arrow of a column header.",
+              "description": "Size of the sort icon of a column header: a chevron up, down, or both.",
               "name": "--u-table-sort-icon-size",
-              "default": "var(--u-spacing-sm)"
+              "default": "var(--u-size-icon-sm)"
             },
             {
               "description": "Largest height of the table: its rows scroll past it, under the header row.",
@@ -42780,14 +42776,9 @@
               "default": "var(--u-size-icon)"
             },
             {
-              "description": "Width and height of the chevron of a scroll button.",
+              "description": "Size of the chevron icon of a scroll button.",
               "name": "--u-tabs-chevron-size",
-              "default": "var(--u-spacing-sm)"
-            },
-            {
-              "description": "Stroke of the chevron. Twice this width.",
-              "name": "--u-tabs-chevron-width",
-              "default": "var(--u-border-width)"
+              "default": "var(--u-size-icon-sm)"
             }
           ],
           "cssParts": [
@@ -42832,7 +42823,7 @@
                 "text": "readonly (typeof DSBaseElement)[]"
               },
               "static": true,
-              "default": "[Tab, TabPanel, Button]",
+              "default": "[Tab, TabPanel, Button, Icon]",
               "description": "Recognizes its tabs and panels of its own registration (ADR 0001, D2).",
               "inheritedFrom": {
                 "name": "DSBaseElement",
@@ -42878,13 +42869,10 @@
             },
             {
               "kind": "field",
-              "name": "#rtl",
+              "name": "#direction",
               "privacy": "private",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "false",
-              "description": "Whether the text runs right to left: the chevrons point the other way."
+              "default": "new DirectionController(this)",
+              "description": "The text direction: the chevrons point back and forward along it."
             },
             {
               "kind": "field",
@@ -46719,6 +46707,657 @@
     },
     {
       "kind": "javascript-module",
+      "path": "src/components/toggle-button/toggle-button.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "A button that stays pressed or released: the bold of a text editor, a\nfilter of a list (ADR 0032). `pressed` is its state, `aria-pressed` on\nits native control. A click flips it, then fires `input` and `change`,\nlike a checkbox; setting `pressed` fires nothing.\n\nIts label stays the same in both states: assistive technologies say the\nstate. A label that says the action instead (\"Show the map\", then \"Hide\nthe map\") belongs to a `button`.\n\nReleased, it is drawn like a `button`, `neutral` and `outlined` by\ndefault. Pressed, the tokens of `toggle-button` paint it. In a `toolbar`,\nthe arrow keys move between its buttons.",
+          "name": "ToggleButton",
+          "cssProperties": [
+            {
+              "description": "Background of the pressed button.",
+              "name": "--u-toggle-button-pressed-background-color",
+              "default": "var(--u-color-action-background)"
+            },
+            {
+              "description": "Background of the pressed button, hovered.",
+              "name": "--u-toggle-button-pressed-background-color-hover",
+              "default": "var(--u-color-action-background-hover)"
+            },
+            {
+              "description": "Background of the pressed button, while pressed by the pointer.",
+              "name": "--u-toggle-button-pressed-background-color-active",
+              "default": "var(--u-color-action-background-active)"
+            },
+            {
+              "description": "Text of the pressed button.",
+              "name": "--u-toggle-button-pressed-text-color",
+              "default": "var(--u-color-action-text)"
+            },
+            {
+              "description": "Border of the pressed button.",
+              "name": "--u-toggle-button-pressed-border-color",
+              "default": "var(--u-color-action-background)"
+            },
+            {
+              "description": "Background color (variants change the default).",
+              "name": "--u-button-background-color",
+              "default": "var(--u-color-action-background)",
+              "inheritedFrom": {
+                "name": "ButtonBase",
+                "module": "src/bases/button/button-base.ts"
+              }
+            },
+            {
+              "description": "Background color on hover.",
+              "name": "--u-button-background-color-hover",
+              "default": "var(--u-color-action-background-hover)",
+              "inheritedFrom": {
+                "name": "ButtonBase",
+                "module": "src/bases/button/button-base.ts"
+              }
+            },
+            {
+              "description": "Background color while pressed.",
+              "name": "--u-button-background-color-active",
+              "default": "var(--u-color-action-background-active)",
+              "inheritedFrom": {
+                "name": "ButtonBase",
+                "module": "src/bases/button/button-base.ts"
+              }
+            },
+            {
+              "description": "Text color.",
+              "name": "--u-button-text-color",
+              "default": "var(--u-color-action-text)",
+              "inheritedFrom": {
+                "name": "ButtonBase",
+                "module": "src/bases/button/button-base.ts"
+              }
+            },
+            {
+              "description": "Color of the variant on a surface: the text of the `outlined` and `plain` appearances (variants change the default).",
+              "name": "--u-button-foreground-color",
+              "default": "var(--u-color-action-foreground)",
+              "inheritedFrom": {
+                "name": "ButtonBase",
+                "module": "src/bases/button/button-base.ts"
+              }
+            },
+            {
+              "description": "Border color of the `outlined` appearance (variants change the default).",
+              "name": "--u-button-outlined-border-color",
+              "default": "var(--u-color-action-foreground)",
+              "inheritedFrom": {
+                "name": "ButtonBase",
+                "module": "src/bases/button/button-base.ts"
+              }
+            },
+            {
+              "description": "Border color (appearances change the default). The border keeps every appearance at the same size.",
+              "name": "--u-button-border-color",
+              "default": "var(--u-color-transparent)",
+              "inheritedFrom": {
+                "name": "ButtonBase",
+                "module": "src/bases/button/button-base.ts"
+              }
+            },
+            {
+              "description": "Border width.",
+              "name": "--u-button-border-width",
+              "default": "var(--u-border-width)",
+              "inheritedFrom": {
+                "name": "ButtonBase",
+                "module": "src/bases/button/button-base.ts"
+              }
+            },
+            {
+              "description": "Corner radius.",
+              "name": "--u-button-border-radius",
+              "default": "var(--u-radius-md)",
+              "inheritedFrom": {
+                "name": "ButtonBase",
+                "module": "src/bases/button/button-base.ts"
+              }
+            },
+            {
+              "description": "Font family.",
+              "name": "--u-button-font-family",
+              "default": "var(--u-font-family-body)",
+              "inheritedFrom": {
+                "name": "ButtonBase",
+                "module": "src/bases/button/button-base.ts"
+              }
+            },
+            {
+              "description": "Font size (sizes change the default).",
+              "name": "--u-button-font-size",
+              "default": "var(--u-font-size-md)",
+              "inheritedFrom": {
+                "name": "ButtonBase",
+                "module": "src/bases/button/button-base.ts"
+              }
+            },
+            {
+              "description": "Font weight.",
+              "name": "--u-button-font-weight",
+              "default": "var(--u-font-weight-medium)",
+              "inheritedFrom": {
+                "name": "ButtonBase",
+                "module": "src/bases/button/button-base.ts"
+              }
+            },
+            {
+              "description": "Horizontal padding (sizes change the default).",
+              "name": "--u-button-padding-inline",
+              "default": "var(--u-spacing-md)",
+              "inheritedFrom": {
+                "name": "ButtonBase",
+                "module": "src/bases/button/button-base.ts"
+              }
+            },
+            {
+              "description": "Vertical padding (sizes change the default).",
+              "name": "--u-button-padding-block",
+              "default": "var(--u-spacing-sm)",
+              "inheritedFrom": {
+                "name": "ButtonBase",
+                "module": "src/bases/button/button-base.ts"
+              }
+            },
+            {
+              "description": "Focus outline color.",
+              "name": "--u-button-focus-ring-color",
+              "default": "var(--u-color-focus-ring)",
+              "inheritedFrom": {
+                "name": "ButtonBase",
+                "module": "src/bases/button/button-base.ts"
+              }
+            },
+            {
+              "description": "Focus outline width.",
+              "name": "--u-button-focus-ring-width",
+              "default": "var(--u-focus-ring-width)",
+              "inheritedFrom": {
+                "name": "ButtonBase",
+                "module": "src/bases/button/button-base.ts"
+              }
+            },
+            {
+              "description": "Focus outline offset.",
+              "name": "--u-button-focus-ring-offset",
+              "default": "var(--u-focus-ring-offset)",
+              "inheritedFrom": {
+                "name": "ButtonBase",
+                "module": "src/bases/button/button-base.ts"
+              }
+            },
+            {
+              "description": "Background color transition duration.",
+              "name": "--u-button-transition-duration",
+              "default": "var(--u-motion-duration-fast)",
+              "inheritedFrom": {
+                "name": "ButtonBase",
+                "module": "src/bases/button/button-base.ts"
+              }
+            },
+            {
+              "description": "Background color transition easing.",
+              "name": "--u-button-transition-timing-function",
+              "default": "var(--u-motion-easing-standard)",
+              "inheritedFrom": {
+                "name": "ButtonBase",
+                "module": "src/bases/button/button-base.ts"
+              }
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "componentName",
+              "type": {
+                "text": "string"
+              },
+              "static": true,
+              "default": "\"toggle-button\"",
+              "description": "Name of the component in the catalog, without any tag prefix: the\nregistered tag is `<prefix>-<componentName>`. Every concrete component\nsets it; abstract bases (e.g. `ButtonBase`) don't.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "variant",
+              "type": {
+                "text": "ButtonVariant"
+              },
+              "default": "\"neutral\"",
+              "description": "Button variant, for its released state. `neutral` by default.",
+              "attribute": "variant",
+              "reflects": true,
+              "inheritedFrom": {
+                "name": "ButtonBase",
+                "module": "src/bases/button/button-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "appearance",
+              "type": {
+                "text": "ButtonAppearance"
+              },
+              "default": "\"outlined\"",
+              "description": "How the variant paints the released button. `outlined` by default: a control, before it is pressed.",
+              "attribute": "appearance",
+              "reflects": true,
+              "inheritedFrom": {
+                "name": "ButtonBase",
+                "module": "src/bases/button/button-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "pressed",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether the button is pressed: `aria-pressed`. Reflected.",
+              "attribute": "pressed",
+              "reflects": true
+            },
+            {
+              "kind": "method",
+              "name": "handleClick",
+              "privacy": "protected",
+              "parameters": [
+                {
+                  "name": "e",
+                  "type": {
+                    "text": "MouseEvent"
+                  }
+                }
+              ],
+              "description": "Handles clicks on the inner control. While disabled, cancels the click\nand keeps it from reaching the host (a link without `href` still\ndispatches one). Subclasses add their behavior after calling it.",
+              "inheritedFrom": {
+                "name": "ButtonBase",
+                "module": "src/bases/button/button-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "disabled",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Disables interaction; also sets `aria-disabled=\"true\"` on the host.",
+              "attribute": "disabled",
+              "reflects": true,
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "formDisabled",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "private",
+              "default": "false",
+              "description": "The browser's disabled state of a form-associated element.",
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "styles",
+              "type": {
+                "text": "array"
+              },
+              "static": true,
+              "default": "[(Base as unknown as typeof LitElement).styles ?? [], disabledStyles]",
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "isDisabled",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "protected",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "size",
+              "type": {
+                "text": "ButtonSize"
+              },
+              "default": "\"medium\"",
+              "description": "Button size.",
+              "attribute": "size",
+              "reflects": true,
+              "inheritedFrom": {
+                "name": "ButtonBase",
+                "module": "src/bases/button/button-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "label",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "The accessible name, for a button whose content is an icon or a shape:\nthe button is then square. Its content names it otherwise.",
+              "attribute": "label",
+              "inheritedFrom": {
+                "name": "ButtonBase",
+                "module": "src/bases/button/button-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "current",
+              "type": {
+                "text": "ButtonCurrent | undefined"
+              },
+              "description": "The item of a set the button stands for, `page` in a pagination: `aria-current`.",
+              "attribute": "current",
+              "inheritedFrom": {
+                "name": "ButtonBase",
+                "module": "src/bases/button/button-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "shadowRootOptions",
+              "type": {
+                "text": "ShadowRootInit"
+              },
+              "static": true,
+              "default": "{ ...super.shadowRootOptions, delegatesFocus: true }",
+              "inheritedFrom": {
+                "name": "ButtonBase",
+                "module": "src/bases/button/button-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "controlTabIndex",
+              "type": {
+                "text": "string | undefined"
+              },
+              "privacy": "protected",
+              "description": "The `tabindex` of the native control: `-1` when the host's is negative.",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "ButtonBase",
+                "module": "src/bases/button/button-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "controlClasses",
+              "type": {
+                "text": "string"
+              },
+              "privacy": "protected",
+              "description": "The classes of the native control: `button`, and `button--square` with `label`.",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "ButtonBase",
+                "module": "src/bases/button/button-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "dependencies",
+              "type": {
+                "text": "readonly (typeof DSBaseElement)[]"
+              },
+              "static": true,
+              "default": "[]",
+              "description": "Components this one renders (ADR 0001, D2): `defineComponents()`\nregisters them too, and `tagFor()` resolves their tag. Never hard-code\nanother component's tag in a template, nor create one with\n`document.createElement` — a brand's override would be bypassed.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "forDesignSystem",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "T"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "this",
+                  "type": {
+                    "text": "T"
+                  }
+                },
+                {
+                  "name": "_settings",
+                  "type": {
+                    "text": "DesignSystemSettings"
+                  }
+                }
+              ],
+              "description": "The class a design system registers for this component, given its\nsettings: this class by default. A component that depends on a setting\nreturns a subclass that applies it, and leaves this class unchanged:\n`Icon` returns a subclass with the design system's `icons` over its own.\n`designSystem()` calls it once per class, after choosing the brand's\noverride, so the subclass extends the override.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "language",
+              "type": {
+                "text": "string | undefined"
+              },
+              "privacy": "protected",
+              "description": "The language of the component, for `Intl`: the `lang` of its closest\nancestor, through the shadow roots, or the document's. `undefined` on a\nserver, and without any: `Intl` takes its default.",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "tagFor",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "StaticValue"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "component",
+                  "type": {
+                    "text": "typeof DSBaseElement"
+                  }
+                }
+              ],
+              "description": "The tag of a component declared in `static dependencies`, for templates\nfrom `lit/static-html.js`: `` html`<${this.tagFor(Button)}>…</${…}>` ``.\nIt follows the registration of this element: `u-modal` renders\n`u-button`, `acme-modal` renders `acme-button` — the brand's override\nof `Button` if it has one.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            }
+          ],
+          "events": [
+            {
+              "name": "input",
+              "type": {
+                "text": "Event"
+              },
+              "description": "After a click flips `pressed`. Composed, like the native `input`."
+            },
+            {
+              "name": "change",
+              "type": {
+                "text": "Event"
+              },
+              "description": "After `input`."
+            },
+            {
+              "description": "The native click of the inner control, composed out of the shadow root. Never fired while disabled.",
+              "name": "click",
+              "inheritedFrom": {
+                "name": "ButtonBase",
+                "module": "src/bases/button/button-base.ts"
+              }
+            }
+          ],
+          "attributes": [
+            {
+              "name": "variant",
+              "type": {
+                "text": "ButtonVariant"
+              },
+              "default": "\"neutral\"",
+              "description": "Button variant, for its released state. `neutral` by default.",
+              "fieldName": "variant",
+              "inheritedFrom": {
+                "name": "ButtonBase",
+                "module": "src/bases/button/button-base.ts"
+              }
+            },
+            {
+              "name": "appearance",
+              "type": {
+                "text": "ButtonAppearance"
+              },
+              "default": "\"outlined\"",
+              "description": "How the variant paints the released button. `outlined` by default: a control, before it is pressed.",
+              "fieldName": "appearance",
+              "inheritedFrom": {
+                "name": "ButtonBase",
+                "module": "src/bases/button/button-base.ts"
+              }
+            },
+            {
+              "name": "pressed",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether the button is pressed: `aria-pressed`. Reflected.",
+              "fieldName": "pressed"
+            },
+            {
+              "name": "disabled",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Disables interaction; also sets `aria-disabled=\"true\"` on the host.",
+              "fieldName": "disabled",
+              "inheritedFrom": {
+                "name": "withDisabled",
+                "module": "src/mixins/withDisabled.ts"
+              }
+            },
+            {
+              "name": "size",
+              "type": {
+                "text": "ButtonSize"
+              },
+              "default": "\"medium\"",
+              "description": "Button size.",
+              "fieldName": "size",
+              "inheritedFrom": {
+                "name": "ButtonBase",
+                "module": "src/bases/button/button-base.ts"
+              }
+            },
+            {
+              "name": "label",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "The accessible name, for a button whose content is an icon or a shape:\nthe button is then square. Its content names it otherwise.",
+              "fieldName": "label",
+              "inheritedFrom": {
+                "name": "ButtonBase",
+                "module": "src/bases/button/button-base.ts"
+              }
+            },
+            {
+              "name": "current",
+              "type": {
+                "text": "ButtonCurrent | undefined"
+              },
+              "description": "The item of a set the button stands for, `page` in a pagination: `aria-current`.",
+              "fieldName": "current",
+              "inheritedFrom": {
+                "name": "ButtonBase",
+                "module": "src/bases/button/button-base.ts"
+              }
+            }
+          ],
+          "superclass": {
+            "name": "ButtonBase",
+            "module": "/src/bases/button/button-base.js"
+          },
+          "tagName": "u-toggle-button",
+          "customElement": true,
+          "summary": "A button pressed or released.",
+          "slots": [
+            {
+              "description": "The button label.",
+              "name": "",
+              "inheritedFrom": {
+                "name": "ButtonBase",
+                "module": "src/bases/button/button-base.ts"
+              }
+            }
+          ],
+          "cssParts": [
+            {
+              "description": "The native `<button>` (or `<a>` for `button-link`).",
+              "name": "button",
+              "inheritedFrom": {
+                "name": "ButtonBase",
+                "module": "src/bases/button/button-base.ts"
+              }
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "ToggleButton",
+          "declaration": {
+            "name": "ToggleButton",
+            "module": "src/components/toggle-button/toggle-button.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/components/toolbar/toolbar.ts",
       "declarations": [
         {
@@ -47002,18 +47641,9 @@
               }
             },
             {
-              "description": "Stroke width of the chevron, twice this width.",
-              "name": "--u-popup-chevron-width",
-              "default": "var(--u-border-width)",
-              "inheritedFrom": {
-                "name": "PopupBase",
-                "module": "src/bases/popup/popup-base.ts"
-              }
-            },
-            {
-              "description": "Width and height of the chevron.",
+              "description": "Size of the chevron icon of the trigger.",
               "name": "--u-popup-chevron-size",
-              "default": "var(--u-spacing-sm)",
+              "default": "var(--u-size-icon-sm)",
               "inheritedFrom": {
                 "name": "PopupBase",
                 "module": "src/bases/popup/popup-base.ts"
@@ -47617,6 +48247,27 @@
             },
             {
               "kind": "field",
+              "name": "dependencies",
+              "type": {
+                "text": "readonly (typeof DSBaseElement)[]"
+              },
+              "static": true,
+              "default": "[Icon]",
+              "description": "Components this one renders (ADR 0001, D2): `defineComponents()`\nregisters them too, and `tagFor()` resolves their tag. Never hard-code\nanother component's tag in a template, nor create one with\n`document.createElement` — a brand's override would be bypassed.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "#direction",
+              "privacy": "private",
+              "default": "new DirectionController(this)",
+              "description": "The text direction: the chevron of a closed item points along it."
+            },
+            {
+              "kind": "field",
               "name": "value",
               "type": {
                 "text": "string"
@@ -47719,20 +48370,6 @@
               "inheritedFrom": {
                 "name": "withDisabled",
                 "module": "src/mixins/withDisabled.ts"
-              }
-            },
-            {
-              "kind": "field",
-              "name": "dependencies",
-              "type": {
-                "text": "readonly (typeof DSBaseElement)[]"
-              },
-              "static": true,
-              "default": "[]",
-              "description": "Components this one renders (ADR 0001, D2): `defineComponents()`\nregisters them too, and `tagFor()` resolves their tag. Never hard-code\nanother component's tag in a template, nor create one with\n`document.createElement` — a brand's override would be bypassed.",
-              "inheritedFrom": {
-                "name": "DSBaseElement",
-                "module": "src/bases/base-element.ts"
               }
             },
             {
@@ -47944,14 +48581,9 @@
               "default": "var(--u-color-action-text)"
             },
             {
-              "description": "Width and height of the chevron of an item with children.",
+              "description": "Size of the chevron icon of an item with children.",
               "name": "--u-tree-chevron-size",
-              "default": "var(--u-spacing-sm)"
-            },
-            {
-              "description": "Stroke of the chevron. Twice this width.",
-              "name": "--u-tree-chevron-width",
-              "default": "var(--u-border-width)"
+              "default": "var(--u-size-icon-sm)"
             },
             {
               "description": "Color of the focus ring.",
@@ -48548,6 +49180,83 @@
           "declaration": {
             "name": "CommandsController",
             "module": "src/controllers/commands.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/controllers/direction.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "Reads the text direction of its host when it connects, and renders the\nhost again when it changed: a chevron that points back or forward follows\nit. `:dir()` is missing before Chrome 120 and Firefox 126.\n\nThe first render, on a server too, is left to right: the direction is\nknown once the host is in the page.",
+          "name": "DirectionController",
+          "members": [
+            {
+              "kind": "field",
+              "name": "#host",
+              "privacy": "private",
+              "type": {
+                "text": "ReactiveControllerHost & HTMLElement"
+              },
+              "default": "host"
+            },
+            {
+              "kind": "field",
+              "name": "#rtl",
+              "privacy": "private",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false"
+            },
+            {
+              "kind": "field",
+              "name": "rtl",
+              "type": {
+                "text": "boolean"
+              },
+              "description": "Whether the text of the host runs right to left, as of its last connection.",
+              "readonly": true
+            },
+            {
+              "kind": "method",
+              "name": "side",
+              "return": {
+                "type": {
+                  "text": "\"left\" | \"right\""
+                }
+              },
+              "parameters": [
+                {
+                  "name": "edge",
+                  "type": {
+                    "text": "\"start\" | \"end\""
+                  }
+                }
+              ],
+              "description": "`start` or `end` as a physical side: `left` or `right`."
+            },
+            {
+              "kind": "method",
+              "name": "hostConnected",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "DirectionController",
+          "declaration": {
+            "name": "DirectionController",
+            "module": "src/controllers/direction.ts"
           }
         }
       ]
@@ -50222,6 +50931,14 @@
           "name": "*",
           "declaration": {
             "name": "*",
+            "module": "src/components/toggle-button/toggle-button.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "*",
+          "declaration": {
+            "name": "*",
             "module": "src/components/table-row/table-row.js"
           }
         },
@@ -50351,6 +51068,14 @@
           "declaration": {
             "name": "*",
             "module": "src/controllers/load.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "*",
+          "declaration": {
+            "name": "*",
+            "module": "src/controllers/direction.js"
           }
         },
         {

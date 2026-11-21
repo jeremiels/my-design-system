@@ -7,6 +7,5 @@
   --u-pagination-button-size: var(--u-size-icon);
   --u-pagination-padding-inline: var(--u-spacing-sm);
   --u-pagination-border-radius: var(--u-radius-md);
-  --u-pagination-chevron-size: var(--u-spacing-sm);
-  --u-pagination-chevron-width: var(--u-border-width);
+  --u-pagination-chevron-size: var(--u-size-icon-sm);
 }

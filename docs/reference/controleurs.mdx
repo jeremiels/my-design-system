@@ -444,6 +444,16 @@ Dit si le contenu d'un conteneur qui défile dépasse son début ou sa fin, et l
 - `scrolls` dit si le conteneur défile, sur l'un ou l'autre axe. `Table` rend alors sa zone focalisable.
 - Le contrôleur mesure après chaque rendu de l'hôte, à chaque changement de taille (`ResizeObserver`) et à chaque défilement. Il rend l'hôte de nouveau quand une mesure change.
 
+## DirectionController
+
+Lit la direction du texte de son hôte à sa connexion : `:dir()` manque à la [matrice](?path=/docs/documentation-référence-support-navigateurs--docs). `Calendar`, `Pagination`, `Tabs`, `BreadcrumbItem` et `TreeItem` le créent, pour leurs chevrons ([ADR 0032](?path=/docs/documentation-adr-0032-bouton-bascule-divulgation-et-chevrons--docs)).
+
+- Le constructeur reçoit l'hôte.
+- `rtl` dit si le texte va de droite à gauche.
+- `side("start" | "end")` donne le côté physique, `left` ou `right` : `chevron-${side("end")}`.
+- Le contrôleur rend l'hôte de nouveau quand la direction change à une connexion. Le premier rendu, sur un serveur aussi, va de gauche à droite.
+- Une touche fléchée lit la direction au moment de l'appui : `calendar` et `tree` la lisent dans leur gestionnaire de clavier.
+
 ## LoadController
 
 Charge des données pour son hôte, d'un serveur par exemple, un chargement à la fois ([ADR 0026](?path=/docs/documentation-adr-0026-grandes-listes-et-options-chargées--docs)). `EditableComboboxBase` le crée, pour `loadOptions`.

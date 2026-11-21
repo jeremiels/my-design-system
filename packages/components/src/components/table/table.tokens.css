@@ -15,7 +15,7 @@
   --u-table-caption-font-size: var(--u-font-size-lg);
   --u-table-caption-font-weight: var(--u-font-weight-semibold);
   --u-table-row-background-color-selected: var(--u-color-surface-raised);
-  --u-table-sort-icon-size: var(--u-spacing-sm);
+  --u-table-sort-icon-size: var(--u-size-icon-sm);
   --u-table-max-block-size: var(--u-size-table);
   --u-table-sort-icon-opacity: var(--u-opacity-disabled);
   --u-table-focus-ring-color: var(--u-color-focus-ring);

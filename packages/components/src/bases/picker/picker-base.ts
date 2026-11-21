@@ -1,5 +1,8 @@
-import { html, nothing } from "lit";
+import chevronDown from "@unicorne/icons/chevron-down";
+import { nothing } from "lit";
 import { property } from "lit/decorators.js";
+import { html } from "lit/static-html.js";
+import { Icon } from "../../components/icon/icon.js";
 import { ComboboxBase } from "../combobox/combobox-base.js";
 import { fieldIds } from "../field/field-base.js";
 import pickerBaseStyles from "./picker-base.css" with { type: "css" };
@@ -30,6 +33,11 @@ export type PickerEntry = "selected" | "first" | "last";
  * @tokens picker - Its tokens (`@cssprop`), shared by the pickers, from `@unicorne/tokens` (`src/component/picker/`): `npm run analyze` documents them.
  */
 export abstract class PickerBase extends ComboboxBase {
+  static {
+    // Its chevrons render at once, on a server too (ADR 0032).
+    Icon.bundle({ "chevron-down": chevronDown });
+  }
+
   static styles = [super.styles ?? [], pickerTokens, pickerBaseStyles];
 
   /** Shown in the control while nothing is picked: "Choose a country". */
@@ -102,7 +110,7 @@ export abstract class PickerBase extends ComboboxBase {
         @keydown=${this.handleComboboxKeydown}
       >
         <span class="value${text ? "" : " value--placeholder"}">${text || this.placeholder}</span>
-        <span class="chevron" aria-hidden="true"></span>
+        <${this.tagFor(Icon)} class="chevron" name="chevron-down"></${this.tagFor(Icon)}>
       </div>
       <!-- The browser's message of a missing value, in its language. -->
       ${this.renderValidityProxy()}

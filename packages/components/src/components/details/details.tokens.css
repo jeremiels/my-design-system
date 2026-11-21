@@ -10,7 +10,7 @@
   --u-details-font-size: var(--u-font-size-md);
   --u-details-text-color: var(--u-color-text-default);
   --u-details-summary-font-weight: var(--u-font-weight-medium);
-  --u-details-chevron-size: var(--u-spacing-sm);
+  --u-details-chevron-size: var(--u-size-icon-sm);
   --u-details-focus-ring-color: var(--u-color-focus-ring);
   --u-details-focus-ring-width: var(--u-focus-ring-width);
   --u-details-focus-ring-offset: var(--u-focus-ring-offset);

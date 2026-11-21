@@ -37,6 +37,7 @@ const NATIVE: readonly { pattern: RegExp; native: string; component: string }[] 
 const ALLOWED: Record<string, Record<string, string>> = {
   "<button>": {
     "./components/button/button.ts": "The button itself.",
+    "./components/toggle-button/toggle-button.ts": "The toggle button itself.",
     "./components/table-header-cell/table-header-cell.ts":
       "The sort button is the text of the header, not a button to look at.",
   },

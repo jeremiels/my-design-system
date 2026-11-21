@@ -6,8 +6,7 @@
   --u-breadcrumb-link-color: var(--u-color-action-background);
   --u-breadcrumb-current-color: var(--u-color-text-default);
   --u-breadcrumb-separator-color: var(--u-color-border-control);
-  --u-breadcrumb-separator-size: var(--u-spacing-xs);
-  --u-breadcrumb-separator-width: var(--u-border-width);
+  --u-breadcrumb-separator-size: var(--u-size-icon-sm);
   --u-breadcrumb-focus-ring-color: var(--u-color-focus-ring);
   --u-breadcrumb-focus-ring-width: var(--u-focus-ring-width);
   --u-breadcrumb-focus-ring-offset: var(--u-focus-ring-offset);

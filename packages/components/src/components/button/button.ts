@@ -26,7 +26,10 @@ import { Spinner } from "../spinner/spinner.js";
  * With `loading`, a `spinner` covers the label and the button ignores
  * clicks, but keeps the focus: announce the end of the action in a live
  * region. With `popup`, it is the trigger of a menu or a dialog, and
- * `expanded` says whether that popup is open.
+ * `expanded` says whether that popup is open. With `expandable`, it shows
+ * or hides a part of the page, and `expanded` says whether that part shows:
+ * the application changes both on `click`. A button that stays pressed is
+ * a `toggle-button`.
  *
  * @element u-button
  * @summary Triggers an action or submits a form.
@@ -74,7 +77,15 @@ export class Button extends withInvoker(withInternals(ButtonBase)) {
   @property({ type: String })
   popup?: ButtonPopup;
 
-  /** Whether the popup of `popup` is open: `aria-expanded`. */
+  /**
+   * Whether the button shows or hides a part of the page, the disclosure
+   * pattern: `expanded` then says whether that part shows. `popup` implies
+   * it.
+   */
+  @property({ type: Boolean })
+  expandable = false;
+
+  /** Whether the popup of `popup`, or the part of the page of `expandable`, shows: `aria-expanded`. */
   @property({ type: Boolean })
   expanded = false;
 
@@ -146,7 +157,7 @@ export class Button extends withInvoker(withInternals(ButtonBase)) {
         aria-label=${this.label || nothing}
         aria-current=${ifDefined(this.current)}
         aria-haspopup=${ifDefined(this.popup)}
-        aria-expanded=${this.popup ? String(this.expanded) : nothing}
+        aria-expanded=${this.popup || this.expandable ? String(this.expanded) : nothing}
         aria-disabled=${this.loading && !this.isDisabled ? "true" : nothing}
         @click=${this.handleClick}
       >

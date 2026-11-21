@@ -1,3 +1,4 @@
+import chevronDown from "@unicorne/icons/chevron-down";
 import { html } from "lit/static-html.js";
 import { property } from "lit/decorators.js";
 import { listboxTokens } from "../../controllers/listbox.js";
@@ -8,6 +9,7 @@ import type { DSBaseElement } from "../../bases/base-element.js";
 import { MenuItem } from "../menu-item/menu-item.js";
 import { PopupBase } from "../../bases/popup/popup-base.js";
 import { Button } from "../button/button.js";
+import { Icon } from "../icon/icon.js";
 import menuStyles from "./menu.css" with { type: "css" };
 
 /**
@@ -32,10 +34,15 @@ import menuStyles from "./menu.css" with { type: "css" };
  * @tokens listbox - Its list's tokens (`@cssprop`), shared by every list of options, from `@unicorne/tokens` (`src/component/listbox/`): `npm run analyze` documents them.
  */
 export class Menu extends PopupBase {
+  static {
+    // Its chevrons render at once, on a server too (ADR 0032).
+    Icon.bundle({ "chevron-down": chevronDown });
+  }
+
   static override componentName = "menu";
 
   /** Recognizes its items, and renders its trigger, with the components of its own registration (ADR 0001, D2). */
-  static override dependencies: readonly (typeof DSBaseElement)[] = [MenuItem, Button];
+  static override dependencies: readonly (typeof DSBaseElement)[] = [MenuItem, Button, Icon];
 
   static styles = [super.styles ?? [], listboxTokens, menuStyles];
 
@@ -186,7 +193,8 @@ export class Menu extends PopupBase {
         @click=${this.#onTriggerClick}
         @keydown=${this.#onTriggerKeydown}
       >
-        <span class="label">${this.label}</span><span class="chevron" aria-hidden="true"></span>
+        <span class="label">${this.label}</span
+        ><${this.tagFor(Icon)} class="chevron" name="chevron-down"></${this.tagFor(Icon)}>
       </${button}>
       <div part="menu" class="menu" id="menu" role="menu" aria-label=${this.label} popover="manual">
         <slot @slotchange=${() => this.requestUpdate()}></slot>

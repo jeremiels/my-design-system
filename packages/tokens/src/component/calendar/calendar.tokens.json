@@ -64,12 +64,12 @@
     "border-width": {
       "$type": "dimension",
       "$value": "{border.width}",
-      "$description": "Border width of today; the chevrons are twice as thick."
+      "$description": "Border width of today."
     },
     "chevron-size": {
       "$type": "dimension",
-      "$value": "{spacing.sm}",
-      "$description": "Width and height of the chevrons of the previous and next buttons."
+      "$value": "{size.icon-sm}",
+      "$description": "Size of the chevron icons of the previous and next buttons."
     },
     "disabled-opacity": {
       "$type": "number",

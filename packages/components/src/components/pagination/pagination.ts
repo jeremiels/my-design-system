@@ -1,10 +1,14 @@
+import chevronLeft from "@unicorne/icons/chevron-left";
+import chevronRight from "@unicorne/icons/chevron-right";
 import { nothing } from "lit";
 import { property } from "lit/decorators.js";
 import { html } from "lit/static-html.js";
 import { AnnounceController, announceStyles } from "../../controllers/announce.js";
 import { paginationItems } from "../../state/pagination.js";
 import { DSBaseElement } from "../../bases/base-element.js";
+import { DirectionController } from "../../controllers/direction.js";
 import { Button } from "../button/button.js";
+import { Icon } from "../icon/icon.js";
 import paginationStyles from "./pagination.css" with { type: "css" };
 import paginationTokens from "./pagination.tokens.css" with { type: "css" };
 
@@ -28,10 +32,15 @@ import paginationTokens from "./pagination.tokens.css" with { type: "css" };
  * @tokens pagination - Its tokens (`@cssprop`), from `@unicorne/tokens` (`src/component/pagination/`): `npm run analyze` documents them.
  */
 export class Pagination extends DSBaseElement {
+  static {
+    // Its chevrons render at once, on a server too (ADR 0032).
+    Icon.bundle({ "chevron-left": chevronLeft, "chevron-right": chevronRight });
+  }
+
   static override componentName = "pagination";
 
   /** Renders its buttons with the `button` of its own registration. */
-  static override dependencies = [Button];
+  static override dependencies = [Button, Icon];
 
   static styles = [super.styles ?? [], announceStyles, paginationTokens, paginationStyles];
 
@@ -66,17 +75,8 @@ export class Pagination extends DSBaseElement {
 
   #announcer = new AnnounceController(this);
 
-  /** Whether the text runs right to left: the chevron points the other way. */
-  #rtl = false;
-
-  override connectedCallback(): void {
-    super.connectedCallback();
-    const rtl = getComputedStyle(this).direction === "rtl";
-    if (rtl !== this.#rtl) {
-      this.#rtl = rtl;
-      this.requestUpdate();
-    }
-  }
+  /** The text direction: the chevrons point back and forward along it. */
+  #direction = new DirectionController(this);
 
   /** The current page, within the bounds. */
   protected get currentPage(): number {
@@ -95,9 +95,10 @@ export class Pagination extends DSBaseElement {
 
   render() {
     const button = this.tagFor(Button);
+    const icon = this.tagFor(Icon);
     const current = this.currentPage;
     return html`
-      <nav part="nav" class=${this.#rtl ? "rtl" : nothing} aria-label=${this.label}>
+      <nav part="nav" aria-label=${this.label}>
         <ul class="list" role="list">
           <li>
             <${button}
@@ -109,7 +110,7 @@ export class Pagination extends DSBaseElement {
               ?disabled=${current <= 1}
               @click=${() => this.goTo(current - 1)}
             >
-              <span class="chevron" aria-hidden="true"></span>
+              <${icon} class="chevron" name="chevron-${this.#direction.side("start")}"></${icon}>
             </${button}>
           </li>
           ${paginationItems(current, this.pages).map((item) =>
@@ -139,7 +140,7 @@ export class Pagination extends DSBaseElement {
               ?disabled=${current >= this.pages}
               @click=${() => this.goTo(current + 1)}
             >
-              <span class="chevron" aria-hidden="true"></span>
+              <${icon} class="chevron" name="chevron-${this.#direction.side("end")}"></${icon}>
             </${button}>
           </li>
         </ul>

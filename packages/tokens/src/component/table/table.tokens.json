@@ -78,8 +78,8 @@
     },
     "sort-icon-size": {
       "$type": "dimension",
-      "$value": "{spacing.sm}",
-      "$description": "Width and height of the sort arrow of a column header."
+      "$value": "{size.icon-sm}",
+      "$description": "Size of the sort icon of a column header: a chevron up, down, or both."
     },
     "max-block-size": {
       "$type": "dimension",

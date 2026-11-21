@@ -4,8 +4,7 @@
   --u-popup-font-size: var(--u-font-size-md);
   --u-popup-text-color: var(--u-color-text-default);
   --u-popup-trigger-gap: var(--u-spacing-sm);
-  --u-popup-chevron-width: var(--u-border-width);
-  --u-popup-chevron-size: var(--u-spacing-sm);
+  --u-popup-chevron-size: var(--u-size-icon-sm);
   --u-popup-popup-offset: var(--u-spacing-2xs);
   --u-popup-transition-duration: var(--u-motion-duration-fast);
   --u-popup-transition-timing-function: var(--u-motion-easing-standard);

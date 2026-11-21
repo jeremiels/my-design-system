@@ -38,13 +38,8 @@
     },
     "chevron-size": {
       "$type": "dimension",
-      "$value": "{spacing.sm}",
-      "$description": "Width and height of the chevrons of the previous and next buttons."
-    },
-    "chevron-width": {
-      "$type": "dimension",
-      "$value": "{border.width}",
-      "$description": "Stroke of the chevrons. Twice this width."
+      "$value": "{size.icon-sm}",
+      "$description": "Size of the chevron icons of the previous and next buttons."
     }
   }
 }

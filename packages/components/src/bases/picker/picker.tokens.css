@@ -1,7 +1,7 @@
 /* Generated from ../tokens/src/u.resolver.json by @unicorne/tokens/terrazzo-plugin (ADR 0002). Do not edit: change the tokens. */
 :host {
   --u-picker-gap: var(--u-spacing-sm);
-  --u-picker-chevron-size: var(--u-spacing-sm);
+  --u-picker-chevron-size: var(--u-size-icon-sm);
   --u-picker-chevron-color: var(--u-color-text-default);
   --u-picker-placeholder-color: var(--u-color-text-default);
 }
