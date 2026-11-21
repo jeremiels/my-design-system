@@ -1,0 +1,86 @@
+/* The tokens are in drawer.tokens.css, generated from tokens/component/drawer/
+   (ADR 0002). The layout of the content is that of ModalBase.
+
+   Closed: the panel out of the page, along its edge. `display` and `overlay`
+   keep it in the top layer until its exit ends (Chrome and Edge 117);
+   elsewhere, closeWithTransition() delays the closing. With reduced motion,
+   the tokens give no duration. drawer.ts sets data-rtl: `:dir()` is missing
+   before Chrome 120. */
+:host {
+  --drawer-closed: -100%;
+}
+:host([placement="end"]),
+:host([data-rtl]:not([placement="end"])) {
+  --drawer-closed: 100%;
+}
+:host([data-rtl][placement="end"]) {
+  --drawer-closed: -100%;
+}
+
+dialog {
+  box-sizing: border-box;
+  inline-size: var(--u-drawer-inline-size);
+  max-inline-size: 100%;
+  block-size: 100%;
+  max-block-size: 100%;
+  margin-block: 0;
+  margin-inline: 0 auto;
+  border: none;
+  padding: 0;
+  background-color: var(--u-drawer-background-color);
+  box-shadow: var(--u-drawer-shadow);
+  translate: var(--drawer-closed) 0;
+  transition-property: translate, display, overlay;
+  transition-duration: var(--u-drawer-transition-duration);
+  transition-timing-function: var(--u-drawer-transition-timing-function);
+  transition-behavior: allow-discrete;
+}
+:host([placement="end"]) dialog {
+  margin-inline: auto 0;
+}
+dialog[open]:where(:not([data-closing])) {
+  translate: 0 0;
+}
+dialog:modal {
+  overscroll-behavior: contain;
+}
+dialog::backdrop {
+  /* Documented exception to "no literal fallback", as for modal: before
+     Chrome 122, Firefox 120 and Safari 17.4, ::backdrop inherits nothing.
+     Keep in sync with color.backdrop (light theme). */
+  background-color: var(--u-drawer-backdrop-color, hsl(0deg 0% 0% / 50%));
+  overflow: hidden;
+  overscroll-behavior: contain;
+  opacity: 0;
+  transition-property: opacity, display, overlay;
+  transition-duration: var(--u-drawer-transition-duration);
+  transition-timing-function: var(--u-drawer-transition-timing-function);
+  transition-behavior: allow-discrete;
+}
+dialog[open]:where(:not([data-closing]))::backdrop {
+  opacity: 1;
+}
+@starting-style {
+  dialog[open]:where(:not([data-closing])) {
+    translate: var(--drawer-closed) 0;
+  }
+  dialog[open]:where(:not([data-closing]))::backdrop {
+    opacity: 0;
+  }
+}
+.content {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: var(--u-drawer-gap);
+  padding: var(--u-drawer-padding);
+}
+.close {
+  grid-area: 1 / 2;
+}
+.close::part(button) {
+  padding: var(--u-drawer-close-button-padding);
+}
+.body {
+  grid-area: 1 / 1;
+}

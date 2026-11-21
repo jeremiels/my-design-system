@@ -1,0 +1,40 @@
+{
+  "popover": {
+    "$description": "Tokens of `popover`: its panel. The trigger and the transitions take those of `popup`.",
+    "padding": {
+      "$type": "dimension",
+      "$value": "{spacing.md}",
+      "$description": "Inner padding of the panel."
+    },
+    "max-inline-size": {
+      "$type": "dimension",
+      "$value": "{size.panel}",
+      "$description": "Largest width of the panel."
+    },
+    "background-color": {
+      "$type": "color",
+      "$value": "{color.surface.raised}",
+      "$description": "Background color of the panel."
+    },
+    "border-width": {
+      "$type": "dimension",
+      "$value": "{border.width}",
+      "$description": "Border width of the panel."
+    },
+    "border-color": {
+      "$type": "color",
+      "$value": "{color.border.default}",
+      "$description": "Border color of the panel."
+    },
+    "border-radius": {
+      "$type": "dimension",
+      "$value": "{radius.md}",
+      "$description": "Corner radius of the panel."
+    },
+    "shadow": {
+      "$type": "shadow",
+      "$value": "{shadow.overlay}",
+      "$description": "Shadow of the panel."
+    }
+  }
+}

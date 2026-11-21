@@ -1,0 +1,21 @@
+/* The tokens are in tooltip.tokens.css, generated from tokens/component/tooltip/
+   (ADR 0002). The distance and the transitions are those of popup-base.css. */
+.anchor {
+  display: inline-block;
+}
+
+.bubble {
+  max-inline-size: var(--u-tooltip-max-inline-size);
+  padding-inline: var(--u-tooltip-padding-inline);
+  padding-block: var(--u-tooltip-padding-block);
+  font-size: var(--u-tooltip-font-size);
+  color: var(--u-tooltip-text-color);
+  background-color: var(--u-tooltip-background-color);
+  border-radius: var(--u-tooltip-border-radius);
+}
+
+@media (forced-colors: active) {
+  .bubble {
+    border: 1px solid CanvasText;
+  }
+}

@@ -1,0 +1,10 @@
+/* Generated from ../tokens/src/u.resolver.json by @unicorne/tokens/terrazzo-plugin (ADR 0002). Do not edit: change the tokens. */
+:host {
+  --u-popover-padding: var(--u-spacing-md);
+  --u-popover-max-inline-size: var(--u-size-panel);
+  --u-popover-background-color: var(--u-color-surface-raised);
+  --u-popover-border-width: var(--u-border-width);
+  --u-popover-border-color: var(--u-color-border-default);
+  --u-popover-border-radius: var(--u-radius-md);
+  --u-popover-shadow: var(--u-shadow-overlay);
+}
