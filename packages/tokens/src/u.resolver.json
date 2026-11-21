@@ -32,6 +32,7 @@
         { "$ref": "component/switch/switch.tokens.json" },
         { "$ref": "component/radio/radio.tokens.json" },
         { "$ref": "component/choice-group/choice-group.tokens.json" },
+        { "$ref": "component/picker/picker.tokens.json" },
         { "$ref": "component/select/select.tokens.json" },
         { "$ref": "component/slider/slider.tokens.json" },
         { "$ref": "component/tabs/tabs.tokens.json" },
@@ -44,7 +45,9 @@
         { "$ref": "component/drawer/drawer.tokens.json" },
         { "$ref": "component/popover/popover.tokens.json" },
         { "$ref": "component/tooltip/tooltip.tokens.json" },
-        { "$ref": "component/toaster/toaster.tokens.json" }
+        { "$ref": "component/toaster/toaster.tokens.json" },
+        { "$ref": "component/calendar/calendar.tokens.json" },
+        { "$ref": "component/date-picker/date-picker.tokens.json" }
       ]
     }
   },

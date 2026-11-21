@@ -1,0 +1,16 @@
+/* The tokens are in date-picker.tokens.css, generated from
+   tokens/component/date-picker/ (ADR 0002). The control is that of
+   picker-base.css, the popup's place and transitions those of combobox. */
+.panel {
+  padding: var(--u-date-picker-padding);
+  background-color: var(--u-date-picker-background-color);
+  border: var(--u-date-picker-border-width) solid var(--u-date-picker-border-color);
+  border-radius: var(--u-date-picker-border-radius);
+  box-shadow: var(--u-date-picker-shadow);
+}
+
+@media (forced-colors: active) {
+  .panel {
+    border-color: CanvasText;
+  }
+}

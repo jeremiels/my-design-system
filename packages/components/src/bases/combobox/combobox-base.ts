@@ -182,6 +182,9 @@ export abstract class ComboboxBase extends FieldBase {
     this.dispatch({ type: "open", entry });
   }
 
+  /** Called once the popup shows, placed: a popup that takes the focus gives it here. */
+  protected popupShown(): void {}
+
   /** Closes the popup, after its exit transition. */
   protected hidePopup(): void {
     this.dispatch({ type: "close" });
@@ -282,6 +285,9 @@ export abstract class ComboboxBase extends FieldBase {
     // Opened again during its exit transition: it never closed.
     cancelExitTransition(popup);
     await this.#popover.open(popup, control);
+    if (this.open) {
+      this.popupShown();
+    }
   }
 
   #hide(): void {

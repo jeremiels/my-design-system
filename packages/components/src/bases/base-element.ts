@@ -76,6 +76,27 @@ export class DSBaseElement extends LitElement {
   }
 
   /**
+   * The language of the component, for `Intl`: the `lang` of its closest
+   * ancestor, through the shadow roots, or the document's. `undefined` on a
+   * server, and without any: `Intl` takes its default.
+   */
+  protected get language(): string | undefined {
+    if (typeof document === "undefined") {
+      return undefined;
+    }
+    let element: Element | null = this;
+    while (element) {
+      const holder: Element | null = element.closest("[lang]");
+      if (holder) {
+        return holder.getAttribute("lang") || undefined;
+      }
+      const root = element.getRootNode();
+      element = root instanceof ShadowRoot ? root.host : null;
+    }
+    return document.documentElement.lang || undefined;
+  }
+
+  /**
    * The tag of a component declared in `static dependencies`, for templates
    * from `lit/static-html.js`: `` html`<${this.tagFor(Button)}>…</${…}>` ``.
    * It follows the registration of this element: `u-modal` renders

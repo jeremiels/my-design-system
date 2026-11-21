@@ -1,0 +1,94 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Documentation/ADR/0023 Calendrier et date picker" />
+
+# ADR 0023 — Calendrier et date picker
+
+**Statut :** accepté · **Date :** 21 novembre 2026
+
+## Contexte
+
+`date-field` rend le `<input type="date">` natif ([ADR 0019](?path=/docs/documentation-adr-0019-nombres-dates-et-curseurs--docs)). Son calendrier est celui du navigateur : il ne suit ni les tokens ni les marques. La DSI veut un calendrier dessiné, seul dans une page, et dans un champ.
+
+- Le pattern ARIA est le date picker : une grille (`role="grid"`), un seul arrêt de Tab sur le jour actif, les flèches par jour et par semaine, Home et End, PageUp et PageDown par mois, par an avec Shift.
+- `Intl.DateTimeFormat` donne les noms des mois et des jours dans la langue de la page. `Intl.Locale` donne le premier jour de la semaine (`getWeekInfo()`), sauf dans Firefox.
+- Le `select` a déjà un contrôle qui montre la valeur choisie et ouvre un popup ([ADR 0018](?path=/docs/documentation-adr-0018-select--docs)).
+
+## D1 — Ce qui est mis en commun
+
+<table>
+  <thead>
+    <tr>
+      <th>Brique</th>
+      <th>Rôle</th>
+      <th>Utilisée par</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>`state/calendar.ts`</td>
+      <td>
+        Les dates `YYYY-MM-DD` sans fuseau horaire, les semaines d'un mois, les bornes, les
+        déplacements des touches de la grille
+      </td>
+      <td>`calendar`, `date-picker`</td>
+    </tr>
+    <tr>
+      <td>`calendar`</td>
+      <td>Le composant : l'en-tête, la grille, les touches, le choix d'un jour</td>
+      <td>Une page, et le popup de `date-picker`</td>
+    </tr>
+    <tr>
+      <td>`PickerBase`, base abstraite</td>
+      <td>
+        Le contrôle qui montre la valeur et ouvre un popup : `role="combobox"`, le placeholder, le
+        libellé, les touches de la liste fermée, la validité
+      </td>
+      <td>`select`, `date-picker`</td>
+    </tr>
+  </tbody>
+</table>
+
+- `PickerBase` sort de `select` : le contrôle, ses touches et sa validité y passent, ses tokens forment le groupe `picker`.
+- `date-picker` rend un `calendar` de son propre enregistrement dans son popup (`tagFor()`), et l'écoute.
+
+## D2 — Le calendrier
+
+- Le jour actif est le jour choisi, ou aujourd'hui, dans les bornes. Le mois affiché est le sien.
+- Un jour hors du mois laisse sa case vide. Un jour hors de `min` et `max` s'affiche, mais ne se choisit pas.
+- Chaque jour a pour nom sa date complète, dans la langue de la page : « samedi 21 novembre 2026 ». Le mois et l'année forment une live region polie.
+- Le premier jour de la semaine vient de la locale. Sans `getWeekInfo()`, dans Firefox, c'est le lundi.
+- Un choix de l'utilisateur pose `value` et émet `change`. `calendar` n'est pas un contrôle de formulaire.
+
+## D3 — Le date picker
+
+- **Option A — Un champ texte**, qui lit la date tapée dans le format de la langue. Lire tous les formats de date demande un analyseur par langue.
+- **Option B — Un contrôle à choisir**, comme `select`, qui ouvre le calendrier. Taper une date reste le rôle de `date-field`.
+
+**Décision : B.**
+
+- Le popup est un dialogue (`aria-haspopup="dialog"`) : le focus entre dans le calendrier quand il s'ouvre (`ComboboxBase.popupShown()`).
+- Un jour choisi ferme le calendrier, émet `input` puis `change`, et rend le focus au contrôle. Échap ferme sans changement, et rend le focus aussi.
+- Le contrôle affiche la date au format `long` de la langue de la page.
+- Un date picker `required` sans valeur bloque son formulaire, avec le message d'un `<input type="date">` caché.
+
+## Conséquences
+
+- **Code :** `state/calendar.ts`, `Calendar`, `PickerBase` (`src/bases/picker/`), `DatePicker`, et `ComboboxBase.popupShown()`.
+- **Tokens :** les groupes `calendar`, `date-picker` et `picker`. Le groupe `select` ne garde que la graisse de l'option choisie.
+- **Tests :** `state/calendar.test.ts` dans Node, `calendar.test.ts` et `date-picker.test.ts` avec le vrai clavier, les stories dans trois moteurs.
+- **Limites :**
+  - Rendu par un serveur, le contrôle affiche la date dans la langue par défaut du serveur, jusqu'à l'hydratation.
+  - Un seul jour se choisit : pas de période.
+
+## Questions ouvertes
+
+- **Période :** un calendrier qui choisit un début et une fin, pour une réservation.
+- **Mois et année :** une vue des mois, puis des années, pour une date de naissance lointaine.
+
+## Sources
+
+Consultées le 21 novembre 2026.
+
+- [Date Picker Dialog Example](https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/examples/datepicker-dialog/) (W3C, ARIA Authoring Practices Guide) : la grille et ses touches.
+- [Intl.Locale.prototype.getWeekInfo()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/Locale/getWeekInfo) (MDN) : le premier jour de la semaine, absent de Firefox.

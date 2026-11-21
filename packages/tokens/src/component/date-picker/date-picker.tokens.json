@@ -1,0 +1,35 @@
+{
+  "date-picker": {
+    "$description": "Tokens of `date-picker`: the panel of its popup. The control takes those of `picker`, the calendar its own.",
+    "padding": {
+      "$type": "dimension",
+      "$value": "{spacing.sm}",
+      "$description": "Inner padding of the panel."
+    },
+    "background-color": {
+      "$type": "color",
+      "$value": "{color.surface.raised}",
+      "$description": "Background color of the panel."
+    },
+    "border-width": {
+      "$type": "dimension",
+      "$value": "{border.width}",
+      "$description": "Border width of the panel."
+    },
+    "border-color": {
+      "$type": "color",
+      "$value": "{color.border.default}",
+      "$description": "Border color of the panel."
+    },
+    "border-radius": {
+      "$type": "dimension",
+      "$value": "{radius.md}",
+      "$description": "Corner radius of the panel."
+    },
+    "shadow": {
+      "$type": "shadow",
+      "$value": "{shadow.overlay}",
+      "$description": "Shadow of the panel."
+    }
+  }
+}

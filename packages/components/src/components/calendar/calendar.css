@@ -1,0 +1,119 @@
+/* The tokens are in calendar.tokens.css, generated from tokens/component/calendar/
+   (ADR 0002). */
+:host {
+  display: inline-grid;
+  gap: var(--u-calendar-gap);
+  font-family: var(--u-calendar-font-family);
+  font-size: var(--u-calendar-font-size);
+  color: var(--u-calendar-text-color);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.heading {
+  font-weight: var(--u-calendar-heading-font-weight);
+}
+
+.nav {
+  display: inline-grid;
+  place-items: center;
+  inline-size: var(--u-calendar-day-size);
+  block-size: var(--u-calendar-day-size);
+  padding: 0;
+  color: inherit;
+  background: none;
+  border: 0;
+  border-radius: var(--u-calendar-day-border-radius);
+  cursor: pointer;
+}
+
+.nav:hover:not(:disabled) {
+  background-color: var(--u-calendar-day-background-color-hover);
+}
+
+.nav:disabled {
+  opacity: var(--u-calendar-disabled-opacity);
+  cursor: default;
+}
+
+/* A chevron that points back or forward, along the text. */
+.chevron {
+  box-sizing: border-box;
+  inline-size: var(--u-calendar-chevron-size);
+  block-size: var(--u-calendar-chevron-size);
+  border: solid currentColor;
+  border-width: 0 calc(var(--u-calendar-border-width) * 2) calc(var(--u-calendar-border-width) * 2)
+    0;
+}
+
+.nav--previous .chevron {
+  transform: rotate(135deg);
+}
+
+.nav--next .chevron {
+  transform: rotate(-45deg);
+}
+
+/* calendar.ts reads the text direction: `:dir()` is missing before Chrome 120. */
+.rtl .nav--previous .chevron {
+  transform: rotate(-45deg);
+}
+
+.rtl .nav--next .chevron {
+  transform: rotate(135deg);
+}
+
+.grid {
+  border-collapse: collapse;
+}
+
+th {
+  font-size: var(--u-calendar-weekday-font-size);
+  font-weight: inherit;
+  text-align: center;
+}
+
+.day {
+  box-sizing: border-box;
+  min-inline-size: var(--u-calendar-day-size);
+  block-size: var(--u-calendar-day-size);
+  padding: 0;
+  text-align: center;
+  border-radius: var(--u-calendar-day-border-radius);
+  cursor: pointer;
+}
+
+.day:hover:not([aria-disabled]) {
+  background-color: var(--u-calendar-day-background-color-hover);
+}
+
+.day[aria-current="date"] {
+  box-shadow: inset 0 0 0 var(--u-calendar-border-width) var(--u-calendar-today-border-color);
+}
+
+.day[aria-selected="true"] {
+  color: var(--u-calendar-selected-text-color);
+  background-color: var(--u-calendar-selected-background-color);
+}
+
+.day[aria-disabled] {
+  opacity: var(--u-calendar-disabled-opacity);
+  cursor: default;
+}
+
+.day:focus-visible,
+.nav:focus-visible {
+  outline: var(--u-calendar-focus-ring-width) solid var(--u-calendar-focus-ring-color);
+  outline-offset: calc(var(--u-calendar-focus-ring-offset) * -1);
+}
+
+@media (forced-colors: active) {
+  .day[aria-selected="true"] {
+    color: HighlightText;
+    background-color: Highlight;
+  }
+}

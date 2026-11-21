@@ -78,6 +78,8 @@ export default defineConfig({
         popover: resolve(import.meta.dirname, "src/components/popover/popover.ts"),
         tooltip: resolve(import.meta.dirname, "src/components/tooltip/tooltip.ts"),
         toaster: resolve(import.meta.dirname, "src/components/toaster/toaster.ts"),
+        calendar: resolve(import.meta.dirname, "src/components/calendar/calendar.ts"),
+        "date-picker": resolve(import.meta.dirname, "src/components/date-picker/date-picker.ts"),
         "menu-item": resolve(import.meta.dirname, "src/components/menu-item/menu-item.ts"),
       },
       formats: ["es"],

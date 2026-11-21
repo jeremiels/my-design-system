@@ -1,0 +1,95 @@
+{
+  "calendar": {
+    "$description": "Tokens of `calendar`: its header, its grid and its days. `date-picker` shows one in its popup.",
+    "font-family": {
+      "$type": "fontFamily",
+      "$value": "{font.family.body}",
+      "$description": "Font family."
+    },
+    "font-size": {
+      "$type": "dimension",
+      "$value": "{font.size.md}",
+      "$description": "Font size."
+    },
+    "text-color": {
+      "$type": "color",
+      "$value": "{color.text.default}",
+      "$description": "Text color."
+    },
+    "gap": {
+      "$type": "dimension",
+      "$value": "{spacing.sm}",
+      "$description": "Space between the header and the grid."
+    },
+    "heading-font-weight": {
+      "$type": "fontWeight",
+      "$value": "{font.weight.semibold}",
+      "$description": "Font weight of the month and year."
+    },
+    "weekday-font-size": {
+      "$type": "dimension",
+      "$value": "{font.size.sm}",
+      "$description": "Font size of the names of the days."
+    },
+    "day-size": {
+      "$type": "dimension",
+      "$value": "{size.icon}",
+      "$description": "Width and height of a day, at the least."
+    },
+    "day-border-radius": {
+      "$type": "dimension",
+      "$value": "{radius.md}",
+      "$description": "Corner radius of a day and of the buttons."
+    },
+    "day-background-color-hover": {
+      "$type": "color",
+      "$value": "{color.secondary.background-hover}",
+      "$description": "Background color of a day or a button under the pointer."
+    },
+    "selected-background-color": {
+      "$type": "color",
+      "$value": "{color.action.background}",
+      "$description": "Background color of the chosen day."
+    },
+    "selected-text-color": {
+      "$type": "color",
+      "$value": "{color.action.text}",
+      "$description": "Text color of the chosen day."
+    },
+    "today-border-color": {
+      "$type": "color",
+      "$value": "{color.border.control}",
+      "$description": "Border color of today."
+    },
+    "border-width": {
+      "$type": "dimension",
+      "$value": "{border.width}",
+      "$description": "Border width of today; the chevrons are twice as thick."
+    },
+    "chevron-size": {
+      "$type": "dimension",
+      "$value": "{spacing.sm}",
+      "$description": "Width and height of the chevrons of the previous and next buttons."
+    },
+    "disabled-opacity": {
+      "$type": "number",
+      "$value": "{opacity.disabled}",
+      "$description": "Opacity of a day outside `min` and `max`."
+    },
+    "focus-ring-color": {
+      "$type": "color",
+      "$value": "{color.focus-ring}",
+      "$description": "Color of the focus ring."
+    },
+    "focus-ring-width": {
+      "$type": "dimension",
+      "$value": "{focus-ring.width}",
+      "$description": "Width of the focus ring."
+    },
+    "focus-ring-offset": {
+      "$type": "dimension",
+      "$value": "{focus-ring.offset}",
+      "$description": "Space between a day or a button and its focus ring."
+    }
+  }
+}

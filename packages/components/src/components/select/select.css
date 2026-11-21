@@ -1,48 +1,5 @@
 /* The tokens are in select.tokens.css, generated from tokens/component/select/
-   (ADR 0002). The control takes the box of a field (field-base.css). */
-.control {
-  display: flex;
-  align-items: center;
-  gap: var(--u-select-gap);
-  cursor: pointer;
-  user-select: none;
-}
-
-:host([disabled]) .control,
-:host([readonly]) .control {
-  cursor: default;
-}
-
-.value {
-  flex: 1;
-  min-inline-size: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.value--placeholder {
-  color: var(--u-select-placeholder-color);
-}
-
-/* A chevron down: two borders of a square, turned. */
-.chevron {
-  flex: none;
-  box-sizing: border-box;
-  inline-size: var(--u-select-chevron-size);
-  block-size: var(--u-select-chevron-size);
-  margin-block-start: calc(var(--u-select-chevron-size) / -2);
-  border: solid var(--u-select-chevron-color);
-  border-width: 0 calc(var(--u-field-border-width) * 2) calc(var(--u-field-border-width) * 2) 0;
-  transform: rotate(45deg);
-}
-
+   (ADR 0002). The control is that of picker-base.css. */
 .option-selected {
   font-weight: var(--u-select-selected-font-weight);
-}
-
-@media (forced-colors: active) {
-  .chevron {
-    border-color: CanvasText;
-  }
 }
