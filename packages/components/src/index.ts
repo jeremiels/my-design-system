@@ -3,6 +3,7 @@
 // under the default `u-` prefix, or call defineComponents() with a brand
 // prefix (ADR 0001, D1).
 export * from "./bases/base-element.js";
+export * from "./bases/button/button-base.js";
 export * from "./components/button/button.js";
 export * from "./components/button-link/button-link.js";
 export * from "./components/alert/alert.js";
@@ -60,6 +61,8 @@ export * from "./controllers/announce.js";
 export * from "./controllers/dismiss.js";
 export * from "./controllers/roving-focus.js";
 export * from "./controllers/hover-intent.js";
+export * from "./controllers/overflow.js";
+export * from "./controllers/load.js";
 export * from "./state/collection.js";
 export * from "./state/combobox.js";
 export * from "./state/typeahead.js";

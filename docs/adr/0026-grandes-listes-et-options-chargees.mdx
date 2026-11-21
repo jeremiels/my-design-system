@@ -1,0 +1,135 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Documentation/ADR/0026 Grandes listes et options chargées" />
+
+# ADR 0026 — Grandes listes et options chargées
+
+**Statut :** accepté · **Date :** 21 novembre 2026
+
+## Contexte
+
+Une application demande une commune parmi près de 35 000. Elle les tient dans la page, ou un serveur les cherche.
+
+- `autocomplete` et `combobox` rendent toutes les options qui correspondent au texte ([ADR 0025](?path=/docs/documentation-adr-0025-combobox-à-valeur-imposée--docs)). Un « a » en garde des milliers.
+- Avec `filter="none"`, l'application écoute `input` et pose `options`. Elle attend seule que l'utilisateur arrête de taper, annule seule les requêtes dépassées, et ne montre aucun chargement.
+- L'ADR 0009 laisse ouvertes les suggestions asynchrones : un état `loading`, un délai avant la requête, une fonction avec un `AbortSignal`.
+
+### Ce que font les bibliothèques
+
+<table>
+  <thead>
+    <tr>
+      <th>Bibliothèque</th>
+      <th>Grande liste</th>
+      <th>Options d'un serveur</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>MUI</td>
+      <td>
+        `createFilterOptions({ limit })` : les premières options qui correspondent, sans dire
+        combien il en reste. Aucune limite par défaut.
+      </td>
+      <td>
+        `loading` posé par l'application, `loadingText` à la place des options quand il n'y en a
+        aucune. Le délai et l'annulation sont ceux de l'application.
+      </td>
+    </tr>
+    <tr>
+      <td>React Aria, React Spectrum</td>
+      <td>Une liste virtuelle : celle de React Spectrum, `Virtualizer` dans React Aria.</td>
+      <td>
+        `useAsyncList` : `load({ signal, filterText })`, qui annule le chargement précédent. Aucun
+        délai. React Spectrum montre un indicateur après 500 ms de chargement.
+      </td>
+    </tr>
+    <tr>
+      <td>Spectrum Web Components</td>
+      <td>—</td>
+      <td>
+        `pending` posé par l'application : un indicateur, `pending-label` dans le nom accessible,
+        la liste fermée.
+      </td>
+    </tr>
+    <tr>
+      <td>Vaadin</td>
+      <td>Une liste virtuelle, chargée par pages de 50 (`pageSize`).</td>
+      <td>
+        `dataProvider(params, callback)` reçoit le filtre et la page. `loading` ouvre la liste
+        pendant le chargement.
+      </td>
+    </tr>
+    <tr>
+      <td>GOV.UK accessible-autocomplete</td>
+      <td>—</td>
+      <td>
+        `source(query, populateResults)` à chaque saisie, sans délai ni annulation. La liste reste
+        fermée jusqu'à la réponse.
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## D1 — Un plafond, pas de liste virtuelle
+
+- **Option A — Une liste virtuelle.** Elle rend seulement les options visibles. L'option active doit rester dans le DOM pour `aria-activedescendant`, chaque option porte `aria-setsize` et `aria-posinset`, et les lignes ont une hauteur fixe.
+- **Option B — Un plafond.** La liste montre les premières options qui correspondent, et dit combien correspondent. L'utilisateur tape la suite pour atteindre les autres.
+
+**Décision : B.** Dans un champ qui filtre, l'utilisateur tape avant de faire défiler. Une liste virtuelle sert à parcourir une longue liste sans filtre, comme un tableau.
+
+- `max-options` vaut 100 par défaut. `Infinity` montre toutes les options.
+- Une ligne à la fin de la liste, la part `status`, dit combien d'options correspondent et combien la liste en montre. Elle reste visible quand la liste défile.
+- La live region annonce le même texte, `resultsMessage(count, shown)`. La ligne est masquée aux technologies d'assistance, qui l'entendent déjà.
+- Le filtre normalise chaque libellé une seule fois, et le texte une fois par saisie.
+
+## D2 — Une fonction qui charge les options
+
+- **Option A — `loading` posé par l'application**, comme MUI, Spectrum et Vaadin. Chaque application écrit le délai, l'annulation et l'ordre des réponses.
+- **Option B — Une fonction que le champ appelle**, comme `useAsyncList` et `dataProvider`. Le champ tient le délai, l'annulation et l'état du chargement.
+
+**Décision : B.** `loadOptions({ text, signal })` renvoie une promesse des options.
+
+- Le champ l'appelle 300 ms après le dernier changement du texte par l'utilisateur. Un texte vide n'appelle rien.
+- Un nouveau texte annule la requête précédente par `signal`, et ignore sa réponse. Quitter le champ l'annule aussi.
+- Les options chargées s'affichent telles quelles, sans `filter` : le serveur a filtré. Le plafond s'applique.
+- L'ancienne réponse reste affichée jusqu'à la nouvelle. Avant la première, et quand le texte est vide, la liste montre `options`, filtrées.
+- Une promesse rejetée remet `options`. Son erreur atteint les gestionnaires d'erreurs de la page (`reportError()`). Pour la montrer à l'utilisateur, l'application l'attrape dans `loadOptions`.
+- `loading` dit qu'une requête tourne. Il se lit seulement.
+- `filter="none"` reste pour l'application qui pose `options` elle-même.
+
+## D3 — Le chargement, vu et entendu
+
+- La live region n'annonce aucun nombre pendant une requête : « Aucune suggestion » serait faux. Elle annonce le nombre de la réponse.
+- Une requête qui dure plus de 500 ms ouvre la liste, et affiche `loading-label` dans la ligne de statut. La live region l'annonce. Une réponse rapide n'affiche rien, comme dans React Spectrum.
+- La liste porte `aria-busy` pendant la requête : vide, elle reste valide pour axe.
+
+## D4 — Un contrôleur réutilisable
+
+`LoadController` tient un chargement à la fois : le délai, l'annulation, la réponse, l'état lent. Il ne connaît ni les options ni le texte. Il sert aussi aux enfants d'un dossier lus à son ouverture, une question ouverte de l'[ADR 0024](?path=/docs/documentation-adr-0024-arbre-et-débordement--docs).
+
+## Conséquences
+
+- **Code :** `LoadController`, `ListboxController` avec `busy()` et `status()`, `EditableComboboxBase` avec `maxOptions`, `loadOptions`, `loadingLabel` et `loading`. `resultsMessage` reçoit le nombre affiché en second argument.
+- **Exports :** `index.test.ts` vérifie que le package exporte chaque valeur de ses modules. `index.ts` exporte aussi `ButtonBase` et `OverflowController`, que ce test signale.
+- **Tokens :** `listbox.status-font-size`.
+- **Tests :** `load.test.ts` avec de faux minuteurs, `editable-combobox-base.test.ts` avec le vrai clavier et un faux serveur, les stories `LongList` et `FromServer` dans trois moteurs.
+- **Limites :**
+  - Le délai de 300 ms est celui de chaque champ. Une marque le change en surchargeant `loadDelay`.
+  - Les options après le plafond ne s'atteignent qu'en tapant.
+
+## Questions ouvertes
+
+- **Liste virtuelle :** avec un tableau de données, ou une liste qu'on parcourt sans filtre.
+- **Pages suivantes :** « Plus de résultats » en bas de la liste, comme les pages de Vaadin.
+- **Suggestions sans texte :** un appel à l'ouverture, les dernières recherches par exemple.
+
+## Sources
+
+Consultées le 21 novembre 2026.
+
+- [useAutocomplete.js](https://github.com/mui/material-ui/blob/master/packages/mui-material/src/useAutocomplete/useAutocomplete.js) et [Autocomplete.js](https://github.com/mui/material-ui/blob/master/packages/mui-material/src/Autocomplete/Autocomplete.js) (MUI) : `limit`, `loading`, `loadingText`.
+- [useAsyncList.ts](https://github.com/adobe/react-spectrum/blob/main/packages/react-stately/src/data/useAsyncList.ts) (Adobe, React Stately) et [ComboBox.tsx](https://github.com/adobe/react-spectrum/blob/main/packages/@adobe/react-spectrum/src/combobox/ComboBox.tsx) (Adobe, React Spectrum) : le signal, l'indicateur après 500 ms.
+- [Combobox.ts](https://github.com/adobe/spectrum-web-components/blob/main/1st-gen/packages/combobox/src/Combobox.ts) (Adobe, Spectrum Web Components) : `pending`.
+- [vaadin-combo-box-data-provider-mixin.js](https://github.com/vaadin/web-components/blob/main/packages/combo-box/src/vaadin-combo-box-data-provider-mixin.js) (Vaadin) : `dataProvider`, `pageSize`, `loading`.
+- [autocomplete.js](https://github.com/alphagov/accessible-autocomplete/blob/main/src/autocomplete.js) (GOV.UK) : `source`.

@@ -1,6 +1,8 @@
 import preview from "#.storybook/preview";
 import { html } from "lit";
 import { expect, userEvent, waitFor } from "storybook/test";
+import type { OptionsRequest } from "../../bases/editable-combobox/editable-combobox.type";
+import type { ListboxOption } from "../../controllers/listbox.type";
 import type { Combobox } from "./combobox";
 
 /** Towns and their INSEE codes: the label shows, the code is the value. */
@@ -157,28 +159,77 @@ export const Revert = meta.story({
   },
 });
 
-export const ServerFilter = meta.story({
+export const LongList = meta.story({
   parameters: {
     docs: {
       description: {
         story:
-          'With `filter="none"`, the application filters the options itself: it listens to `input`, reads the text in `inputValue`, and sets `options`. Here, a timer stands for the server.',
+          "A thousand options: the list shows the first 100 (`max-options`), and its status line says how many match. The user types more to narrow it.",
       },
     },
   },
   render: () => {
-    const search = (event: Event) => {
-      const field = event.currentTarget as Combobox;
-      const query = field.inputValue.toLowerCase();
-      setTimeout(() => {
-        field.options = towns.filter(({ label }) => label.toLowerCase().includes(query));
-      }, 100);
-    };
-    return html`<u-combobox label="Town" filter="none" @input=${search}></u-combobox>`;
+    const offices = Array.from({ length: 1000 }, (_, index) => ({
+      value: String(index + 1).padStart(4, "0"),
+      label: `Office ${index + 1}`,
+    }));
+    return html`<u-combobox label="Office" .options=${offices}></u-combobox>`;
   },
   play: async ({ canvasElement }) => {
     const { field, input, popup, shown } = await fieldIn(canvasElement);
+    const shadow = field.shadowRoot!;
+    input.focus();
+    await userEvent.keyboard("{ArrowDown}");
+    await waitFor(() => expect(isOpen(popup)).toBe(true));
+    expect(shown()).toHaveLength(100);
+    const line = shadow.querySelector<HTMLElement>('[part~="status"]')!;
+    expect(line.textContent!.trim()).toBe("1000 suggestions, 100 shown");
+    // In view at the bottom of the list, which hasn't scrolled.
+    const list = shadow.querySelector<HTMLElement>('[part~="listbox"]')!;
+    expect(list.scrollTop).toBe(0);
+    const inner = list.getBoundingClientRect().bottom - list.clientTop;
+    expect(Math.abs(line.getBoundingClientRect().bottom - inner)).toBeLessThan(1);
+
+    await userEvent.type(input, "99");
+    await waitFor(() => expect(shown()).toHaveLength(19));
+    expect(shadow.querySelector('[part~="status"]')).toBeNull();
+    await userEvent.keyboard("{Escape}");
+    await transitionsEnd(popup);
+  },
+});
+
+export const FromServer = meta.story({
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "`loadOptions` receives the text 300 milliseconds after the user's last change, with a signal that aborts when a newer text replaces it. A request that lasts more than half a second shows `loading-label`. Here, a timer of 800 milliseconds stands for the server.",
+      },
+    },
+  },
+  render: () => {
+    const loadOptions = ({ text, signal }: OptionsRequest) =>
+      new Promise<readonly ListboxOption[]>((resolve, reject) => {
+        const timer = setTimeout(() => {
+          const query = text.toLowerCase();
+          resolve(towns.filter(({ label }) => label.toLowerCase().includes(query)));
+        }, 800);
+        signal.addEventListener("abort", () => {
+          clearTimeout(timer);
+          reject(signal.reason);
+        });
+      });
+    return html`<u-combobox label="Town" .loadOptions=${loadOptions}></u-combobox>`;
+  },
+  play: async ({ canvasElement }) => {
+    const { field, input, popup, shown } = await fieldIn(canvasElement);
+    const shadow = field.shadowRoot!;
     await userEvent.type(input, "saint");
+    await waitFor(() => expect(field.loading).toBe(true));
+    await waitFor(() =>
+      expect(shadow.querySelector('[part~="status"]')?.textContent?.trim()).toBe("Loading…"),
+    );
+    expect(isOpen(popup)).toBe(true);
     await waitFor(() => expect(shown()).toEqual(["Saint-Étienne", "Saint-Denis"]));
     await userEvent.keyboard("{ArrowDown}{ArrowDown}{Enter}");
     await waitFor(() => expect(field.value).toBe("93066"));

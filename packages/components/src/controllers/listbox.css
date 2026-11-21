@@ -55,6 +55,21 @@
   opacity: var(--u-listbox-option-opacity-disabled);
 }
 
+/* The status line: after the options, and in view at the bottom of the list
+   while it scrolls. Its background hides the options that pass under it. */
+.status {
+  position: sticky;
+  inset-block-end: calc(-1 * var(--u-listbox-padding));
+  margin-block-end: calc(-1 * var(--u-listbox-padding));
+  padding-inline: var(--u-listbox-option-padding-inline);
+  padding-block: var(--u-listbox-option-padding-block);
+  background-color: var(--u-listbox-background-color);
+  font-size: var(--u-listbox-status-font-size);
+}
+.option + .status {
+  border-block-start: var(--u-listbox-border-width) solid var(--u-listbox-border-color);
+}
+
 @media (forced-colors: active) {
   .option[data-active] {
     background-color: Highlight;

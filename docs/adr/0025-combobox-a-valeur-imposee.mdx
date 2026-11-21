@@ -77,7 +77,7 @@ Une application demande une commune parmi 30 000. L'utilisateur tape « par » p
 - `value` est la valeur d'une option, ou `""`. L'input montre le libellé de cette option.
 - La saisie filtre les options, et ne change pas `value`. Un choix la change, et émet `input` puis `change`.
 - Vider l'input efface `value`, comme React Aria. `change` suit quand l'utilisateur quitte le champ, comme pour un input texte.
-- `input` suit chaque changement du texte. Avec `filter="none"`, l'application lit `inputValue` et charge les options.
+- `input` suit chaque changement du texte. Avec `filter="none"`, l'application lit `inputValue` et charge les options. `loadOptions` le fait pour elle ([ADR 0026](?path=/docs/documentation-adr-0026-grandes-listes-et-options-chargées--docs)).
 
 ## D3 — La fin de la saisie
 
@@ -101,13 +101,11 @@ Un `combobox` `required` sans valeur bloque son formulaire, quel que soit le tex
 - **Code :** `EditableComboboxBase`, `Combobox`, `Autocomplete` réduit à son `change`, et `ComboboxBase.controlText`. Le type `AutocompleteFilter` devient `ComboboxFilter`.
 - **Tokens :** aucun. `combobox` lit les groupes `field`, `combobox` et `listbox`.
 - **Tests :** `combobox.test.ts` avec le vrai clavier et une modale, les stories dans trois moteurs.
-- **Limites :**
-  - Les options doivent contenir celle de `value` : l'input montre son libellé. Sinon, il montre le libellé de la dernière option choisie, ou la valeur.
-  - La liste rend toutes les options qui correspondent. Pour 30 000 communes, l'application filtre sur un serveur (`filter="none"`).
+- **Limite :** les options doivent contenir celle de `value`, dont l'input montre le libellé. Sinon, il montre le libellé de la dernière option choisie, ou la valeur.
 
 ## Questions ouvertes
 
-- **Grandes listes :** un nombre maximal d'options affichées, ou une liste virtuelle.
+- **Grandes listes :** résolu par un plafond d'options ([ADR 0026](?path=/docs/documentation-adr-0026-grandes-listes-et-options-chargées--docs)).
 - **Création :** une option « Ajouter “…” » quand aucune ne correspond.
 - **Valeurs multiples :** des puces dans l'input, `values` comme `select`.
 

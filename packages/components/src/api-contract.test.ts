@@ -80,8 +80,23 @@ const attributesFor: Record<string, Record<string, string>> = {
   "u-pagination": { pages: "20" },
 };
 
-/** What some parts need besides: a message of `toaster`, tabs past the edge of `tabs`. */
+/**
+ * A list longer than its cap: the `status` part of the editable comboboxes.
+ * The list reads its `<option>` children after a render.
+ */
+async function capped(element: HTMLElement) {
+  element.setAttribute("max-options", "1");
+  element.insertAdjacentHTML("beforeend", "<option>Other</option>");
+  await (element as DSBaseElement).updateComplete;
+}
+
+/**
+ * What some parts need besides: a message of `toaster`, tabs past the edge
+ * of `tabs`, a capped list of `autocomplete` and `combobox`.
+ */
 const setupFor: Record<string, (element: HTMLElement) => Promise<void> | void> = {
+  "u-autocomplete": capped,
+  "u-combobox": capped,
   "u-toaster": (element) =>
     (element as unknown as { show(message: string, options: object): void }).show("Saved", {
       duration: 0,

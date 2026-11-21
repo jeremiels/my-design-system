@@ -16,6 +16,7 @@ Exemples :
 - `packages/components/src/controllers/commands.ts` : un contrôleur avec une fonction de rappel.
 - `packages/components/src/controllers/anchored-popover.ts` : un contrôleur avec sa feuille exportée et un repli chargé à la demande.
 - `packages/components/src/controllers/listbox.ts` : un contrôleur qui rend, sans état propre.
+- `packages/components/src/controllers/load.ts` : un contrôleur asynchrone, avec un délai, un `AbortSignal` et ses tests à faux minuteurs.
 - `packages/components/src/controllers/dismiss.ts` : un contrôleur à options, qui écoute le document entre sa connexion et sa déconnexion.
 - `packages/components/src/controllers/exit-transition.ts` : des fonctions, pour un comportement sans état d'hôte.
 - `packages/components/src/state/combobox.ts` : une fonction d'état et ses tests dans Node.

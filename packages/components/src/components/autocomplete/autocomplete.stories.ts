@@ -290,7 +290,7 @@ export const ServerFilter = meta.story({
     docs: {
       description: {
         story:
-          'With `filter="none"`, the application filters the suggestions itself: it listens to `input` and sets `options`, from a server for instance. The list opens when they arrive, if the user is still typing. Here, a timer stands for the server.',
+          'With `filter="none"`, the application filters the suggestions itself: it listens to `input` and sets `options`. The list opens when they arrive, if the user is still typing. Here, a timer stands for the server. For a server, `loadOptions` also waits for the user to stop typing, and aborts the older requests (see the combobox).',
       },
     },
   },

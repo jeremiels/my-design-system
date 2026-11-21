@@ -3381,7 +3381,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "Shared base of the editable comboboxes of the APG: a text input, and a\nlist below it of the options that match the text. Abstract: `autocomplete`\nkeeps the text as its value, `combobox` restricts its value to the options\n(ADR 0025). The label, the hint, the error and the form behavior are those\nof `FieldBase`; the popup and its state are those of `ComboboxBase`; the\nlist is that of a `ListboxController`.\n\nThe options are `options`, or else the `<option>` children of the field.\nWith `filter=\"none\"`, the application filters them itself: it listens to\n`input`, reads the text in `inputValue`, and sets `options`, from a server\nfor instance. New options open the list while the user types.\n\nKeys, list open: ArrowDown and ArrowUp move to the next and previous\noption, looping at the ends; Enter picks the active one; Escape closes\nthe list and keeps the text; Home, End and the other keys edit the text.\n\nWhile the user types, a live region announces the number of options that\nmatch: `resultsMessage` writes it.\n\nThe browser's own suggestions (`autocomplete`) are off by default: they\nwould cover the list. Give `autocomplete` to have both.",
+          "description": "Shared base of the editable comboboxes of the APG: a text input, and a\nlist below it of the options that match the text. Abstract: `autocomplete`\nkeeps the text as its value, `combobox` restricts its value to the options\n(ADR 0025). The label, the hint, the error and the form behavior are those\nof `FieldBase`; the popup and its state are those of `ComboboxBase`; the\nlist is that of a `ListboxController`.\n\nThe options are `options`, or else the `<option>` children of the field.\nThe list shows `maxOptions` of them at most, 100 by default, and says how\nmany it doesn't show: the user types more to narrow it (ADR 0026).\n\nThe options can come from a server: `loadOptions` receives the text, 300\nmilliseconds after the user's last change, and resolves with the\noptions, shown as they come. A newer text aborts the request. While the\ntext is empty, or until the first answer, the list shows `options`. With\n`filter=\"none\"`, the application filters `options` itself instead: it\nlistens to `input`, reads `inputValue`, and sets `options`. Either way,\nnew options open the list while the user types.\n\nKeys, list open: ArrowDown and ArrowUp move to the next and previous\noption, looping at the ends; Enter picks the active one; Escape closes\nthe list and keeps the text; Home, End and the other keys edit the text.\n\nWhile the user types, a live region announces the number of options that\nmatch: `resultsMessage` writes it. A request that lasts more than half a\nsecond shows and announces `loadingLabel`.\n\nThe browser's own suggestions (`autocomplete`) are off by default: they\nwould cover the list. Give `autocomplete` to have both.",
           "name": "EditableComboboxBase",
           "cssProperties": [
             {
@@ -3468,6 +3468,11 @@
               "description": "Corner radius of the box.",
               "name": "--u-listbox-option-check-border-radius",
               "default": "var(--u-radius-sm)"
+            },
+            {
+              "description": "Font size of the status line, at the end of the list: “Loading…”, or the number of options it doesn't show.",
+              "name": "--u-listbox-status-font-size",
+              "default": "var(--u-font-size-sm)"
             },
             {
               "description": "Space between the control and its popup.",
@@ -3709,6 +3714,10 @@
               "name": "option"
             },
             {
+              "description": "The line at the end of the list: `loadingLabel` during a slow request, or `resultsMessage` when the list doesn't show every option. Hidden from assistive technologies, which hear the live region.",
+              "name": "status"
+            },
+            {
               "description": "The popup, below the control, in the top layer.",
               "name": "popup",
               "inheritedFrom": {
@@ -3776,17 +3785,61 @@
             },
             {
               "kind": "field",
+              "name": "maxOptions",
+              "type": {
+                "text": "number"
+              },
+              "default": "100",
+              "description": "The largest number of options the list shows, the first ones that\nmatch: the user types more to reach the others. `Infinity` shows them\nall.",
+              "attribute": "max-options"
+            },
+            {
+              "kind": "field",
+              "name": "loadOptions",
+              "type": {
+                "text": "(request: OptionsRequest) => Promise<readonly ListboxOption[]> | undefined"
+              },
+              "description": "Loads the options for the text the user typed, from a server for\ninstance: they replace `options`, as they are, without `filter`. Called\n300 milliseconds after the user's last change of the text, unless it\nis empty. Abort the work when `signal` aborts: a newer text replaces it.\nA rejection shows `options` again, and reaches the page's error\nhandlers: catch it to show an error to the user. Property only."
+            },
+            {
+              "kind": "field",
+              "name": "loadingLabel",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"Loading…\"",
+              "description": "What the status line shows and the live region announces while a request lasts.",
+              "attribute": "loading-label"
+            },
+            {
+              "kind": "field",
               "name": "resultsMessage",
               "type": {
-                "text": "(count: number) => string"
+                "text": "(count: number, shown: number) => string"
               },
-              "description": "Writes what assistive technologies hear while the user types: the\nnumber of options that match the text. Give it in the page's language.\nProperty only."
+              "description": "Writes the number of options that match the text: the live region\nannounces it while the user types, and the status line shows it when\nthe list shows only `shown` of them. Give it in the page's language.\nProperty only."
             },
             {
               "kind": "field",
               "name": "#listbox",
               "privacy": "private",
-              "default": "new ListboxController(this, { labelledBy: fieldIds.label, options: () => this.listboxOptions, activeIndex: () => this.comboboxState.activeIndex, activate: (index) => this.dispatch({ type: \"activate\", index }), select: (option) => this.selectOption(option), renderOption: (option, index) => this.renderOption(option, index), })"
+              "default": "new ListboxController(this, { labelledBy: fieldIds.label, options: () => this.listboxOptions, activeIndex: () => this.comboboxState.activeIndex, activate: (index) => this.dispatch({ type: \"activate\", index }), select: (option) => this.selectOption(option), renderOption: (option, index) => this.renderOption(option, index), busy: () => this.#loader.loading, status: () => this.#status, })"
+            },
+            {
+              "kind": "field",
+              "name": "#loader",
+              "privacy": "private",
+              "default": "new LoadController<readonly ListboxOption[]>(this, { delay: () => this.loadDelay, })"
+            },
+            {
+              "kind": "field",
+              "name": "#loadText",
+              "privacy": "private",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "The text of the last load, or of the last change by the application."
             },
             {
               "kind": "field",
@@ -3802,9 +3855,26 @@
               "name": "#matching",
               "privacy": "private",
               "type": {
-                "text": "{\n    options: readonly ListboxOption[];\n    query: string;\n    filter: ComboboxFilter;\n    result: readonly ListboxOption[];\n  } | undefined"
+                "text": "{\n    options: readonly ListboxOption[];\n    query: string;\n    filter: ComboboxFilter;\n    max: number;\n    result: Matches;\n  } | undefined"
               },
-              "description": "The last result of `listboxOptions`, computed again when its inputs change."
+              "description": "The last result of `#matches`, computed again when its inputs change."
+            },
+            {
+              "kind": "field",
+              "name": "#query",
+              "privacy": "private",
+              "type": {
+                "text": "object"
+              },
+              "default": "{ text: \"\", normalized: \"\" }",
+              "description": "The last normalized query, not normalized again for each option."
+            },
+            {
+              "kind": "field",
+              "name": "#labels",
+              "privacy": "private",
+              "default": "new WeakMap<ListboxOption, string>()",
+              "description": "The normalized labels, not normalized again at each change of the text."
             },
             {
               "kind": "field",
@@ -3817,12 +3887,31 @@
             },
             {
               "kind": "field",
+              "name": "loading",
+              "type": {
+                "text": "boolean"
+              },
+              "description": "Whether `loadOptions` is loading the options for the text. Read-only.",
+              "readonly": true
+            },
+            {
+              "kind": "field",
               "name": "availableOptions",
               "type": {
                 "text": "readonly ListboxOption[]"
               },
               "privacy": "protected",
-              "description": "The options: `options` when set, the `<option>` children otherwise.",
+              "description": "The options: those `loadOptions` gave for the text, or else `options`\nwhen set, or else the `<option>` children.",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "loadDelay",
+              "type": {
+                "text": "number"
+              },
+              "privacy": "protected",
+              "description": "Milliseconds between the user's last change of the text and `loadOptions`: 300.",
               "readonly": true
             },
             {
@@ -3842,7 +3931,26 @@
                 "text": "readonly ListboxOption[]"
               },
               "privacy": "protected",
-              "description": "The options that match `filterText`: all of them while it's empty, or with `filter=\"none\"`.",
+              "description": "The options the list shows: the first `maxOptions` that match\n`filterText`. All of them match while it's empty, with `filter=\"none\"`,\nand when `loadOptions` gave them.",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "#matches",
+              "privacy": "private",
+              "type": {
+                "text": "Matches"
+              },
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "#status",
+              "privacy": "private",
+              "type": {
+                "text": "string"
+              },
+              "description": "What the status line shows: `loadingLabel` during a slow request, or else the count of a capped list.",
               "readonly": true
             },
             {
@@ -3887,7 +3995,7 @@
                 "text": "boolean"
               },
               "privacy": "protected",
-              "description": "Whether the popup has something to show: it doesn't open empty. `true` by default.",
+              "description": "Options to show, or a slow request: the list opens to say it loads.",
               "readonly": true,
               "inheritedFrom": {
                 "name": "ComboboxBase",
@@ -3929,7 +4037,7 @@
                 "text": "string"
               },
               "privacy": "protected",
-              "description": "While the user types: the number of options that match the text.",
+              "description": "While the user types: the number of options that match the text, once\nthey are loaded. A slow request: `loadingLabel`.",
               "readonly": true,
               "inheritedFrom": {
                 "name": "ComboboxBase",
@@ -3965,6 +4073,17 @@
                 "name": "ComboboxBase",
                 "module": "src/bases/combobox/combobox-base.ts"
               }
+            },
+            {
+              "kind": "method",
+              "name": "#syncLoad",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "description": "A new text: the user's loads its options, after the delay. An empty\ntext, or one the application gave, shows `options` again."
             },
             {
               "kind": "method",
@@ -5167,6 +5286,24 @@
               "default": "\"contains\"",
               "description": "Which options match the text, without case nor accents: those that\n`contains` it, those that `starts-with` it, or all of them with `none`,\nwhen the application filters them itself.",
               "fieldName": "filter"
+            },
+            {
+              "name": "max-options",
+              "type": {
+                "text": "number"
+              },
+              "default": "100",
+              "description": "The largest number of options the list shows, the first ones that\nmatch: the user types more to reach the others. `Infinity` shows them\nall.",
+              "fieldName": "maxOptions"
+            },
+            {
+              "name": "loading-label",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"Loading…\"",
+              "description": "What the status line shows and the live region announces while a request lasts.",
+              "fieldName": "loadingLabel"
             },
             {
               "name": "open",
@@ -12075,11 +12212,51 @@
             },
             {
               "kind": "field",
+              "name": "maxOptions",
+              "type": {
+                "text": "number"
+              },
+              "default": "100",
+              "description": "The largest number of options the list shows, the first ones that\nmatch: the user types more to reach the others. `Infinity` shows them\nall.",
+              "attribute": "max-options",
+              "inheritedFrom": {
+                "name": "EditableComboboxBase",
+                "module": "src/bases/editable-combobox/editable-combobox-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "loadOptions",
+              "type": {
+                "text": "(request: OptionsRequest) => Promise<readonly ListboxOption[]> | undefined"
+              },
+              "description": "Loads the options for the text the user typed, from a server for\ninstance: they replace `options`, as they are, without `filter`. Called\n300 milliseconds after the user's last change of the text, unless it\nis empty. Abort the work when `signal` aborts: a newer text replaces it.\nA rejection shows `options` again, and reaches the page's error\nhandlers: catch it to show an error to the user. Property only.",
+              "inheritedFrom": {
+                "name": "EditableComboboxBase",
+                "module": "src/bases/editable-combobox/editable-combobox-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "loadingLabel",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"Loading…\"",
+              "description": "What the status line shows and the live region announces while a request lasts.",
+              "attribute": "loading-label",
+              "inheritedFrom": {
+                "name": "EditableComboboxBase",
+                "module": "src/bases/editable-combobox/editable-combobox-base.ts"
+              }
+            },
+            {
+              "kind": "field",
               "name": "resultsMessage",
               "type": {
-                "text": "(count: number) => string"
+                "text": "(count: number, shown: number) => string"
               },
-              "description": "Writes what assistive technologies hear while the user types: the\nnumber of options that match the text. Give it in the page's language.\nProperty only.",
+              "description": "Writes the number of options that match the text: the live region\nannounces it while the user types, and the status line shows it when\nthe list shows only `shown` of them. Give it in the page's language.\nProperty only.",
               "inheritedFrom": {
                 "name": "EditableComboboxBase",
                 "module": "src/bases/editable-combobox/editable-combobox-base.ts"
@@ -12089,7 +12266,31 @@
               "kind": "field",
               "name": "#listbox",
               "privacy": "private",
-              "default": "new ListboxController(this, { labelledBy: fieldIds.label, options: () => this.listboxOptions, activeIndex: () => this.comboboxState.activeIndex, activate: (index) => this.dispatch({ type: \"activate\", index }), select: (option) => this.selectOption(option), renderOption: (option, index) => this.renderOption(option, index), })",
+              "default": "new ListboxController(this, { labelledBy: fieldIds.label, options: () => this.listboxOptions, activeIndex: () => this.comboboxState.activeIndex, activate: (index) => this.dispatch({ type: \"activate\", index }), select: (option) => this.selectOption(option), renderOption: (option, index) => this.renderOption(option, index), busy: () => this.#loader.loading, status: () => this.#status, })",
+              "inheritedFrom": {
+                "name": "EditableComboboxBase",
+                "module": "src/bases/editable-combobox/editable-combobox-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "#loader",
+              "privacy": "private",
+              "default": "new LoadController<readonly ListboxOption[]>(this, { delay: () => this.loadDelay, })",
+              "inheritedFrom": {
+                "name": "EditableComboboxBase",
+                "module": "src/bases/editable-combobox/editable-combobox-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "#loadText",
+              "privacy": "private",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "The text of the last load, or of the last change by the application.",
               "inheritedFrom": {
                 "name": "EditableComboboxBase",
                 "module": "src/bases/editable-combobox/editable-combobox-base.ts"
@@ -12113,9 +12314,34 @@
               "name": "#matching",
               "privacy": "private",
               "type": {
-                "text": "{\n    options: readonly ListboxOption[];\n    query: string;\n    filter: ComboboxFilter;\n    result: readonly ListboxOption[];\n  } | undefined"
+                "text": "{\n    options: readonly ListboxOption[];\n    query: string;\n    filter: ComboboxFilter;\n    max: number;\n    result: Matches;\n  } | undefined"
               },
-              "description": "The last result of `listboxOptions`, computed again when its inputs change.",
+              "description": "The last result of `#matches`, computed again when its inputs change.",
+              "inheritedFrom": {
+                "name": "EditableComboboxBase",
+                "module": "src/bases/editable-combobox/editable-combobox-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "#query",
+              "privacy": "private",
+              "type": {
+                "text": "object"
+              },
+              "default": "{ text: \"\", normalized: \"\" }",
+              "description": "The last normalized query, not normalized again for each option.",
+              "inheritedFrom": {
+                "name": "EditableComboboxBase",
+                "module": "src/bases/editable-combobox/editable-combobox-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "#labels",
+              "privacy": "private",
+              "default": "new WeakMap<ListboxOption, string>()",
+              "description": "The normalized labels, not normalized again at each change of the text.",
               "inheritedFrom": {
                 "name": "EditableComboboxBase",
                 "module": "src/bases/editable-combobox/editable-combobox-base.ts"
@@ -12136,12 +12362,39 @@
             },
             {
               "kind": "field",
+              "name": "loading",
+              "type": {
+                "text": "boolean"
+              },
+              "description": "Whether `loadOptions` is loading the options for the text. Read-only.",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "EditableComboboxBase",
+                "module": "src/bases/editable-combobox/editable-combobox-base.ts"
+              }
+            },
+            {
+              "kind": "field",
               "name": "availableOptions",
               "type": {
                 "text": "readonly ListboxOption[]"
               },
               "privacy": "protected",
-              "description": "The options: `options` when set, the `<option>` children otherwise.",
+              "description": "The options: those `loadOptions` gave for the text, or else `options`\nwhen set, or else the `<option>` children.",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "EditableComboboxBase",
+                "module": "src/bases/editable-combobox/editable-combobox-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "loadDelay",
+              "type": {
+                "text": "number"
+              },
+              "privacy": "protected",
+              "description": "Milliseconds between the user's last change of the text and `loadOptions`: 300.",
               "readonly": true,
               "inheritedFrom": {
                 "name": "EditableComboboxBase",
@@ -12169,7 +12422,34 @@
                 "text": "readonly ListboxOption[]"
               },
               "privacy": "protected",
-              "description": "The options that match `filterText`: all of them while it's empty, or with `filter=\"none\"`.",
+              "description": "The options the list shows: the first `maxOptions` that match\n`filterText`. All of them match while it's empty, with `filter=\"none\"`,\nand when `loadOptions` gave them.",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "EditableComboboxBase",
+                "module": "src/bases/editable-combobox/editable-combobox-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "#matches",
+              "privacy": "private",
+              "type": {
+                "text": "Matches"
+              },
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "EditableComboboxBase",
+                "module": "src/bases/editable-combobox/editable-combobox-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "#status",
+              "privacy": "private",
+              "type": {
+                "text": "string"
+              },
+              "description": "What the status line shows: `loadingLabel` during a slow request, or else the count of a capped list.",
               "readonly": true,
               "inheritedFrom": {
                 "name": "EditableComboboxBase",
@@ -12226,7 +12506,7 @@
                 "text": "boolean"
               },
               "privacy": "protected",
-              "description": "Whether the popup has something to show: it doesn't open empty. `true` by default.",
+              "description": "Options to show, or a slow request: the list opens to say it loads.",
               "readonly": true,
               "inheritedFrom": {
                 "name": "ComboboxBase",
@@ -12268,7 +12548,7 @@
                 "text": "string"
               },
               "privacy": "protected",
-              "description": "While the user types: the number of options that match the text.",
+              "description": "While the user types: the number of options that match the text, once\nthey are loaded. A slow request: `loadingLabel`.",
               "readonly": true,
               "inheritedFrom": {
                 "name": "ComboboxBase",
@@ -12303,6 +12583,21 @@
               "inheritedFrom": {
                 "name": "ComboboxBase",
                 "module": "src/bases/combobox/combobox-base.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "#syncLoad",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "description": "A new text: the user's loads its options, after the delay. An empty\ntext, or one the application gave, shows `options` again.",
+              "inheritedFrom": {
+                "name": "EditableComboboxBase",
+                "module": "src/bases/editable-combobox/editable-combobox-base.ts"
               }
             },
             {
@@ -13496,6 +13791,14 @@
               }
             },
             {
+              "description": "The line at the end of the list: `loadingLabel` during a slow request, or `resultsMessage` when the list doesn't show every option. Hidden from assistive technologies, which hear the live region.",
+              "name": "status",
+              "inheritedFrom": {
+                "name": "EditableComboboxBase",
+                "module": "src/bases/editable-combobox/editable-combobox-base.ts"
+              }
+            },
+            {
               "description": "The popup, below the control, in the top layer.",
               "name": "popup",
               "inheritedFrom": {
@@ -13685,6 +13988,15 @@
               "description": "Corner radius of the box.",
               "name": "--u-listbox-option-check-border-radius",
               "default": "var(--u-radius-sm)",
+              "inheritedFrom": {
+                "name": "EditableComboboxBase",
+                "module": "src/bases/editable-combobox/editable-combobox-base.ts"
+              }
+            },
+            {
+              "description": "Font size of the status line, at the end of the list: “Loading…”, or the number of options it doesn't show.",
+              "name": "--u-listbox-status-font-size",
+              "default": "var(--u-font-size-sm)",
               "inheritedFrom": {
                 "name": "EditableComboboxBase",
                 "module": "src/bases/editable-combobox/editable-combobox-base.ts"
@@ -13925,6 +14237,32 @@
               "default": "\"contains\"",
               "description": "Which options match the text, without case nor accents: those that\n`contains` it, those that `starts-with` it, or all of them with `none`,\nwhen the application filters them itself.",
               "fieldName": "filter",
+              "inheritedFrom": {
+                "name": "EditableComboboxBase",
+                "module": "src/bases/editable-combobox/editable-combobox-base.ts"
+              }
+            },
+            {
+              "name": "max-options",
+              "type": {
+                "text": "number"
+              },
+              "default": "100",
+              "description": "The largest number of options the list shows, the first ones that\nmatch: the user types more to reach the others. `Infinity` shows them\nall.",
+              "fieldName": "maxOptions",
+              "inheritedFrom": {
+                "name": "EditableComboboxBase",
+                "module": "src/bases/editable-combobox/editable-combobox-base.ts"
+              }
+            },
+            {
+              "name": "loading-label",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"Loading…\"",
+              "description": "What the status line shows and the live region announces while a request lasts.",
+              "fieldName": "loadingLabel",
               "inheritedFrom": {
                 "name": "EditableComboboxBase",
                 "module": "src/bases/editable-combobox/editable-combobox-base.ts"
@@ -19054,7 +19392,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "A combobox: the user types to filter a list of options, and picks one.\nThe value is always one of the options, or `\"\"`. The user types \"par\",\npicks \"Paris\": the input shows its label, the form receives its value,\n\"75056\". For a free text, use `autocomplete`; for a few options, without\ntyping, `select`. The input, the list, its filter and its keys are those\nof `EditableComboboxBase` (ADR 0025).\n\nTyping filters the options, and leaves `value` as it is. A pick sets it,\nand fires `input`, then `change`. Emptying the input clears it at once,\nwith the `input` of the text; `change` follows when the user leaves the\nfield, as on a text input.\n\nThe user leaving the field ends the typing: the option whose label is the\ntext, if it is the only one, without case nor accents, is picked;\notherwise the input shows the label of `value` again. Escape, list closed,\nshows it again too. Enter without an active option picks the option of\nthe text in the same way, and doesn't submit the form while the text\ndiffers from the label of `value`.\n\n`inputValue` holds the text, and `input` follows each change of it: with\n`filter=\"none\"`, the application reads it to fetch the options. The\noptions must hold that of `value`: the input shows its label. Otherwise,\nthe input shows the label of the last option picked, or the value.\n\nA `required` combobox can't be submitted while `value` is empty, whatever\nthe text. Its message is the browser's, from a hidden native `<select>`:\ngive `error-message` to write it in the page's language.",
+          "description": "A combobox: the user types to filter a list of options, and picks one.\nThe value is always one of the options, or `\"\"`. The user types \"par\",\npicks \"Paris\": the input shows its label, the form receives its value,\n\"75056\". For a free text, use `autocomplete`; for a few options, without\ntyping, `select`. The input, the list, its filter and its keys are those\nof `EditableComboboxBase` (ADR 0025).\n\nTyping filters the options, and leaves `value` as it is. A pick sets it,\nand fires `input`, then `change`. Emptying the input clears it at once,\nwith the `input` of the text; `change` follows when the user leaves the\nfield, as on a text input.\n\nThe user leaving the field ends the typing: the option whose label is the\ntext, if it is the only one, without case nor accents, is picked;\notherwise the input shows the label of `value` again. Escape, list closed,\nshows it again too. Enter without an active option picks the option of\nthe text in the same way, and doesn't submit the form while the text\ndiffers from the label of `value`.\n\n`inputValue` holds the text, and `input` follows each change of it: with\n`filter=\"none\"`, the application reads it to fetch the options;\n`loadOptions` fetches them for it. The options must hold that of `value`:\nthe input shows its label. Otherwise, the input shows the label of the\nlast option picked, or the value. With `loadOptions`, give the option of\nthe first value in `options`.\n\nA `required` combobox can't be submitted while `value` is empty, whatever\nthe text. Its message is the browser's, from a hidden native `<select>`:\ngive `error-message` to write it in the page's language.",
           "name": "Combobox",
           "members": [
             {
@@ -19348,11 +19686,51 @@
             },
             {
               "kind": "field",
+              "name": "maxOptions",
+              "type": {
+                "text": "number"
+              },
+              "default": "100",
+              "description": "The largest number of options the list shows, the first ones that\nmatch: the user types more to reach the others. `Infinity` shows them\nall.",
+              "attribute": "max-options",
+              "inheritedFrom": {
+                "name": "EditableComboboxBase",
+                "module": "src/bases/editable-combobox/editable-combobox-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "loadOptions",
+              "type": {
+                "text": "(request: OptionsRequest) => Promise<readonly ListboxOption[]> | undefined"
+              },
+              "description": "Loads the options for the text the user typed, from a server for\ninstance: they replace `options`, as they are, without `filter`. Called\n300 milliseconds after the user's last change of the text, unless it\nis empty. Abort the work when `signal` aborts: a newer text replaces it.\nA rejection shows `options` again, and reaches the page's error\nhandlers: catch it to show an error to the user. Property only.",
+              "inheritedFrom": {
+                "name": "EditableComboboxBase",
+                "module": "src/bases/editable-combobox/editable-combobox-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "loadingLabel",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"Loading…\"",
+              "description": "What the status line shows and the live region announces while a request lasts.",
+              "attribute": "loading-label",
+              "inheritedFrom": {
+                "name": "EditableComboboxBase",
+                "module": "src/bases/editable-combobox/editable-combobox-base.ts"
+              }
+            },
+            {
+              "kind": "field",
               "name": "resultsMessage",
               "type": {
-                "text": "(count: number) => string"
+                "text": "(count: number, shown: number) => string"
               },
-              "description": "Writes what assistive technologies hear while the user types: the\nnumber of options that match the text. Give it in the page's language.\nProperty only.",
+              "description": "Writes the number of options that match the text: the live region\nannounces it while the user types, and the status line shows it when\nthe list shows only `shown` of them. Give it in the page's language.\nProperty only.",
               "inheritedFrom": {
                 "name": "EditableComboboxBase",
                 "module": "src/bases/editable-combobox/editable-combobox-base.ts"
@@ -19362,7 +19740,31 @@
               "kind": "field",
               "name": "#listbox",
               "privacy": "private",
-              "default": "new ListboxController(this, { labelledBy: fieldIds.label, options: () => this.listboxOptions, activeIndex: () => this.comboboxState.activeIndex, activate: (index) => this.dispatch({ type: \"activate\", index }), select: (option) => this.selectOption(option), renderOption: (option, index) => this.renderOption(option, index), })",
+              "default": "new ListboxController(this, { labelledBy: fieldIds.label, options: () => this.listboxOptions, activeIndex: () => this.comboboxState.activeIndex, activate: (index) => this.dispatch({ type: \"activate\", index }), select: (option) => this.selectOption(option), renderOption: (option, index) => this.renderOption(option, index), busy: () => this.#loader.loading, status: () => this.#status, })",
+              "inheritedFrom": {
+                "name": "EditableComboboxBase",
+                "module": "src/bases/editable-combobox/editable-combobox-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "#loader",
+              "privacy": "private",
+              "default": "new LoadController<readonly ListboxOption[]>(this, { delay: () => this.loadDelay, })",
+              "inheritedFrom": {
+                "name": "EditableComboboxBase",
+                "module": "src/bases/editable-combobox/editable-combobox-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "#loadText",
+              "privacy": "private",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "The text of the last load, or of the last change by the application.",
               "inheritedFrom": {
                 "name": "EditableComboboxBase",
                 "module": "src/bases/editable-combobox/editable-combobox-base.ts"
@@ -19386,9 +19788,34 @@
               "name": "#matching",
               "privacy": "private",
               "type": {
-                "text": "{\n    options: readonly ListboxOption[];\n    query: string;\n    filter: ComboboxFilter;\n    result: readonly ListboxOption[];\n  } | undefined"
+                "text": "{\n    options: readonly ListboxOption[];\n    query: string;\n    filter: ComboboxFilter;\n    max: number;\n    result: Matches;\n  } | undefined"
               },
-              "description": "The last result of `listboxOptions`, computed again when its inputs change.",
+              "description": "The last result of `#matches`, computed again when its inputs change.",
+              "inheritedFrom": {
+                "name": "EditableComboboxBase",
+                "module": "src/bases/editable-combobox/editable-combobox-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "#query",
+              "privacy": "private",
+              "type": {
+                "text": "object"
+              },
+              "default": "{ text: \"\", normalized: \"\" }",
+              "description": "The last normalized query, not normalized again for each option.",
+              "inheritedFrom": {
+                "name": "EditableComboboxBase",
+                "module": "src/bases/editable-combobox/editable-combobox-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "#labels",
+              "privacy": "private",
+              "default": "new WeakMap<ListboxOption, string>()",
+              "description": "The normalized labels, not normalized again at each change of the text.",
               "inheritedFrom": {
                 "name": "EditableComboboxBase",
                 "module": "src/bases/editable-combobox/editable-combobox-base.ts"
@@ -19409,12 +19836,39 @@
             },
             {
               "kind": "field",
+              "name": "loading",
+              "type": {
+                "text": "boolean"
+              },
+              "description": "Whether `loadOptions` is loading the options for the text. Read-only.",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "EditableComboboxBase",
+                "module": "src/bases/editable-combobox/editable-combobox-base.ts"
+              }
+            },
+            {
+              "kind": "field",
               "name": "availableOptions",
               "type": {
                 "text": "readonly ListboxOption[]"
               },
               "privacy": "protected",
-              "description": "The options: `options` when set, the `<option>` children otherwise.",
+              "description": "The options: those `loadOptions` gave for the text, or else `options`\nwhen set, or else the `<option>` children.",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "EditableComboboxBase",
+                "module": "src/bases/editable-combobox/editable-combobox-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "loadDelay",
+              "type": {
+                "text": "number"
+              },
+              "privacy": "protected",
+              "description": "Milliseconds between the user's last change of the text and `loadOptions`: 300.",
               "readonly": true,
               "inheritedFrom": {
                 "name": "EditableComboboxBase",
@@ -19428,7 +19882,34 @@
                 "text": "readonly ListboxOption[]"
               },
               "privacy": "protected",
-              "description": "The options that match `filterText`: all of them while it's empty, or with `filter=\"none\"`.",
+              "description": "The options the list shows: the first `maxOptions` that match\n`filterText`. All of them match while it's empty, with `filter=\"none\"`,\nand when `loadOptions` gave them.",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "EditableComboboxBase",
+                "module": "src/bases/editable-combobox/editable-combobox-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "#matches",
+              "privacy": "private",
+              "type": {
+                "text": "Matches"
+              },
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "EditableComboboxBase",
+                "module": "src/bases/editable-combobox/editable-combobox-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "#status",
+              "privacy": "private",
+              "type": {
+                "text": "string"
+              },
+              "description": "What the status line shows: `loadingLabel` during a slow request, or else the count of a capped list.",
               "readonly": true,
               "inheritedFrom": {
                 "name": "EditableComboboxBase",
@@ -19485,7 +19966,7 @@
                 "text": "boolean"
               },
               "privacy": "protected",
-              "description": "Whether the popup has something to show: it doesn't open empty. `true` by default.",
+              "description": "Options to show, or a slow request: the list opens to say it loads.",
               "readonly": true,
               "inheritedFrom": {
                 "name": "ComboboxBase",
@@ -19527,7 +20008,7 @@
                 "text": "string"
               },
               "privacy": "protected",
-              "description": "While the user types: the number of options that match the text.",
+              "description": "While the user types: the number of options that match the text, once\nthey are loaded. A slow request: `loadingLabel`.",
               "readonly": true,
               "inheritedFrom": {
                 "name": "ComboboxBase",
@@ -19547,6 +20028,21 @@
               "inheritedFrom": {
                 "name": "ComboboxBase",
                 "module": "src/bases/combobox/combobox-base.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "#syncLoad",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "description": "A new text: the user's loads its options, after the delay. An empty\ntext, or one the application gave, shows `options` again.",
+              "inheritedFrom": {
+                "name": "EditableComboboxBase",
+                "module": "src/bases/editable-combobox/editable-combobox-base.ts"
               }
             },
             {
@@ -20604,6 +21100,14 @@
               }
             },
             {
+              "description": "The line at the end of the list: `loadingLabel` during a slow request, or `resultsMessage` when the list doesn't show every option. Hidden from assistive technologies, which hear the live region.",
+              "name": "status",
+              "inheritedFrom": {
+                "name": "EditableComboboxBase",
+                "module": "src/bases/editable-combobox/editable-combobox-base.ts"
+              }
+            },
+            {
               "description": "The popup, below the control, in the top layer.",
               "name": "popup",
               "inheritedFrom": {
@@ -20793,6 +21297,15 @@
               "description": "Corner radius of the box.",
               "name": "--u-listbox-option-check-border-radius",
               "default": "var(--u-radius-sm)",
+              "inheritedFrom": {
+                "name": "EditableComboboxBase",
+                "module": "src/bases/editable-combobox/editable-combobox-base.ts"
+              }
+            },
+            {
+              "description": "Font size of the status line, at the end of the list: “Loading…”, or the number of options it doesn't show.",
+              "name": "--u-listbox-status-font-size",
+              "default": "var(--u-font-size-sm)",
               "inheritedFrom": {
                 "name": "EditableComboboxBase",
                 "module": "src/bases/editable-combobox/editable-combobox-base.ts"
@@ -21033,6 +21546,32 @@
               "default": "\"contains\"",
               "description": "Which options match the text, without case nor accents: those that\n`contains` it, those that `starts-with` it, or all of them with `none`,\nwhen the application filters them itself.",
               "fieldName": "filter",
+              "inheritedFrom": {
+                "name": "EditableComboboxBase",
+                "module": "src/bases/editable-combobox/editable-combobox-base.ts"
+              }
+            },
+            {
+              "name": "max-options",
+              "type": {
+                "text": "number"
+              },
+              "default": "100",
+              "description": "The largest number of options the list shows, the first ones that\nmatch: the user types more to reach the others. `Infinity` shows them\nall.",
+              "fieldName": "maxOptions",
+              "inheritedFrom": {
+                "name": "EditableComboboxBase",
+                "module": "src/bases/editable-combobox/editable-combobox-base.ts"
+              }
+            },
+            {
+              "name": "loading-label",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"Loading…\"",
+              "description": "What the status line shows and the live region announces while a request lasts.",
+              "fieldName": "loadingLabel",
               "inheritedFrom": {
                 "name": "EditableComboboxBase",
                 "module": "src/bases/editable-combobox/editable-combobox-base.ts"
@@ -26124,6 +26663,11 @@
               "description": "Corner radius of the box.",
               "name": "--u-listbox-option-check-border-radius",
               "default": "var(--u-radius-sm)"
+            },
+            {
+              "description": "Font size of the status line, at the end of the list: “Loading…”, or the number of options it doesn't show.",
+              "name": "--u-listbox-status-font-size",
+              "default": "var(--u-font-size-sm)"
             },
             {
               "description": "Font family.",
@@ -31898,6 +32442,11 @@
               "description": "Corner radius of the box.",
               "name": "--u-listbox-option-check-border-radius",
               "default": "var(--u-radius-sm)"
+            },
+            {
+              "description": "Font size of the status line, at the end of the list: “Loading…”, or the number of options it doesn't show.",
+              "name": "--u-listbox-status-font-size",
+              "default": "var(--u-font-size-sm)"
             },
             {
               "description": "Space between the text of the control and its chevron.",
@@ -43086,6 +43635,205 @@
     },
     {
       "kind": "javascript-module",
+      "path": "src/controllers/load.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "Reactive controller: loads data for its host, from a server for instance,\none load at a time (ADR 0026). Each `load()` replaces the previous one:\nit aborts its task, and drops its result. The host renders again at each\nchange of `pending`, `loading`, `slow` and `value`.\n\nA task that rejects keeps `value` as it was cleared: `undefined`. The\nerror reaches the page's error handlers (`reportError()`), as an uncaught\none would. A task that handles its own errors resolves with what to show.\n\nOn a server, nothing loads: `load()` runs in the browser, after a user's\naction.",
+          "name": "LoadController",
+          "members": [
+            {
+              "kind": "field",
+              "name": "#host",
+              "privacy": "private",
+              "type": {
+                "text": "ReactiveControllerHost"
+              },
+              "readonly": true,
+              "default": "host"
+            },
+            {
+              "kind": "field",
+              "name": "#options",
+              "privacy": "private",
+              "type": {
+                "text": "LoadControllerOptions"
+              },
+              "readonly": true,
+              "default": "options"
+            },
+            {
+              "kind": "field",
+              "name": "#timer",
+              "privacy": "private",
+              "type": {
+                "text": "ReturnType<typeof setTimeout> | undefined"
+              },
+              "description": "The delay before the task starts."
+            },
+            {
+              "kind": "field",
+              "name": "#slowTimer",
+              "privacy": "private",
+              "type": {
+                "text": "ReturnType<typeof setTimeout> | undefined"
+              },
+              "description": "The delay before `slow` turns `true`."
+            },
+            {
+              "kind": "field",
+              "name": "#abort",
+              "privacy": "private",
+              "type": {
+                "text": "AbortController | undefined"
+              },
+              "description": "Aborts the task that runs: the current one, compared by reference."
+            },
+            {
+              "kind": "field",
+              "name": "#slow",
+              "privacy": "private",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false"
+            },
+            {
+              "kind": "field",
+              "name": "#value",
+              "privacy": "private",
+              "type": {
+                "text": "T | undefined"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "pending",
+              "type": {
+                "text": "boolean"
+              },
+              "description": "Whether a load waits for its delay, or runs.",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "loading",
+              "type": {
+                "text": "boolean"
+              },
+              "description": "Whether a task runs.",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "slow",
+              "type": {
+                "text": "boolean"
+              },
+              "description": "Whether a task has run longer than `slowDelay`.",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "value",
+              "type": {
+                "text": "T | undefined"
+              },
+              "description": "The result of the last task that resolved, `undefined` before it and after `clear()`.",
+              "readonly": true
+            },
+            {
+              "kind": "method",
+              "name": "load",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "task",
+                  "type": {
+                    "text": "LoadTask<T>"
+                  }
+                }
+              ],
+              "description": "Starts `task` after the delay, unless another `load()` or `clear()`\ncomes first. Aborts the task that runs. `value` stays as it is until\nthe new task resolves."
+            },
+            {
+              "kind": "method",
+              "name": "clear",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "description": "Aborts the load, and forgets `value`."
+            },
+            {
+              "kind": "method",
+              "name": "hostDisconnected",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "#run",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "Promise<void>"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "task",
+                  "type": {
+                    "text": "LoadTask<T>"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "#cancel",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "description": "Stops the delay and the task, without a render."
+            },
+            {
+              "kind": "method",
+              "name": "#end",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "LoadController",
+          "declaration": {
+            "name": "LoadController",
+            "module": "src/controllers/load.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/controllers/overflow.ts",
       "declarations": [
         {
@@ -43511,6 +44259,14 @@
           "declaration": {
             "name": "*",
             "module": "src/bases/base-element.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "*",
+          "declaration": {
+            "name": "*",
+            "module": "src/bases/button/button-base.js"
           }
         },
         {
@@ -43967,6 +44723,22 @@
           "declaration": {
             "name": "*",
             "module": "src/controllers/hover-intent.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "*",
+          "declaration": {
+            "name": "*",
+            "module": "src/controllers/overflow.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "*",
+          "declaration": {
+            "name": "*",
+            "module": "src/controllers/load.js"
           }
         },
         {
