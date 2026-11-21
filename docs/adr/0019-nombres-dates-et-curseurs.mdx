@@ -1,0 +1,90 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Documentation/ADR/0019 Nombres, dates et curseurs" />
+
+# ADR 0019 — Nombres, dates et curseurs
+
+**Statut :** accepté · **Date :** 20 novembre 2026
+
+## Contexte
+
+Un formulaire demande une quantité, une date ou une valeur sur une échelle. Le socle a `text-field`, sans bornes ni pas.
+
+- `<input type="number">`, `type="date"` et `type="range"` existent dans toute la [matrice](?path=/docs/documentation-référence-support-navigateurs--docs). Le navigateur valide `min`, `max` et `step`, et donne ses messages dans sa langue.
+- `<input type="date">` affiche la date au format de l'utilisateur et propose son calendrier. Sa valeur suit le format de HTML : `YYYY-MM-DD`.
+- `<input type="number">` a le rôle `spinbutton`. Ses flèches et ArrowUp et ArrowDown font varier la valeur.
+- `<input type="range">` a le rôle `slider`. Sa valeur n'est jamais vide : sans valeur, il prend le milieu de ses bornes.
+- Le guide d'API demande une valeur au format de HTML et le natif d'abord ([API des composants](?path=/docs/documentation-référence-api-des-composants--docs)).
+
+### Ce que font les bibliothèques
+
+<table>
+  <thead>
+    <tr>
+      <th>Bibliothèque</th>
+      <th>Nombre</th>
+      <th>Curseur</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Web Awesome</td>
+      <td>`wa-number-input` : un `<input type="number">` natif, avec `inputmode`</td>
+      <td>`wa-slider` : un élément `role="slider"` dessiné, une ou deux poignées</td>
+    </tr>
+    <tr>
+      <td>Spectrum Web Components</td>
+      <td>
+        `sp-number-field` : un champ texte, lu et formaté par `@internationalized/number` selon la
+        langue
+      </td>
+      <td>`sp-slider` : des poignées dessinées, une valeur formatée</td>
+    </tr>
+  </tbody>
+</table>
+
+## D1 — Des contrôles natifs
+
+- **Option A — Des contrôles dessinés**, comme Spectrum. Le formatage selon la langue et deux poignées sont possibles, mais la validation, ses messages et l'accessibilité sont à écrire.
+- **Option B — Les contrôles natifs**, comme `wa-number-input`. Le navigateur valide, annonce et donne ses messages.
+
+**Décision : B.** `number-field`, `date-field` et `slider` rendent un `<input>` natif de leur type.
+
+- Un code fait de chiffres (code postal, numéro de carte) reste un `text-field` : ce n'est pas une quantité.
+- `min`, `max` et `step` sont des chaînes, comme en HTML : un nombre, ou une date (`YYYY-MM-DD`).
+- `date-field` n'a pas de calendrier propre : celui du navigateur suffit. Un `date-picker` viendra s'il en faut un autre.
+
+## D2 — Le curseur
+
+- Le curseur restyle le `<input type="range">` natif : sa piste, la partie remplie avant le pouce, et le pouce. Firefox dessine la partie remplie (`::-moz-range-progress`). Ailleurs, un dégradé la dessine.
+- La propriété `value` suit la valeur du contrôle natif : jamais vide, arrondie au pas, dans les bornes.
+- La valeur s'affiche après la piste, masquée aux technologies d'assistance : le contrôle natif l'annonce déjà.
+- En texte de droite à gauche, la piste se remplit depuis la droite. Le script lit le sens du texte : `:dir()` manque à Chrome avant 120.
+
+## Les briques
+
+`RangeFieldBase` étend `FieldBase`. Elle porte `min`, `max` et `step`, et rend l'input natif de chaque champ (`renderInput(type)`). `number-field`, `date-field` et `slider` l'étendent.
+
+## Conséquences
+
+- **Code :** `RangeFieldBase`, `NumberField`, `DateField` et `Slider`, dans `packages/components/src/components/`.
+- **Tokens :** le groupe `slider`. Les deux autres champs prennent ceux de `field`.
+- **Tests :** `range-field-base.test.ts` (clavier réel, Chromium) et les stories dans trois moteurs. Les touches synthétiques des stories ne font pas varier un contrôle natif.
+- **Plan :** la feuille de route prévoyait `state/number.ts`. Les contrôles natifs n'en ont pas besoin.
+- **Limites :**
+  - Un nombre ne se formate pas selon la langue : `3.5`, pas `3,5`. Le navigateur accepte la saisie selon la sienne.
+  - Un curseur a une seule poignée.
+
+## Questions ouvertes
+
+- **Formatage :** un `number-field` qui affiche `1 250,50 €`, sur `Intl.NumberFormat`, comme Spectrum.
+- **Intervalle :** un curseur à deux poignées, pour un prix minimal et maximal.
+- **Heure :** `time-field` et `datetime-field`, sur `RangeFieldBase`.
+
+## Sources
+
+Consultées le 20 novembre 2026.
+
+- [number-input.ts](https://github.com/shoelace-style/webawesome/blob/next/packages/webawesome/src/components/number-input/number-input.ts) et [slider.ts](https://github.com/shoelace-style/webawesome/blob/next/packages/webawesome/src/components/slider/slider.ts) (Web Awesome).
+- [NumberField.ts](https://github.com/adobe/spectrum-web-components/blob/main/1st-gen/packages/number-field/src/NumberField.ts) et [Slider.ts](https://github.com/adobe/spectrum-web-components/blob/main/1st-gen/packages/slider/src/Slider.ts) (Adobe, Spectrum Web Components).
+- [`<input type="range">`](<https://html.spec.whatwg.org/multipage/input.html#range-state-(type=range)>) (WHATWG, HTML) : la valeur par défaut est le milieu des bornes.

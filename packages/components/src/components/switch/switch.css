@@ -1,0 +1,50 @@
+/* The tokens are in switch.tokens.css, generated from tokens/component/switch/
+   (ADR 0002). The native control is invisible: these rules draw its state. */
+.track {
+  box-sizing: content-box;
+  display: flex;
+  inline-size: calc(var(--u-switch-thumb-size) * 2);
+  padding: var(--u-switch-padding);
+  background-color: var(--u-switch-track-background-color);
+  border-radius: var(--u-switch-border-radius);
+  pointer-events: none;
+}
+
+.thumb {
+  inline-size: var(--u-switch-thumb-size);
+  block-size: var(--u-switch-thumb-size);
+  margin-inline-start: 0;
+  background-color: var(--u-switch-thumb-color);
+  border-radius: var(--u-switch-border-radius);
+  transition: margin-inline-start var(--u-switch-transition-duration)
+    var(--u-switch-transition-timing-function);
+}
+
+.control:checked + .track {
+  background-color: var(--u-switch-track-checked-background-color);
+}
+
+/* Along the text: at the end of the track, on the right or on the left. */
+.control:checked + .track .thumb {
+  margin-inline-start: var(--u-switch-thumb-size);
+}
+
+.control:focus-visible + .track {
+  outline: var(--u-switch-focus-ring-width) solid var(--u-switch-focus-ring-color);
+  outline-offset: var(--u-switch-focus-ring-offset);
+}
+
+@media (forced-colors: active) {
+  .track {
+    border: 1px solid CanvasText;
+  }
+  .thumb {
+    background-color: CanvasText;
+  }
+  .control:checked + .track {
+    background-color: Highlight;
+  }
+  .control:checked + .track .thumb {
+    background-color: HighlightText;
+  }
+}

@@ -1,0 +1,66 @@
+/* The tokens are in checkbox.tokens.css, generated from tokens/component/checkbox/
+   (ADR 0002). The native control is invisible: these rules draw its state. */
+.box {
+  box-sizing: border-box;
+  display: grid;
+  place-items: center;
+  inline-size: var(--u-checkbox-size);
+  block-size: var(--u-checkbox-size);
+  background-color: var(--u-checkbox-background-color);
+  border: var(--u-checkbox-border-width) solid var(--u-checkbox-border-color);
+  border-radius: var(--u-checkbox-border-radius);
+  pointer-events: none;
+}
+
+.control:checked + .box,
+.control:indeterminate + .box {
+  background-color: var(--u-checkbox-checked-background-color);
+  border-color: var(--u-checkbox-checked-background-color);
+}
+
+/* The check mark: two borders of a box, turned. Twice the border's width. */
+.control:checked + .box::after {
+  content: "";
+  box-sizing: border-box;
+  inline-size: 35%;
+  block-size: 65%;
+  margin-block-start: -15%;
+  border: solid var(--u-checkbox-mark-color);
+  border-width: 0 calc(var(--u-checkbox-border-width) * 2) calc(var(--u-checkbox-border-width) * 2)
+    0;
+  transform: rotate(45deg);
+}
+
+.control:indeterminate + .box::after {
+  content: "";
+  inline-size: 55%;
+  block-size: calc(var(--u-checkbox-border-width) * 2);
+  background-color: var(--u-checkbox-mark-color);
+}
+
+.control:focus-visible + .box {
+  outline: var(--u-checkbox-focus-ring-width) solid var(--u-checkbox-focus-ring-color);
+  outline-offset: var(--u-checkbox-focus-ring-offset);
+}
+
+/* Not by color alone: the error message, its icon and its label come with it. */
+.toggle--invalid .control:not(:checked) + .box {
+  border-color: var(--u-checkbox-border-color-invalid);
+}
+
+@media (forced-colors: active) {
+  .box {
+    border-color: CanvasText;
+  }
+  .control:checked + .box,
+  .control:indeterminate + .box {
+    background-color: Highlight;
+    border-color: Highlight;
+  }
+  .control:checked + .box::after {
+    border-color: HighlightText;
+  }
+  .control:indeterminate + .box::after {
+    background-color: HighlightText;
+  }
+}

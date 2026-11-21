@@ -1,0 +1,5 @@
+/* Generated from ../tokens/src/u.resolver.json by @unicorne/tokens/terrazzo-plugin (ADR 0002). Do not edit: change the tokens. */
+:host {
+  --u-toggle-gap: var(--u-spacing-sm);
+  --u-toggle-text-gap: var(--u-spacing-2xs);
+}

@@ -1,0 +1,56 @@
+/* The tokens are in radio.tokens.css, generated from tokens/component/radio/
+   (ADR 0002). */
+:host {
+  display: inline-flex;
+  align-items: start;
+  gap: var(--u-radio-gap);
+  line-height: var(--u-radio-line-height);
+  cursor: pointer;
+}
+
+:host(:focus) {
+  outline: none;
+}
+
+/* As tall as the first line of the label: the circle centers on it. */
+.control {
+  box-sizing: border-box;
+  display: grid;
+  flex: none;
+  place-items: center;
+  inline-size: var(--u-radio-size);
+  block-size: var(--u-radio-size);
+  margin-block: calc((1em * var(--u-radio-line-height) - var(--u-radio-size)) / 2);
+  background-color: var(--u-radio-background-color);
+  border: var(--u-radio-border-width) solid var(--u-radio-border-color);
+  border-radius: 50%;
+}
+
+:host([checked]) .control {
+  border-color: var(--u-radio-checked-color);
+}
+
+:host([checked]) .control::after {
+  content: "";
+  inline-size: 50%;
+  block-size: 50%;
+  background-color: var(--u-radio-checked-color);
+  border-radius: 50%;
+}
+
+:host(:focus-visible) .control {
+  outline: var(--u-radio-focus-ring-width) solid var(--u-radio-focus-ring-color);
+  outline-offset: var(--u-radio-focus-ring-offset);
+}
+
+@media (forced-colors: active) {
+  .control {
+    border-color: CanvasText;
+  }
+  :host([checked]) .control {
+    border-color: Highlight;
+  }
+  :host([checked]) .control::after {
+    background-color: Highlight;
+  }
+}

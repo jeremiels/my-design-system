@@ -5,10 +5,12 @@ import disabledStyles from "./withDisabled.css" with { type: "css" };
 
 export declare class DisabledInterface {
   disabled: boolean;
+  /** @internal Disabled by its group: `radio-group`, `checkbox-group`. */
+  groupDisabled: boolean;
   /**
-   * Whether the element is disabled: its own `disabled`, or, for a
-   * form-associated element, an ancestor `<fieldset disabled>`. Render and
-   * ignore interactions from this, not from `disabled`.
+   * Whether the element is disabled: its own `disabled`, its group's, or,
+   * for a form-associated element, an ancestor `<fieldset disabled>`. Render
+   * and ignore interactions from this, not from `disabled`.
    */
   protected get isDisabled(): boolean;
   /** @internal */
@@ -24,6 +26,10 @@ export function withDisabled<T extends Constructor<LitElement>>(Base: T) {
     @property({ type: Boolean, reflect: true })
     disabled = false;
 
+    /** @internal Disabled by its group: `radio-group`, `checkbox-group`. Set by the group. */
+    @property({ attribute: false })
+    groupDisabled = false;
+
     /** The browser's disabled state of a form-associated element. */
     @state()
     private formDisabled = false;
@@ -31,7 +37,7 @@ export function withDisabled<T extends Constructor<LitElement>>(Base: T) {
     static styles = [(Base as unknown as typeof LitElement).styles ?? [], disabledStyles];
 
     protected get isDisabled(): boolean {
-      return this.disabled || this.formDisabled;
+      return this.disabled || this.formDisabled || this.groupDisabled;
     }
 
     /**
@@ -47,7 +53,11 @@ export function withDisabled<T extends Constructor<LitElement>>(Base: T) {
     protected updated(changedProperties: PropertyValues): void {
       super.updated(changedProperties);
 
-      if (changedProperties.has("disabled") || changedProperties.has("formDisabled")) {
+      if (
+        changedProperties.has("disabled") ||
+        changedProperties.has("formDisabled") ||
+        changedProperties.has("groupDisabled")
+      ) {
         if (this.isDisabled) {
           this.setAttribute("aria-disabled", "true");
         } else {

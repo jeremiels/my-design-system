@@ -1,0 +1,65 @@
+{
+  "slider": {
+    "$description": "Tokens of `slider`: its track, its thumb and its value.",
+    "gap": {
+      "$type": "dimension",
+      "$value": "{spacing.sm}",
+      "$description": "Space between the track and the value."
+    },
+    "track-height": {
+      "$type": "dimension",
+      "$value": "{spacing.xs}",
+      "$description": "Height of the track."
+    },
+    "track-color": {
+      "$type": "color",
+      "$value": "{color.border.control}",
+      "$description": "Color of the track after the thumb."
+    },
+    "fill-color": {
+      "$type": "color",
+      "$value": "{color.action.background}",
+      "$description": "Color of the track before the thumb, and border of the thumb."
+    },
+    "thumb-size": {
+      "$type": "dimension",
+      "$value": "{size.choice}",
+      "$description": "Width and height of the thumb."
+    },
+    "thumb-color": {
+      "$type": "color",
+      "$value": "{color.surface.default}",
+      "$description": "Color of the thumb."
+    },
+    "thumb-border-width": {
+      "$type": "dimension",
+      "$value": "{focus-ring.width}",
+      "$description": "Border width of the thumb."
+    },
+    "border-radius": {
+      "$type": "dimension",
+      "$value": "{radius.full}",
+      "$description": "Corner radius of the track and of the thumb."
+    },
+    "value-min-width": {
+      "$type": "dimension",
+      "$value": "{spacing.xl}",
+      "$description": "Smallest width of the value: the track doesn't move when it changes."
+    },
+    "focus-ring-color": {
+      "$type": "color",
+      "$value": "{color.focus-ring}",
+      "$description": "Color of the focus ring."
+    },
+    "focus-ring-width": {
+      "$type": "dimension",
+      "$value": "{focus-ring.width}",
+      "$description": "Width of the focus ring."
+    },
+    "focus-ring-offset": {
+      "$type": "dimension",
+      "$value": "{focus-ring.offset}",
+      "$description": "Space between the slider and its focus ring."
+    }
+  }
+}

@@ -1,0 +1,87 @@
+/* The tokens are in slider.tokens.css, generated from tokens/component/slider/
+   (ADR 0002). The native range is restyled: its track, the filled part before
+   the thumb, and its thumb. slider.ts sets --slider-ratio, the share of the
+   track before the thumb, and --slider-fill-direction, along the text. */
+.range {
+  display: flex;
+  align-items: center;
+  gap: var(--u-slider-gap);
+}
+
+/* Not the box of a text field (field-base.css): a track. */
+.control {
+  flex: 1;
+  block-size: var(--u-slider-thumb-size);
+  padding: 0;
+  background: none;
+  border: 0;
+  appearance: none;
+  cursor: pointer;
+}
+
+.control:disabled {
+  cursor: default;
+}
+
+.control::-webkit-slider-runnable-track {
+  block-size: var(--u-slider-track-height);
+  background: linear-gradient(
+    to var(--slider-fill-direction),
+    var(--u-slider-fill-color) calc(var(--slider-ratio) * 100%),
+    var(--u-slider-track-color) 0
+  );
+  border-radius: var(--u-slider-border-radius);
+}
+
+.control::-moz-range-track {
+  block-size: var(--u-slider-track-height);
+  background-color: var(--u-slider-track-color);
+  border-radius: var(--u-slider-border-radius);
+}
+
+.control::-moz-range-progress {
+  block-size: var(--u-slider-track-height);
+  background-color: var(--u-slider-fill-color);
+  border-radius: var(--u-slider-border-radius);
+}
+
+.control::-webkit-slider-thumb {
+  box-sizing: border-box;
+  inline-size: var(--u-slider-thumb-size);
+  block-size: var(--u-slider-thumb-size);
+  margin-block-start: calc((var(--u-slider-track-height) - var(--u-slider-thumb-size)) / 2);
+  background-color: var(--u-slider-thumb-color);
+  border: var(--u-slider-thumb-border-width) solid var(--u-slider-fill-color);
+  border-radius: var(--u-slider-border-radius);
+  appearance: none;
+}
+
+.control::-moz-range-thumb {
+  box-sizing: border-box;
+  inline-size: var(--u-slider-thumb-size);
+  block-size: var(--u-slider-thumb-size);
+  background-color: var(--u-slider-thumb-color);
+  border: var(--u-slider-thumb-border-width) solid var(--u-slider-fill-color);
+  border-radius: var(--u-slider-border-radius);
+}
+
+.control:focus-visible {
+  outline: var(--u-slider-focus-ring-width) solid var(--u-slider-focus-ring-color);
+  outline-offset: var(--u-slider-focus-ring-offset);
+}
+
+.value {
+  min-inline-size: var(--u-slider-value-min-width);
+  font-variant-numeric: tabular-nums;
+  text-align: end;
+}
+
+@media (forced-colors: active) {
+  .control::-webkit-slider-runnable-track {
+    background: CanvasText;
+  }
+  .control::-webkit-slider-thumb {
+    background-color: Highlight;
+    border-color: Highlight;
+  }
+}

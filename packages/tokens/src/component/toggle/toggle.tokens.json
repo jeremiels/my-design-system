@@ -1,0 +1,15 @@
+{
+  "toggle": {
+    "$description": "Tokens of the controls with their label after them: `checkbox` and `switch` (`ToggleBase`). The label, the hint and the error take those of `field`.",
+    "gap": {
+      "$type": "dimension",
+      "$value": "{spacing.sm}",
+      "$description": "Space between the control and its label."
+    },
+    "text-gap": {
+      "$type": "dimension",
+      "$value": "{spacing.2xs}",
+      "$description": "Space between the label, the hint and the error message."
+    }
+  }
+}

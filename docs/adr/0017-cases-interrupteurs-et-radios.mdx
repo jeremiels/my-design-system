@@ -1,0 +1,239 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Documentation/ADR/0017 Cases à cocher, interrupteurs et radios" />
+
+# ADR 0017 — Cases à cocher, interrupteurs et radios
+
+**Statut :** accepté · **Date :** 20 novembre 2026
+
+## Contexte
+
+Un formulaire demande une case à cocher, un interrupteur et un groupe de radios. Le socle n'a que des champs de texte (`FieldBase`, [ADR 0007](?path=/docs/documentation-adr-0007-champs-de-formulaire--docs)).
+
+- Une case et une radio ont leur libellé après le contrôle. Un groupe a un libellé, un indice et une erreur pour tous ses choix.
+- Des radios natives ne forment un groupe que dans le même arbre. Une radio par shadow root reste seule dans son groupe.
+- Le pattern ARIA du groupe est `radiogroup` : Tab atteint la radio cochée, les flèches cochent la suivante et la précédente.
+- HTML n'applique pas `readonly` à une case ni à une radio. ARIA accepte `aria-readonly` sur `checkbox` et `radiogroup`.
+- Une radio native `required`, cachée dans un shadow root, donne le message du navigateur sans bloquer le formulaire de la page. Vérifié le 20 novembre 2026 dans Chromium 158, Firefox 159 et WebKit 27.2.
+
+### Ce que font les bibliothèques
+
+<table>
+  <thead>
+    <tr>
+      <th>Bibliothèque</th>
+      <th>Case et interrupteur</th>
+      <th>Groupe de radios</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Web Awesome</td>
+      <td>
+        Un `<input type="checkbox">` natif dans le shadow root. L'interrupteur y ajoute
+        `role="switch"`. Le libellé est le slot par défaut.
+      </td>
+      <td>
+        Le groupe est le contrôle de formulaire : `name`, `value`, `required`. Chaque `wa-radio` a
+        `role="radio"` sur son hôte. Le groupe gère le tabindex et les flèches.
+      </td>
+    </tr>
+    <tr>
+      <td>Spectrum Web Components</td>
+      <td>Un `<input type="checkbox">` natif, `role="switch"` pour l'interrupteur</td>
+      <td>
+        `role="radiogroup"` sur l'hôte, `RovingTabindexController`, la valeur dans `selected`. Chaque
+        `sp-radio` a `role="radio"` sur son hôte.
+      </td>
+    </tr>
+    <tr>
+      <td>Material Web</td>
+      <td>Un `<input type="checkbox">` natif</td>
+      <td>
+        Pas d'élément de groupe : chaque radio est un contrôle de formulaire, groupé par `name` par
+        un `SingleSelectionController`
+      </td>
+    </tr>
+    <tr>
+      <td>Vercel UI</td>
+      <td>Un comportement de case, rendu par l'adaptateur</td>
+      <td>
+        Le groupe porte la valeur. Ses changements ont une cause : `item-press`, `list-navigation`,
+        `reset`
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+### Critères
+
+1. La sémantique native d'abord, puis le pattern ARIA.
+2. Le libellé, l'indice, l'erreur et la validation de `FieldBase`, sans copie.
+3. Un groupe a un libellé, un indice et une erreur, comme un champ.
+4. Le même nom pour la même idée, dans le code et dans Figma ([API des composants](?path=/docs/documentation-référence-api-des-composants--docs)).
+
+## D1 — La case et l'interrupteur
+
+- **Option A — Un rôle sur l'hôte.** L'hôte porte `role="checkbox"` et `aria-checked`. L'état indéterminé, la validation et ses messages sont à écrire.
+- **Option B — Une case native dans le shadow root.** Le navigateur donne l'état, l'état indéterminé (`mixed`), la validation et son message. Les quatre bibliothèques font ce choix.
+
+**Décision : B.** `ToggleBase` étend `FieldBase` : son contrôle natif est un `<input type="checkbox">`.
+
+- La case native est invisible, posée sur le contrôle dessiné : elle reçoit le clic et le focus.
+- L'interrupteur est la même case, avec `role="switch"`. Il s'annonce activé ou désactivé.
+- `ToggleBase` remplace la mise en page de `FieldBase` : le contrôle, puis le libellé, l'indice et l'erreur.
+- Une case soumet `value` (`on` par défaut) quand elle est cochée, rien sinon. L'attribut `checked` est l'état par défaut, que la réinitialisation remet.
+- Une case `readonly` garde son état : `ToggleBase` annule le clic et pose `aria-readonly`.
+
+## D2 — Le libellé
+
+- **Option A — Le slot par défaut**, comme Web Awesome et Spectrum. Le libellé accepte un lien.
+- **Option B — La propriété `label`**, comme les champs. Elle devient une propriété de texte dans Figma ([ADR 0016](?path=/docs/documentation-adr-0016-api-partagée-entre-le-code-et-figma--docs)).
+
+**Décision : B.** Une case, un interrupteur, une radio et un groupe ont `label`, comme un champ. Le libellé reste du texte, comme dans l'ADR 0007.
+
+## D3 — Le groupe de radios
+
+- **Option A — Le groupe rend des radios natives**, à partir de données. Le groupe natif fonctionne seul, mais une radio n'est plus un composant : Figma n'a pas d'équivalent.
+- **Option B — Chaque radio est un contrôle de formulaire**, comme Material Web. Le groupe n'a ni libellé, ni indice, ni erreur commune : le critère 3 échoue.
+- **Option C — Le groupe est le contrôle de formulaire**, et ses enfants `radio` portent `role="radio"`. Web Awesome, Spectrum et Vercel UI font ce choix.
+
+**Décision : C.**
+
+- `radio-group` soumet `value` sous `name`. Ses radios n'ont pas de comportement de formulaire.
+- Le groupe coche la radio dont la `value` est la sienne. Une radio hors d'un groupe ne fait rien.
+- `RovingFocusController` donne le tabindex : 0 à la radio cochée, ou à la première radio activée, -1 aux autres.
+- Les flèches cochent la radio suivante ou précédente, en bouclant, dans le sens du texte. Espace et le clic cochent aussi.
+- Chaque choix de l'utilisateur émet `input`, puis `change`, sur le groupe.
+- Le libellé du groupe nomme l'élément `role="radiogroup"`, dans le même shadow root. Les radios sont ses enfants dans l'arbre aplati.
+- Un groupe `readonly` garde sa valeur : les flèches déplacent seulement le focus.
+
+## D4 — Le message d'un groupe vide
+
+- **Option A — Un texte par défaut, en anglais.** Il diffère du message des champs, qui vient du navigateur.
+- **Option B — Le message d'une radio native cachée**, dans le shadow root du groupe. Il est dans la langue du navigateur, comme celui d'un champ.
+
+**Décision : B.** `error-message` le remplace, comme pour un champ.
+
+## D5 — Le groupe de cases
+
+Sa valeur est une liste. Le guide d'API veut une `value` de type chaîne.
+
+- **Option A — Chaque case se soumet seule**, sous le `name` du groupe. Le groupe n'a pas de valeur : ni l'application ni le formulaire ne le lisent comme un contrôle.
+- **Option B — Le groupe soumet une entrée par valeur cochée**, sous son `name`, comme un `<select multiple>`.
+
+**Décision : B.**
+
+- `values` porte les valeurs cochées : un tableau, propriété seule. La poser coche les cases de ces valeurs.
+- `value` donne la première valeur cochée, comme la `value` d'un `<select multiple>`.
+- Les cases n'ont pas de `name` : le groupe soumet leurs valeurs. L'attribut `checked` de chaque case reste son état par défaut.
+- Un groupe `required` bloque son formulaire tant qu'aucune case n'est cochée.
+- Un groupe désactivé ou en lecture seule le transmet à ses cases, après son rendu.
+
+## Les briques
+
+<table>
+  <thead>
+    <tr>
+      <th>Brique</th>
+      <th>Rôle</th>
+      <th>Composants</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>`FieldBase`</td>
+      <td>
+        Son rendu se découpe : `renderLabel()`, `renderHint()`, `renderControl()`, `renderError()`.
+        `syncValidity()` donne la validité, l'erreur affichée la lit sur l'hôte.
+      </td>
+      <td>Tous les champs</td>
+    </tr>
+    <tr>
+      <td>`ToggleBase`, base abstraite</td>
+      <td>La case native, sa mise en page, `checked`, `readonly`</td>
+      <td>`checkbox`, `switch`</td>
+    </tr>
+    <tr>
+      <td>`ChoiceGroupBase`, base abstraite</td>
+      <td>Le rôle du groupe, son libellé, ses enfants, `orientation`, la validité de `value`</td>
+      <td>`radio-group`, `checkbox-group`</td>
+    </tr>
+    <tr>
+      <td>`RovingFocusController`</td>
+      <td>Le tabindex mobile et les flèches, sur `state/collection.ts`</td>
+      <td>`radio-group`, puis onglets, barre d'outils, menu</td>
+    </tr>
+  </tbody>
+</table>
+
+## Récapitulatif
+
+<table>
+  <thead>
+    <tr>
+      <th>Décision</th>
+      <th>1. Natif d'abord</th>
+      <th>2. Sans copie</th>
+      <th>3. Groupe complet</th>
+      <th>4. Même nom</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>D1 — Case native</td>
+      <td>Oui</td>
+      <td>Oui : `FieldBase`</td>
+      <td>—</td>
+      <td>Oui</td>
+    </tr>
+    <tr>
+      <td>D2 — `label`</td>
+      <td>—</td>
+      <td>Oui</td>
+      <td>—</td>
+      <td>Oui</td>
+    </tr>
+    <tr>
+      <td>D3 — Groupe contrôle de formulaire</td>
+      <td>Pattern ARIA</td>
+      <td>Oui : `FieldBase`</td>
+      <td>Oui</td>
+      <td>Oui : `radio`, `radio-group`</td>
+    </tr>
+    <tr>
+      <td>D4 — Radio native cachée</td>
+      <td>Oui</td>
+      <td>Oui</td>
+      <td>Oui</td>
+      <td>—</td>
+    </tr>
+  </tbody>
+</table>
+
+## Conséquences
+
+- **Code :** `ToggleBase`, `Checkbox`, `Switch`, `ChoiceGroupBase`, `Radio`, `RadioGroup`, `CheckboxGroup` et `RovingFocusController`, dans `packages/components/src/`. `withDisabled` porte `groupDisabled`, l'état désactivé que donne un groupe.
+- **Tokens :** les groupes `toggle`, `checkbox`, `switch`, `radio` et `choice-group`, et le token sémantique `size.choice`.
+- **Tests :** les stories des quatre composants, `toggle-base.test.ts`, `radio-group.test.ts`, `checkbox-group.test.ts` et `roving-focus.test.ts`.
+- **Limites :**
+  - Le libellé est du texte : un lien vers des conditions d'utilisation n'y entre pas.
+  - Une radio pose son `role` et son `aria-checked` sur son hôte, comme Web Awesome et Spectrum.
+  - Rendu par un serveur, le groupe ne voit pas ses enfants : ses radios sont cochées à l'hydratation.
+- **Documentation :** cet ADR, [Contrôleurs et état](?path=/docs/documentation-référence-contrôleurs-et-état--docs), `AGENTS.md` et la JSDoc des composants.
+
+## Questions ouvertes
+
+- **Libellé riche :** un slot `label`, prioritaire sur la propriété, pour un lien.
+- **Description d'une radio :** un `hint` par radio, lu avec elle.
+- **Figma :** les fichiers `checkbox.figma.ts`, `switch.figma.ts`, `radio-group.figma.ts` et `checkbox-group.figma.ts` ([ADR 0016](?path=/docs/documentation-adr-0016-api-partagée-entre-le-code-et-figma--docs)).
+
+## Sources
+
+Consultées le 20 novembre 2026.
+
+- [checkbox.ts](https://github.com/shoelace-style/webawesome/blob/next/packages/webawesome/src/components/checkbox/checkbox.ts), [switch.ts](https://github.com/shoelace-style/webawesome/blob/next/packages/webawesome/src/components/switch/switch.ts), [radio-group.ts](https://github.com/shoelace-style/webawesome/blob/next/packages/webawesome/src/components/radio-group/radio-group.ts) et [radio.ts](https://github.com/shoelace-style/webawesome/blob/next/packages/webawesome/src/components/radio/radio.ts) (Web Awesome).
+- [RadioGroup.ts](https://github.com/adobe/spectrum-web-components/blob/main/1st-gen/packages/radio/src/RadioGroup.ts), [Radio.ts](https://github.com/adobe/spectrum-web-components/blob/main/1st-gen/packages/radio/src/Radio.ts) et [Switch.ts](https://github.com/adobe/spectrum-web-components/blob/main/1st-gen/packages/switch/src/Switch.ts) (Adobe, Spectrum Web Components).
+- [radio.ts](https://github.com/material-components/material-web/blob/main/radio/internal/radio.ts) et [single-selection-controller.ts](https://github.com/material-components/material-web/blob/main/radio/internal/single-selection-controller.ts) (Google, Material Web).
+- [radio.ts](https://github.com/vercel-labs/ui/blob/main/packages/core/src/components/radio/radio.ts) (Vercel UI).
+- [Radio Group Pattern](https://www.w3.org/WAI/ARIA/apg/patterns/radio/) (W3C, ARIA Authoring Practices Guide) : Tab, les flèches, Espace.

@@ -1,0 +1,149 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Documentation/ADR/0018 Select" />
+
+# ADR 0018 — Select
+
+**Statut :** accepté · **Date :** 20 novembre 2026
+
+## Contexte
+
+Un formulaire demande de choisir une valeur dans une liste fermée : un pays, une civilité. `autocomplete` accepte un texte libre ([ADR 0009](?path=/docs/documentation-adr-0009-autocomplete-combobox-et-popovers-ancrés--docs)).
+
+- Un `<select>` natif a une liste que le navigateur dessine. Ni ses options ni son popup ne se stylent.
+- Le `<select>` personnalisable (`appearance: base-select`) existe dans Chrome 135 et Safari 27, pas dans Firefox. La [matrice](?path=/docs/documentation-référence-support-navigateurs--docs) exige Chrome 111, Firefox 115 et Safari 16.4.
+- Le pattern ARIA est le combobox « select-only » : un élément `role="combobox"` focusable, sans saisie, et `aria-activedescendant` vers l'option active.
+- La même touche tapée deux fois passe à l'option suivante qui commence par cette lettre : c'est la recherche par saisie (typeahead) de l'APG.
+- `ComboboxBase`, `ListboxController` et `state/collection.ts` existent : le plan de migration fait du select la preuve qu'ils se réutilisent.
+
+### Ce que font les bibliothèques
+
+<table>
+  <thead>
+    <tr>
+      <th>Bibliothèque</th>
+      <th>Contrôle</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Material Web, `md-select`</td>
+      <td>
+        Un élément `role="combobox"`, `tabindex="0"`, `aria-haspopup="listbox"`. Une recherche par
+        saisie, réglable par `typeahead-delay`.
+      </td>
+    </tr>
+    <tr>
+      <td>Web Awesome, `wa-select`</td>
+      <td>Un `<input readonly>` avec `role="combobox"`, et un second input caché pour la validation</td>
+    </tr>
+    <tr>
+      <td>Spectrum Web Components, `sp-picker`</td>
+      <td>Un `<button aria-haspopup>` qui ouvre un menu</td>
+    </tr>
+  </tbody>
+</table>
+
+## D1 — Le contrôle
+
+- **Option A — Un `<select>` natif stylé.** Le popup reste celui du navigateur : il ne suit ni les tokens ni les marques.
+- **Option B — Un `<input readonly>`**, comme Web Awesome. Un lecteur d'écran l'annonce comme un champ de saisie en lecture seule.
+- **Option C — Un `<button>`**, comme Spectrum. Son clic et sa touche Espace se mêlent aux touches du combobox.
+- **Option D — Un `<div role="combobox" tabindex="0">`**, comme Material Web et l'APG.
+
+**Décision : D**, sur `ComboboxBase`.
+
+- `Select` étend `ComboboxBase` et crée un `ListboxController`, sans les modifier.
+- Le contrôle porte `aria-labelledby` vers le libellé : un `<label for>` ne nomme pas un `<div>`. Un clic sur le libellé donne le focus au contrôle.
+- La valeur est toujours une option, ou `""`. Le contrôle affiche le libellé de l'option choisie, ou `placeholder`.
+- Le choix émet `input`, puis `change`, comme un `<select>` natif. Il n'émet pas `u-select` : choisir, c'est changer la valeur.
+
+## D2 — Les touches
+
+<table>
+  <thead>
+    <tr>
+      <th>Liste</th>
+      <th>Touche</th>
+      <th>Effet</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Fermée</td>
+      <td>ArrowDown, Entrée, Espace</td>
+      <td>Ouvre la liste sur l'option choisie</td>
+    </tr>
+    <tr>
+      <td>Fermée</td>
+      <td>ArrowUp, Home ; End</td>
+      <td>Ouvre la liste sur la première option ; sur la dernière</td>
+    </tr>
+    <tr>
+      <td>Ouverte</td>
+      <td>Les flèches, Home, End</td>
+      <td>Déplacent l'option active, en sautant les options désactivées</td>
+    </tr>
+    <tr>
+      <td>Ouverte</td>
+      <td>Entrée, Espace, Tab, Alt+ArrowUp</td>
+      <td>Choisissent l'option active et ferment la liste</td>
+    </tr>
+    <tr>
+      <td>Ouverte</td>
+      <td>Échap</td>
+      <td>Ferme la liste sans changer la valeur (`DismissController`)</td>
+    </tr>
+    <tr>
+      <td>Toutes</td>
+      <td>Un caractère</td>
+      <td>Recherche par saisie : ouvre la liste et active l'option trouvée</td>
+    </tr>
+  </tbody>
+</table>
+
+- La recherche par saisie vit dans `state/typeahead.ts`, une fonction pure : un menu, une liste ou un arbre la réutilisent.
+- Le texte tapé dure 500 ms après chaque touche. Il ignore la casse et les accents, comme le filtre d'`autocomplete`.
+- Espace continue un texte tapé. Seule, elle choisit l'option active.
+
+## D3 — La validation
+
+Un select `required` sans valeur bloque son formulaire. Son message vient d'un `<select required>` natif caché dans son shadow root : il est dans la langue du navigateur. `error-message` le remplace.
+
+`FieldBase.syncValueValidity()` partage cette règle avec `ChoiceGroupBase` ([ADR 0017](?path=/docs/documentation-adr-0017-cases-à-cocher-interrupteurs-et-radios--docs)).
+
+## D4 — Le choix multiple
+
+`multiple` permet de choisir plusieurs options, comme un `<select multiple>`. La convention de l'[ADR 0017](?path=/docs/documentation-adr-0017-cases-à-cocher-interrupteurs-et-radios--docs) s'applique : `values` porte les valeurs choisies, `value` la première, et le formulaire reçoit une entrée par valeur.
+
+- Entrée, Espace et le clic choisissent une option ou la retirent. La liste reste ouverte. Tab et Échap la ferment.
+- La liste porte `aria-multiselectable`. `aria-selected` dit le choix de chaque option, et une case le montre devant elle.
+- L'option active, que nomme `aria-activedescendant`, porte `data-active` : `aria-selected` ne la marque plus.
+- Les `selected` des enfants `<option>` sont les choix par défaut. La réinitialisation du formulaire les remet.
+- Le contrôle affiche les libellés choisis, séparés par des virgules.
+- `state/selection.ts` garde l'ordre des options et ignore une option désactivée.
+
+## Conséquences
+
+- **Code :** `Select` (`packages/components/src/components/select/`), `state/typeahead.ts`, et `FieldBase.syncValueValidity()`. `autocomplete` compare son texte avec `normalizeText()` de `state/typeahead.ts`.
+- **Tokens :** le groupe `select` : le chevron, le placeholder et la graisse de l'option choisie. La boîte du contrôle est celle de `field`, la liste celle de `listbox`.
+- **Tests :** `select.test.ts` (clavier réel, Chromium), les stories dans trois moteurs, `state/typeahead.test.ts` dans Node.
+- **Limites :**
+  - Rendu par un serveur, le select ne voit pas ses enfants `<option>` : il affiche son placeholder jusqu'à l'hydratation, comme `autocomplete`.
+  - Les options sont du texte : ni groupe (`<optgroup>`), ni icône.
+
+## Questions ouvertes
+
+- **Étiquettes :** les choix multiples affichés en étiquettes qu'on retire une à une, quand la liste des libellés déborde.
+- **`<select>` personnalisable :** il remplace ce composant quand Firefox l'aura et que la matrice l'atteindra.
+- **Groupes d'options :** `<optgroup>`, rendus comme `role="group"` dans la liste.
+
+## Sources
+
+Consultées le 20 novembre 2026.
+
+- [Select-Only Combobox Example](https://www.w3.org/WAI/ARIA/apg/patterns/combobox/examples/combobox-select-only/) (W3C, ARIA Authoring Practices Guide) : les touches et la recherche par saisie.
+- [select.ts](https://github.com/material-components/material-web/blob/main/select/internal/select.ts) et [typeaheadController.ts](https://github.com/material-components/material-web/blob/main/menu/internal/controllers/typeaheadController.ts) (Google, Material Web).
+- [select.ts](https://github.com/shoelace-style/webawesome/blob/next/packages/webawesome/src/components/select/select.ts) (Web Awesome).
+- [Picker.ts](https://github.com/adobe/spectrum-web-components/blob/main/1st-gen/packages/picker/src/Picker.ts) (Adobe, Spectrum Web Components).
+- [Customizable select](https://web-platform-dx.github.io/web-features-explorer/features/customizable-select/) (web-features explorer) : Chrome 135, Safari 27.

@@ -1,0 +1,10 @@
+{
+  "choice-group": {
+    "$description": "Tokens of the groups of choices: `radio-group` (`ChoiceGroupBase`). The label, the hint and the error take those of `field`.",
+    "gap": {
+      "$type": "dimension",
+      "$value": "{spacing.sm}",
+      "$description": "Space between the choices."
+    }
+  }
+}
