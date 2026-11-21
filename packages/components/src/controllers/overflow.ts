@@ -6,7 +6,9 @@ export type OverflowEdge = "start" | "end";
 /**
  * Reactive controller: tells whether the content of a scrolling container
  * goes past its start or its end, along the inline axis, and scrolls it.
- * `Tabs` creates one, to show its scroll buttons.
+ * `Tabs` creates one, to show its scroll buttons. It also tells whether the
+ * container scrolls at all, along either axis: `Table` makes it focusable
+ * then, for the keyboard.
  *
  * It measures the container after each render of the host, when its size
  * changes (`ResizeObserver`) and when it scrolls, and renders the host
@@ -30,6 +32,9 @@ export class OverflowController implements ReactiveController {
 
   /** Some content goes past the end. */
   end = false;
+
+  /** The container scrolls, along either axis. */
+  scrolls = false;
 
   constructor(host: ReactiveControllerHost, container: () => HTMLElement | null | undefined) {
     this.#host = host;
@@ -78,9 +83,13 @@ export class OverflowController implements ReactiveController {
     const offset = Math.abs(container.scrollLeft);
     const start = offset > 1;
     const end = offset + container.clientWidth < container.scrollWidth - 1;
-    if (start !== this.start || end !== this.end) {
+    const scrolls =
+      container.scrollWidth > container.clientWidth + 1 ||
+      container.scrollHeight > container.clientHeight + 1;
+    if (start !== this.start || end !== this.end || scrolls !== this.scrolls) {
       this.start = start;
       this.end = end;
+      this.scrolls = scrolls;
       this.#host.requestUpdate();
     }
   };

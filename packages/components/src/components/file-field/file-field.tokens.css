@@ -1,0 +1,11 @@
+/* Generated from ../tokens/src/u.resolver.json by @unicorne/tokens/terrazzo-plugin (ADR 0002). Do not edit: change the tokens. */
+:host {
+  --u-file-field-button-background-color: var(--u-color-surface-default);
+  --u-file-field-button-background-color-hover: var(--u-color-surface-raised);
+  --u-file-field-button-text-color: var(--u-color-text-default);
+  --u-file-field-button-border-color: var(--u-color-border-control);
+  --u-file-field-button-border-radius: var(--u-radius-md);
+  --u-file-field-button-padding-inline: var(--u-spacing-sm);
+  --u-file-field-button-padding-block: var(--u-spacing-xs);
+  --u-file-field-button-gap: var(--u-spacing-sm);
+}

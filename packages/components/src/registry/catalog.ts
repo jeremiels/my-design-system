@@ -30,6 +30,15 @@ import { Tabs } from "../components/tabs/tabs.js";
 import { Toaster } from "../components/toaster/toaster.js";
 import { Toolbar } from "../components/toolbar/toolbar.js";
 import { Tooltip } from "../components/tooltip/tooltip.js";
+import { Badge } from "../components/badge/badge.js";
+import { FileField } from "../components/file-field/file-field.js";
+import { Progress } from "../components/progress/progress.js";
+import { Spinner } from "../components/spinner/spinner.js";
+import { Step } from "../components/step/step.js";
+import { Stepper } from "../components/stepper/stepper.js";
+import { Table } from "../components/table/table.js";
+import { TagGroup } from "../components/tag-group/tag-group.js";
+import { Tag } from "../components/tag/tag.js";
 import { TreeItem } from "../components/tree-item/tree-item.js";
 import { Tree } from "../components/tree/tree.js";
 import { TextField } from "../components/text-field/text-field.js";
@@ -38,6 +47,8 @@ import type { ListboxSelectEvent } from "../events/listbox-select.js";
 import type { ModalCancelEvent } from "../events/modal-cancel.js";
 import type { ModalCloseEvent } from "../events/modal-close.js";
 import type { PopupToggleEvent } from "../events/popup-toggle.js";
+import type { TableSortEvent } from "../events/table-sort.js";
+import type { TagRemoveEvent } from "../events/tag-remove.js";
 import type { ToastCloseEvent } from "../events/toast-close.js";
 
 /**
@@ -82,6 +93,15 @@ export const allComponents = [
   DatePicker,
   TreeItem,
   Tree,
+  Spinner,
+  Progress,
+  Badge,
+  Tag,
+  TagGroup,
+  FileField,
+  Step,
+  Stepper,
+  Table,
 ] as const;
 
 /** A component of a catalog, as types: its element, and its own events by name. */
@@ -99,6 +119,7 @@ export interface CatalogEntry {
  */
 export interface Catalog {
   alert: { element: Alert; events: {} };
+  badge: { element: Badge; events: {} };
   autocomplete: { element: Autocomplete; events: { "u-select": ListboxSelectEvent } };
   combobox: { element: Combobox; events: { "u-select": ListboxSelectEvent } };
   breadcrumb: { element: Breadcrumb; events: {} };
@@ -111,6 +132,7 @@ export interface Catalog {
   "date-field": { element: DateField; events: {} };
   "date-picker": { element: DatePicker; events: {} };
   details: { element: Details; events: {} };
+  "file-field": { element: FileField; events: {} };
   drawer: { element: Drawer; events: { "u-cancel": ModalCancelEvent; "u-close": ModalCloseEvent } };
   icon: { element: Icon; events: {} };
   menu: { element: Menu; events: { "u-toggle": PopupToggleEvent } };
@@ -118,15 +140,22 @@ export interface Catalog {
   modal: { element: Modal; events: { "u-cancel": ModalCancelEvent; "u-close": ModalCloseEvent } };
   "number-field": { element: NumberField; events: {} };
   pagination: { element: Pagination; events: {} };
+  progress: { element: Progress; events: {} };
   popover: { element: Popover; events: { "u-toggle": PopupToggleEvent } };
   radio: { element: Radio; events: {} };
   "radio-group": { element: RadioGroup; events: {} };
   select: { element: Select; events: {} };
   slider: { element: Slider; events: {} };
+  spinner: { element: Spinner; events: {} };
+  step: { element: Step; events: {} };
+  stepper: { element: Stepper; events: {} };
   switch: { element: Switch; events: {} };
   tab: { element: Tab; events: {} };
   "tab-panel": { element: TabPanel; events: {} };
   tabs: { element: Tabs; events: {} };
+  table: { element: Table; events: { "u-sort": TableSortEvent } };
+  tag: { element: Tag; events: { "u-remove": TagRemoveEvent } };
+  "tag-group": { element: TagGroup; events: {} };
   toaster: { element: Toaster; events: { "u-close": ToastCloseEvent } };
   toolbar: { element: Toolbar; events: {} };
   tooltip: { element: Tooltip; events: { "u-toggle": PopupToggleEvent } };

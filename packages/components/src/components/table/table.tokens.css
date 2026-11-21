@@ -1,0 +1,25 @@
+/* Generated from ../tokens/src/u.resolver.json by @unicorne/tokens/terrazzo-plugin (ADR 0002). Do not edit: change the tokens. */
+:host {
+  --u-table-font-family: var(--u-font-family-body);
+  --u-table-font-size: var(--u-font-size-md);
+  --u-table-text-color: var(--u-color-text-default);
+  --u-table-background-color: var(--u-color-surface-default);
+  --u-table-header-background-color: var(--u-color-surface-raised);
+  --u-table-header-font-weight: var(--u-font-weight-semibold);
+  --u-table-border-color: var(--u-color-border-default);
+  --u-table-border-width: var(--u-border-width);
+  --u-table-border-radius: var(--u-radius-md);
+  --u-table-cell-padding-inline: var(--u-spacing-sm);
+  --u-table-cell-padding-block: var(--u-spacing-xs);
+  --u-table-caption-gap: var(--u-spacing-xs);
+  --u-table-caption-font-size: var(--u-font-size-lg);
+  --u-table-caption-font-weight: var(--u-font-weight-semibold);
+  --u-table-row-background-color-selected: var(--u-color-surface-raised);
+  --u-table-sort-icon-size: var(--u-spacing-sm);
+  --u-table-max-block-size: var(--u-size-table);
+  --u-table-sort-icon-opacity: var(--u-opacity-disabled);
+  --u-table-checkbox-color: var(--u-color-action-background);
+  --u-table-focus-ring-color: var(--u-color-focus-ring);
+  --u-table-focus-ring-width: var(--u-focus-ring-width);
+  --u-table-focus-ring-offset: var(--u-focus-ring-offset);
+}

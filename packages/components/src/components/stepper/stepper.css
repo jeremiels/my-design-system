@@ -1,0 +1,13 @@
+/* The tokens are in stepper.tokens.css, generated from tokens/component/stepper/
+   (ADR 0002), and shared with step. These rules only read them. */
+
+/* The steps share the width; their labels wrap. */
+:host {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--u-stepper-gap);
+}
+:host([orientation="vertical"]) {
+  flex-direction: column;
+  align-items: stretch;
+}

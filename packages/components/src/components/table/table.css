@@ -1,0 +1,152 @@
+/* The tokens are in table.tokens.css, generated from tokens/component/table/
+   (ADR 0002). These rules only read them. */
+
+:host {
+  display: block;
+  font-family: var(--u-table-font-family);
+  font-size: var(--u-table-font-size);
+  color: var(--u-table-text-color);
+}
+
+/* The box that scrolls: past the width of the page, and past its largest
+   height under the header row. */
+.scroller {
+  overflow: auto;
+  max-block-size: var(--u-table-max-block-size);
+  border: var(--u-table-border-width) solid var(--u-table-border-color);
+  border-radius: var(--u-table-border-radius);
+}
+.scroller:focus-visible {
+  outline: var(--u-table-focus-ring-width) solid var(--u-table-focus-ring-color);
+  outline-offset: var(--u-table-focus-ring-offset);
+}
+
+.table {
+  inline-size: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background-color: var(--u-table-background-color);
+}
+
+caption {
+  padding-inline: var(--u-table-cell-padding-inline);
+  padding-block: var(--u-table-caption-gap);
+  font-size: var(--u-table-caption-font-size);
+  font-weight: var(--u-table-caption-font-weight);
+  text-align: start;
+  background-color: var(--u-table-background-color);
+}
+
+th,
+td {
+  padding-inline: var(--u-table-cell-padding-inline);
+  padding-block: var(--u-table-cell-padding-block);
+  border-block-end: var(--u-table-border-width) solid var(--u-table-border-color);
+  text-align: start;
+  vertical-align: top;
+}
+tbody tr:last-child > * {
+  border-block-end: none;
+}
+.end {
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+}
+
+/* The header row stays in view while the rows scroll under it. */
+thead th {
+  position: sticky;
+  inset-block-start: 0;
+  z-index: 1;
+  background-color: var(--u-table-header-background-color);
+  font-weight: var(--u-table-header-font-weight);
+  white-space: nowrap;
+}
+tbody th {
+  font-weight: inherit;
+}
+
+tbody tr[aria-selected="true"] {
+  background-color: var(--u-table-row-background-color-selected);
+}
+
+/* The checkboxes: a narrow first column. */
+.select {
+  inline-size: 1%;
+  text-align: center;
+}
+.select input {
+  margin: 0;
+  accent-color: var(--u-table-checkbox-color);
+}
+
+/* A sort button: the whole header, its text and an arrow. */
+.sort {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--u-table-cell-padding-block);
+  padding: 0;
+  margin: 0;
+  border: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: inherit;
+  cursor: pointer;
+}
+.end .sort {
+  flex-direction: row-reverse;
+}
+.sort:focus-visible {
+  outline: var(--u-table-focus-ring-width) solid var(--u-table-focus-ring-color);
+  outline-offset: var(--u-table-focus-ring-offset);
+}
+
+/* The arrows: up and down, faint, while the column doesn't sort the rows;
+   up while it sorts them ascending, down while descending. Each is a
+   chevron: two borders of a square, turned. */
+.sort-icon {
+  flex: none;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  opacity: var(--u-table-sort-icon-opacity);
+}
+.sort-icon::before,
+.sort-icon::after {
+  content: "";
+  box-sizing: border-box;
+  inline-size: var(--u-table-sort-icon-size);
+  block-size: var(--u-table-sort-icon-size);
+  border: 0 solid currentColor;
+  transform: rotate(45deg);
+}
+/* Up and down whatever the direction of the text: physical borders. */
+.sort-icon::before {
+  border-width: calc(var(--u-table-border-width) * 2) 0 0 calc(var(--u-table-border-width) * 2);
+}
+.sort-icon::after {
+  border-width: 0 calc(var(--u-table-border-width) * 2) calc(var(--u-table-border-width) * 2) 0;
+}
+.sort[data-sorted] .sort-icon {
+  opacity: 1;
+}
+.sort[data-sorted="ascending"] .sort-icon::after,
+.sort[data-sorted="descending"] .sort-icon::before {
+  display: none;
+}
+
+.empty td {
+  text-align: center;
+}
+
+@media (forced-colors: active) {
+  tbody tr[aria-selected="true"] {
+    outline: 2px solid Highlight;
+    outline-offset: -2px;
+  }
+  .sort:focus-visible,
+  .scroller:focus-visible {
+    outline-color: Highlight;
+  }
+}

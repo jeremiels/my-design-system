@@ -1,0 +1,34 @@
+/* The tokens are in spinner.tokens.css, generated from tokens/component/spinner/
+   (ADR 0002). These rules only read them. */
+
+:host {
+  display: inline-block;
+  vertical-align: middle;
+  inline-size: var(--u-spinner-size);
+  block-size: var(--u-spinner-size);
+}
+
+/* A ring, and a quarter of it in the indicator color, that turns. With
+   reduced motion, its token gives a slower turn. */
+.spinner {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+  border: var(--u-spinner-width) solid var(--u-spinner-track-color);
+  border-block-start-color: var(--u-spinner-indicator-color);
+  border-radius: 50%;
+  animation: spin var(--u-spinner-duration) linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+@media (forced-colors: active) {
+  .spinner {
+    border-color: GrayText;
+    border-block-start-color: CanvasText;
+  }
+}

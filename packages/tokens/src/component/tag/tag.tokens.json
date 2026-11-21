@@ -1,0 +1,80 @@
+{
+  "tag": {
+    "$description": "Tokens of `tag` and of `tag-group`.",
+    "background-color": {
+      "$type": "color",
+      "$value": "{color.surface.raised}",
+      "$description": "Background color."
+    },
+    "text-color": {
+      "$type": "color",
+      "$value": "{color.text.default}",
+      "$description": "Text color."
+    },
+    "border-color": {
+      "$type": "color",
+      "$value": "{color.border.default}",
+      "$description": "Border color."
+    },
+    "border-width": {
+      "$type": "dimension",
+      "$value": "{border.width}",
+      "$description": "Border width."
+    },
+    "border-radius": {
+      "$type": "dimension",
+      "$value": "{radius.full}",
+      "$description": "Corner radius."
+    },
+    "padding-inline": {
+      "$type": "dimension",
+      "$value": "{spacing.sm}",
+      "$description": "Horizontal padding."
+    },
+    "padding-block": {
+      "$type": "dimension",
+      "$value": "{spacing.2xs}",
+      "$description": "Vertical padding."
+    },
+    "gap": {
+      "$type": "dimension",
+      "$value": "{spacing.xs}",
+      "$description": "Space between the text and the remove button."
+    },
+    "font-family": {
+      "$type": "fontFamily",
+      "$value": "{font.family.body}",
+      "$description": "Font family."
+    },
+    "font-size": {
+      "$type": "dimension",
+      "$value": "{font.size.sm}",
+      "$description": "Font size."
+    },
+    "remove-size": {
+      "$type": "dimension",
+      "$value": "{size.indicator-sm}",
+      "$description": "Width and height of the remove button, and of its icon."
+    },
+    "remove-background-color-hover": {
+      "$type": "color",
+      "$value": "{color.border.default}",
+      "$description": "Background color of the remove button under the pointer."
+    },
+    "group-gap": {
+      "$type": "dimension",
+      "$value": "{spacing.xs}",
+      "$description": "Space between the tags of a `tag-group`."
+    },
+    "focus-ring-color": {
+      "$type": "color",
+      "$value": "{color.focus-ring}",
+      "$description": "Color of the focus ring of the remove button."
+    },
+    "focus-ring-width": {
+      "$type": "dimension",
+      "$value": "{focus-ring.width}",
+      "$description": "Width of the focus ring of the remove button."
+    }
+  }
+}

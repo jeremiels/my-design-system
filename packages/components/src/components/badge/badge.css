@@ -1,0 +1,27 @@
+/* The tokens are in badge.tokens.css, generated from tokens/component/badge/
+   (ADR 0002). These rules only read them. */
+
+:host {
+  display: inline-block;
+  vertical-align: baseline;
+}
+
+.badge {
+  display: inline-block;
+  padding-inline: var(--u-badge-padding-inline);
+  padding-block: var(--u-badge-padding-block);
+  background-color: var(--u-badge-background-color);
+  color: var(--u-badge-text-color);
+  border-radius: var(--u-badge-border-radius);
+  font-family: var(--u-badge-font-family);
+  font-size: var(--u-badge-font-size);
+  font-weight: var(--u-badge-font-weight);
+  line-height: 1.25;
+  white-space: nowrap;
+}
+
+@media (forced-colors: active) {
+  .badge {
+    border: 1px solid CanvasText;
+  }
+}

@@ -1,0 +1,16 @@
+/* Generated from ../tokens/src/u.resolver.json by @unicorne/tokens/terrazzo-plugin (ADR 0002). Do not edit: change the tokens. */
+:host {
+  --u-spinner-size: var(--u-size-indicator-md);
+  --u-spinner-width: var(--u-border-width-thick);
+  --u-spinner-track-color: var(--u-color-border-default);
+  --u-spinner-indicator-color: var(--u-color-action-background);
+  --u-spinner-duration: var(--u-motion-duration-loop);
+}
+
+:host([size="small"]) {
+  --u-spinner-size: var(--u-size-indicator-sm);
+}
+
+:host([size="large"]) {
+  --u-spinner-size: var(--u-size-indicator-lg);
+}

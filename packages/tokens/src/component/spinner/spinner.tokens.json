@@ -1,0 +1,30 @@
+{
+  "spinner": {
+    "$description": "Tokens of `spinner`. The defaults are those of the `medium` size.",
+    "size": {
+      "$type": "dimension",
+      "$value": "{size.indicator-md}",
+      "$description": "Width and height of the spinner (sizes change the default)."
+    },
+    "width": {
+      "$type": "dimension",
+      "$value": "{border.width-thick}",
+      "$description": "Thickness of its ring."
+    },
+    "track-color": {
+      "$type": "color",
+      "$value": "{color.border.default}",
+      "$description": "Color of the ring."
+    },
+    "indicator-color": {
+      "$type": "color",
+      "$value": "{color.action.background}",
+      "$description": "Color of the arc that turns on the ring."
+    },
+    "duration": {
+      "$type": "duration",
+      "$value": "{motion.duration.loop}",
+      "$description": "Duration of one turn: slower with reduced motion."
+    }
+  }
+}

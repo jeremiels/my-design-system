@@ -1,0 +1,67 @@
+/* The tokens are in progress.tokens.css, generated from tokens/component/progress/
+   (ADR 0002). These rules only read them. */
+
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--u-progress-gap);
+  font-family: var(--u-progress-font-family);
+  color: var(--u-progress-text-color);
+}
+
+.header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--u-progress-gap);
+}
+.label {
+  font-size: var(--u-progress-label-font-size);
+}
+.value {
+  font-size: var(--u-progress-value-font-size);
+  font-variant-numeric: tabular-nums;
+}
+
+/* The bar: its border shows where it ends, whatever the share done. */
+.track {
+  position: relative;
+  overflow: hidden;
+  block-size: var(--u-progress-block-size);
+  background-color: var(--u-progress-track-color);
+  border: var(--u-progress-track-border-width) solid var(--u-progress-track-border-color);
+  border-radius: var(--u-progress-border-radius);
+}
+.indicator {
+  block-size: 100%;
+  background-color: var(--u-progress-indicator-color);
+  border-radius: var(--u-progress-border-radius);
+}
+
+/* Unknown length: a third of the bar passes from its start to its end,
+   again, in the direction of the text. */
+.track:not([aria-valuenow]) .indicator {
+  inline-size: 33%;
+  animation: pass var(--u-progress-duration) ease-in-out infinite;
+}
+@keyframes pass {
+  from {
+    margin-inline-start: -33%;
+  }
+  to {
+    margin-inline-start: 100%;
+  }
+}
+
+@media (forced-colors: active) {
+  .track {
+    border-color: CanvasText;
+  }
+  .indicator {
+    background-color: CanvasText;
+  }
+}
+
+.header[hidden] {
+  display: none;
+}

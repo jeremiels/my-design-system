@@ -44,6 +44,15 @@ const pages: Record<string, string> = {
   tree: `<u-tree label="Files"><u-tree-item label="Documents" value="docs" expanded><u-tree-item label="Report" value="report"></u-tree-item></u-tree-item></u-tree>`,
   "tree-item": `<u-tree-item label="Report" value="report"></u-tree-item>`,
   "menu-item": `<u-menu-item>Rename</u-menu-item>`,
+  spinner: `<u-spinner label="Sending the file"></u-spinner>`,
+  progress: `<u-progress label="Sending the file" value="40"></u-progress>`,
+  badge: `<u-badge variant="success">Sent</u-badge>`,
+  tag: `<u-tag removable>Paris</u-tag>`,
+  "tag-group": `<u-tag-group label="Filters"><u-tag removable>Paris</u-tag><u-tag removable>Lyon</u-tag></u-tag-group>`,
+  "file-field": `<u-file-field label="Proof of address" name="proof" accept=".pdf" required></u-file-field>`,
+  step: `<u-step value="identity">Identity</u-step>`,
+  stepper: `<u-stepper label="Your request" value="address"><u-step value="identity">Identity</u-step><u-step value="address">Address</u-step><u-step value="documents">Documents</u-step></u-stepper>`,
+  table: `<u-table label="Requests"><p slot="empty">No request yet</p></u-table>`,
 };
 
 export default async function setup(project: TestProject): Promise<void> {

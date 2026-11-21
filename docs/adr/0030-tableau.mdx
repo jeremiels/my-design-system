@@ -1,0 +1,118 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Documentation/ADR/0030 Tableau" />
+
+# ADR 0030 — Tableau
+
+**Statut :** accepté · **Date :** 21 novembre 2026
+
+## Contexte
+
+Une application liste des dossiers : leur numéro, le demandeur, la date, le montant, l'état. L'agent les trie, en sélectionne plusieurs, et passe à la page suivante.
+
+- Un `<table>` natif donne la légende, les en-têtes de colonnes et de lignes, et la navigation des lecteurs d'écran.
+- Un `<table>` ne se découpe pas en éléments personnalisés : `<tr>` et `<td>` n'existent que dans un `<table>`.
+- `aria-sort` dit le tri d'une colonne. Une seule colonne le porte.
+- `pagination` existe ([ADR 0020](?path=/docs/documentation-adr-0020-onglets-détails-et-navigation--docs)). Le socle n'a pas de grille de données.
+
+### Ce que font les bibliothèques
+
+<table>
+  <thead>
+    <tr>
+      <th>Bibliothèque</th>
+      <th>Structure</th>
+      <th>Tri</th>
+      <th>Sélection</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>DSFR</td>
+      <td>
+        Un `<table>` natif, une `<caption>` obligatoire, des `<th>` avec `scope`, un conteneur
+        qui défile.
+      </td>
+      <td>Un bouton dans l'en-tête.</td>
+      <td>
+        Une case par ligne, nommée « Sélectionner la ligne 1 », `aria-selected` sur la ligne.
+      </td>
+    </tr>
+    <tr>
+      <td>Spectrum Web Components</td>
+      <td>
+        Des éléments personnalisés avec `role="grid"`, `row` et `gridcell`. Une liste virtuelle
+        (`@lit-labs/virtualizer`).
+      </td>
+      <td>`sortable` sur l'en-tête, l'événement `sorted`. L'application trie.</td>
+      <td>`selects` : `single` ou `multiple`, des cases, « Select All ».</td>
+    </tr>
+    <tr>
+      <td>React Aria</td>
+      <td>Une grille (`role="grid"`), virtuelle avec `Virtualizer`.</td>
+      <td>`sortDescriptor` et `onSortChange`. L'application trie.</td>
+      <td>`selectionMode`, des cases.</td>
+    </tr>
+  </tbody>
+</table>
+
+## D1 — Un `<table>` natif, rendu depuis des données
+
+- **Option A — Des éléments personnalisés avec des rôles ARIA**, comme Spectrum. Chaque cellule est un élément, et `display: table` refait la mise en page.
+- **Option B — Un `<table>` natif dans le shadow root**, rendu depuis `columns` et `rows`.
+
+**Décision : B.** La sémantique et la mise en page sont celles du navigateur, et les feuilles du composant atteignent chaque cellule.
+
+- Une colonne a une `key`, un `label`, et au choix `sortable`, `align`, `rowHeader` et `render(row)`.
+- `render` rend un contenu riche : un lien, un `badge`. Par défaut, la cellule montre sa valeur, avec les nombres et les dates dans la langue de la page.
+- Une colonne `rowHeader` rend des `<th scope="row">`.
+
+## D2 — Un tableau, pas une grille
+
+Les flèches ne déplacent pas une cellule active. Tab parcourt les boutons de tri, les cases et les contrôles des cellules, comme dans le DSFR. Une grille reste une question du socle, avec la navigation au clavier de l'APG.
+
+## D3 — Le tri
+
+- **Option A — Le tableau trie ses lignes.** Un tri sur le serveur, courant avec la pagination, demande alors de le désactiver.
+- **Option B — Le tableau montre le tri, l'application trie**, comme Spectrum et React Aria.
+
+**Décision : B.** Un appui sur l'en-tête émet `u-sort`, annulable, avec la colonne et le sens. Puis le tableau montre le tri : `aria-sort` et une flèche.
+
+- `sortRows(rows, sort, langue)` trie dans la page, en une ligne. Les nombres et les dates se comparent comme tels, le texte dans l'ordre de la langue.
+- `nextSort()` donne le sens suivant : croissant sur une nouvelle colonne, puis l'autre sens.
+
+## D4 — La sélection
+
+- `selectable` ajoute une colonne de cases, comme le DSFR. `values` donne les clés des lignes choisies, lues dans `row-key`.
+- Une case est nommée par `select-label` et l'en-tête de sa ligne : « Select R-087 ».
+- La case de l'en-tête choisit toutes les lignes. Elle est indéterminée quand une partie l'est.
+- Chaque choix de l'utilisateur émet `change`. Une ligne qui disparaît de `rows` sort de `values`.
+
+## D5 — Le défilement
+
+- Le tableau défile au-delà de la largeur de la page, et au-delà de `--u-table-max-block-size` sous la ligne d'en-tête.
+- Une zone qui défile doit s'atteindre au clavier (règle axe `scrollable-region-focusable`). Le tableau prend le focus seulement quand il défile, comme une région nommée par sa légende : `OverflowController` le dit (`scrolls`).
+
+## Conséquences
+
+- **Code :** `Table`, `TableColumn`, `TableRow`, l'événement `TableSortEvent`, `state/table.ts`, `toggleAll()` dans `state/selection.ts` et `scrolls` dans `OverflowController`.
+- **Tokens :** le groupe `table`, et le token sémantique `size.table`.
+- **Tests :** `state/table.test.ts` dans Node, `table.test.ts` avec le vrai clavier, les stories dans trois moteurs.
+- **Limites :**
+  - Le tableau rend toutes ses lignes. Pour des milliers de lignes, l'application pagine, avec `pagination`.
+  - Les cases sont les cases natives, colorées par `accent-color`.
+
+## Questions ouvertes
+
+- **Liste virtuelle :** des milliers de lignes sans pagination ([ADR 0026](?path=/docs/documentation-adr-0026-grandes-listes-et-options-chargées--docs)).
+- **Chargement :** un état qui garde les lignes et montre un `spinner`.
+- **Lignes dépliables :** le détail d'un dossier sous sa ligne.
+- **Grille de données :** l'édition des cellules et la navigation aux flèches.
+
+## Sources
+
+Consultées le 21 novembre 2026.
+
+- [Accessibilité](https://github.com/GouvernementFR/dsfr/blob/main/src/dsfr/component/table/_part/doc/accessibility/index.md) et [code](https://github.com/GouvernementFR/dsfr/blob/main/src/dsfr/component/table/_part/doc/code/index.md) du tableau (DSFR).
+- [Table.ts](https://github.com/adobe/spectrum-web-components/blob/main/1st-gen/packages/table/src/Table.ts) et [TableHeadCell.ts](https://github.com/adobe/spectrum-web-components/blob/main/1st-gen/packages/table/src/TableHeadCell.ts) (Adobe, Spectrum Web Components).
+- [Table.tsx](https://github.com/adobe/react-spectrum/blob/main/packages/react-aria-components/src/Table.tsx) (Adobe, React Aria).

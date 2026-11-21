@@ -185,6 +185,42 @@
     "./tree-item": {
       "types": "./dist/components/tree-item/tree-item.d.ts",
       "import": "./dist/tree-item.js"
+    },
+    "./spinner": {
+      "types": "./dist/components/spinner/spinner.d.ts",
+      "import": "./dist/spinner.js"
+    },
+    "./progress": {
+      "types": "./dist/components/progress/progress.d.ts",
+      "import": "./dist/progress.js"
+    },
+    "./badge": {
+      "types": "./dist/components/badge/badge.d.ts",
+      "import": "./dist/badge.js"
+    },
+    "./tag": {
+      "types": "./dist/components/tag/tag.d.ts",
+      "import": "./dist/tag.js"
+    },
+    "./tag-group": {
+      "types": "./dist/components/tag-group/tag-group.d.ts",
+      "import": "./dist/tag-group.js"
+    },
+    "./file-field": {
+      "types": "./dist/components/file-field/file-field.d.ts",
+      "import": "./dist/file-field.js"
+    },
+    "./step": {
+      "types": "./dist/components/step/step.d.ts",
+      "import": "./dist/step.js"
+    },
+    "./stepper": {
+      "types": "./dist/components/stepper/stepper.d.ts",
+      "import": "./dist/stepper.js"
+    },
+    "./table": {
+      "types": "./dist/components/table/table.d.ts",
+      "import": "./dist/table.js"
     }
   },
   "scripts": {

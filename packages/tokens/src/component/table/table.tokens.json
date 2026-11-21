@@ -1,0 +1,115 @@
+{
+  "table": {
+    "$description": "Tokens of `table`.",
+    "font-family": {
+      "$type": "fontFamily",
+      "$value": "{font.family.body}",
+      "$description": "Font family."
+    },
+    "font-size": {
+      "$type": "dimension",
+      "$value": "{font.size.md}",
+      "$description": "Font size of the cells."
+    },
+    "text-color": {
+      "$type": "color",
+      "$value": "{color.text.default}",
+      "$description": "Text color."
+    },
+    "background-color": {
+      "$type": "color",
+      "$value": "{color.surface.default}",
+      "$description": "Background color of the rows."
+    },
+    "header-background-color": {
+      "$type": "color",
+      "$value": "{color.surface.raised}",
+      "$description": "Background color of the header row."
+    },
+    "header-font-weight": {
+      "$type": "fontWeight",
+      "$value": "{font.weight.semibold}",
+      "$description": "Font weight of the column headers."
+    },
+    "border-color": {
+      "$type": "color",
+      "$value": "{color.border.default}",
+      "$description": "Color of the lines between the rows, and of the border."
+    },
+    "border-width": {
+      "$type": "dimension",
+      "$value": "{border.width}",
+      "$description": "Width of the lines and of the border."
+    },
+    "border-radius": {
+      "$type": "dimension",
+      "$value": "{radius.md}",
+      "$description": "Corner radius of the table."
+    },
+    "cell-padding-inline": {
+      "$type": "dimension",
+      "$value": "{spacing.sm}",
+      "$description": "Horizontal padding of a cell."
+    },
+    "cell-padding-block": {
+      "$type": "dimension",
+      "$value": "{spacing.xs}",
+      "$description": "Vertical padding of a cell."
+    },
+    "caption-gap": {
+      "$type": "dimension",
+      "$value": "{spacing.xs}",
+      "$description": "Space between the caption and the table."
+    },
+    "caption-font-size": {
+      "$type": "dimension",
+      "$value": "{font.size.lg}",
+      "$description": "Font size of the caption."
+    },
+    "caption-font-weight": {
+      "$type": "fontWeight",
+      "$value": "{font.weight.semibold}",
+      "$description": "Font weight of the caption."
+    },
+    "row-background-color-selected": {
+      "$type": "color",
+      "$value": "{color.surface.raised}",
+      "$description": "Background color of a selected row."
+    },
+    "sort-icon-size": {
+      "$type": "dimension",
+      "$value": "{spacing.sm}",
+      "$description": "Width and height of the sort arrow of a column header."
+    },
+    "max-block-size": {
+      "$type": "dimension",
+      "$value": "{size.table}",
+      "$description": "Largest height of the table: its rows scroll past it, under the header row."
+    },
+    "sort-icon-opacity": {
+      "$type": "number",
+      "$value": "{opacity.disabled}",
+      "$description": "Opacity of the arrow of a sortable column that doesn't sort the rows."
+    },
+    "checkbox-color": {
+      "$type": "color",
+      "$value": "{color.action.background}",
+      "$description": "Color of a checked checkbox."
+    },
+    "focus-ring-color": {
+      "$type": "color",
+      "$value": "{color.focus-ring}",
+      "$description": "Color of the focus ring of a sort button, and of the table while it scrolls."
+    },
+    "focus-ring-width": {
+      "$type": "dimension",
+      "$value": "{focus-ring.width}",
+      "$description": "Width of the focus ring."
+    },
+    "focus-ring-offset": {
+      "$type": "dimension",
+      "$value": "{focus-ring.offset}",
+      "$description": "Space between the focus ring and what it surrounds."
+    }
+  }
+}
