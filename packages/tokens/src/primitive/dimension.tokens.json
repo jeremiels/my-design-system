@@ -2,20 +2,84 @@
   "dimension": {
     "$type": "dimension",
     "$description": "Raw sizes, named in hundredths of the 4px base unit (100 = 0.25rem): spacing, radii, borders, focus ring.",
-    "0": { "$value": { "value": 0, "unit": "rem" } },
-    "25": { "$value": { "value": 0.0625, "unit": "rem" } },
-    "50": { "$value": { "value": 0.125, "unit": "rem" } },
-    "100": { "$value": { "value": 0.25, "unit": "rem" } },
-    "200": { "$value": { "value": 0.5, "unit": "rem" } },
-    "300": { "$value": { "value": 0.75, "unit": "rem" } },
-    "400": { "$value": { "value": 1, "unit": "rem" } },
-    "600": { "$value": { "value": 1.5, "unit": "rem" } },
-    "800": { "$value": { "value": 2, "unit": "rem" } },
-    "1200": { "$value": { "value": 3, "unit": "rem" } },
-    "6400": { "$value": { "value": 16, "unit": "rem" } },
+    "0": {
+      "$value": {
+        "value": 0,
+        "unit": "rem"
+      }
+    },
+    "25": {
+      "$value": {
+        "value": 0.0625,
+        "unit": "rem"
+      }
+    },
+    "50": {
+      "$value": {
+        "value": 0.125,
+        "unit": "rem"
+      }
+    },
+    "100": {
+      "$value": {
+        "value": 0.25,
+        "unit": "rem"
+      }
+    },
+    "200": {
+      "$value": {
+        "value": 0.5,
+        "unit": "rem"
+      }
+    },
+    "300": {
+      "$value": {
+        "value": 0.75,
+        "unit": "rem"
+      }
+    },
+    "400": {
+      "$value": {
+        "value": 1,
+        "unit": "rem"
+      }
+    },
+    "600": {
+      "$value": {
+        "value": 1.5,
+        "unit": "rem"
+      }
+    },
+    "800": {
+      "$value": {
+        "value": 2,
+        "unit": "rem"
+      }
+    },
+    "1200": {
+      "$value": {
+        "value": 3,
+        "unit": "rem"
+      }
+    },
+    "6400": {
+      "$value": {
+        "value": 16,
+        "unit": "rem"
+      }
+    },
+    "8000": {
+      "$value": {
+        "value": 20,
+        "unit": "rem"
+      }
+    },
     "full": {
       "$description": "Larger than any element: a fully rounded corner.",
-      "$value": { "value": 9999, "unit": "px" }
+      "$value": {
+        "value": 9999,
+        "unit": "px"
+      }
     }
   }
 }

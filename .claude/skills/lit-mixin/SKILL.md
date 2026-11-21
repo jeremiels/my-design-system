@@ -11,10 +11,12 @@ Exemples :
 
 - `packages/components/src/mixins/withDisabled.ts` : un mixin, avec une propriété, des styles et de l'ARIA dans le cycle de vie.
 - `packages/components/src/mixins/withInternals.ts` : un mixin sur une base abstraite, pour une API du navigateur à usage unique.
+- `packages/components/src/mixins/withFormControl.ts` : un mixin qui exige deux autres mixins (`withInternals`, `withDisabled`), et des membres `protected` que les sous-classes surchargent.
 - `packages/components/src/mixins/withInvoker.ts` : un mixin qui passe ses attributs à un élément du template, avec un polyfill chargé à la demande.
 - `packages/components/src/controllers/commands.ts` : un contrôleur avec une fonction de rappel.
 - `packages/components/src/controllers/anchored-popover.ts` : un contrôleur avec sa feuille exportée et un repli chargé à la demande.
 - `packages/components/src/controllers/listbox.ts` : un contrôleur qui rend, sans état propre.
+- `packages/components/src/controllers/dismiss.ts` : un contrôleur à options, qui écoute le document entre sa connexion et sa déconnexion.
 - `packages/components/src/controllers/exit-transition.ts` : des fonctions, pour un comportement sans état d'hôte.
 - `packages/components/src/state/combobox.ts` : une fonction d'état et ses tests dans Node.
 

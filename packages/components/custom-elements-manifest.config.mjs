@@ -43,5 +43,15 @@ export default {
         }
       },
     },
+    {
+      // The analyzer lists the files in their order on disk, which varies:
+      // sort the modules, for a stable diff and a stable `api:check`.
+      name: "sort-modules",
+      packageLinkPhase({ customElementsManifest }) {
+        customElementsManifest.modules.sort((a, b) =>
+          a.path < b.path ? -1 : a.path > b.path ? 1 : 0,
+        );
+      },
+    },
   ],
 };

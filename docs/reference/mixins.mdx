@@ -4,16 +4,14 @@ import { Meta } from "@storybook/addon-docs/blocks";
 
 # Mixins
 
-Un mixin ajoute à une classe de composant un comportement qui a une API publique : une propriété, un attribut, une méthode. Le socle exporte trois mixins : `withDisabled`, `withInternals` et `withInvoker`. Les marques les appliquent à leurs propres composants.
+Un mixin ajoute à une classe de composant un comportement qui a une API publique : une propriété, un attribut, une méthode. Le socle exporte quatre mixins : `withDisabled`, `withInternals`, `withFormControl` et `withInvoker`. Les marques les appliquent à leurs propres composants.
 
 Un comportement sans API publique est un contrôleur : voir [Contrôleurs et état](?path=/docs/documentation-référence-contrôleurs-et-état--docs). La raison de ce partage est dans l'[ADR 0010](?path=/docs/documentation-adr-0010-état-contrôleurs-et-mixins--docs).
 
 ```ts
-import { DSBaseElement, withDisabled, withInternals } from "@unicorne/components";
+import { DSBaseElement, withDisabled, withFormControl, withInternals } from "@unicorne/components";
 
-export class AcmeField extends withInternals(withDisabled(DSBaseElement)) {
-  static formAssociated = true;
-}
+export class AcmeRating extends withFormControl(withInternals(withDisabled(DSBaseElement))) {}
 ```
 
 - Appliquez un mixin directement dans `extends`, jamais par une constante : l'analyseur du manifest ne suit que l'héritage écrit en ligne.
@@ -49,6 +47,7 @@ Désactive un composant.
 </table>
 
 - L'hôte d'un composant désactivé porte `aria-disabled="true"`.
+- Un groupe désactive ses enfants par `groupDisabled`, un membre interne : `radio-group` ses radios, `checkbox-group` ses cases. `isDisabled` le compte.
 - `:host([disabled])` et `:host(:disabled)` reçoivent `pointer-events: none` et `opacity: var(--u-opacity-disabled)`.
 - Le composant rend son template et ignore les interactions à partir de `isDisabled`, pas de `disabled`.
 - Un composant associé à un formulaire (`static formAssociated = true`) est désactivé par un `<fieldset disabled>` ancêtre, sans attribut. Le navigateur appelle alors `formDisabledCallback()`, que le mixin implémente.
@@ -86,7 +85,7 @@ Attache les `ElementInternals` du composant.
 </table>
 
 - Appliquez `withInternals` seulement à un composant qui en a besoin :
-  - il participe à un formulaire (`internals.form`, `setFormValue()`, validité) ;
+  - il participe à un formulaire (`internals.form`, `setFormValue()`, validité) : il applique aussi `withFormControl`, sauf un bouton ;
   - il expose des états `:state()` ;
   - il définit son rôle ARIA par `internals.role`.
 - `attachInternals()` fonctionne une fois par élément. N'appelez jamais `this.attachInternals()` dans une classe qui a ce mixin.
@@ -97,6 +96,81 @@ Attache les `ElementInternals` du composant.
 ### Support navigateurs
 
 `customStates` est sans effet là où `:state()` standard n'existe pas : Chrome 90–124, Firefox avant 126 et Safari avant 17.4. Ces versions sont dans la [matrice](?path=/docs/documentation-référence-support-navigateurs--docs). Un état nécessaire au rendu se reflète donc aussi en attribut. Un champ affiche son erreur sans `:state(user-invalid)`.
+
+## withFormControl
+
+Fait d'un composant un contrôle de formulaire, comme un `<input>` natif. `FieldBase` l'applique.
+
+<table>
+  <thead>
+    <tr>
+      <th>Membre</th>
+      <th>Accès</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>`name`</td>
+      <td>public, attribut reflété</td>
+      <td>Le nom de la valeur dans les données du formulaire</td>
+    </tr>
+    <tr>
+      <td>`value`</td>
+      <td>public, attribut</td>
+      <td>
+        La valeur envoyée. L'attribut `value` est la valeur par défaut : la réinitialisation du
+        formulaire la remet.
+      </td>
+    </tr>
+    <tr>
+      <td>`required`</td>
+      <td>public, attribut</td>
+      <td>Le formulaire n'est pas envoyé tant que le contrôle est vide</td>
+    </tr>
+    <tr>
+      <td>`readOnly`</td>
+      <td>public, attribut `readonly` reflété</td>
+      <td>L'utilisateur ne change pas la valeur. Le formulaire l'envoie sans la valider.</td>
+    </tr>
+    <tr>
+      <td>`form`, `validity`, `validationMessage`, `willValidate`</td>
+      <td>public, lecture seule</td>
+      <td>Comme sur un contrôle natif</td>
+    </tr>
+    <tr>
+      <td>`checkValidity()`, `reportValidity()`, `setCustomValidity(message)`</td>
+      <td>public</td>
+      <td>Comme sur un contrôle natif</td>
+    </tr>
+    <tr>
+      <td>`formValue`</td>
+      <td>`protected`, lecture seule</td>
+      <td>Ce que le formulaire envoie sous `name` : `value` par défaut</td>
+    </tr>
+    <tr>
+      <td>`customValidity`</td>
+      <td>`protected`, lecture seule</td>
+      <td>Le message de `setCustomValidity()`, `""` sans message</td>
+    </tr>
+    <tr>
+      <td>`updateValidity()`</td>
+      <td>`protected`</td>
+      <td>
+        Donne sa validité à l'hôte, après chaque rendu et après `setCustomValidity()`. Par défaut,
+        seul le message de `setCustomValidity()` rend le contrôle invalide.
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+- Appliquez `withFormControl` sur `withInternals` et `withDisabled` : il lit `this.internals`, et un contrôle se désactive.
+- Le mixin déclare `static formAssociated = true`.
+- Un composant qui rend un contrôle natif surcharge `updateValidity()` : il recopie la validité du contrôle, comme `FieldBase`.
+- Un composant en lecture seule rend son contrôle natif `readonly`, et ne change pas la valeur.
+- Chrome, Firefox et Safari ne valident pas un hôte qui porte l'attribut `readonly`. `updateValidity()` le rend aussi valide, dans tous les moteurs.
+- La restauration de la page par le navigateur remet la valeur enregistrée.
+- Une sous-classe qui surcharge `formResetCallback()` appelle `super.formResetCallback()`. `FieldBase` y efface aussi l'erreur affichée.
 
 ## withInvoker
 

@@ -5,7 +5,7 @@ import { aliasOf, levels, readResolver, type ResolverSources } from "@unicorne/t
  * Custom Elements Manifest analyzer plugin: documents a component's tokens
  * from the DTCG tokens (ADR 0002), not from hand-written `@cssprop` tags.
  *
- * A class names its token group in its JSDoc, `@tokens button`; the plugin
+ * A class names its token groups in its JSDoc, `@tokens button`, one tag per group; the plugin
  * adds each token of the group to its `cssProperties`, with its default value
  * (`var(--u-color-action-background)`) and its `$description`. Subclasses
  * inherit them, like any `@cssprop`. A brand documents only the tokens of its
@@ -52,21 +52,27 @@ export function tokensManifest(options: TokensManifestOptions) {
       if (!ts.isClassDeclaration(node) || !node.name) {
         return;
       }
-      const tag = ts.getJSDocTags(node).find(({ tagName }) => tagName.text === "tokens");
-      if (!tag) {
+      // One tag per group: `@tokens select` and `@tokens listbox`.
+      const tags = ts.getJSDocTags(node).filter(({ tagName }) => tagName.text === "tokens");
+      if (tags.length === 0) {
         return;
       }
-      const comment =
-        typeof tag.comment === "string"
-          ? tag.comment
-          : (tag.comment ?? []).map(({ text }) => text).join("");
-      const group = comment.trim().split(/\s/)[0] ?? "";
-      const properties = componentCssProperties(sources, group, options);
       const declaration = moduleDoc.declarations?.find(({ name }) => name === node.name!.text);
-      if (!declaration || properties.length === 0) {
-        throw new Error(`${moduleDoc.path}: @tokens ${group} — no component token in this group.`);
-      }
-      declaration.cssProperties = properties;
+      const properties = tags.flatMap((tag) => {
+        const comment =
+          typeof tag.comment === "string"
+            ? tag.comment
+            : (tag.comment ?? []).map(({ text }) => text).join("");
+        const group = comment.trim().split(/\s/)[0] ?? "";
+        const groupProperties = componentCssProperties(sources, group, options);
+        if (!declaration || groupProperties.length === 0) {
+          throw new Error(
+            `${moduleDoc.path}: @tokens ${group} — no component token in this group.`,
+          );
+        }
+        return groupProperties;
+      });
+      declaration!.cssProperties = properties;
     },
   };
 }

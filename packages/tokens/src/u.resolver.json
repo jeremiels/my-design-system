@@ -26,7 +26,25 @@
         { "$ref": "component/icon/icon.tokens.json" },
         { "$ref": "component/field/field.tokens.json" },
         { "$ref": "component/combobox/combobox.tokens.json" },
-        { "$ref": "component/listbox/listbox.tokens.json" }
+        { "$ref": "component/listbox/listbox.tokens.json" },
+        { "$ref": "component/toggle/toggle.tokens.json" },
+        { "$ref": "component/checkbox/checkbox.tokens.json" },
+        { "$ref": "component/switch/switch.tokens.json" },
+        { "$ref": "component/radio/radio.tokens.json" },
+        { "$ref": "component/choice-group/choice-group.tokens.json" },
+        { "$ref": "component/select/select.tokens.json" },
+        { "$ref": "component/slider/slider.tokens.json" },
+        { "$ref": "component/tabs/tabs.tokens.json" },
+        { "$ref": "component/tab/tab.tokens.json" },
+        { "$ref": "component/details/details.tokens.json" },
+        { "$ref": "component/breadcrumb/breadcrumb.tokens.json" },
+        { "$ref": "component/pagination/pagination.tokens.json" },
+        { "$ref": "component/toolbar/toolbar.tokens.json" },
+        { "$ref": "component/popup/popup.tokens.json" },
+        { "$ref": "component/drawer/drawer.tokens.json" },
+        { "$ref": "component/popover/popover.tokens.json" },
+        { "$ref": "component/tooltip/tooltip.tokens.json" },
+        { "$ref": "component/toaster/toaster.tokens.json" }
       ]
     }
   },
@@ -68,14 +86,14 @@
         "large": [{ "$ref": "component/button/size.large.tokens.json" }]
       }
     },
-    "alert-type": {
-      "description": "The `type` attribute of `alert`.",
+    "alert-variant": {
+      "description": "The `variant` attribute of `alert`.",
       "default": "information",
       "contexts": {
         "information": [],
-        "success": [{ "$ref": "component/alert/type.success.tokens.json" }],
-        "warning": [{ "$ref": "component/alert/type.warning.tokens.json" }],
-        "danger": [{ "$ref": "component/alert/type.danger.tokens.json" }]
+        "success": [{ "$ref": "component/alert/variant.success.tokens.json" }],
+        "warning": [{ "$ref": "component/alert/variant.warning.tokens.json" }],
+        "danger": [{ "$ref": "component/alert/variant.danger.tokens.json" }]
       }
     }
   },
@@ -87,6 +105,6 @@
     { "$ref": "#/sets/component" },
     { "$ref": "#/modifiers/button-variant" },
     { "$ref": "#/modifiers/button-size" },
-    { "$ref": "#/modifiers/alert-type" }
+    { "$ref": "#/modifiers/alert-variant" }
   ]
 }
