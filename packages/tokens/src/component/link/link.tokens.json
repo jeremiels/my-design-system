@@ -1,0 +1,50 @@
+{
+  "link": {
+    "$description": "Tokens of `link`.",
+    "text-color": {
+      "$type": "color",
+      "$value": "{color.action.foreground}",
+      "$description": "Color of the text and of its underline."
+    },
+    "text-color-hover": {
+      "$type": "color",
+      "$value": "{color.text.default}",
+      "$description": "Color of the text, hovered."
+    },
+    "font-weight": {
+      "$type": "fontWeight",
+      "$value": "{font.weight.regular}",
+      "$description": "Font weight."
+    },
+    "underline-offset": {
+      "$type": "dimension",
+      "$value": "{spacing.2xs}",
+      "$description": "Space between the text and its underline."
+    },
+    "icon-size": {
+      "$type": "dimension",
+      "$value": "{size.icon-sm}",
+      "$description": "Size of the icon of a link that opens a new window."
+    },
+    "gap": {
+      "$type": "dimension",
+      "$value": "{spacing.2xs}",
+      "$description": "Space between the text and its icon."
+    },
+    "focus-ring-width": {
+      "$type": "dimension",
+      "$value": "{focus-ring.width}",
+      "$description": "Width of the focus ring."
+    },
+    "focus-ring-color": {
+      "$type": "color",
+      "$value": "{color.focus-ring}",
+      "$description": "Color of the focus ring."
+    },
+    "focus-ring-offset": {
+      "$type": "dimension",
+      "$value": "{focus-ring.offset}",
+      "$description": "Space between the element and its focus ring."
+    }
+  }
+}

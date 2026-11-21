@@ -211,6 +211,8 @@ La page `requests.html` de l'exemple liste des demandes : des filtres, un tablea
 
 - Une option « Tous » de valeur `""` vaut « rien de choisi » dans un `select`. Donnez au champ un `placeholder` qui l'affiche : `placeholder="Tous les états"`.
 - `toggle-button` émet `change` : lisez `pressed` dans `$event.target`.
+- `acme-page` donne le cadre : `slot="banner"`, `slot="header"`, `slot="navigation"`, `slot="footer"`, et le contenu ([ADR 0034](?path=/docs/documentation-adr-0034-structure-de-page--docs)). Après la fermeture d'un `acme-notice`, appelez `focusContent()` de la page, par une ref.
+- `vue-tsc` 3.3 lit mal le template après un attribut qui contient `//`, sur une balise de la marque. Les expressions suivantes échouent, comme si elles étaient des refs (« Property 'value' does not exist »). Écrivez l'URL dans le script, et liez-la : `:href="HELP_URL"`.
 
 ## 8. Vérifiez
 

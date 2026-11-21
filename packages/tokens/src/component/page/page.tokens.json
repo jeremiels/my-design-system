@@ -1,0 +1,80 @@
+{
+  "page": {
+    "$description": "Tokens of `page`: its skip link, and the layout of its navigation and content.",
+    "max-inline-size": {
+      "$type": "dimension",
+      "$value": "{size.page}",
+      "$description": "The largest inline size of the body: the navigation and the content."
+    },
+    "navigation-inline-size": {
+      "$type": "dimension",
+      "$value": "{size.navigation}",
+      "$description": "The inline size of the navigation, beside the content."
+    },
+    "content-min-inline-size": {
+      "$type": "dimension",
+      "$value": "{size.content-min}",
+      "$description": "The smallest inline size of the content beside the navigation: narrower, the navigation goes above it."
+    },
+    "gap": {
+      "$type": "dimension",
+      "$value": "{spacing.xl}",
+      "$description": "Space between the navigation and the content."
+    },
+    "padding-inline": {
+      "$type": "dimension",
+      "$value": "{spacing.md}",
+      "$description": "Space at the sides of the body."
+    },
+    "padding-block": {
+      "$type": "dimension",
+      "$value": "{spacing.xl}",
+      "$description": "Space above and below the body."
+    },
+    "background-color": {
+      "$type": "color",
+      "$value": "{color.surface.default}",
+      "$description": "Background of the page."
+    },
+    "text-color": {
+      "$type": "color",
+      "$value": "{color.text.default}",
+      "$description": "Color of the text."
+    },
+    "font-family": {
+      "$type": "fontFamily",
+      "$value": "{font.family.body}",
+      "$description": "Font family."
+    },
+    "skip-link-background-color": {
+      "$type": "color",
+      "$value": "{color.surface.default}",
+      "$description": "Background of the skip link, while it has the focus."
+    },
+    "skip-link-text-color": {
+      "$type": "color",
+      "$value": "{color.action.foreground}",
+      "$description": "Color of the skip link."
+    },
+    "skip-link-padding": {
+      "$type": "dimension",
+      "$value": "{spacing.sm}",
+      "$description": "Space around the text of the skip link."
+    },
+    "focus-ring-width": {
+      "$type": "dimension",
+      "$value": "{focus-ring.width}",
+      "$description": "Width of the focus ring."
+    },
+    "focus-ring-color": {
+      "$type": "color",
+      "$value": "{color.focus-ring}",
+      "$description": "Color of the focus ring."
+    },
+    "focus-ring-offset": {
+      "$type": "dimension",
+      "$value": "{focus-ring.offset}",
+      "$description": "Space between the element and its focus ring."
+    }
+  }
+}

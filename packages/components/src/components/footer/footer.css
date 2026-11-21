@@ -1,0 +1,36 @@
+/* The tokens are in footer.tokens.css, generated from
+   tokens/component/footer/ (ADR 0002). */
+:host {
+  display: block;
+  font-family: var(--u-footer-font-family);
+  font-size: var(--u-footer-font-size);
+  color: var(--u-footer-text-color);
+  background-color: var(--u-footer-background-color);
+  border-block-start: var(--u-footer-border-width) solid var(--u-footer-border-color);
+}
+
+.footer {
+  box-sizing: border-box;
+  display: grid;
+  gap: var(--u-footer-gap);
+  max-inline-size: var(--u-footer-max-inline-size);
+  margin-inline: auto;
+  padding-block: var(--u-footer-padding-block);
+  padding-inline: var(--u-footer-padding-inline);
+}
+
+/* A list of links, in a row that wraps. */
+::slotted(ul[slot="links"]) {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--u-footer-gap);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (forced-colors: active) {
+  :host {
+    border-block-start-color: CanvasText;
+  }
+}

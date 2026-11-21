@@ -1,0 +1,153 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Documentation/ADR/0034 Structure de page" />
+
+# ADR 0034 — Structure de page
+
+**Statut :** accepté · **Date :** 21 novembre 2026
+
+## Contexte
+
+Chaque application de la DSI écrit le cadre de ses pages : l'en-tête du service, sa navigation, son pied de page, un bandeau d'information. Le socle n'en avait aucun composant.
+
+- Le RGAA demande un lien d'évitement vers le contenu sur chaque page (critère 12.7), et des régions : `banner`, `navigation`, `main`, `contentinfo`.
+- Un fragment (`href="#main"`) n'atteint pas un élément d'un shadow root : le navigateur le cherche dans le document.
+- Un lien qui ouvre une nouvelle fenêtre le dit, pas seulement par son icône.
+- `:has()` et les container style queries manquent à la [matrice](?path=/docs/documentation-référence-support-navigateurs--docs). Une media query ne lit pas de token.
+
+### Ce que font les bibliothèques
+
+<table>
+  <thead>
+    <tr>
+      <th>Bibliothèque</th>
+      <th>Page</th>
+      <th>Navigation latérale</th>
+      <th>Lien, bandeau</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Web Awesome</td>
+      <td>
+        `wa-page` : des slots `banner`, `header`, `navigation`, `aside`, `footer`, un lien « Skip to
+        content », un `wa-drawer` sous `mobile-breakpoint` (768 px). Le composant mesure les hauteurs
+        en JavaScript.
+      </td>
+      <td>Le slot `navigation`, écrit par l'application.</td>
+      <td>—</td>
+    </tr>
+    <tr>
+      <td>DSFR</td>
+      <td>
+        Un `<header role="banner">`, un `<footer role="contentinfo">` avec la mention de
+        conformité au RGAA. Les liens d'évitement dans un `<nav>` « Accès rapide », « Contenu » en
+        premier.
+      </td>
+      <td>
+        Le menu latéral : un `<nav>` nommé, des listes, `aria-current="page"` sur le lien actif.
+        Un groupe s'ouvre par un bouton `aria-expanded` et `aria-controls`, avec
+        `aria-current="true"` quand il contient la page active.
+      </td>
+      <td>
+        Un lien en nouvelle fenêtre ajoute « nouvelle fenêtre » à son nom. Le bandeau d'information
+        importante n'est pas sauté par le lien d'évitement ; refermable, il rend le focus à un
+        endroit utile.
+      </td>
+    </tr>
+    <tr>
+      <td>Carbon</td>
+      <td>`cds-skip-to-content`, un lien vers un `href`.</td>
+      <td>
+        `cds-side-nav-menu` (`expanded`, `active`) et `cds-side-nav-link`, dans un `cds-side-nav`.
+      </td>
+      <td>`cds-link`, `inline` et `visited`.</td>
+    </tr>
+    <tr>
+      <td>UI5</td>
+      <td>—</td>
+      <td>
+        `ui5-side-navigation`, ses éléments et ses groupes, `collapsed` en mode réduit, une
+        sélection.
+      </td>
+      <td>—</td>
+    </tr>
+  </tbody>
+</table>
+
+## D1 — `page`, la mise en page et ses régions
+
+- **Option A — Des règles écrites par chaque application**, et un guide. Chaque application refait le lien d'évitement et la disposition.
+- **Option B — Un composant**, comme `wa-page`.
+
+**Décision : B.** `page` dispose ses slots : `banner`, `header`, `navigation`, le contenu, `footer`.
+
+- Le contenu est la région `main`, dans le shadow root. Une page en a une seule.
+- Le lien d'évitement vient en premier, caché jusqu'à son focus, dans un `<nav>` nommé par `skip-links-label`. Un fragment n'atteint pas `main` : un clic sur le lien lui donne le focus, et la tabulation suivante entre dans le contenu.
+- `focusContent()` donne aussi le focus au contenu : après la fermeture d'un `notice`, par exemple.
+- La navigation et le contenu se tiennent côte à côte, en `flex-wrap`. Plus étroit que `--u-page-navigation-inline-size` et `--u-page-content-min-inline-size`, le contenu passe sous la navigation : aucune media query, aucune mesure en JavaScript.
+- Les tokens sémantiques `size.page`, `size.navigation` et `size.content-min` donnent ces largeurs.
+
+## D2 — `header` et `footer`
+
+- L'hôte de `header` a `role="banner"`, celui de `footer` `role="contentinfo"`, comme le demande le DSFR.
+- `header` affiche le nom du service, lié à sa page d'accueil (`href`), et son `tagline`. Le slot `logo` le précède, le slot `actions` le suit, le slot `navigation` vient dessous.
+- `footer` a un slot `logo`, son contenu, et un slot `links` : une liste de liens, dont la mention de conformité au RGAA.
+
+## D3 — `side-nav`, des liens et des groupes
+
+- **Option A — `tree`**, déjà dans le socle. Un arbre est un widget : les flèches s'y déplacent, et un lecteur d'écran annonce un arbre et ses éléments, pas des liens.
+- **Option B — Des listes de liens**, comme le DSFR et Carbon.
+
+**Décision : B.** `side-nav` est un `<nav>` nommé par `label`, et ses `side-nav-item` des éléments de liste.
+
+- Un élément sans enfant est un lien. `current` lui donne `aria-current="page"`, une barre, une couleur et une graisse : pas la couleur seule.
+- Un élément avec des enfants est un groupe : un bouton, `aria-expanded` et `aria-controls`, ouvre ou ferme sa liste. Le bouton est natif, comme le bouton de tri d'un `table-header-cell` : il a l'air d'une ligne de la navigation, pas d'un bouton ([ADR 0031](?path=/docs/documentation-adr-0031-composants-de-base-et-composition--docs)).
+- Un groupe qui contient la page courante s'ouvre après son premier rendu, et son bouton porte `aria-current="true"`.
+- Le gabarit est le même pour un lien et un groupe : un serveur ne connaît pas les enfants, et la page hydrate un lien d'abord.
+
+## D4 — `link`
+
+- **Option A — `title`, « nouvelle fenêtre »**, comme le propose le DSFR. `title` devient la description du lien : un lecteur d'écran ne la lit pas toujours, et seule la souris l'affiche.
+- **Option B — Un texte caché à la fin du nom**.
+
+**Décision : B.** Avec `target="_blank"`, `link` ajoute l'icône `external-link` et `new-window-label`, caché à l'écran. `rel` vaut `noopener`.
+
+- `link` est en ligne : dans une phrase, ou seul.
+- `current` pose `aria-current="page"`.
+- Il donne le markup de son icône à `Icon.bundle()` ([ADR 0032](?path=/docs/documentation-adr-0032-bouton-bascule-divulgation-et-chevrons--docs)).
+
+## D5 — `notice`, le bandeau d'information importante
+
+- Le bandeau précède l'en-tête, dans le slot `banner` : le lien d'évitement ne le saute pas.
+- Il n'est pas une région live : présent au chargement, il se lit comme du contenu. Un message qui suit une action est une `alert` ou un toast.
+- Son message dit sa nature en premier : « Information : », « Attention : ». Sa couleur et son icône ne la disent pas seules.
+- `variant` vaut `information`, `warning` ou `danger`.
+- Avec `dismissible`, un bouton le ferme : il devient `hidden` et émet `u-close`. L'application garde ce choix, et donne le focus au contenu avec `page.focusContent()`.
+
+## Conséquences
+
+- **Code :** `Page`, `Header`, `Footer`, `SideNav`, `SideNavItem`, `Link`, `Notice`, l'événement `NoticeCloseEvent`.
+- **Tokens :** les groupes `page`, `header`, `footer`, `side-nav`, `link` et `notice`, le modifier `notice-variant`. Les tokens sémantiques `size.page`, `size.navigation` et `size.content-min`, et leurs primitives.
+- **Icônes :** `external-link`.
+- **Exemples :** la page des demandes de l'application Vue a son cadre : bandeau, en-tête, navigation, pied de page. `smoke.mjs` vérifie les régions, le lien d'évitement et la fermeture du bandeau.
+- **Tests :** les stories dans trois moteurs, `page.test.ts` avec le vrai clavier.
+- **Limites :**
+  - Sur un petit écran, la navigation passe au-dessus du contenu. Aucun bouton ne la range dans un tiroir.
+  - Le slot `navigation` de `header` reçoit la navigation principale de l'application : le socle n'a pas de menu déroulant de navigation.
+
+## Questions ouvertes
+
+- **Navigation sur mobile :** un bouton « Menu » qui ouvre la navigation dans un `drawer`, comme `wa-page` et le DSFR.
+- **Navigation principale :** des menus et des méga-menus dans l'en-tête, comme le DSFR.
+- **Recherche :** un champ de recherche dans l'en-tête.
+- **Carte et squelette :** `card` et `skeleton`. ACME a son propre `card`, l'exemple d'un composant de marque : un `card` du socle le remplace ou le renomme.
+
+## Sources
+
+Consultées le 21 novembre 2026.
+
+- [page.ts](https://github.com/shoelace-style/webawesome/blob/next/packages/webawesome/src/components/page/page.ts) (Web Awesome).
+- Accessibilité de l'[en-tête](https://github.com/GouvernementFR/dsfr/blob/main/src/dsfr/component/header/_part/doc/accessibility/index.md), du [menu latéral](https://github.com/GouvernementFR/dsfr/blob/main/src/dsfr/component/sidemenu/_part/doc/accessibility/index.md), du [pied de page](https://github.com/GouvernementFR/dsfr/blob/main/src/dsfr/component/footer/_part/doc/accessibility/index.md), des [liens d'évitement](https://github.com/GouvernementFR/dsfr/blob/main/src/dsfr/component/skiplink/_part/doc/accessibility/index.md), du [bandeau d'information importante](https://github.com/GouvernementFR/dsfr/blob/main/src/dsfr/component/notice/_part/doc/accessibility/index.md) et du [lien](https://github.com/GouvernementFR/dsfr/blob/main/src/dsfr/component/link/_part/doc/accessibility/index.md) (DSFR).
+- [side-nav-menu.ts](https://github.com/carbon-design-system/carbon/blob/main/packages/web-components/src/components/ui-shell/side-nav-menu.ts), [side-nav-link.ts](https://github.com/carbon-design-system/carbon/blob/main/packages/web-components/src/components/ui-shell/side-nav-link.ts), [skip-to-content.ts](https://github.com/carbon-design-system/carbon/blob/main/packages/web-components/src/components/skip-to-content/skip-to-content.ts) et [link.ts](https://github.com/carbon-design-system/carbon/blob/main/packages/web-components/src/components/link/link.ts) (IBM, Carbon).
+- [SideNavigation.ts](https://github.com/SAP/ui5-webcomponents/blob/main/packages/fiori/src/SideNavigation.ts) (SAP, UI5 Web Components).

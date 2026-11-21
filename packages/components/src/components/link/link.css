@@ -1,0 +1,46 @@
+/* The tokens are in link.tokens.css, generated from tokens/component/link/
+   (ADR 0002). The link takes the size of the text around it. */
+:host {
+  display: inline;
+}
+
+.link {
+  color: var(--u-link-text-color);
+  font-weight: var(--u-link-font-weight);
+  text-decoration-line: underline;
+  text-underline-offset: var(--u-link-underline-offset);
+}
+
+.link:hover {
+  color: var(--u-link-text-color-hover);
+}
+
+.link:focus-visible {
+  outline: var(--u-link-focus-ring-width) solid var(--u-link-focus-ring-color);
+  outline-offset: var(--u-link-focus-ring-offset);
+}
+
+/* The icon of a new window: the size of the text, after it. */
+.icon {
+  --u-icon-size: var(--u-link-icon-size);
+  margin-inline-start: var(--u-link-gap);
+  vertical-align: middle;
+}
+
+/* The end of the accessible name: hidden on screen. */
+.hidden {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@media (forced-colors: active) {
+  .link,
+  .link:hover {
+    color: LinkText;
+  }
+}

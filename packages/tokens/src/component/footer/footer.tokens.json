@@ -1,0 +1,55 @@
+{
+  "footer": {
+    "$description": "Tokens of `footer`, the information at the bottom of a page.",
+    "background-color": {
+      "$type": "color",
+      "$value": "{color.surface.raised}",
+      "$description": "Background of the footer."
+    },
+    "text-color": {
+      "$type": "color",
+      "$value": "{color.text.default}",
+      "$description": "Color of the text."
+    },
+    "border-color": {
+      "$type": "color",
+      "$value": "{color.border.default}",
+      "$description": "Color of the line above the footer."
+    },
+    "border-width": {
+      "$type": "dimension",
+      "$value": "{border.width}",
+      "$description": "Width of the line above the footer."
+    },
+    "max-inline-size": {
+      "$type": "dimension",
+      "$value": "{size.page}",
+      "$description": "The largest inline size of its content."
+    },
+    "padding-inline": {
+      "$type": "dimension",
+      "$value": "{spacing.md}",
+      "$description": "Space at the sides of its content."
+    },
+    "padding-block": {
+      "$type": "dimension",
+      "$value": "{spacing.xl}",
+      "$description": "Space above and below its content."
+    },
+    "gap": {
+      "$type": "dimension",
+      "$value": "{spacing.md}",
+      "$description": "Space between the logo, the content and the links."
+    },
+    "font-family": {
+      "$type": "fontFamily",
+      "$value": "{font.family.body}",
+      "$description": "Font family."
+    },
+    "font-size": {
+      "$type": "dimension",
+      "$value": "{font.size.sm}",
+      "$description": "Font size."
+    }
+  }
+}

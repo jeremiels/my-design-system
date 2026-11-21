@@ -1,0 +1,12 @@
+/* Generated from ../tokens/src/u.resolver.json by @unicorne/tokens/terrazzo-plugin (ADR 0002). Do not edit: change the tokens. */
+:host {
+  --u-link-text-color: var(--u-color-action-foreground);
+  --u-link-text-color-hover: var(--u-color-text-default);
+  --u-link-font-weight: var(--u-font-weight-regular);
+  --u-link-underline-offset: var(--u-spacing-2xs);
+  --u-link-icon-size: var(--u-size-icon-sm);
+  --u-link-gap: var(--u-spacing-2xs);
+  --u-link-focus-ring-width: var(--u-focus-ring-width);
+  --u-link-focus-ring-color: var(--u-color-focus-ring);
+  --u-link-focus-ring-offset: var(--u-focus-ring-offset);
+}

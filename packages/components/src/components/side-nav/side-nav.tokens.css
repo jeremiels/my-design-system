@@ -1,0 +1,20 @@
+/* Generated from ../tokens/src/u.resolver.json by @unicorne/tokens/terrazzo-plugin (ADR 0002). Do not edit: change the tokens. */
+:host {
+  --u-side-nav-font-family: var(--u-font-family-body);
+  --u-side-nav-font-size: var(--u-font-size-md);
+  --u-side-nav-text-color: var(--u-color-text-default);
+  --u-side-nav-item-padding-inline: var(--u-spacing-sm);
+  --u-side-nav-item-padding-block: var(--u-spacing-sm);
+  --u-side-nav-item-border-radius: var(--u-radius-md);
+  --u-side-nav-item-background-color-hover: var(--u-color-neutral-background);
+  --u-side-nav-indent: var(--u-spacing-md);
+  --u-side-nav-current-text-color: var(--u-color-action-foreground);
+  --u-side-nav-current-font-weight: var(--u-font-weight-semibold);
+  --u-side-nav-current-indicator-color: var(--u-color-action-background);
+  --u-side-nav-current-indicator-width: var(--u-border-width-thick);
+  --u-side-nav-chevron-size: var(--u-size-icon-sm);
+  --u-side-nav-gap: var(--u-spacing-xs);
+  --u-side-nav-focus-ring-width: var(--u-focus-ring-width);
+  --u-side-nav-focus-ring-color: var(--u-color-focus-ring);
+  --u-side-nav-focus-ring-offset: var(--u-focus-ring-offset);
+}

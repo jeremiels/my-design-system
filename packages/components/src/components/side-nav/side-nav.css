@@ -1,0 +1,8 @@
+/* The tokens are in side-nav.tokens.css, generated from
+   tokens/component/side-nav/ (ADR 0002); its items inherit them. */
+:host {
+  display: block;
+  font-family: var(--u-side-nav-font-family);
+  font-size: var(--u-side-nav-font-size);
+  color: var(--u-side-nav-text-color);
+}

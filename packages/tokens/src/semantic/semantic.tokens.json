@@ -62,6 +62,18 @@
     "table": {
       "$value": "{dimension.full}",
       "$description": "The largest block size of a table: none by default, the page scrolls."
+    },
+    "page": {
+      "$value": "{dimension.32000}",
+      "$description": "The largest inline size of a page's content: its header, its body and its footer."
+    },
+    "navigation": {
+      "$value": "{dimension.6400}",
+      "$description": "The inline size of a navigation beside the content of a page."
+    },
+    "content-min": {
+      "$value": "{dimension.12000}",
+      "$description": "The smallest inline size of a page's content beside its navigation: narrower, the navigation goes above it."
     }
   },
   "radius": {

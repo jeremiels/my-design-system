@@ -88,10 +88,15 @@ record(
 /** The paths each page requested, by page. */
 let requested = new Set();
 const server = createServer(async (request, response) => {
-  const path = normalize(decodeURIComponent(new URL(request.url, "http://x").pathname)).replace(
+  let path = normalize(decodeURIComponent(new URL(request.url, "http://x").pathname)).replace(
     /^\/+/,
     "",
   );
+  // An icon's module, as the components import it: `@unicorne/icons/<name>`.
+  // The import map maps the prefix to js/; the package's exports add `.js`.
+  if (path.startsWith("node_modules/@unicorne/icons/js/") && !extname(path)) {
+    path += ".js";
+  }
   requested.add(path);
   if (!["dist/", "test/", "node_modules/"].some((prefix) => path.startsWith(prefix))) {
     response.writeHead(404).end();
@@ -135,14 +140,15 @@ try {
   // The page renders an alert of each type `success` (base icon) and
   // `information` (ACME's icon), and a modal, whose close button shows
   // `close`: of the base's icons, only `close` and `success` load on demand.
-  // The chevrons are static imports of the components that draw them
-  // (ADR 0032): this page, without a bundler, loads every module of the base.
+  // The chevrons and the icon of `link` are static imports of the components
+  // that draw them (ADR 0032): this page, without a bundler, loads every
+  // module of the base.
   const loadedBaseIcons = [...full]
     .filter(
       (path) =>
         path.startsWith("node_modules/@unicorne/icons/js/") &&
         !path.endsWith("/index.js") &&
-        !path.includes("/chevron-"),
+        !/\/(chevron-[a-z-]+|external-link)\.js$/.test(path),
     )
     .map((path) => path.slice(path.lastIndexOf("/") + 1, -".js".length))
     .sort();

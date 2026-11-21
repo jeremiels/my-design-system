@@ -8,6 +8,7 @@ export const icons = Object.freeze({
   "chevron-up-down": () => import("./chevron-up-down.js"),
   close: () => import("./close.js"),
   danger: () => import("./danger.js"),
+  "external-link": () => import("./external-link.js"),
   information: () => import("./information.js"),
   success: () => import("./success.js"),
   warning: () => import("./warning.js"),

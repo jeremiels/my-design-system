@@ -38,6 +38,8 @@ const ALLOWED: Record<string, Record<string, string>> = {
   "<button>": {
     "./components/button/button.ts": "The button itself.",
     "./components/toggle-button/toggle-button.ts": "The toggle button itself.",
+    "./components/side-nav-item/side-nav-item.ts":
+      "The button of a group is a row of the navigation, like its links: not a button to look at.",
     "./components/table-header-cell/table-header-cell.ts":
       "The sort button is the text of the header, not a button to look at.",
   },

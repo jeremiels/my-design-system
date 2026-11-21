@@ -1,0 +1,32 @@
+/* The tokens are in notice.tokens.css, generated from
+   tokens/component/notice/ (ADR 0002); `variant` changes the colors. */
+:host {
+  display: block;
+  font-family: var(--u-notice-font-family);
+  color: var(--u-notice-text-color);
+  background-color: var(--u-notice-background-color);
+}
+
+:host([hidden]) {
+  display: none;
+}
+
+.notice {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: var(--u-notice-gap);
+  max-inline-size: var(--u-notice-max-inline-size);
+  margin-inline: auto;
+  padding-block: var(--u-notice-padding-block);
+  padding-inline: var(--u-notice-padding-inline);
+}
+
+.message {
+  flex: 1;
+}
+
+/* The close button: the variant of the notice, filled, on its color. */
+.close[hidden] {
+  display: none;
+}

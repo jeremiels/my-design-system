@@ -1,0 +1,80 @@
+{
+  "header": {
+    "$description": "Tokens of `header`, the banner at the top of a page.",
+    "background-color": {
+      "$type": "color",
+      "$value": "{color.surface.default}",
+      "$description": "Background of the header."
+    },
+    "text-color": {
+      "$type": "color",
+      "$value": "{color.text.default}",
+      "$description": "Color of the text."
+    },
+    "border-color": {
+      "$type": "color",
+      "$value": "{color.border.default}",
+      "$description": "Color of the line under the header."
+    },
+    "border-width": {
+      "$type": "dimension",
+      "$value": "{border.width}",
+      "$description": "Width of the line under the header."
+    },
+    "max-inline-size": {
+      "$type": "dimension",
+      "$value": "{size.page}",
+      "$description": "The largest inline size of its content."
+    },
+    "padding-inline": {
+      "$type": "dimension",
+      "$value": "{spacing.md}",
+      "$description": "Space at the sides of its content."
+    },
+    "padding-block": {
+      "$type": "dimension",
+      "$value": "{spacing.md}",
+      "$description": "Space above and below its content."
+    },
+    "gap": {
+      "$type": "dimension",
+      "$value": "{spacing.md}",
+      "$description": "Space between the logo, the service name and the actions."
+    },
+    "font-family": {
+      "$type": "fontFamily",
+      "$value": "{font.family.body}",
+      "$description": "Font family."
+    },
+    "service-name-font-size": {
+      "$type": "dimension",
+      "$value": "{font.size.lg}",
+      "$description": "Font size of the service name."
+    },
+    "service-name-font-weight": {
+      "$type": "fontWeight",
+      "$value": "{font.weight.semibold}",
+      "$description": "Font weight of the service name."
+    },
+    "tagline-font-size": {
+      "$type": "dimension",
+      "$value": "{font.size.sm}",
+      "$description": "Font size of the tagline."
+    },
+    "focus-ring-width": {
+      "$type": "dimension",
+      "$value": "{focus-ring.width}",
+      "$description": "Width of the focus ring."
+    },
+    "focus-ring-color": {
+      "$type": "color",
+      "$value": "{color.focus-ring}",
+      "$description": "Color of the focus ring."
+    },
+    "focus-ring-offset": {
+      "$type": "dimension",
+      "$value": "{focus-ring.offset}",
+      "$description": "Space between the element and its focus ring."
+    }
+  }
+}

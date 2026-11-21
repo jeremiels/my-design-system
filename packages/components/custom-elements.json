@@ -29168,6 +29168,508 @@
     },
     {
       "kind": "javascript-module",
+      "path": "src/components/footer/footer.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "The footer of a page, its `contentinfo` landmark: the logo, a few words\non the service, and the links every page carries (ADR 0034). One per\npage, in the `footer` slot of `page`.\n\nA public service writes its accessibility status among the links: « Accessibilité :\npartiellement conforme », linked to its accessibility statement.",
+          "name": "Footer",
+          "cssProperties": [
+            {
+              "description": "Background of the footer.",
+              "name": "--u-footer-background-color",
+              "default": "var(--u-color-surface-raised)"
+            },
+            {
+              "description": "Color of the text.",
+              "name": "--u-footer-text-color",
+              "default": "var(--u-color-text-default)"
+            },
+            {
+              "description": "Color of the line above the footer.",
+              "name": "--u-footer-border-color",
+              "default": "var(--u-color-border-default)"
+            },
+            {
+              "description": "Width of the line above the footer.",
+              "name": "--u-footer-border-width",
+              "default": "var(--u-border-width)"
+            },
+            {
+              "description": "The largest inline size of its content.",
+              "name": "--u-footer-max-inline-size",
+              "default": "var(--u-size-page)"
+            },
+            {
+              "description": "Space at the sides of its content.",
+              "name": "--u-footer-padding-inline",
+              "default": "var(--u-spacing-md)"
+            },
+            {
+              "description": "Space above and below its content.",
+              "name": "--u-footer-padding-block",
+              "default": "var(--u-spacing-xl)"
+            },
+            {
+              "description": "Space between the logo, the content and the links.",
+              "name": "--u-footer-gap",
+              "default": "var(--u-spacing-md)"
+            },
+            {
+              "description": "Font family.",
+              "name": "--u-footer-font-family",
+              "default": "var(--u-font-family-body)"
+            },
+            {
+              "description": "Font size.",
+              "name": "--u-footer-font-size",
+              "default": "var(--u-font-size-sm)"
+            }
+          ],
+          "cssParts": [
+            {
+              "description": "The wrapper of the logo, the content and the links.",
+              "name": "footer"
+            },
+            {
+              "description": "The content.",
+              "name": "content"
+            },
+            {
+              "description": "The wrapper of the links.",
+              "name": "links"
+            }
+          ],
+          "slots": [
+            {
+              "description": "The logo, or the brand block of the organization.",
+              "name": "logo"
+            },
+            {
+              "description": "A few words on the service.",
+              "name": ""
+            },
+            {
+              "description": "The links of every page, in a list: accessibility, legal notice, personal data.",
+              "name": "links"
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "componentName",
+              "type": {
+                "text": "string"
+              },
+              "static": true,
+              "default": "\"footer\"",
+              "description": "Name of the component in the catalog, without any tag prefix: the\nregistered tag is `<prefix>-<componentName>`. Every concrete component\nsets it; abstract bases (e.g. `ButtonBase`) don't.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "dependencies",
+              "type": {
+                "text": "readonly (typeof DSBaseElement)[]"
+              },
+              "static": true,
+              "default": "[]",
+              "description": "Components this one renders (ADR 0001, D2): `defineComponents()`\nregisters them too, and `tagFor()` resolves their tag. Never hard-code\nanother component's tag in a template, nor create one with\n`document.createElement` — a brand's override would be bypassed.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "forDesignSystem",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "T"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "this",
+                  "type": {
+                    "text": "T"
+                  }
+                },
+                {
+                  "name": "_settings",
+                  "type": {
+                    "text": "DesignSystemSettings"
+                  }
+                }
+              ],
+              "description": "The class a design system registers for this component, given its\nsettings: this class by default. A component that depends on a setting\nreturns a subclass that applies it, and leaves this class unchanged:\n`Icon` returns a subclass with the design system's `icons` over its own.\n`designSystem()` calls it once per class, after choosing the brand's\noverride, so the subclass extends the override.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "language",
+              "type": {
+                "text": "string | undefined"
+              },
+              "privacy": "protected",
+              "description": "The language of the component, for `Intl`: the `lang` of its closest\nancestor, through the shadow roots, or the document's. `undefined` on a\nserver, and without any: `Intl` takes its default.",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "tagFor",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "StaticValue"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "component",
+                  "type": {
+                    "text": "typeof DSBaseElement"
+                  }
+                }
+              ],
+              "description": "The tag of a component declared in `static dependencies`, for templates\nfrom `lit/static-html.js`: `` html`<${this.tagFor(Button)}>…</${…}>` ``.\nIt follows the registration of this element: `u-modal` renders\n`u-button`, `acme-modal` renders `acme-button` — the brand's override\nof `Button` if it has one.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            }
+          ],
+          "superclass": {
+            "name": "DSBaseElement",
+            "module": "/src/bases/base-element.js"
+          },
+          "tagName": "u-footer",
+          "customElement": true,
+          "summary": "The footer of a page: the service and its mandatory links."
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "Footer",
+          "declaration": {
+            "name": "Footer",
+            "module": "src/components/footer/footer.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/components/header/header.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "The header of a page, its `banner` landmark: the logo, the name of the\nservice and its tagline, then the quick accesses, and the main navigation\nunder them (ADR 0034). One per page, in the `header` slot of `page`.\n\nThe service name links to the home page of the service, `href`. The\nquick accesses wrap under the service name on a narrow page.",
+          "name": "Header",
+          "cssProperties": [
+            {
+              "description": "Background of the header.",
+              "name": "--u-header-background-color",
+              "default": "var(--u-color-surface-default)"
+            },
+            {
+              "description": "Color of the text.",
+              "name": "--u-header-text-color",
+              "default": "var(--u-color-text-default)"
+            },
+            {
+              "description": "Color of the line under the header.",
+              "name": "--u-header-border-color",
+              "default": "var(--u-color-border-default)"
+            },
+            {
+              "description": "Width of the line under the header.",
+              "name": "--u-header-border-width",
+              "default": "var(--u-border-width)"
+            },
+            {
+              "description": "The largest inline size of its content.",
+              "name": "--u-header-max-inline-size",
+              "default": "var(--u-size-page)"
+            },
+            {
+              "description": "Space at the sides of its content.",
+              "name": "--u-header-padding-inline",
+              "default": "var(--u-spacing-md)"
+            },
+            {
+              "description": "Space above and below its content.",
+              "name": "--u-header-padding-block",
+              "default": "var(--u-spacing-md)"
+            },
+            {
+              "description": "Space between the logo, the service name and the actions.",
+              "name": "--u-header-gap",
+              "default": "var(--u-spacing-md)"
+            },
+            {
+              "description": "Font family.",
+              "name": "--u-header-font-family",
+              "default": "var(--u-font-family-body)"
+            },
+            {
+              "description": "Font size of the service name.",
+              "name": "--u-header-service-name-font-size",
+              "default": "var(--u-font-size-lg)"
+            },
+            {
+              "description": "Font weight of the service name.",
+              "name": "--u-header-service-name-font-weight",
+              "default": "var(--u-font-weight-semibold)"
+            },
+            {
+              "description": "Font size of the tagline.",
+              "name": "--u-header-tagline-font-size",
+              "default": "var(--u-font-size-sm)"
+            },
+            {
+              "description": "Width of the focus ring.",
+              "name": "--u-header-focus-ring-width",
+              "default": "var(--u-focus-ring-width)"
+            },
+            {
+              "description": "Color of the focus ring.",
+              "name": "--u-header-focus-ring-color",
+              "default": "var(--u-color-focus-ring)"
+            },
+            {
+              "description": "Space between the element and its focus ring.",
+              "name": "--u-header-focus-ring-offset",
+              "default": "var(--u-focus-ring-offset)"
+            }
+          ],
+          "cssParts": [
+            {
+              "description": "The row of the logo, the service and the quick accesses.",
+              "name": "header"
+            },
+            {
+              "description": "The service name and its tagline.",
+              "name": "service"
+            },
+            {
+              "description": "The service name, a link to `href`.",
+              "name": "service-name"
+            },
+            {
+              "description": "The tagline, under the service name.",
+              "name": "tagline"
+            },
+            {
+              "description": "The quick accesses.",
+              "name": "actions"
+            },
+            {
+              "description": "The wrapper of the main navigation.",
+              "name": "navigation"
+            }
+          ],
+          "slots": [
+            {
+              "description": "Before the service name: the logo, or the brand block of the organization.",
+              "name": "logo"
+            },
+            {
+              "description": "The quick accesses, at the end: links and buttons (help, account).",
+              "name": "actions"
+            },
+            {
+              "description": "Under the service name: the main navigation.",
+              "name": "navigation"
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "componentName",
+              "type": {
+                "text": "string"
+              },
+              "static": true,
+              "default": "\"header\"",
+              "description": "Name of the component in the catalog, without any tag prefix: the\nregistered tag is `<prefix>-<componentName>`. Every concrete component\nsets it; abstract bases (e.g. `ButtonBase`) don't.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "serviceName",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "The name of the service, its title on every page.",
+              "attribute": "service-name"
+            },
+            {
+              "kind": "field",
+              "name": "tagline",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "The line under the service name: what the service does. None by default.",
+              "attribute": "tagline"
+            },
+            {
+              "kind": "field",
+              "name": "href",
+              "type": {
+                "text": "string | undefined"
+              },
+              "description": "The home page of the service: the service name links to it.",
+              "attribute": "href"
+            },
+            {
+              "kind": "field",
+              "name": "dependencies",
+              "type": {
+                "text": "readonly (typeof DSBaseElement)[]"
+              },
+              "static": true,
+              "default": "[]",
+              "description": "Components this one renders (ADR 0001, D2): `defineComponents()`\nregisters them too, and `tagFor()` resolves their tag. Never hard-code\nanother component's tag in a template, nor create one with\n`document.createElement` — a brand's override would be bypassed.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "forDesignSystem",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "T"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "this",
+                  "type": {
+                    "text": "T"
+                  }
+                },
+                {
+                  "name": "_settings",
+                  "type": {
+                    "text": "DesignSystemSettings"
+                  }
+                }
+              ],
+              "description": "The class a design system registers for this component, given its\nsettings: this class by default. A component that depends on a setting\nreturns a subclass that applies it, and leaves this class unchanged:\n`Icon` returns a subclass with the design system's `icons` over its own.\n`designSystem()` calls it once per class, after choosing the brand's\noverride, so the subclass extends the override.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "language",
+              "type": {
+                "text": "string | undefined"
+              },
+              "privacy": "protected",
+              "description": "The language of the component, for `Intl`: the `lang` of its closest\nancestor, through the shadow roots, or the document's. `undefined` on a\nserver, and without any: `Intl` takes its default.",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "tagFor",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "StaticValue"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "component",
+                  "type": {
+                    "text": "typeof DSBaseElement"
+                  }
+                }
+              ],
+              "description": "The tag of a component declared in `static dependencies`, for templates\nfrom `lit/static-html.js`: `` html`<${this.tagFor(Button)}>…</${…}>` ``.\nIt follows the registration of this element: `u-modal` renders\n`u-button`, `acme-modal` renders `acme-button` — the brand's override\nof `Button` if it has one.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            }
+          ],
+          "attributes": [
+            {
+              "name": "service-name",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "The name of the service, its title on every page.",
+              "fieldName": "serviceName"
+            },
+            {
+              "name": "tagline",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "The line under the service name: what the service does. None by default.",
+              "fieldName": "tagline"
+            },
+            {
+              "name": "href",
+              "type": {
+                "text": "string | undefined"
+              },
+              "description": "The home page of the service: the service name links to it.",
+              "fieldName": "href"
+            }
+          ],
+          "superclass": {
+            "name": "DSBaseElement",
+            "module": "/src/bases/base-element.js"
+          },
+          "tagName": "u-header",
+          "customElement": true,
+          "summary": "The header of a page: the service, its quick accesses and its navigation."
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "Header",
+          "declaration": {
+            "name": "Header",
+            "module": "src/components/header/header.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/components/icon/icon.ts",
       "declarations": [
         {
@@ -29445,6 +29947,311 @@
           "declaration": {
             "name": "Icon",
             "module": "src/components/icon/icon.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/components/link/link.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "A link to a page, or to a place in a page: a native `<a>` in its shadow\nroot, which takes the focus of the host (ADR 0034). Inline, in a sentence\nor alone.\n\nWith `target=\"_blank\"`, the link opens a new window: an icon follows its\ntext, and `new-window-label`, hidden on screen, ends its accessible name.\n`current` marks the link of the page the user is on.\n\nA link that looks like a button is a `button-link`.",
+          "name": "Link",
+          "cssProperties": [
+            {
+              "description": "Color of the text and of its underline.",
+              "name": "--u-link-text-color",
+              "default": "var(--u-color-action-foreground)"
+            },
+            {
+              "description": "Color of the text, hovered.",
+              "name": "--u-link-text-color-hover",
+              "default": "var(--u-color-text-default)"
+            },
+            {
+              "description": "Font weight.",
+              "name": "--u-link-font-weight",
+              "default": "var(--u-font-weight-regular)"
+            },
+            {
+              "description": "Space between the text and its underline.",
+              "name": "--u-link-underline-offset",
+              "default": "var(--u-spacing-2xs)"
+            },
+            {
+              "description": "Size of the icon of a link that opens a new window.",
+              "name": "--u-link-icon-size",
+              "default": "var(--u-size-icon-sm)"
+            },
+            {
+              "description": "Space between the text and its icon.",
+              "name": "--u-link-gap",
+              "default": "var(--u-spacing-2xs)"
+            },
+            {
+              "description": "Width of the focus ring.",
+              "name": "--u-link-focus-ring-width",
+              "default": "var(--u-focus-ring-width)"
+            },
+            {
+              "description": "Color of the focus ring.",
+              "name": "--u-link-focus-ring-color",
+              "default": "var(--u-color-focus-ring)"
+            },
+            {
+              "description": "Space between the element and its focus ring.",
+              "name": "--u-link-focus-ring-offset",
+              "default": "var(--u-focus-ring-offset)"
+            }
+          ],
+          "cssParts": [
+            {
+              "description": "The native `<a>`.",
+              "name": "link"
+            },
+            {
+              "description": "The icon of a link that opens a new window: the `icon` component of the same registration.",
+              "name": "icon"
+            }
+          ],
+          "slots": [
+            {
+              "description": "The text of the link: it says where the link goes.",
+              "name": ""
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "componentName",
+              "type": {
+                "text": "string"
+              },
+              "static": true,
+              "default": "\"link\"",
+              "description": "Name of the component in the catalog, without any tag prefix: the\nregistered tag is `<prefix>-<componentName>`. Every concrete component\nsets it; abstract bases (e.g. `ButtonBase`) don't.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "dependencies",
+              "type": {
+                "text": "readonly (typeof DSBaseElement)[]"
+              },
+              "static": true,
+              "default": "[Icon]",
+              "description": "Components this one renders (ADR 0001, D2): `defineComponents()`\nregisters them too, and `tagFor()` resolves their tag. Never hard-code\nanother component's tag in a template, nor create one with\n`document.createElement` — a brand's override would be bypassed.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "shadowRootOptions",
+              "type": {
+                "text": "ShadowRootInit"
+              },
+              "static": true,
+              "default": "{ ...super.shadowRootOptions, delegatesFocus: true }"
+            },
+            {
+              "kind": "field",
+              "name": "href",
+              "type": {
+                "text": "string | undefined"
+              },
+              "description": "The URL the link goes to.",
+              "attribute": "href"
+            },
+            {
+              "kind": "field",
+              "name": "target",
+              "type": {
+                "text": "string | undefined"
+              },
+              "description": "Where the link opens, as on `<a>`: `_blank` opens a new window, and says it.",
+              "attribute": "target"
+            },
+            {
+              "kind": "field",
+              "name": "rel",
+              "type": {
+                "text": "string | undefined"
+              },
+              "description": "The relation to the linked page, as on `<a>`. `noopener` with `target=\"_blank\"` by default.",
+              "attribute": "rel"
+            },
+            {
+              "kind": "field",
+              "name": "download",
+              "type": {
+                "text": "string | undefined"
+              },
+              "description": "Downloads the linked file, under this name if given, as on `<a>`.",
+              "attribute": "download"
+            },
+            {
+              "kind": "field",
+              "name": "current",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "The link of the page the user is on: `aria-current=\"page\"`.",
+              "attribute": "current",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "newWindowLabel",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"(new window)\"",
+              "description": "The end of the accessible name of a link that opens a new window, hidden on screen, in the page's language.",
+              "attribute": "new-window-label"
+            },
+            {
+              "kind": "method",
+              "name": "forDesignSystem",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "T"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "this",
+                  "type": {
+                    "text": "T"
+                  }
+                },
+                {
+                  "name": "_settings",
+                  "type": {
+                    "text": "DesignSystemSettings"
+                  }
+                }
+              ],
+              "description": "The class a design system registers for this component, given its\nsettings: this class by default. A component that depends on a setting\nreturns a subclass that applies it, and leaves this class unchanged:\n`Icon` returns a subclass with the design system's `icons` over its own.\n`designSystem()` calls it once per class, after choosing the brand's\noverride, so the subclass extends the override.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "language",
+              "type": {
+                "text": "string | undefined"
+              },
+              "privacy": "protected",
+              "description": "The language of the component, for `Intl`: the `lang` of its closest\nancestor, through the shadow roots, or the document's. `undefined` on a\nserver, and without any: `Intl` takes its default.",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "tagFor",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "StaticValue"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "component",
+                  "type": {
+                    "text": "typeof DSBaseElement"
+                  }
+                }
+              ],
+              "description": "The tag of a component declared in `static dependencies`, for templates\nfrom `lit/static-html.js`: `` html`<${this.tagFor(Button)}>…</${…}>` ``.\nIt follows the registration of this element: `u-modal` renders\n`u-button`, `acme-modal` renders `acme-button` — the brand's override\nof `Button` if it has one.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            }
+          ],
+          "attributes": [
+            {
+              "name": "href",
+              "type": {
+                "text": "string | undefined"
+              },
+              "description": "The URL the link goes to.",
+              "fieldName": "href"
+            },
+            {
+              "name": "target",
+              "type": {
+                "text": "string | undefined"
+              },
+              "description": "Where the link opens, as on `<a>`: `_blank` opens a new window, and says it.",
+              "fieldName": "target"
+            },
+            {
+              "name": "rel",
+              "type": {
+                "text": "string | undefined"
+              },
+              "description": "The relation to the linked page, as on `<a>`. `noopener` with `target=\"_blank\"` by default.",
+              "fieldName": "rel"
+            },
+            {
+              "name": "download",
+              "type": {
+                "text": "string | undefined"
+              },
+              "description": "Downloads the linked file, under this name if given, as on `<a>`.",
+              "fieldName": "download"
+            },
+            {
+              "name": "current",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "The link of the page the user is on: `aria-current=\"page\"`.",
+              "fieldName": "current"
+            },
+            {
+              "name": "new-window-label",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"(new window)\"",
+              "description": "The end of the accessible name of a link that opens a new window, hidden on screen, in the page's language.",
+              "fieldName": "newWindowLabel"
+            }
+          ],
+          "superclass": {
+            "name": "DSBaseElement",
+            "module": "/src/bases/base-element.js"
+          },
+          "tagName": "u-link",
+          "customElement": true,
+          "summary": "A link to a page."
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "Link",
+          "declaration": {
+            "name": "Link",
+            "module": "src/components/link/link.ts"
           }
         }
       ]
@@ -31234,6 +32041,272 @@
     },
     {
       "kind": "javascript-module",
+      "path": "src/components/notice/notice.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "A banner of important information for the whole service, above its\nheader: an outage, a deadline (ADR 0034). In the `banner` slot of `page`.\n\nIt isn't a live region: present when the page loads, it reads as content,\nbefore the header. The message says its nature, « Information : »,\n« Warning: »: the color and the icon don't say it alone (WCAG 1.4.1). A\nmessage that appears after an action is an `alert` or a toast.\n\nWith `dismissible`, a close button hides it (`hidden`) and fires\n`u-close`. The application keeps the choice, and moves the focus to the\ncontent: `page.focusContent()`.",
+          "name": "Notice",
+          "cssProperties": [
+            {
+              "description": "Background color (variants change the default).",
+              "name": "--u-notice-background-color",
+              "default": "var(--u-color-information-background)"
+            },
+            {
+              "description": "Text color (variants change the default).",
+              "name": "--u-notice-text-color",
+              "default": "var(--u-color-information-text)"
+            },
+            {
+              "description": "The largest inline size of its content.",
+              "name": "--u-notice-max-inline-size",
+              "default": "var(--u-size-page)"
+            },
+            {
+              "description": "Space at the sides of its content.",
+              "name": "--u-notice-padding-inline",
+              "default": "var(--u-spacing-md)"
+            },
+            {
+              "description": "Space above and below its content.",
+              "name": "--u-notice-padding-block",
+              "default": "var(--u-spacing-sm)"
+            },
+            {
+              "description": "Space between the icon, the message and the close button.",
+              "name": "--u-notice-gap",
+              "default": "var(--u-spacing-sm)"
+            },
+            {
+              "description": "Font family.",
+              "name": "--u-notice-font-family",
+              "default": "var(--u-font-family-body)"
+            }
+          ],
+          "cssParts": [
+            {
+              "description": "The banner.",
+              "name": "notice"
+            },
+            {
+              "description": "The icon of the variant: the `icon` component of the same registration.",
+              "name": "icon"
+            },
+            {
+              "description": "The message.",
+              "name": "message"
+            },
+            {
+              "description": "The close button: the `button` component of the same registration.",
+              "name": "close-button"
+            }
+          ],
+          "slots": [
+            {
+              "description": "The message: its nature first, then the information, and a link if needed.",
+              "name": ""
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "componentName",
+              "type": {
+                "text": "string"
+              },
+              "static": true,
+              "default": "\"notice\"",
+              "description": "Name of the component in the catalog, without any tag prefix: the\nregistered tag is `<prefix>-<componentName>`. Every concrete component\nsets it; abstract bases (e.g. `ButtonBase`) don't.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "dependencies",
+              "type": {
+                "text": "readonly (typeof DSBaseElement)[]"
+              },
+              "static": true,
+              "default": "[Button, Icon]",
+              "description": "Components this one renders (ADR 0001, D2): `defineComponents()`\nregisters them too, and `tagFor()` resolves their tag. Never hard-code\nanother component's tag in a template, nor create one with\n`document.createElement` — a brand's override would be bypassed.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "variant",
+              "type": {
+                "text": "NoticeVariant"
+              },
+              "default": "\"information\"",
+              "description": "The intent of the notice: its colors and its icon. Reflected.",
+              "attribute": "variant",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "dismissible",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether the user can close the notice: a close button follows the message.",
+              "attribute": "dismissible",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "closeLabel",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"Close\"",
+              "description": "Accessible name of the close button, in the page's language.",
+              "attribute": "close-label"
+            },
+            {
+              "kind": "field",
+              "name": "#close",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "forDesignSystem",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "T"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "this",
+                  "type": {
+                    "text": "T"
+                  }
+                },
+                {
+                  "name": "_settings",
+                  "type": {
+                    "text": "DesignSystemSettings"
+                  }
+                }
+              ],
+              "description": "The class a design system registers for this component, given its\nsettings: this class by default. A component that depends on a setting\nreturns a subclass that applies it, and leaves this class unchanged:\n`Icon` returns a subclass with the design system's `icons` over its own.\n`designSystem()` calls it once per class, after choosing the brand's\noverride, so the subclass extends the override.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "language",
+              "type": {
+                "text": "string | undefined"
+              },
+              "privacy": "protected",
+              "description": "The language of the component, for `Intl`: the `lang` of its closest\nancestor, through the shadow roots, or the document's. `undefined` on a\nserver, and without any: `Intl` takes its default.",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "tagFor",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "StaticValue"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "component",
+                  "type": {
+                    "text": "typeof DSBaseElement"
+                  }
+                }
+              ],
+              "description": "The tag of a component declared in `static dependencies`, for templates\nfrom `lit/static-html.js`: `` html`<${this.tagFor(Button)}>…</${…}>` ``.\nIt follows the registration of this element: `u-modal` renders\n`u-button`, `acme-modal` renders `acme-button` — the brand's override\nof `Button` if it has one.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            }
+          ],
+          "events": [
+            {
+              "type": {
+                "text": "NoticeCloseEvent"
+              },
+              "description": "When the user closes the notice: it is then `hidden`.",
+              "name": "u-close"
+            }
+          ],
+          "attributes": [
+            {
+              "name": "variant",
+              "type": {
+                "text": "NoticeVariant"
+              },
+              "default": "\"information\"",
+              "description": "The intent of the notice: its colors and its icon. Reflected.",
+              "fieldName": "variant"
+            },
+            {
+              "name": "dismissible",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether the user can close the notice: a close button follows the message.",
+              "fieldName": "dismissible"
+            },
+            {
+              "name": "close-label",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"Close\"",
+              "description": "Accessible name of the close button, in the page's language.",
+              "fieldName": "closeLabel"
+            }
+          ],
+          "superclass": {
+            "name": "DSBaseElement",
+            "module": "/src/bases/base-element.js"
+          },
+          "tagName": "u-notice",
+          "customElement": true,
+          "summary": "A banner of important information, above the header."
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "Notice",
+          "declaration": {
+            "name": "Notice",
+            "module": "src/components/notice/notice.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/components/notice/notice.type.ts",
+      "declarations": [],
+      "exports": []
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/components/number-field/number-field.ts",
       "declarations": [
         {
@@ -32626,6 +33699,320 @@
           "declaration": {
             "name": "NumberField",
             "module": "src/components/number-field/number-field.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/components/page/page.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "The layout of a page: a notice, its header, its navigation beside its\ncontent, and its footer (ADR 0034). One per page.\n\nThe content is the page's `main` landmark. A skip link comes first in the\npage: hidden until it has the focus, it moves the focus to the content,\npast the header and the navigation (WCAG 2.4.1). The header and the footer\nbring their own landmarks: `header` and `footer`.\n\nThe navigation and the content sit side by side. When the page is\nnarrower than `--u-page-navigation-inline-size` plus\n`--u-page-content-min-inline-size`, the navigation goes above the\ncontent: no media query.",
+          "name": "Page",
+          "cssProperties": [
+            {
+              "description": "The largest inline size of the body: the navigation and the content.",
+              "name": "--u-page-max-inline-size",
+              "default": "var(--u-size-page)"
+            },
+            {
+              "description": "The inline size of the navigation, beside the content.",
+              "name": "--u-page-navigation-inline-size",
+              "default": "var(--u-size-navigation)"
+            },
+            {
+              "description": "The smallest inline size of the content beside the navigation: narrower, the navigation goes above it.",
+              "name": "--u-page-content-min-inline-size",
+              "default": "var(--u-size-content-min)"
+            },
+            {
+              "description": "Space between the navigation and the content.",
+              "name": "--u-page-gap",
+              "default": "var(--u-spacing-xl)"
+            },
+            {
+              "description": "Space at the sides of the body.",
+              "name": "--u-page-padding-inline",
+              "default": "var(--u-spacing-md)"
+            },
+            {
+              "description": "Space above and below the body.",
+              "name": "--u-page-padding-block",
+              "default": "var(--u-spacing-xl)"
+            },
+            {
+              "description": "Background of the page.",
+              "name": "--u-page-background-color",
+              "default": "var(--u-color-surface-default)"
+            },
+            {
+              "description": "Color of the text.",
+              "name": "--u-page-text-color",
+              "default": "var(--u-color-text-default)"
+            },
+            {
+              "description": "Font family.",
+              "name": "--u-page-font-family",
+              "default": "var(--u-font-family-body)"
+            },
+            {
+              "description": "Background of the skip link, while it has the focus.",
+              "name": "--u-page-skip-link-background-color",
+              "default": "var(--u-color-surface-default)"
+            },
+            {
+              "description": "Color of the skip link.",
+              "name": "--u-page-skip-link-text-color",
+              "default": "var(--u-color-action-foreground)"
+            },
+            {
+              "description": "Space around the text of the skip link.",
+              "name": "--u-page-skip-link-padding",
+              "default": "var(--u-spacing-sm)"
+            },
+            {
+              "description": "Width of the focus ring.",
+              "name": "--u-page-focus-ring-width",
+              "default": "var(--u-focus-ring-width)"
+            },
+            {
+              "description": "Color of the focus ring.",
+              "name": "--u-page-focus-ring-color",
+              "default": "var(--u-color-focus-ring)"
+            },
+            {
+              "description": "Space between the element and its focus ring.",
+              "name": "--u-page-focus-ring-offset",
+              "default": "var(--u-focus-ring-offset)"
+            }
+          ],
+          "cssParts": [
+            {
+              "description": "The `<nav>` of the skip link.",
+              "name": "skip-links"
+            },
+            {
+              "description": "The skip link, shown while it has the focus.",
+              "name": "skip-link"
+            },
+            {
+              "description": "The navigation and the content, side by side.",
+              "name": "body"
+            },
+            {
+              "description": "The `<main>` landmark around the content.",
+              "name": "main"
+            }
+          ],
+          "slots": [
+            {
+              "description": "The content of the page, in its `main` landmark.",
+              "name": ""
+            },
+            {
+              "description": "Above the header: a `notice`.",
+              "name": "banner"
+            },
+            {
+              "description": "The header of the page: a `header`.",
+              "name": "header"
+            },
+            {
+              "description": "Beside the content: a `side-nav`.",
+              "name": "navigation"
+            },
+            {
+              "description": "The footer of the page: a `footer`.",
+              "name": "footer"
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "componentName",
+              "type": {
+                "text": "string"
+              },
+              "static": true,
+              "default": "\"page\"",
+              "description": "Name of the component in the catalog, without any tag prefix: the\nregistered tag is `<prefix>-<componentName>`. Every concrete component\nsets it; abstract bases (e.g. `ButtonBase`) don't.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "skipLinksLabel",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"Skip links\"",
+              "description": "The accessible name of the navigation of the skip link, in the page's language.",
+              "attribute": "skip-links-label"
+            },
+            {
+              "kind": "field",
+              "name": "skipToContentLabel",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"Skip to content\"",
+              "description": "The text of the skip link, in the page's language.",
+              "attribute": "skip-to-content-label"
+            },
+            {
+              "kind": "field",
+              "name": "main",
+              "type": {
+                "text": "HTMLElement | undefined"
+              },
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "focusContent",
+              "return": {
+                "type": {
+                  "text": "void"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "options",
+                  "optional": true,
+                  "type": {
+                    "text": "FocusOptions"
+                  }
+                }
+              ],
+              "description": "Moves the focus to the content: its landmark, for the next Tab to enter it."
+            },
+            {
+              "kind": "field",
+              "name": "#skip",
+              "privacy": "private",
+              "description": "A fragment can't reach into a shadow root: the link moves the focus itself."
+            },
+            {
+              "kind": "field",
+              "name": "dependencies",
+              "type": {
+                "text": "readonly (typeof DSBaseElement)[]"
+              },
+              "static": true,
+              "default": "[]",
+              "description": "Components this one renders (ADR 0001, D2): `defineComponents()`\nregisters them too, and `tagFor()` resolves their tag. Never hard-code\nanother component's tag in a template, nor create one with\n`document.createElement` — a brand's override would be bypassed.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "forDesignSystem",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "T"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "this",
+                  "type": {
+                    "text": "T"
+                  }
+                },
+                {
+                  "name": "_settings",
+                  "type": {
+                    "text": "DesignSystemSettings"
+                  }
+                }
+              ],
+              "description": "The class a design system registers for this component, given its\nsettings: this class by default. A component that depends on a setting\nreturns a subclass that applies it, and leaves this class unchanged:\n`Icon` returns a subclass with the design system's `icons` over its own.\n`designSystem()` calls it once per class, after choosing the brand's\noverride, so the subclass extends the override.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "language",
+              "type": {
+                "text": "string | undefined"
+              },
+              "privacy": "protected",
+              "description": "The language of the component, for `Intl`: the `lang` of its closest\nancestor, through the shadow roots, or the document's. `undefined` on a\nserver, and without any: `Intl` takes its default.",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "tagFor",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "StaticValue"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "component",
+                  "type": {
+                    "text": "typeof DSBaseElement"
+                  }
+                }
+              ],
+              "description": "The tag of a component declared in `static dependencies`, for templates\nfrom `lit/static-html.js`: `` html`<${this.tagFor(Button)}>…</${…}>` ``.\nIt follows the registration of this element: `u-modal` renders\n`u-button`, `acme-modal` renders `acme-button` — the brand's override\nof `Button` if it has one.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            }
+          ],
+          "attributes": [
+            {
+              "name": "skip-links-label",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"Skip links\"",
+              "description": "The accessible name of the navigation of the skip link, in the page's language.",
+              "fieldName": "skipLinksLabel"
+            },
+            {
+              "name": "skip-to-content-label",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"Skip to content\"",
+              "description": "The text of the skip link, in the page's language.",
+              "fieldName": "skipToContentLabel"
+            }
+          ],
+          "superclass": {
+            "name": "DSBaseElement",
+            "module": "/src/bases/base-element.js"
+          },
+          "tagName": "u-page",
+          "customElement": true,
+          "summary": "The layout of a page, its landmarks and its skip link."
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "Page",
+          "declaration": {
+            "name": "Page",
+            "module": "src/components/page/page.ts"
           }
         }
       ]
@@ -38006,6 +39393,597 @@
           "declaration": {
             "name": "Select",
             "module": "src/components/select/select.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/components/side-nav-item/side-nav-item.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "An item of a `side-nav`: a link to a page, or a group of items that opens\nand closes (ADR 0034). The host has `role=\"listitem\"`.\n\nIts `side-nav-item` children make it a group: a button, `aria-expanded`\nand `aria-controls`, shows or hides them, as in the DSFR. A group opens at once when it holds\nthe current page, and its button then has `aria-current=\"true\"`.",
+          "name": "SideNavItem",
+          "cssProperties": [
+            {
+              "description": "Font family.",
+              "name": "--u-side-nav-font-family",
+              "default": "var(--u-font-family-body)"
+            },
+            {
+              "description": "Font size.",
+              "name": "--u-side-nav-font-size",
+              "default": "var(--u-font-size-md)"
+            },
+            {
+              "description": "Color of the items.",
+              "name": "--u-side-nav-text-color",
+              "default": "var(--u-color-text-default)"
+            },
+            {
+              "description": "Space at the sides of an item.",
+              "name": "--u-side-nav-item-padding-inline",
+              "default": "var(--u-spacing-sm)"
+            },
+            {
+              "description": "Space above and below an item.",
+              "name": "--u-side-nav-item-padding-block",
+              "default": "var(--u-spacing-sm)"
+            },
+            {
+              "description": "Corner radius of an item.",
+              "name": "--u-side-nav-item-border-radius",
+              "default": "var(--u-radius-md)"
+            },
+            {
+              "description": "Background of an item, hovered.",
+              "name": "--u-side-nav-item-background-color-hover",
+              "default": "var(--u-color-neutral-background)"
+            },
+            {
+              "description": "Indentation of the items of a group.",
+              "name": "--u-side-nav-indent",
+              "default": "var(--u-spacing-md)"
+            },
+            {
+              "description": "Color of the current page's item.",
+              "name": "--u-side-nav-current-text-color",
+              "default": "var(--u-color-action-foreground)"
+            },
+            {
+              "description": "Font weight of the current page's item.",
+              "name": "--u-side-nav-current-font-weight",
+              "default": "var(--u-font-weight-semibold)"
+            },
+            {
+              "description": "Color of the bar beside the current page's item.",
+              "name": "--u-side-nav-current-indicator-color",
+              "default": "var(--u-color-action-background)"
+            },
+            {
+              "description": "Width of the bar beside the current page's item.",
+              "name": "--u-side-nav-current-indicator-width",
+              "default": "var(--u-border-width-thick)"
+            },
+            {
+              "description": "Size of the chevron icon of a group.",
+              "name": "--u-side-nav-chevron-size",
+              "default": "var(--u-size-icon-sm)"
+            },
+            {
+              "description": "Space between the label of a group and its chevron.",
+              "name": "--u-side-nav-gap",
+              "default": "var(--u-spacing-xs)"
+            },
+            {
+              "description": "Width of the focus ring.",
+              "name": "--u-side-nav-focus-ring-width",
+              "default": "var(--u-focus-ring-width)"
+            },
+            {
+              "description": "Color of the focus ring.",
+              "name": "--u-side-nav-focus-ring-color",
+              "default": "var(--u-color-focus-ring)"
+            },
+            {
+              "description": "Space between the element and its focus ring.",
+              "name": "--u-side-nav-focus-ring-offset",
+              "default": "var(--u-focus-ring-offset)"
+            }
+          ],
+          "cssParts": [
+            {
+              "description": "The link of an item without children.",
+              "name": "link"
+            },
+            {
+              "description": "The button of a group: it opens and closes it.",
+              "name": "toggle"
+            },
+            {
+              "description": "The chevron of the button: the `icon` component of the same registration.",
+              "name": "chevron"
+            },
+            {
+              "description": "The list of the children, while the group is open.",
+              "name": "group"
+            }
+          ],
+          "slots": [
+            {
+              "description": "The `side-nav-item` children of a group.",
+              "name": ""
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "componentName",
+              "type": {
+                "text": "string"
+              },
+              "static": true,
+              "default": "\"side-nav-item\"",
+              "description": "Name of the component in the catalog, without any tag prefix: the\nregistered tag is `<prefix>-<componentName>`. Every concrete component\nsets it; abstract bases (e.g. `ButtonBase`) don't.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "dependencies",
+              "type": {
+                "text": "readonly (typeof DSBaseElement)[]"
+              },
+              "static": true,
+              "default": "[Icon]",
+              "description": "Components this one renders (ADR 0001, D2): `defineComponents()`\nregisters them too, and `tagFor()` resolves their tag. Never hard-code\nanother component's tag in a template, nor create one with\n`document.createElement` — a brand's override would be bypassed.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "label",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "The text of the item: the name of its page, or of its group. Required.",
+              "attribute": "label"
+            },
+            {
+              "kind": "field",
+              "name": "href",
+              "type": {
+                "text": "string | undefined"
+              },
+              "description": "The URL of its page. A group has none: its button opens it.",
+              "attribute": "href"
+            },
+            {
+              "kind": "field",
+              "name": "current",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "The item of the page the user is on: `aria-current=\"page\"`. Reflected.",
+              "attribute": "current",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "expanded",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether the children of a group show. Reflected.",
+              "attribute": "expanded",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "items",
+              "type": {
+                "text": "readonly SideNavItem[]"
+              },
+              "description": "The child items. None on a server: the element has no children there.",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "#holdsCurrent",
+              "privacy": "private",
+              "type": {
+                "text": "boolean"
+              },
+              "description": "Whether the item, or one of its descendants, is the current page.",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "#toggle",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "forDesignSystem",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "T"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "this",
+                  "type": {
+                    "text": "T"
+                  }
+                },
+                {
+                  "name": "_settings",
+                  "type": {
+                    "text": "DesignSystemSettings"
+                  }
+                }
+              ],
+              "description": "The class a design system registers for this component, given its\nsettings: this class by default. A component that depends on a setting\nreturns a subclass that applies it, and leaves this class unchanged:\n`Icon` returns a subclass with the design system's `icons` over its own.\n`designSystem()` calls it once per class, after choosing the brand's\noverride, so the subclass extends the override.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "language",
+              "type": {
+                "text": "string | undefined"
+              },
+              "privacy": "protected",
+              "description": "The language of the component, for `Intl`: the `lang` of its closest\nancestor, through the shadow roots, or the document's. `undefined` on a\nserver, and without any: `Intl` takes its default.",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "tagFor",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "StaticValue"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "component",
+                  "type": {
+                    "text": "typeof DSBaseElement"
+                  }
+                }
+              ],
+              "description": "The tag of a component declared in `static dependencies`, for templates\nfrom `lit/static-html.js`: `` html`<${this.tagFor(Button)}>…</${…}>` ``.\nIt follows the registration of this element: `u-modal` renders\n`u-button`, `acme-modal` renders `acme-button` — the brand's override\nof `Button` if it has one.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            }
+          ],
+          "events": [
+            {
+              "description": "When the user opens or closes the group. Doesn't bubble, like the `toggle` of `<details>`.",
+              "name": "toggle"
+            }
+          ],
+          "attributes": [
+            {
+              "name": "label",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "The text of the item: the name of its page, or of its group. Required.",
+              "fieldName": "label"
+            },
+            {
+              "name": "href",
+              "type": {
+                "text": "string | undefined"
+              },
+              "description": "The URL of its page. A group has none: its button opens it.",
+              "fieldName": "href"
+            },
+            {
+              "name": "current",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "The item of the page the user is on: `aria-current=\"page\"`. Reflected.",
+              "fieldName": "current"
+            },
+            {
+              "name": "expanded",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether the children of a group show. Reflected.",
+              "fieldName": "expanded"
+            }
+          ],
+          "superclass": {
+            "name": "DSBaseElement",
+            "module": "/src/bases/base-element.js"
+          },
+          "tagName": "u-side-nav-item",
+          "customElement": true,
+          "summary": "A link of a side navigation, or a group of links."
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "SideNavItem",
+          "declaration": {
+            "name": "SideNavItem",
+            "module": "src/components/side-nav-item/side-nav-item.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/components/side-nav/side-nav.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "A navigation beside the content: the pages of a section, in a list, and\ngroups of pages that open and close (ADR 0034). Its children are\n`side-nav-item`, in the `navigation` slot of `page`.\n\nThe item of the current page has `current`: its link carries\n`aria-current=\"page\"`, and the groups around it open.",
+          "name": "SideNav",
+          "cssProperties": [
+            {
+              "description": "Font family.",
+              "name": "--u-side-nav-font-family",
+              "default": "var(--u-font-family-body)"
+            },
+            {
+              "description": "Font size.",
+              "name": "--u-side-nav-font-size",
+              "default": "var(--u-font-size-md)"
+            },
+            {
+              "description": "Color of the items.",
+              "name": "--u-side-nav-text-color",
+              "default": "var(--u-color-text-default)"
+            },
+            {
+              "description": "Space at the sides of an item.",
+              "name": "--u-side-nav-item-padding-inline",
+              "default": "var(--u-spacing-sm)"
+            },
+            {
+              "description": "Space above and below an item.",
+              "name": "--u-side-nav-item-padding-block",
+              "default": "var(--u-spacing-sm)"
+            },
+            {
+              "description": "Corner radius of an item.",
+              "name": "--u-side-nav-item-border-radius",
+              "default": "var(--u-radius-md)"
+            },
+            {
+              "description": "Background of an item, hovered.",
+              "name": "--u-side-nav-item-background-color-hover",
+              "default": "var(--u-color-neutral-background)"
+            },
+            {
+              "description": "Indentation of the items of a group.",
+              "name": "--u-side-nav-indent",
+              "default": "var(--u-spacing-md)"
+            },
+            {
+              "description": "Color of the current page's item.",
+              "name": "--u-side-nav-current-text-color",
+              "default": "var(--u-color-action-foreground)"
+            },
+            {
+              "description": "Font weight of the current page's item.",
+              "name": "--u-side-nav-current-font-weight",
+              "default": "var(--u-font-weight-semibold)"
+            },
+            {
+              "description": "Color of the bar beside the current page's item.",
+              "name": "--u-side-nav-current-indicator-color",
+              "default": "var(--u-color-action-background)"
+            },
+            {
+              "description": "Width of the bar beside the current page's item.",
+              "name": "--u-side-nav-current-indicator-width",
+              "default": "var(--u-border-width-thick)"
+            },
+            {
+              "description": "Size of the chevron icon of a group.",
+              "name": "--u-side-nav-chevron-size",
+              "default": "var(--u-size-icon-sm)"
+            },
+            {
+              "description": "Space between the label of a group and its chevron.",
+              "name": "--u-side-nav-gap",
+              "default": "var(--u-spacing-xs)"
+            },
+            {
+              "description": "Width of the focus ring.",
+              "name": "--u-side-nav-focus-ring-width",
+              "default": "var(--u-focus-ring-width)"
+            },
+            {
+              "description": "Color of the focus ring.",
+              "name": "--u-side-nav-focus-ring-color",
+              "default": "var(--u-color-focus-ring)"
+            },
+            {
+              "description": "Space between the element and its focus ring.",
+              "name": "--u-side-nav-focus-ring-offset",
+              "default": "var(--u-focus-ring-offset)"
+            }
+          ],
+          "cssParts": [
+            {
+              "description": "The `<nav>` landmark.",
+              "name": "nav"
+            },
+            {
+              "description": "The list of items.",
+              "name": "list"
+            }
+          ],
+          "slots": [
+            {
+              "description": "The `side-nav-item` elements of the same registration.",
+              "name": ""
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "componentName",
+              "type": {
+                "text": "string"
+              },
+              "static": true,
+              "default": "\"side-nav\"",
+              "description": "Name of the component in the catalog, without any tag prefix: the\nregistered tag is `<prefix>-<componentName>`. Every concrete component\nsets it; abstract bases (e.g. `ButtonBase`) don't.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "dependencies",
+              "type": {
+                "text": "readonly (typeof DSBaseElement)[]"
+              },
+              "static": true,
+              "default": "[SideNavItem]",
+              "description": "Its items: registering the navigation registers them.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "label",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"Section\"",
+              "description": "The accessible name of the landmark: the name of the section, in the page's language.",
+              "attribute": "label"
+            },
+            {
+              "kind": "method",
+              "name": "forDesignSystem",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "T"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "this",
+                  "type": {
+                    "text": "T"
+                  }
+                },
+                {
+                  "name": "_settings",
+                  "type": {
+                    "text": "DesignSystemSettings"
+                  }
+                }
+              ],
+              "description": "The class a design system registers for this component, given its\nsettings: this class by default. A component that depends on a setting\nreturns a subclass that applies it, and leaves this class unchanged:\n`Icon` returns a subclass with the design system's `icons` over its own.\n`designSystem()` calls it once per class, after choosing the brand's\noverride, so the subclass extends the override.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "language",
+              "type": {
+                "text": "string | undefined"
+              },
+              "privacy": "protected",
+              "description": "The language of the component, for `Intl`: the `lang` of its closest\nancestor, through the shadow roots, or the document's. `undefined` on a\nserver, and without any: `Intl` takes its default.",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "tagFor",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "StaticValue"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "component",
+                  "type": {
+                    "text": "typeof DSBaseElement"
+                  }
+                }
+              ],
+              "description": "The tag of a component declared in `static dependencies`, for templates\nfrom `lit/static-html.js`: `` html`<${this.tagFor(Button)}>…</${…}>` ``.\nIt follows the registration of this element: `u-modal` renders\n`u-button`, `acme-modal` renders `acme-button` — the brand's override\nof `Button` if it has one.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            }
+          ],
+          "attributes": [
+            {
+              "name": "label",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"Section\"",
+              "description": "The accessible name of the landmark: the name of the section, in the page's language.",
+              "fieldName": "label"
+            }
+          ],
+          "superclass": {
+            "name": "DSBaseElement",
+            "module": "/src/bases/base-element.js"
+          },
+          "tagName": "u-side-nav",
+          "customElement": true,
+          "summary": "The pages of a section, beside the content."
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "SideNav",
+          "declaration": {
+            "name": "SideNav",
+            "module": "src/components/side-nav/side-nav.ts"
           }
         }
       ]
@@ -51349,6 +53327,31 @@
     },
     {
       "kind": "javascript-module",
+      "path": "src/events/notice-close.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "Fired by `notice` when the user closes it: the notice is then `hidden`.\nThe application keeps the choice, and moves the focus to the content.",
+          "name": "NoticeCloseEvent",
+          "superclass": {
+            "name": "Event",
+            "module": "src/events/notice-close.ts"
+          }
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "NoticeCloseEvent",
+          "declaration": {
+            "name": "NoticeCloseEvent",
+            "module": "src/events/notice-close.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/events/popup-toggle.ts",
       "declarations": [
         {
@@ -51979,6 +53982,62 @@
           "name": "*",
           "declaration": {
             "name": "*",
+            "module": "src/components/link/link.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "*",
+          "declaration": {
+            "name": "*",
+            "module": "src/components/page/page.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "*",
+          "declaration": {
+            "name": "*",
+            "module": "src/components/header/header.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "*",
+          "declaration": {
+            "name": "*",
+            "module": "src/components/footer/footer.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "*",
+          "declaration": {
+            "name": "*",
+            "module": "src/components/side-nav/side-nav.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "*",
+          "declaration": {
+            "name": "*",
+            "module": "src/components/side-nav-item/side-nav-item.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "*",
+          "declaration": {
+            "name": "*",
+            "module": "src/components/notice/notice.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "*",
+          "declaration": {
+            "name": "*",
             "module": "src/components/table-row/table-row.js"
           }
         },
@@ -52211,6 +54270,14 @@
           "name": "*",
           "declaration": {
             "name": "*",
+            "module": "src/events/notice-close.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "*",
+          "declaration": {
+            "name": "*",
             "module": "src/events/listbox-select.js"
           }
         },
@@ -52268,6 +54335,14 @@
           "declaration": {
             "name": "*",
             "module": "src/components/alert/alert.type.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "*",
+          "declaration": {
+            "name": "*",
+            "module": "src/components/notice/notice.type.js"
           }
         },
         {

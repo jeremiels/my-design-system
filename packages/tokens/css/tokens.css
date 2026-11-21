@@ -86,6 +86,8 @@
     --u-dimension-1200: 3rem;
     --u-dimension-6400: 16rem;
     --u-dimension-8000: 20rem;
+    --u-dimension-12000: 30rem;
+    --u-dimension-32000: 80rem;
     --u-dimension-full: 9999px;
     --u-font-family-sans: "Helvetica Neue", sans-serif;
     --u-font-weight-400: 400;
@@ -128,6 +130,9 @@
     --u-size-indicator-md: var(--u-dimension-600);
     --u-size-indicator-lg: var(--u-dimension-1200);
     --u-size-table: var(--u-dimension-full);
+    --u-size-page: var(--u-dimension-32000);
+    --u-size-navigation: var(--u-dimension-6400);
+    --u-size-content-min: var(--u-dimension-12000);
     --u-radius-sm: var(--u-dimension-50);
     --u-radius-md: var(--u-dimension-100);
     --u-radius-lg: var(--u-dimension-200);

@@ -1,0 +1,20 @@
+/* Generated from ../tokens/src/u.resolver.json by @unicorne/tokens/terrazzo-plugin (ADR 0002). Do not edit: change the tokens. */
+:host {
+  --u-notice-background-color: var(--u-color-information-background);
+  --u-notice-text-color: var(--u-color-information-text);
+  --u-notice-max-inline-size: var(--u-size-page);
+  --u-notice-padding-inline: var(--u-spacing-md);
+  --u-notice-padding-block: var(--u-spacing-sm);
+  --u-notice-gap: var(--u-spacing-sm);
+  --u-notice-font-family: var(--u-font-family-body);
+}
+
+:host([variant="warning"]) {
+  --u-notice-background-color: var(--u-color-warning-background);
+  --u-notice-text-color: var(--u-color-warning-text);
+}
+
+:host([variant="danger"]) {
+  --u-notice-background-color: var(--u-color-danger-background);
+  --u-notice-text-color: var(--u-color-danger-text);
+}
