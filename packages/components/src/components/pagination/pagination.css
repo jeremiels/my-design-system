@@ -1,0 +1,90 @@
+/* The tokens are in pagination.tokens.css, generated from
+   tokens/component/pagination/ (ADR 0002). */
+:host {
+  display: block;
+  font-family: var(--u-pagination-font-family);
+  font-size: var(--u-pagination-font-size);
+  color: var(--u-pagination-text-color);
+}
+
+.list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--u-pagination-gap);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.button,
+.gap {
+  box-sizing: border-box;
+  display: inline-grid;
+  place-items: center;
+  min-inline-size: var(--u-pagination-button-size);
+  min-block-size: var(--u-pagination-button-size);
+  padding-inline: var(--u-pagination-padding-inline);
+}
+
+.button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  border-radius: var(--u-pagination-border-radius);
+  cursor: pointer;
+}
+
+.button:hover:not(:disabled, [aria-current]) {
+  background-color: var(--u-pagination-hover-background-color);
+}
+
+.button[aria-current] {
+  color: var(--u-pagination-current-text-color);
+  background-color: var(--u-pagination-current-background-color);
+}
+
+.button:disabled {
+  opacity: var(--u-opacity-disabled);
+  cursor: default;
+}
+
+.button:focus-visible {
+  outline: var(--u-pagination-focus-ring-width) solid var(--u-pagination-focus-ring-color);
+  outline-offset: var(--u-pagination-focus-ring-offset);
+}
+
+/* A chevron that points back or forward, along the text. */
+.chevron {
+  box-sizing: border-box;
+  inline-size: var(--u-pagination-chevron-size);
+  block-size: var(--u-pagination-chevron-size);
+  border: solid currentColor;
+  border-width: 0 calc(var(--u-pagination-chevron-width) * 2)
+    calc(var(--u-pagination-chevron-width) * 2) 0;
+}
+
+.button--previous .chevron {
+  transform: rotate(135deg);
+}
+
+.button--next .chevron {
+  transform: rotate(-45deg);
+}
+
+/* pagination.ts reads the text direction: `:dir()` is missing before Chrome 120. */
+.rtl .button--previous .chevron {
+  transform: rotate(-45deg);
+}
+
+.rtl .button--next .chevron {
+  transform: rotate(135deg);
+}
+
+@media (forced-colors: active) {
+  .button[aria-current] {
+    color: HighlightText;
+    background-color: Highlight;
+  }
+}

@@ -1,0 +1,18 @@
+/* No tokens of its own: the space above the panel comes from its tabs. */
+:host {
+  display: block;
+  padding-block-start: var(--u-tabs-panel-padding);
+}
+
+:host([hidden]) {
+  display: none;
+}
+
+:host(:focus) {
+  outline: none;
+}
+
+:host(:focus-visible) {
+  outline: var(--u-tabs-focus-ring-width) solid var(--u-tabs-focus-ring-color);
+  outline-offset: var(--u-tabs-focus-ring-offset);
+}

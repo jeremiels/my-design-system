@@ -1,0 +1,69 @@
+/* The tokens are in popup.tokens.css, generated from tokens/component/popup/
+   (ADR 0002), shared by every popup anchored to a trigger. The trigger and
+   the popup's distance and transitions; each popup paints its panel. */
+:host {
+  display: inline-block;
+  font-family: var(--u-popup-font-family);
+  font-size: var(--u-popup-font-size);
+}
+
+.trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--u-popup-trigger-gap);
+  padding-inline: var(--u-popup-trigger-padding-inline);
+  padding-block: var(--u-popup-trigger-padding-block);
+  font: inherit;
+  color: var(--u-popup-text-color);
+  background-color: var(--u-popup-trigger-background-color);
+  border: var(--u-popup-trigger-border-width) solid var(--u-popup-trigger-border-color);
+  border-radius: var(--u-popup-trigger-border-radius);
+  cursor: pointer;
+}
+
+.trigger:hover:not(:disabled) {
+  background-color: var(--u-popup-trigger-background-color-hover);
+}
+
+.trigger:focus-visible {
+  outline: var(--u-popup-focus-ring-width) solid var(--u-popup-focus-ring-color);
+  outline-offset: var(--u-popup-focus-ring-offset);
+}
+
+.trigger:disabled {
+  cursor: default;
+}
+
+.chevron {
+  box-sizing: border-box;
+  inline-size: var(--u-popup-chevron-size);
+  block-size: var(--u-popup-chevron-size);
+  margin-block-start: calc(var(--u-popup-chevron-size) / -2);
+  border: solid currentColor;
+  border-width: 0 calc(var(--u-popup-trigger-border-width) * 2)
+    calc(var(--u-popup-trigger-border-width) * 2) 0;
+  transform: rotate(45deg);
+}
+
+/* The popup: AnchoredPopoverController places it and hides it while closed.
+   The entry and exit transitions are those of a combobox's. */
+.popup {
+  box-sizing: border-box;
+  margin-block: var(--u-popup-popup-offset);
+  color: var(--u-popup-text-color);
+  opacity: 0;
+  transition-property: opacity, display, overlay;
+  transition-duration: var(--u-popup-transition-duration);
+  transition-timing-function: var(--u-popup-transition-timing-function);
+  transition-behavior: allow-discrete;
+}
+
+.popup[data-open]:where(:not([data-closing])) {
+  opacity: 1;
+}
+
+@starting-style {
+  .popup[data-open]:where(:not([data-closing])) {
+    opacity: 0;
+  }
+}

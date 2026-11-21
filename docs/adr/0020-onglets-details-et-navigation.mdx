@@ -1,0 +1,110 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Documentation/ADR/0020 Onglets, détails et navigation" />
+
+# ADR 0020 — Onglets, détails et navigation
+
+**Statut :** accepté · **Date :** 20 novembre 2026
+
+## Contexte
+
+Une application range son contenu en onglets et en sections dépliables. Elle situe la page dans un fil d'Ariane, découpe une liste en pages et regroupe des actions dans une barre d'outils.
+
+- Les patterns ARIA sont `tablist`, `tab` et `tabpanel` ; le disclosure ; le fil d'Ariane (`nav`, liste, `aria-current="page"`) ; `toolbar`.
+- `<details>` et `<summary>` donnent le disclosure natif. `<details name>`, l'accordéon natif, existe depuis Chrome 120, Firefox 130 et Safari 17.2. La [matrice](?path=/docs/documentation-référence-support-navigateurs--docs) exige Chrome 111, Firefox 115 et Safari 16.4.
+- `RovingFocusController` donne un seul arrêt de Tab et les flèches ([ADR 0017](?path=/docs/documentation-adr-0017-cases-à-cocher-interrupteurs-et-radios--docs)).
+- Un hôte qui délègue son focus et porte `tabindex="-1"` sort son contenu de l'ordre de Tab, et `focus()` le lui délègue encore. Vérifié le 20 novembre 2026 dans Chromium 158, Firefox 159 et WebKit 27.2.
+
+### Ce que font les bibliothèques
+
+<table>
+  <thead>
+    <tr>
+      <th>Bibliothèque</th>
+      <th>Onglets</th>
+      <th>Détails</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Web Awesome</td>
+      <td>
+        `wa-tab-group` : les onglets dans le slot `nav`, que `wa-tab` prend de lui-même. Les panneaux
+        dans le slot par défaut. Activation `auto` ou `manual`. Le groupe génère les `id` et relie
+        onglets et panneaux.
+      </td>
+      <td>
+        `wa-details` : le groupe d'un même `name` fermé par le script, dans la même racine, sans
+        `<details name>` natif
+      </td>
+    </tr>
+    <tr>
+      <td>Spectrum Web Components</td>
+      <td>
+        `sp-tabs` : les onglets dans le slot par défaut, les panneaux dans le slot `tab-panel`. Le
+        groupe relie onglets et panneaux.
+      </td>
+      <td>—</td>
+    </tr>
+  </tbody>
+</table>
+
+## D1 — Les onglets
+
+`tabs` contient des `tab` et des `tab-panel` qui partagent une `value`.
+
+- Un `tab` se place de lui-même dans le slot `tab`, et porte `role="tab"`. Un `tab-panel` porte `role="tabpanel"`.
+- `tabs` donne un `id` aux onglets et aux panneaux qui n'en ont pas, et les relie par `aria-controls` et `aria-labelledby`.
+- L'activation est automatique : les flèches choisissent l'onglet, comme le recommande l'APG quand le panneau s'affiche sans attente.
+- Chaque choix de l'utilisateur émet `change`, comme un groupe de radios. Une `value` posée par l'application n'en émet pas.
+- Sans `value`, le premier onglet activé est choisi.
+
+## D2 — Les détails
+
+- **Option A — Un conteneur accordéon**, qui ferme les autres sections.
+- **Option B — `details` regroupés par `name`**, comme le natif.
+
+**Décision : B.** `details` rend un `<details>` natif. Le composant ferme lui-même les autres `details` du même `name`, dans le même document ou shadow root : `name` manque aux planchers de la matrice et ne traverse pas les shadow roots.
+
+- `details` émet `toggle` après chaque changement, sans remonter, comme un `<details>` natif.
+- Le chevron pointe vers le bas, puis vers le haut : il ne dépend pas du sens du texte.
+
+## D3 — Le fil d'Ariane et la pagination
+
+- `breadcrumb` est un repère `nav` qui contient une liste de `breadcrumb-item`. Le dernier élément est la page courante, sauf si un autre a `current` : son lien porte `aria-current="page"`.
+- `pagination` est un repère `nav` de boutons natifs. `state/pagination.ts` choisit les pages affichées : les deux bouts, la page courante, ses voisines, et des trous.
+- Un choix de l'utilisateur pose `page`, émet `change`, et une live region annonce la page (`AnnounceController`).
+- Deux repères d'une même page ont deux noms : chaque `pagination` d'une page reçoit son `label`.
+- Les chevrons suivent le sens du texte. Le script le lit : `:dir()` manque à Chrome avant 120.
+
+## D4 — La barre d'outils
+
+`toolbar` porte `role="toolbar"`, et donne un seul arrêt de Tab à ses enfants (`RovingFocusController`). Tab revient au contrôle que l'utilisateur a quitté.
+
+- Ses contrôles sont des boutons natifs ou des composants qui délèguent leur focus, comme `button`.
+- Un champ de texte n'y a pas sa place : ses flèches déplacent le curseur.
+
+## Conséquences
+
+- **Code :** `Tabs`, `Tab`, `TabPanel`, `Details`, `Breadcrumb`, `BreadcrumbItem`, `Pagination` et `Toolbar`, dans `packages/components/src/components/`, et `state/pagination.ts`.
+- **Tokens :** les groupes `tabs`, `tab`, `details`, `breadcrumb`, `pagination` et `toolbar`.
+- **Tests :** `tabs.test.ts`, `details.test.ts`, `pagination.test.ts` (avec le fil d'Ariane), `toolbar.test.ts`, les stories dans trois moteurs, `state/pagination.test.ts` dans Node.
+- **Contrat d'API :** le test de contrat donne des attributs à un composant dont une part en dépend : 20 pages à `pagination`, pour sa part `gap`.
+- **Limites :**
+  - Les onglets, les panneaux et les éléments du fil d'Ariane posent leur rôle sur leur hôte, comme Web Awesome et Spectrum.
+  - Les détails s'ouvrent sans animation : `::details-content` manque à la matrice.
+  - La pagination rend des boutons, pas des liens.
+
+## Questions ouvertes
+
+- **Activation manuelle :** des onglets dont le panneau charge, choisis par Entrée et non par les flèches.
+- **Onglets qui débordent :** un menu des onglets cachés (`OverflowController`, vague 4).
+- **Pagination par liens :** un `href` par page, pour les listes qu'un moteur de recherche parcourt.
+
+## Sources
+
+Consultées le 20 novembre 2026.
+
+- [tab-group.ts](https://github.com/shoelace-style/webawesome/blob/next/packages/webawesome/src/components/tab-group/tab-group.ts), [tab.ts](https://github.com/shoelace-style/webawesome/blob/next/packages/webawesome/src/components/tab/tab.ts) et [details.ts](https://github.com/shoelace-style/webawesome/blob/next/packages/webawesome/src/components/details/details.ts) (Web Awesome).
+- [Tabs.ts](https://github.com/adobe/spectrum-web-components/blob/main/1st-gen/packages/tabs/src/Tabs.ts) (Adobe, Spectrum Web Components).
+- [Tabs Pattern](https://www.w3.org/WAI/ARIA/apg/patterns/tabs/), [Disclosure Pattern](https://www.w3.org/WAI/ARIA/apg/patterns/disclosure/), [Breadcrumb Pattern](https://www.w3.org/WAI/ARIA/apg/patterns/breadcrumb/) et [Toolbar Pattern](https://www.w3.org/WAI/ARIA/apg/patterns/toolbar/) (W3C, ARIA Authoring Practices Guide).

@@ -1,0 +1,98 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Documentation/ADR/0021 Menu et popups" />
+
+# ADR 0021 — Menu et popups
+
+**Statut :** accepté · **Date :** 20 novembre 2026
+
+## Contexte
+
+Une application ouvre une liste d'actions depuis un bouton : renommer, dupliquer, supprimer. Un popover et une infobulle suivent (vague 3 de la feuille de route).
+
+- Le pattern ARIA est le bouton de menu : `aria-haspopup="menu"`, `aria-expanded`, `aria-controls` sur le bouton, puis `role="menu"` et ses `menuitem`. Le focus entre dans le menu.
+- `aria-expanded` et `aria-controls` cherchent leur cible dans l'arbre du bouton ([ADR 0007](?path=/docs/documentation-adr-0007-champs-de-formulaire--docs)). Posés sur l'hôte d'un `u-button`, ils n'atteignent pas son `<button>` interne.
+- `AnchoredPopoverController`, `DismissController`, `RovingFocusController` et `state/typeahead.ts` existent.
+- `HTMLElement` a déjà `showPopover()`, `hidePopover()` et `togglePopover()` : un composant ne peut pas les remplacer.
+
+### Ce que font les bibliothèques
+
+<table>
+  <thead>
+    <tr>
+      <th>Bibliothèque</th>
+      <th>Déclencheur</th>
+      <th>Choix d'un élément</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Web Awesome, `wa-dropdown`</td>
+      <td>
+        Un élément du slot `trigger`, `wa-button` par exemple. Le composant pose `aria-haspopup` sur
+        le bouton natif du shadow root du déclencheur.
+      </td>
+      <td>L'événement `wa-select`, puis la fermeture</td>
+    </tr>
+    <tr>
+      <td>Spectrum Web Components, `sp-action-menu`</td>
+      <td>Un bouton rendu par le composant, avec un slot `label` et un slot `icon`</td>
+      <td>La sélection d'un `sp-menu-item`</td>
+    </tr>
+  </tbody>
+</table>
+
+## D1 — Le déclencheur
+
+- **Option A — Un déclencheur fourni par l'application**, comme Web Awesome. Son ARIA vit dans un autre arbre : il faut entrer dans son shadow root.
+- **Option B — Le composant rend son déclencheur**, comme Spectrum. Le bouton, le menu et leur ARIA sont dans le même shadow root.
+
+**Décision : B.** `menu` rend un `<button>` natif, dont `label` est le texte et le nom du menu.
+
+## D2 — Une base pour les popups
+
+La feuille de route prévoyait un mixin `withPopover`. Le menu, le popover et l'infobulle forment une seule famille : les popups ancrés à un déclencheur. Selon la règle de l'[ADR 0009](?path=/docs/documentation-adr-0009-autocomplete-combobox-et-popovers-ancrés--docs), une famille a une base abstraite.
+
+**Décision : `PopupBase`.**
+
+- `open` ouvre et ferme le popup, comme `show()`, `hide()` et `toggle()`, et les commandes `--show`, `--hide` et `--toggle` ([ADR 0008](?path=/docs/documentation-adr-0008-commandes-et-modale--docs)).
+- Échap, un appui dehors et le focus qui part ferment le popup (`DismissController`). Une sous-classe en choisit par `dismissesOn()`.
+- Chaque changement émet `u-toggle`, avec `newState` et `reason` : `trigger-press`, `item-press`, `escape-key`, `outside-press`, `focus-out` ou `imperative`.
+- Le popup entre et sort avec la transition de `ComboboxBase`.
+
+## D3 — Le menu
+
+- Ses éléments sont ses enfants `menu-item`, avec `role="menuitem"`. Le focus va sur eux (`RovingFocusController`).
+- Entrée, Espace et ArrowDown ouvrent le menu sur son premier élément ; ArrowUp sur son dernier.
+- Dans le menu : les flèches, Home et End, la recherche par saisie. Entrée et Espace émettent le `click` de l'élément.
+- Un élément choisi et Échap ferment le menu et rendent le focus au bouton. Tab et un appui dehors le ferment.
+- L'application écoute le `click` de chaque élément : c'est l'événement natif d'une action.
+- Le panneau et ses éléments prennent les tokens de `listbox` : le menu ressemble aux listes du select et de l'autocomplete.
+
+## D4 — La cause d'un appui dehors
+
+Un appui dehors déplace le focus avant de se terminer. `DismissController` recevait donc d'abord `focusout`, et donnait la cause `focus-out`. Il retient maintenant l'appui commencé dehors : sa cause est `outside-press`.
+
+## Conséquences
+
+- **Code :** `PopupBase` (`src/components/popup/`), `Menu`, `MenuItem` et `PopupToggleEvent` (`src/events/popup-toggle.ts`).
+- **Tokens :** le groupe `menu`, pour le déclencheur et le popup, devenu le groupe `popup` de `PopupBase` ([ADR 0022](?path=/docs/documentation-adr-0022-tiroir-popover-infobulle-et-toasts--docs)). La liste prend ceux de `listbox`.
+- **Tests :** `menu.test.ts` (clavier réel, Chromium) et les stories dans trois moteurs.
+- **Limites :**
+  - Le déclencheur a un texte, pas d'icône seule.
+  - Pas de sous-menu, ni d'élément à cocher (`menuitemcheckbox`, `menuitemradio`).
+- **Documentation :** cet ADR, [Contrôleurs et état](?path=/docs/documentation-référence-contrôleurs-et-état--docs), `AGENTS.md` et le skill `lit-component`.
+
+## Questions ouvertes
+
+- **Déclencheur à icône :** un `label` caché, et une icône du set.
+- **Sous-menus :** `HoverIntentController` (vague 3) et la flèche vers le côté.
+- **Éléments à cocher :** `menuitemcheckbox` et `menuitemradio`, avec `state/selection.ts`.
+
+## Sources
+
+Consultées le 20 novembre 2026.
+
+- [dropdown.ts](https://github.com/shoelace-style/webawesome/blob/next/packages/webawesome/src/components/dropdown/dropdown.ts) et [dropdown-item.ts](https://github.com/shoelace-style/webawesome/blob/next/packages/webawesome/src/components/dropdown-item/dropdown-item.ts) (Web Awesome).
+- [ActionMenu.ts](https://github.com/adobe/spectrum-web-components/blob/main/1st-gen/packages/action-menu/src/ActionMenu.ts) (Adobe, Spectrum Web Components).
+- [Menu Button Pattern](https://www.w3.org/WAI/ARIA/apg/patterns/menu-button/) (W3C, ARIA Authoring Practices Guide).
