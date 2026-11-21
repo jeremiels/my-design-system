@@ -44,6 +44,7 @@ export class Textarea extends FieldBase {
         .value=${live(this.value)}
         rows=${ifDefined(this.rows)}
         ?required=${this.required}
+        ?readonly=${this.readOnly}
         ?disabled=${this.isDisabled}
         autocomplete=${ifDefined(this.autocomplete)}
         minlength=${ifDefined(this.minLength)}

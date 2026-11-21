@@ -90,6 +90,16 @@ describe("Enter in a text field", () => {
     expect(submitters).toHaveLength(1);
   });
 
+  it("submits a form without button whose other fields are a checkbox and a switch", async () => {
+    const { form, submitters } = await mount(`
+      <u-text-field label="Name" name="name"></u-text-field>
+      <u-checkbox label="News" name="news"></u-checkbox>
+      <u-switch label="Alerts" name="alerts"></u-switch>
+    `);
+    await enterIn(form, "u-text-field");
+    expect(submitters).toHaveLength(1);
+  });
+
   it("doesn't submit a form without button that has several single-line fields", async () => {
     const { form, submitters } = await mount(`
       <u-text-field label="Name" name="name"></u-text-field>
@@ -218,5 +228,50 @@ describe.runIf(supportsStates)("the user-invalid state (A1)", () => {
     form.reset();
     await field.updateComplete;
     expect(field.matches(":state(user-invalid)")).toBe(false);
+  });
+});
+
+describe("a read-only field", () => {
+  it("keeps its value, submits it, and isn't validated", async () => {
+    const { form } = await mount(`
+      <u-text-field label="Name" name="name" value="Ada" readonly required></u-text-field>
+      <u-textarea label="Notes" name="notes" readonly required></u-textarea>
+      <u-text-field label="Code" name="code" value="b" pattern="a" readonly></u-text-field>
+    `);
+    const field = form.querySelector<DSBaseElement & { value: string }>("u-text-field")!;
+    const input = field.shadowRoot!.querySelector("input")!;
+    expect(input.readOnly).toBe(true);
+    expect(form.querySelector("u-textarea")!.shadowRoot!.querySelector("textarea")!.readOnly).toBe(
+      true,
+    );
+
+    input.focus();
+    await userEvent.keyboard("ne");
+    expect(field.value).toBe("Ada");
+    expect(form.checkValidity()).toBe(true);
+    expect([...new FormData(form)]).toEqual([
+      ["name", "Ada"],
+      ["notes", ""],
+      ["code", "b"],
+    ]);
+    // Its constraints don't apply: the field is valid, whatever the engine.
+    for (const field of form.children) {
+      expect((field as unknown as { validity: ValidityState }).validity.valid).toBe(true);
+    }
+  });
+
+  it("doesn't open the suggestions of an autocomplete", async () => {
+    const { form } = await mount(`
+      <u-autocomplete label="City" name="city" readonly>
+        <option>Paris</option>
+      </u-autocomplete>
+    `);
+    const root = form.querySelector("u-autocomplete")!.shadowRoot!;
+    root.querySelector("input")!.focus();
+    await userEvent.keyboard("{ArrowDown}");
+    expect(root.querySelector<HTMLElement>('[part~="popup"]')!.matches(":popover-open")).toBe(
+      false,
+    );
+    expect(root.querySelector("input")!.getAttribute("aria-expanded")).toBe("false");
   });
 });

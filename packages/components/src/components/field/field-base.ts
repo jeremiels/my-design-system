@@ -2,6 +2,7 @@ import { nothing, type PropertyValues } from "lit";
 import { property, state } from "lit/decorators.js";
 import { html } from "lit/static-html.js";
 import { withDisabled } from "../../mixins/withDisabled.js";
+import { withFormControl } from "../../mixins/withFormControl.js";
 import { withInternals } from "../../mixins/withInternals.js";
 import { DSBaseElement } from "../base-element.js";
 import { Icon } from "../icon/icon.js";
@@ -54,9 +55,10 @@ export const fieldIds = {
  * label stays in the shadow root of its control: an `id` doesn't cross a
  * shadow root (ADR 0007).
  *
- * A field takes part in its form like a native control: it submits `value`
- * under `name`, blocks the submission while invalid, follows the form's
- * reset and a `<fieldset disabled>`.
+ * A field takes part in its form like a native control (`withFormControl`):
+ * it submits `value` under `name`, blocks the submission while invalid,
+ * follows the form's reset and a `<fieldset disabled>`. A `readonly` field
+ * keeps its value and isn't validated.
  *
  * Validation is the browser's, on the native control, plus
  * `setCustomValidity()`. The error shows once the user has changed the value
@@ -93,12 +95,11 @@ export const fieldIds = {
  * @fires change - When the user commits a change of the value, as on a native control (the inner `change` doesn't leave the shadow root: the host fires its own).
  * @tokens field - Its tokens (`@cssprop`), shared by every field, from `@unicorne/tokens` (`src/component/field/`): `npm run analyze` documents them.
  */
-export abstract class FieldBase extends withInternals(withDisabled(DSBaseElement)) {
+export abstract class FieldBase extends withFormControl(
+  withInternals(withDisabled(DSBaseElement)),
+) {
   /** Renders the icon of its error message with the `icon` of its own registration (ADR 0001, D2). */
-  static override dependencies = [Icon];
-
-  /** Takes part in its form: value, validity, reset, `<fieldset disabled>`. */
-  static formAssociated = true;
+  static override dependencies: readonly (typeof DSBaseElement)[] = [Icon];
 
   static styles = [super.styles ?? [], fieldTokens, fieldBaseStyles];
 
@@ -119,21 +120,6 @@ export abstract class FieldBase extends withInternals(withDisabled(DSBaseElement
   /** A help text between the label and the control, read with the control. */
   @property({ type: String })
   hint = "";
-
-  /** Name of the value in the form's data. Reflected: the form reads the attribute. */
-  @property({ type: String, reflect: true })
-  name = "";
-
-  /**
-   * The value, submitted with the form. The `value` attribute is the
-   * default value: the form's reset restores it.
-   */
-  @property({ type: String })
-  value = "";
-
-  /** The form can't be submitted while the field is empty. */
-  @property({ type: Boolean })
-  required = false;
 
   /**
    * Shown after the label of a required field, and hidden from assistive
@@ -166,9 +152,6 @@ export abstract class FieldBase extends withInternals(withDisabled(DSBaseElement
   @state()
   private error = "";
 
-  /** The message of `setCustomValidity()`. */
-  #customValidity = "";
-
   constructor() {
     super();
     // Fired on the host by a submission attempt, `checkValidity()` and
@@ -179,67 +162,17 @@ export abstract class FieldBase extends withInternals(withDisabled(DSBaseElement
     });
   }
 
-  /** The form of the field, or `null`. */
-  get form(): HTMLFormElement | null {
-    return this.internals?.form ?? null;
-  }
-
-  /** The validity of the value, as on a native control. */
-  get validity(): ValidityState {
-    return this.internals!.validity;
-  }
-
-  /** The message of the first constraint the value fails, `""` when valid. */
-  get validationMessage(): string {
-    return this.internals!.validationMessage;
-  }
-
-  /** Whether the field is validated with its form: `false` while disabled. */
-  get willValidate(): boolean {
-    return this.internals!.willValidate;
-  }
-
-  /** Whether the value is valid. If not, fires `invalid` and shows the error. */
-  checkValidity(): boolean {
-    return this.internals!.checkValidity();
-  }
-
-  /** As `checkValidity()`, and the browser reports the error, focusing the control. */
-  reportValidity(): boolean {
-    return this.internals!.reportValidity();
-  }
-
-  /**
-   * Makes the value invalid with this message, as on a native control: a
-   * check of the application, such as a username already taken. `""` makes
-   * the value valid again.
-   */
-  setCustomValidity(message: string): void {
-    this.#customValidity = message;
-    if (this.hasUpdated) {
-      this.#syncValidity();
-    }
-  }
-
   /** @internal */
-  formResetCallback(): void {
-    this.value = this.getAttribute("value") ?? "";
+  override formResetCallback(): void {
+    super.formResetCallback();
     this.interacted = false;
     this.error = "";
   }
 
-  /** @internal */
-  formStateRestoreCallback(state: string | File | FormData | null): void {
-    if (typeof state === "string") {
-      this.value = state;
-    }
-  }
-
   protected override updated(changedProperties: PropertyValues<this>): void {
+    // Sets the form value, then the validity (`updateValidity()`).
     super.updated(changedProperties);
-    this.internals?.setFormValue(this.value);
-    this.#syncValidity();
-    // After #syncValidity(): it may show the error, which updates again.
+    // After updateValidity(): it may show the error, which updates again.
     this.customStates.set("user-invalid", this.error !== "");
   }
 
@@ -247,7 +180,7 @@ export abstract class FieldBase extends withInternals(withDisabled(DSBaseElement
    * Renders the native control, between the hint and the error message. It
    * has `id="control"` (the label's `for`), `class="control"` (the styles)
    * and its own part. It binds `.value=${live(this.value)}`, `required`,
-   * `disabled` (`isDisabled`), `autocomplete`, its constraints,
+   * `readonly` (`readOnly`), `disabled` (`isDisabled`), `autocomplete`, its constraints,
    * `controlInvalid`, `controlDescribedBy`, `handleInput` and
    * `handleChange`. A single-line control also binds
    * `@keydown=${this.submitOnEnter}`.
@@ -270,15 +203,18 @@ export abstract class FieldBase extends withInternals(withDisabled(DSBaseElement
   /** For `renderControl()`: the `input` listener of the control. */
   protected handleInput(event: Event): void {
     this.value = (event.target as FieldControl).value;
-    // The control already has the new value: update the error now.
-    this.#showError();
   }
 
   /** For `renderControl()`: the `change` listener of the control. */
   protected handleChange(): void {
+    this.markInteracted();
+    this.dispatchEvent(new Event("change", { bubbles: true }));
+  }
+
+  /** The user has changed the value: the error shows from now on, as after `change`. */
+  protected markInteracted(): void {
     this.interacted = true;
     this.#showError();
-    this.dispatchEvent(new Event("change", { bubbles: true }));
   }
 
   /**
@@ -317,7 +253,9 @@ export abstract class FieldBase extends withInternals(withDisabled(DSBaseElement
     const singleLine = controls.filter(
       (control) =>
         (control instanceof HTMLInputElement && SINGLE_LINE_TYPES.has(control.type)) ||
-        (control instanceof FieldBase && control.#control instanceof HTMLInputElement),
+        (control instanceof FieldBase &&
+          control.#control instanceof HTMLInputElement &&
+          SINGLE_LINE_TYPES.has(control.#control.type)),
     );
     if (singleLine.length === 1) {
       form.requestSubmit();
@@ -329,9 +267,9 @@ export abstract class FieldBase extends withInternals(withDisabled(DSBaseElement
     return this.renderRoot.querySelector<FieldControl>(`#${fieldIds.control}`);
   }
 
-  /** The message of the control's error, `""` while valid. */
+  /** The message of the control's error, `""` while valid or read-only. */
   #messageOf(control: FieldControl): string {
-    if (control.validity.valid) {
+    if (control.validity.valid || this.readOnly) {
       return "";
     }
     return control.validity.customError
@@ -339,14 +277,26 @@ export abstract class FieldBase extends withInternals(withDisabled(DSBaseElement
       : this.errorMessage || control.validationMessage;
   }
 
-  /** Gives the host the validity of the control, the browser's constraints and ours. */
-  #syncValidity(): void {
+  /** Gives the host its validity, with `syncValidity()`, then shows its error. */
+  protected override updateValidity(): void {
+    this.syncValidity();
+    this.#showError();
+  }
+
+  /**
+   * Gives the host the validity of its value: by default, that of the native
+   * control, the browser's constraints and ours. A field without a native
+   * control overrides it (`ChoiceGroupBase`).
+   */
+  protected syncValidity(): void {
     const control = this.#control;
     if (!control) {
       return;
     }
-    control.setCustomValidity(this.#customValidity);
-    if (control.validity.valid) {
+    control.setCustomValidity(this.customValidity);
+    // A read-only control keeps the flags of its constraints, but the
+    // browser doesn't validate it.
+    if (control.validity.valid || this.readOnly) {
       this.internals?.setValidity({});
     } else {
       // The control is the anchor: a failed submission focuses it.
@@ -356,40 +306,98 @@ export abstract class FieldBase extends withInternals(withDisabled(DSBaseElement
         control,
       );
     }
-    this.#showError();
   }
 
+  /**
+   * For `syncValidity()` of a field without a native control: the value is
+   * missing (`required` and empty), invalid with the message of
+   * `setCustomValidity()`, or valid. A read-only field is valid. The message
+   * of a missing value is `errorMessage`, or else that of the hidden native
+   * control the field renders with `class="validity-proxy"` and `required`:
+   * the browser's, in its language. `anchor` gets the focus on a failed
+   * submission.
+   */
+  protected syncValueValidity(missing: boolean, anchor?: HTMLElement): void {
+    const internals = this.internals;
+    if (!internals) {
+      return;
+    }
+    if (this.readOnly) {
+      internals.setValidity({});
+    } else if (this.customValidity) {
+      internals.setValidity({ customError: true }, this.customValidity, anchor);
+    } else if (missing) {
+      const proxy = this.renderRoot.querySelector<HTMLInputElement | HTMLSelectElement>(
+        ".validity-proxy",
+      );
+      const message = this.errorMessage || proxy?.validationMessage || this.errorLabel;
+      internals.setValidity({ valueMissing: true }, message, anchor);
+    } else {
+      internals.setValidity({});
+    }
+  }
+
+  /** Shows the message of the host's validity, once the user has interacted. */
   #showError(): void {
-    const control = this.#control;
-    this.error = this.interacted && control ? this.#messageOf(control) : "";
+    this.error =
+      this.interacted && this.internals && !this.internals.validity.valid
+        ? this.internals.validationMessage
+        : "";
   }
 
+  /** Whether an error shows: for the layout of `render()`, and `aria-invalid`. */
+  protected get hasError(): boolean {
+    return this.error !== "";
+  }
+
+  /**
+   * Renders the field: the label, the hint, the control, the error. A field
+   * with another layout overrides it, and calls `renderLabel()`,
+   * `renderHint()`, `renderControl()` and `renderError()`.
+   */
   render() {
-    const icon = this.tagFor(Icon);
     return html`
       <div class="field${this.error ? " field--invalid" : ""}">
-        <label part="label" class="label" id=${fieldIds.label} for=${fieldIds.control}
-          >${this.label}<span
-            part="required-indicator"
-            class="required-indicator"
-            aria-hidden="true"
-            ?hidden=${!this.required || !this.requiredIndicator}
-            >${this.requiredIndicator}</span
-          ></label
-        >
-        <div part="hint" class="hint" id=${fieldIds.hint} ?hidden=${!this.hint}>${this.hint}</div>
-        ${this.renderControl()}
-        <div part="error" class="error" id=${fieldIds.error} ?hidden=${!this.error}>
-          ${
-            this.error
-              ? html`<${icon} class="error-icon" name="danger"></${icon}>
-                  <span
-                    ><span class="visually-hidden">${this.errorLabel} </span>${this.error}</span
-                  >`
-              : nothing
-          }
-        </div>
+        ${this.renderLabel()} ${this.renderHint()} ${this.renderControl()} ${this.renderError()}
       </div>
     `;
+  }
+
+  /** The label's text and the indicator of a required field. */
+  protected renderLabelContent() {
+    return html`${this.label}<span
+        part="required-indicator"
+        class="required-indicator"
+        aria-hidden="true"
+        ?hidden=${!this.required || !this.requiredIndicator}
+        >${this.requiredIndicator}</span
+      >`;
+  }
+
+  /** The `<label>` of the control: `id="label"`, `for="control"`. */
+  protected renderLabel() {
+    return html`<label part="label" class="label" id=${fieldIds.label} for=${fieldIds.control}
+      >${this.renderLabelContent()}</label
+    >`;
+  }
+
+  /** The hint: `id="hint"`, hidden without `hint`. */
+  protected renderHint() {
+    return html`<div part="hint" class="hint" id=${fieldIds.hint} ?hidden=${!this.hint}>
+      ${this.hint}
+    </div>`;
+  }
+
+  /** The error message: `id="error"`, hidden while no error shows. */
+  protected renderError() {
+    const icon = this.tagFor(Icon);
+    return html`<div part="error" class="error" id=${fieldIds.error} ?hidden=${!this.error}>
+      ${
+        this.error
+          ? html`<${icon} class="error-icon" name="danger"></${icon}>
+              <span><span class="visually-hidden">${this.errorLabel} </span>${this.error}</span>`
+          : nothing
+      }
+    </div>`;
   }
 }

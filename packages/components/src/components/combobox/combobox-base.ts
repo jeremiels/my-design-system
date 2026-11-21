@@ -4,6 +4,8 @@ import {
   AnchoredPopoverController,
   anchoredPopoverStyles,
 } from "../../controllers/anchored-popover.js";
+import { AnnounceController, announceStyles } from "../../controllers/announce.js";
+import { DismissController } from "../../controllers/dismiss.js";
 import {
   cancelExitTransition,
   closeWithTransition,
@@ -17,7 +19,7 @@ import {
   type ComboboxEvent,
   type ComboboxState,
 } from "../../state/combobox.js";
-import type { ListboxItem } from "../../state/listbox.js";
+import type { CollectionItem } from "../../state/collection.js";
 import { FieldBase, fieldIds } from "../field/field-base.js";
 import comboboxStyles from "./combobox-base.css" with { type: "css" };
 import comboboxTokens from "./combobox.tokens.css" with { type: "css" };
@@ -41,22 +43,43 @@ import comboboxTokens from "./combobox.tokens.css" with { type: "css" };
  * Keys of the control, popup closed: ArrowDown and ArrowUp open it and enter
  * it at its first or last item, Alt+ArrowDown opens it without entering.
  * Popup open: Escape and Alt+ArrowUp close it, Tab closes it and moves on;
- * the others go to `handlePopupKeydown()`. The popup also closes when the
- * focus leaves the field, when the field is disabled, and when its form is
- * reset. Escape closes only the popup, not a modal around the field.
+ * the others, but Escape, go to `handlePopupKeydown()`. The popup also closes when the
+ * focus leaves the field, when the field is disabled or read-only, and when
+ * its form is reset. Escape closes only the popup, not a modal around the field.
  *
- * A polite live region announces `popupStatus`, the number of suggestions
- * for instance: the popup's content changes without the focus moving.
+ * A polite live region (`AnnounceController`) announces each new
+ * `popupStatus`, the number of suggestions for instance: the popup's content
+ * changes without the focus moving.
  *
  * @csspart popup - The popup, below the control, in the top layer.
  * @tokens combobox - Its tokens (`@cssprop`), shared by every combobox, from `@unicorne/tokens` (`src/component/combobox/`): `npm run analyze` documents them.
  */
 export abstract class ComboboxBase extends FieldBase {
-  static styles = [super.styles ?? [], anchoredPopoverStyles, comboboxTokens, comboboxStyles];
+  static styles = [
+    super.styles ?? [],
+    anchoredPopoverStyles,
+    announceStyles,
+    comboboxTokens,
+    comboboxStyles,
+  ];
 
   #state: ComboboxState = closedCombobox;
 
   #popover = new AnchoredPopoverController(this);
+
+  #announcer = new AnnounceController(this);
+
+  constructor() {
+    super();
+    // Escape and the focus leaving the field close the popup. The focus
+    // leaving also ends the typing, popup closed for want of content.
+    new DismissController(this, {
+      active: (reason) => this.open || (reason === "focus-out" && this.comboboxState.typed),
+      dismiss: () => this.hidePopup(),
+      escapeKey: true,
+      focusOut: true,
+    });
+  }
 
   /**
    * Whether the popup is open. Reflected. Follows the real state: it turns
@@ -69,12 +92,6 @@ export abstract class ComboboxBase extends FieldBase {
   }
   set open(open: boolean) {
     this.dispatch({ type: "request", open });
-  }
-
-  constructor() {
-    super();
-    // Retargeted to the host: fired only when the focus leaves the field.
-    this.addEventListener("focusout", () => this.hidePopup());
   }
 
   disconnectedCallback(): void {
@@ -101,7 +118,7 @@ export abstract class ComboboxBase extends FieldBase {
     return html`
       ${this.renderCombobox()}
       <div part="popup" class="popup" popover="manual">${this.renderPopup()}</div>
-      <div class="visually-hidden" role="status">${this.popupStatus}</div>
+      ${this.#announcer.render()}
     `;
   }
 
@@ -131,7 +148,7 @@ export abstract class ComboboxBase extends FieldBase {
   }
 
   /** The items of the popup the keyboard moves through, in order. None by default. */
-  protected get popupItems(): readonly ListboxItem[] {
+  protected get popupItems(): readonly CollectionItem[] {
     return [];
   }
 
@@ -172,7 +189,7 @@ export abstract class ComboboxBase extends FieldBase {
 
   /**
    * Handles a key of the control while the popup is open, other than
-   * Escape, Alt+ArrowUp and Tab. Returns whether it handled it: the base
+   * Alt+ArrowUp and Tab. Escape reaches it, then closes the popup. Returns whether it handled it: the base
    * then prevents its default. Handles none by default.
    */
   protected handlePopupKeydown(_event: KeyboardEvent): boolean {
@@ -193,7 +210,7 @@ export abstract class ComboboxBase extends FieldBase {
     // A key of an input method composes the text: leave it alone. Safari
     // resets isComposing before the Enter that confirms the composition,
     // which still has keyCode 229.
-    if (this.isDisabled || event.isComposing || event.keyCode === 229) {
+    if (this.isDisabled || this.readOnly || event.isComposing || event.keyCode === 229) {
       return;
     }
     const { key, altKey } = event;
@@ -204,10 +221,9 @@ export abstract class ComboboxBase extends FieldBase {
       }
       return;
     }
-    if (key === "Escape" || (key === "ArrowUp" && altKey)) {
-      // Not to the page: a modal around the field stays open.
+    // Escape is the DismissController's, on the host.
+    if (key === "ArrowUp" && altKey) {
       event.preventDefault();
-      event.stopPropagation();
       this.hidePopup();
     } else if (key === "Tab") {
       this.hidePopup();
@@ -225,6 +241,10 @@ export abstract class ComboboxBase extends FieldBase {
     super.willUpdate(changedProperties);
     // The content, the text or `disabled` may have changed.
     this.dispatch({ type: "sync" });
+    const status = this.popupStatus;
+    if (status !== this.#announcer.message) {
+      this.#announcer.announce(status);
+    }
   }
 
   protected override updated(changedProperties: PropertyValues<this>): void {
@@ -245,7 +265,7 @@ export abstract class ComboboxBase extends FieldBase {
   get #context(): ComboboxContext {
     const control = this.#control;
     return {
-      disabled: this.isDisabled,
+      disabled: this.isDisabled || this.readOnly,
       hasContent: this.hasPopupContent,
       items: this.popupItems,
       hasText: this.value !== "",

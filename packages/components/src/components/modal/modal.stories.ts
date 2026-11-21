@@ -266,7 +266,7 @@ export const ClosingModal = meta.story({
     docs: {
       description: {
         story:
-          "The close button and Escape fire `u-cancel`, then close the modal and fire `u-close`. Canceling `u-cancel` keeps it open. `open = false` closes it without `u-cancel`.",
+          "The close button and Escape fire `u-cancel`, with their `reason`, then close the modal and fire `u-close`. Canceling `u-cancel` keeps it open. `open = false` closes it without `u-cancel`.",
       },
     },
   },
@@ -280,11 +280,12 @@ export const ClosingModal = meta.story({
     const dialog = modal.shadowRoot!.querySelector("dialog")!;
     const onCancel = fn();
     const onClose = fn();
-    modal.addEventListener("u-cancel", onCancel);
+    modal.addEventListener("u-cancel", (event) => onCancel(event.reason));
     modal.addEventListener("u-close", onClose);
 
     await userEvent.click(closeButton(modal));
     expect(onCancel).toHaveBeenCalledOnce();
+    expect(onCancel).toHaveBeenCalledWith("close-press");
     await waitFor(() => expect(onClose).toHaveBeenCalledOnce());
     expect(modal.open).toBe(false);
 
@@ -299,17 +300,26 @@ export const ClosingModal = meta.story({
     modal.removeEventListener("u-cancel", keepOpen);
 
     // Escape fires `cancel` on the native <dialog>, but userEvent's synthetic
-    // keys can't trigger it: fire it directly, as Escape would.
+    // keys can't trigger it: fire both, as Escape would.
+    dialog.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
     dialog.dispatchEvent(new Event("cancel", { cancelable: true }));
     expect(onCancel).toHaveBeenCalledTimes(3);
+    expect(onCancel).toHaveBeenLastCalledWith("escape-key");
     await waitFor(() => expect(onClose).toHaveBeenCalledTimes(2));
     expect(modal.open).toBe(false);
+
+    // `cancel` without Escape just before: another close request of the
+    // system. On Android, the back button or gesture sends one.
+    modal.showModal();
+    dialog.dispatchEvent(new Event("cancel", { cancelable: true }));
+    expect(onCancel).toHaveBeenLastCalledWith("back");
+    await waitFor(() => expect(onClose).toHaveBeenCalledTimes(3));
 
     modal.open = true;
     await modal.updateComplete;
     modal.open = false;
-    await waitFor(() => expect(onClose).toHaveBeenCalledTimes(3));
-    expect(onCancel).toHaveBeenCalledTimes(3);
+    await waitFor(() => expect(onClose).toHaveBeenCalledTimes(4));
+    expect(onCancel).toHaveBeenCalledTimes(4);
     await transitionsEnd(canvasElement);
   },
 });
@@ -345,7 +355,7 @@ export const CloseCommands = meta.story({
     await remove.updateComplete;
     const onCancel = fn();
     const onClose = fn();
-    modal.addEventListener("u-cancel", onCancel);
+    modal.addEventListener("u-cancel", (event) => onCancel(event.reason));
     modal.addEventListener("u-close", (event) => onClose(event.value));
 
     await userEvent.click(control(remove));
@@ -357,6 +367,7 @@ export const CloseCommands = meta.story({
     modal.showModal();
     await userEvent.click(control(cancel));
     expect(onCancel).toHaveBeenCalledOnce();
+    expect(onCancel).toHaveBeenCalledWith("imperative");
     await waitFor(() => expect(onClose).toHaveBeenLastCalledWith("cancel"));
     await transitionsEnd(canvasElement);
   },
@@ -370,7 +381,7 @@ export const ClosedBy = meta.story({
     docs: {
       description: {
         story:
-          '`closedby="any"` adds a click outside to Escape, also in Safari, which lacks the attribute. `closedby="none"` leaves only the close button, the commands and the methods.',
+          '`closedby="any"` adds a click outside to Escape, in every browser: the modal handles it, to give `u-cancel` its `reason`. `closedby="none"` leaves only the close button, the commands and the methods.',
       },
     },
   },
@@ -385,17 +396,17 @@ export const ClosedBy = meta.story({
     await any.updateComplete;
     await none.updateComplete;
     const anyDialog = any.shadowRoot!.querySelector("dialog")!;
-    expect(anyDialog.getAttribute("closedby")).toBe("any");
+    // The browser keeps Escape and the back gesture; the modal, the press outside.
+    expect(anyDialog.getAttribute("closedby")).toBe("closerequest");
+    const onAnyCancel = fn();
+    any.addEventListener("u-cancel", (event) => onAnyCancel(event.reason));
 
-    if (!("closedBy" in HTMLDialogElement.prototype)) {
-      // The fallback: a press and a release on the backdrop, outside the box.
-      const outside = { bubbles: true, composed: true, clientX: 1, clientY: 1 };
-      anyDialog.dispatchEvent(new PointerEvent("pointerdown", outside));
-      anyDialog.dispatchEvent(new PointerEvent("pointerup", outside));
-    } else {
-      // The browser's own light dismiss fires `cancel`.
-      anyDialog.dispatchEvent(new Event("cancel", { cancelable: true }));
-    }
+    // A press and a release on the backdrop, outside the box.
+    const outside = { bubbles: true, composed: true, clientX: 1, clientY: 1 };
+    anyDialog.dispatchEvent(new PointerEvent("pointerdown", outside));
+    anyDialog.dispatchEvent(new PointerEvent("pointerup", outside));
+    expect(onAnyCancel).toHaveBeenCalledOnce();
+    expect(onAnyCancel).toHaveBeenCalledWith("outside-press");
     await waitFor(() => expect(anyDialog.open).toBe(false));
     expect(any.open).toBe(false);
 

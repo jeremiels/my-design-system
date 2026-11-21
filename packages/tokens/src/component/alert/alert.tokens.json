@@ -1,15 +1,15 @@
 {
   "alert": {
-    "$description": "Tokens of `alert`. The defaults are those of the `information` type.",
+    "$description": "Tokens of `alert`. The defaults are those of the `information` variant.",
     "background-color": {
       "$type": "color",
       "$value": "{color.information.background}",
-      "$description": "Background color (types change the default)."
+      "$description": "Background color (variants change the default)."
     },
     "text-color": {
       "$type": "color",
       "$value": "{color.information.text}",
-      "$description": "Text color (types change the default)."
+      "$description": "Text color (variants change the default)."
     },
     "padding": {
       "$type": "dimension",

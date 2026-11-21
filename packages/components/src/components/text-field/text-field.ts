@@ -43,6 +43,7 @@ export class TextField extends FieldBase {
         type=${this.type}
         .value=${live(this.value)}
         ?required=${this.required}
+        ?readonly=${this.readOnly}
         ?disabled=${this.isDisabled}
         autocomplete=${ifDefined(this.autocomplete)}
         minlength=${ifDefined(this.minLength)}

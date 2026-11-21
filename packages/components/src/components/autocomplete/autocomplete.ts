@@ -3,19 +3,12 @@ import { property } from "lit/decorators.js";
 import { live } from "lit/directives/live.js";
 import { ListboxController, listboxStyles, listboxTokens } from "../../controllers/listbox.js";
 import { ListboxSelectEvent } from "../../events/listbox-select.js";
-import { listboxKeyMove } from "../../state/listbox.js";
+import { collectionKeyMove } from "../../state/collection.js";
+import { normalizeText } from "../../state/typeahead.js";
 import { ComboboxBase } from "../combobox/combobox-base.js";
 import { fieldIds } from "../field/field-base.js";
 import type { ListboxOption } from "../listbox/listbox.type.js";
 import type { AutocompleteFilter } from "./autocomplete.type.js";
-
-/** Text compared without case nor accents: "Évry" matches "evry". */
-function normalize(text: string): string {
-  return text
-    .normalize("NFD")
-    .replace(/\p{Diacritic}/gu, "")
-    .toLocaleLowerCase();
-}
 
 /**
  * A text field with suggestions: the list below the input shows the
@@ -139,8 +132,8 @@ export class Autocomplete extends ComboboxBase {
    * another comparison; `filter="none"` never calls it.
    */
   protected optionMatches(option: ListboxOption, query: string): boolean {
-    const label = normalize(option.label || option.value);
-    const text = normalize(query);
+    const label = normalizeText(option.label || option.value);
+    const text = normalizeText(query);
     return this.filter === "starts-with" ? label.startsWith(text) : label.includes(text);
   }
 
@@ -191,6 +184,7 @@ export class Autocomplete extends ComboboxBase {
         aria-activedescendant=${this.#listbox.activeDescendant}
         .value=${live(this.value)}
         ?required=${this.required}
+        ?readonly=${this.readOnly}
         ?disabled=${this.isDisabled}
         autocomplete=${this.autocomplete ?? "off"}
         aria-invalid=${this.controlInvalid}
@@ -226,7 +220,7 @@ export class Autocomplete extends ComboboxBase {
   }
 
   protected override handlePopupKeydown(event: KeyboardEvent): boolean {
-    const move = listboxKeyMove(event.key);
+    const move = collectionKeyMove(event.key, { axis: "vertical" });
     if (move) {
       this.dispatch({ type: "move", to: move });
       return true;

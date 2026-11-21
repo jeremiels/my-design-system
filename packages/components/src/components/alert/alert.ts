@@ -5,7 +5,7 @@ import { DSBaseElement } from "../base-element.js";
 import { Icon } from "../icon/icon.js";
 import alertStyles from "./alert.css" with { type: "css" };
 import alertTokens from "./alert.tokens.css" with { type: "css" };
-import type { AlertType } from "./alert.type.js";
+import type { AlertVariant } from "./alert.type.js";
 
 /**
  * How long the live region stays empty before the message is revealed: the
@@ -17,12 +17,12 @@ const REVEAL_DELAY_MS = 100;
 /**
  * An alert component that displays a message to the user.
  *
- * The icon of its type comes first: the icon of the same name, from the
- * `icon` component of its registration. It's decorative: the type is in the
- * role and the colors, and the message says it.
+ * The icon of its variant comes first: the icon of the same name, from the
+ * `icon` component of its registration. It's decorative: the variant is in
+ * the role and the colors, and the message says it.
  *
  * Its container is a live region (`role="status"` or `"alert"`, from
- * `type`). Screen readers announce what is added to a live region, not what
+ * `variant`). Screen readers announce what is added to a live region, not what
  * it already held when it appeared, so the message is revealed 100 ms after
  * the alert is first rendered: an alert inserted with its message is
  * announced too. Until then the message is laid out (nothing moves) but
@@ -32,18 +32,18 @@ const REVEAL_DELAY_MS = 100;
  * @summary Displays a message, announced to assistive technologies.
  * @slot - The content of the alert.
  * @csspart alert - The alert container.
- * @csspart icon - The icon of the type: the `icon` component of the same registration.
+ * @csspart icon - The icon of the variant: the `icon` component of the same registration.
  * @tokens alert - Its tokens (`@cssprop`), from `@unicorne/tokens` (`src/component/alert/`): `npm run analyze` documents them.
  */
 export class Alert extends DSBaseElement {
   static override componentName = "alert";
 
-  /** Renders the icon of its type with the `icon` of its own registration (ADR 0001, D2). */
+  /** Renders the icon of its variant with the `icon` of its own registration (ADR 0001, D2). */
   static override dependencies = [Icon];
 
-  /** Alert type: sets the colors and how assistive technologies announce it. */
+  /** The intent of the alert: sets its colors, its icon and how assistive technologies announce it. */
   @property({ type: String, reflect: true })
-  type: AlertType = "information";
+  variant: AlertVariant = "information";
 
   static styles = [DSBaseElement.styles ?? [], alertTokens, alertStyles];
 
@@ -63,7 +63,7 @@ export class Alert extends DSBaseElement {
    * See https://www.w3.org/WAI/ARIA/apg/patterns/alert/.
    */
   private get alertRole(): "alert" | "status" {
-    return this.type === "danger" || this.type === "warning" ? "alert" : "status";
+    return this.variant === "danger" || this.variant === "warning" ? "alert" : "status";
   }
 
   protected firstUpdated(changedProperties: PropertyValues<this>) {
@@ -78,7 +78,7 @@ export class Alert extends DSBaseElement {
     const icon = this.tagFor(Icon);
     return html`
       <div part="alert" class="alert${pending}" role=${this.alertRole}>
-        <${icon} part="icon" name=${this.type}></${icon}>
+        <${icon} part="icon" name=${this.variant}></${icon}>
         <div class="message"><slot></slot></div>
       </div>
     `;

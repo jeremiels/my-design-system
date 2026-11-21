@@ -8,17 +8,17 @@
   --u-alert-font-family: var(--u-font-family-body);
 }
 
-:host([type="success"]) {
+:host([variant="success"]) {
   --u-alert-background-color: var(--u-color-success-background);
   --u-alert-text-color: var(--u-color-success-text);
 }
 
-:host([type="warning"]) {
+:host([variant="warning"]) {
   --u-alert-background-color: var(--u-color-warning-background);
   --u-alert-text-color: var(--u-color-warning-text);
 }
 
-:host([type="danger"]) {
+:host([variant="danger"]) {
   --u-alert-background-color: var(--u-color-danger-background);
   --u-alert-text-color: var(--u-color-danger-text);
 }
