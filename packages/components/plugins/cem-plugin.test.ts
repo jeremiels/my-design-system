@@ -96,12 +96,35 @@ describe("tokensManifest", () => {
     expect(moduleDoc.declarations[0]).toMatchObject({
       cssProperties: expect.arrayContaining([
         {
-          description: "Background color (types change the default).",
+          description: "Background color (variants change the default).",
           name: "--u-alert-background-color",
           default: "var(--u-color-information-background)",
         },
       ]),
     });
+  });
+
+  it("documents the tokens of each group a class names", () => {
+    const moduleDoc = {
+      path: "select.ts",
+      declarations: [{ name: "Select" }] as { name: string }[],
+    };
+    plugin.analyzePhase({
+      ts: {
+        isClassDeclaration: () => true,
+        getJSDocTags: () => [
+          { tagName: { text: "tokens" }, comment: "select - Its tokens." },
+          { tagName: { text: "tokens" }, comment: "listbox - Its list's tokens." },
+        ],
+      },
+      node: { name: { text: "Select" } },
+      moduleDoc,
+    });
+    const names = (
+      moduleDoc.declarations[0] as { cssProperties?: { name: string }[] }
+    ).cssProperties!.map(({ name }) => name);
+    expect(names).toContain("--u-select-chevron-size");
+    expect(names.some((name) => name.startsWith("--u-listbox-"))).toBe(true);
   });
 
   it("fails for a group without component tokens", () => {

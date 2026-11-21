@@ -75,10 +75,28 @@ function hostAttributeStates(root: ShadowRoot): [string, string][] {
   return [...states.values()];
 }
 
+/** Attributes some parts need to render: the `gap` of `pagination`, with enough pages. */
+const attributesFor: Record<string, Record<string, string>> = {
+  "u-pagination": { pages: "20" },
+};
+
+/** What some parts need besides: a message of `toaster`. */
+const setupFor: Record<string, (element: HTMLElement) => void> = {
+  "u-toaster": (element) =>
+    (element as unknown as { show(message: string, options: object): void }).show("Saved", {
+      duration: 0,
+    }),
+};
+
 async function render(tag: string, content = ""): Promise<DSBaseElement> {
   const element = document.createElement(tag) as DSBaseElement;
+  for (const [name, value] of Object.entries(attributesFor[tag] ?? {})) {
+    element.setAttribute(name, value);
+  }
   element.innerHTML = content;
   document.body.append(element);
+  await element.updateComplete;
+  setupFor[tag]?.(element);
   await element.updateComplete;
   return element;
 }

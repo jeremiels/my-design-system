@@ -37,6 +37,8 @@ export default defineConfig({
       "lit/decorators.js",
       "lit/directives/if-defined.js",
       "lit/directives/live.js",
+      "lit/directives/repeat.js",
+      "lit/directives/style-map.js",
       "lit/directives/unsafe-html.js",
       "lit/static-html.js",
       // Imported by src/polyfills/invokers.ts, where Invoker Commands are missing.

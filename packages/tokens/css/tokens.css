@@ -84,6 +84,7 @@
     --u-dimension-800: 2rem;
     --u-dimension-1200: 3rem;
     --u-dimension-6400: 16rem;
+    --u-dimension-8000: 20rem;
     --u-dimension-full: 9999px;
     --u-font-family-sans: "Helvetica Neue", sans-serif;
     --u-font-weight-400: 400;
@@ -116,6 +117,8 @@
     --u-spacing-xl: var(--u-dimension-800);
     --u-spacing-2xl: var(--u-dimension-1200);
     --u-size-icon: var(--u-dimension-600);
+    --u-size-choice: var(--u-dimension-400);
+    --u-size-panel: var(--u-dimension-8000);
     --u-size-popup: var(--u-dimension-6400);
     --u-radius-sm: var(--u-dimension-50);
     --u-radius-md: var(--u-dimension-100);

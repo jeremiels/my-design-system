@@ -138,7 +138,7 @@ export class AcmeMenu extends DSBaseElement {
 }
 ```
 
-- Chaque `[popover]` du shadow root est un `popover="manual"` ancré. Le composant décide de sa fermeture : Escape, un clic à l'extérieur, un choix.
+- Chaque `[popover]` du shadow root est un `popover="manual"` ancré. Le composant décide de sa fermeture : Escape, un clic à l'extérieur, un choix. `DismissController` détecte les trois premiers.
 - Le contrôleur pose `data-open` sur le popover ouvert, dans tous les navigateurs. La feuille du composant écrit l'état ouvert sur `[data-open]`, pas sur `:popover-open`.
 - Un popover fermé est masqué par `display: none !important`. Ni le `display` du composant ni un `::part()` de marque ne l'affichent.
 - Le popover se place sous son ancre, aligné sur son bord de début, au moins aussi large. Il se retourne au-dessus quand il déborderait du viewport.
@@ -224,6 +224,13 @@ Le contrôleur relie la liste au DOM. Il ne tient aucun état : le composant lui
       <td>`id`</td>
       <td>Optionnel : l'`id` de la liste. Par défaut, `listbox`</td>
     </tr>
+    <tr>
+      <td>`multiple()`, `selected(option, index)`</td>
+      <td>
+        Optionnels : une liste à plusieurs choix. Elle porte `aria-multiselectable`, et
+        `aria-selected` dit le choix de chaque option.
+      </td>
+    </tr>
   </tbody>
 </table>
 
@@ -267,7 +274,194 @@ Le contrôleur relie la liste au DOM. Il ne tient aucun état : le composant lui
 - Un hôte rendu par un serveur lit ses enfants après son premier rendu. Ce rendu est alors celui du serveur ([ADR 0014](?path=/docs/documentation-adr-0014-vue-et-rendu-serveur--docs)).
 - Un appui du pointeur sur la liste garde le focus sur le contrôle.
 - La liste défile jusqu'à l'option active quand son index change.
+- L'option active porte `data-active`. Sans `multiple()`, elle porte aussi `aria-selected="true"`.
 - Les tokens `--u-listbox-*` viennent de `@unicorne/tokens` (`src/component/listbox/`). Le composant les documente avec `@tokens listbox`.
+
+## RovingFocusController
+
+Donne un tabindex mobile aux éléments d'un composant composite : Tab atteint un élément, les flèches déplacent le focus vers les autres. `RadioGroup`, `Tabs`, `Toolbar` et `Menu` le créent.
+
+<table>
+  <thead>
+    <tr>
+      <th>Option du constructeur</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>`items()`</td>
+      <td>Les éléments, dans l'ordre : les radios d'un groupe, les onglets d'une liste</td>
+    </tr>
+    <tr>
+      <td>`activeIndex()`</td>
+      <td>
+        L'index de l'élément que Tab atteint. -1, ou un élément désactivé : le premier élément
+        activé.
+      </td>
+    </tr>
+    <tr>
+      <td>`axis()`</td>
+      <td>Les flèches qui déplacent le focus : `vertical`, `horizontal` ou `both`</td>
+    </tr>
+    <tr>
+      <td>`homeEnd`</td>
+      <td>Home et End vont au premier et au dernier élément</td>
+    </tr>
+    <tr>
+      <td>`moved(index)`</td>
+      <td>Appelé une fois le focus déplacé par le clavier : un groupe de radios coche l'élément</td>
+    </tr>
+    <tr>
+      <td>`isDisabled(élément)`</td>
+      <td>
+        Optionnel : dit si l'utilisateur n'atteint pas l'élément. Par défaut, `:disabled` ou
+        `aria-disabled="true"`.
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+- Le contrôleur pose le `tabindex` des éléments après chaque rendu de l'hôte : 0 pour l'élément que Tab atteint, -1 pour les autres.
+- Rendez l'hôte de nouveau quand ses éléments changent, au `slotchange` de son slot.
+- Un déplacement boucle aux extrémités, saute les éléments désactivés et suit le sens du texte (`state/collection.ts`).
+- Une touche avec Alt, Ctrl ou Meta reste à la page.
+
+## DismissController
+
+Ferme un popup de son hôte, et dit pourquoi : Échap, un appui hors de l'hôte, le focus qui le quitte. `ComboboxBase` le crée, pour Échap et le focus.
+
+<table>
+  <thead>
+    <tr>
+      <th>Option du constructeur</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>`active(reason)`</td>
+      <td>Dit si cette cause ferme maintenant : le popup est ouvert, par exemple</td>
+    </tr>
+    <tr>
+      <td>`dismiss(reason)`</td>
+      <td>Ferme le popup. `reason` vaut `escape-key`, `outside-press` ou `focus-out`.</td>
+    </tr>
+    <tr>
+      <td>`escapeKey`</td>
+      <td>Échap dans l'hôte ferme</td>
+    </tr>
+    <tr>
+      <td>`outsidePress`</td>
+      <td>Un appui hors de l'hôte ferme</td>
+    </tr>
+    <tr>
+      <td>`focusOut`</td>
+      <td>Le focus qui quitte l'hôte ferme</td>
+    </tr>
+  </tbody>
+</table>
+
+```ts
+export class AcmeMenu extends DSBaseElement {
+  constructor() {
+    super();
+    new DismissController(this, {
+      active: () => this.open,
+      dismiss: (reason) => this.hide(reason),
+      escapeKey: true,
+      outsidePress: true,
+      focusOut: true,
+    });
+  }
+}
+```
+
+- Le composant choisit les causes, et transmet `reason` à son événement ([API des composants](?path=/docs/documentation-référence-api-des-composants--docs), section 5).
+- Le contrôleur empêche l'action par défaut d'Échap et arrête sa propagation : une modale autour de l'hôte reste ouverte.
+- Échap ne ferme rien pendant qu'une méthode de saisie compose le texte.
+- Un appui hors de l'hôte descend et remonte hors de lui. Une sélection de texte qui finit dehors ne ferme rien.
+- Le chemin de l'événement traverse les shadow roots. Un popup du shadow root, dans le top layer, est dans l'hôte.
+- Le focus qui passe à un enfant de l'hôte ne le quitte pas.
+- Un appui dehors qui déplace le focus ferme tout de suite, avec la cause `outside-press`, et non `focus-out`.
+- Une modale n'en a pas besoin : le navigateur ferme le `<dialog>`, et seul le `<dialog>` reçoit un appui sur son `::backdrop`.
+
+## HoverIntentController
+
+Montre un popup tant que le pointeur reste sur son hôte, ou que le focus du clavier y est. `Tooltip` le crée.
+
+<table>
+  <thead>
+    <tr>
+      <th>Option du constructeur</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>`show(reason)`</td>
+      <td>Montre le popup : `hover` ou `focus-in`</td>
+    </tr>
+    <tr>
+      <td>`hide()`</td>
+      <td>Cache le popup : le pointeur est parti</td>
+    </tr>
+    <tr>
+      <td>`showDelay`, `hideDelay`</td>
+      <td>Les délais, en millisecondes : 300 et 100 par défaut</td>
+    </tr>
+  </tbody>
+</table>
+
+- Un passage bref du pointeur ne montre rien.
+- Le pointeur va du déclencheur au popup sans le cacher : le popup descend de l'hôte.
+- Le focus du clavier (`:focus-visible`) montre tout de suite, pas un clic.
+- Le focus qui part est le rôle de `DismissController`.
+
+## AnnounceController
+
+Rend une live region dans le shadow root de son hôte. Les technologies d'assistance lisent ce que reçoit `announce()`, sans que le focus bouge : le nombre de suggestions, une page chargée, un message enregistré. `ComboboxBase` le crée.
+
+<table>
+  <thead>
+    <tr>
+      <th>Membre</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>`new AnnounceController(hôte, {politeness})`</td>
+      <td>
+        `polite` par défaut (`role="status"`). `assertive` (`role="alert"`) interrompt le lecteur
+        d'écran, pour une erreur qui ne peut pas attendre.
+      </td>
+    </tr>
+    <tr>
+      <td>`render()`</td>
+      <td>Rend la région</td>
+    </tr>
+    <tr>
+      <td>`announce(message)`</td>
+      <td>
+        Annonce `message` au prochain rendu de l'hôte. `""` vide la région, sans rien annoncer.
+      </td>
+    </tr>
+    <tr>
+      <td>`message`</td>
+      <td>Le dernier message annoncé, `""` sans message</td>
+    </tr>
+    <tr>
+      <td>`announceStyles`</td>
+      <td>La feuille du contrôleur : elle masque la région à l'écran</td>
+    </tr>
+  </tbody>
+</table>
+
+- Rendez la région dès le premier rendu. Une région ajoutée avec son texte n'est pas annoncée.
+- Le même message, deux fois de suite, est annoncé deux fois : le contrôleur change le texte de la région.
+- La région se vide quand l'hôte quitte le document.
+- `ComboboxBase` annonce chaque nouveau `popupStatus`, le nombre de suggestions d'`autocomplete` par exemple.
 
 ## Sortie animée
 
@@ -330,9 +524,9 @@ dialog[open]:where(:not([data-closing])) {
 - Firefox et Safari n'ont pas `overlay`. La fonction pose `data-closing` : l'élément rejoint son état fermé dans le top layer, puis se ferme.
 - Sans `@starting-style` (Chrome avant 117, Firefox avant 129, Safari avant 17.5), l'entrée est instantanée.
 
-## État d'une liste
+## État d'une collection
 
-`packages/components/src/state/listbox.ts` calcule l'option active d'une liste.
+`packages/components/src/state/collection.ts` calcule l'élément actif d'une collection : les options d'une liste, les membres d'un composant composite (radios, onglets, éléments de menu).
 
 <table>
   <thead>
@@ -343,25 +537,82 @@ dialog[open]:where(:not([data-closing])) {
   </thead>
   <tbody>
     <tr>
-      <td>`moveActiveIndex(options, index, déplacement)`</td>
+      <td>`moveIndex(éléments, index, déplacement)`</td>
       <td>
-        L'index de l'option active après un déplacement : `next`, `previous`, `first`, `last` ou
+        L'index de l'élément actif après un déplacement : `next`, `previous`, `first`, `last` ou
         `none`
       </td>
     </tr>
     <tr>
-      <td>`enabledIndexes(options)`</td>
-      <td>Les index des options activées</td>
+      <td>`enabledIndexes(éléments)`</td>
+      <td>Les index des éléments activés</td>
     </tr>
     <tr>
-      <td>`listboxKeyMove(touche)`</td>
-      <td>Le déplacement d'une touche : `ArrowDown` et `ArrowUp`</td>
+      <td>`collectionKeyMove(touche, { axis, direction, homeEnd })`</td>
+      <td>Le déplacement d'une touche, `undefined` pour une touche qui ne déplace rien</td>
     </tr>
   </tbody>
 </table>
 
-- Un déplacement boucle aux extrémités et saute les options désactivées.
-- Sans option activée, aucune option n'est active : l'index vaut -1.
+- Un déplacement boucle aux extrémités et saute les éléments désactivés.
+- Sans élément activé, aucun élément n'est actif : l'index vaut -1.
+- `axis` choisit les flèches : ArrowDown et ArrowUp pour `vertical`, ArrowRight et ArrowLeft pour `horizontal`, les quatre pour `both`.
+- `direction` vaut `ltr` par défaut. En `rtl`, ArrowLeft va à l'élément suivant.
+- `homeEnd` fait de Home et End des déplacements. Il vaut `false` par défaut : dans un input, ces touches déplacent le curseur.
+
+## Recherche par saisie
+
+`packages/components/src/state/typeahead.ts` trouve l'élément dont le libellé commence par le texte tapé. `Select` et `Menu` l'utilisent.
+
+<table>
+  <thead>
+    <tr>
+      <th>Membre</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>`typeahead(état, touche, instant, éléments, index)`</td>
+      <td>
+        Ajoute la touche au texte tapé, et renvoie le nouvel état et l'index de l'élément trouvé, -1
+        sans élément
+      </td>
+    </tr>
+    <tr>
+      <td>`isTypeaheadKey(événement, état, instant)`</td>
+      <td>Dit si une touche tape un caractère pour la recherche</td>
+    </tr>
+    <tr>
+      <td>`emptyTypeahead`</td>
+      <td>L'état sans texte tapé</td>
+    </tr>
+    <tr>
+      <td>`normalizeText(texte)`</td>
+      <td>Le texte sans casse ni accents. Le filtre d'`autocomplete` l'utilise aussi.</td>
+    </tr>
+  </tbody>
+</table>
+
+- Le texte tapé dure 500 ms (`TYPEAHEAD_DELAY`) après chaque touche.
+- Un seul caractère cherche après l'élément actif, en bouclant. Le même caractère tapé de nouveau passe à l'élément suivant qui commence par lui.
+- Les éléments désactivés sont sautés.
+- Espace continue un texte tapé. Seule, elle reste au composant : elle choisit l'élément actif.
+
+## Sélection
+
+`packages/components/src/state/selection.ts` tient les valeurs choisies parmi des éléments. `Select` l'utilise avec `multiple`.
+
+- `toggleValue(éléments, valeurs, valeur)` choisit la valeur, ou la retire, dans l'ordre des éléments. Un élément désactivé ne change rien : le même tableau revient.
+- `orderedValues(éléments, valeurs)` range les valeurs dans l'ordre des éléments, sans les valeurs inconnues.
+
+## File des toasts
+
+`packages/components/src/state/toast.ts` tient les messages d'un `toaster`, le plus récent à la fin.
+
+- `addToast(file, message, max)` ajoute un message avec l'id suivant. Au-delà de `max`, les plus anciens partent : `dropped` les donne.
+- `removeToast(file, id)` retire un message. La même file revient pour un id inconnu.
+- `emptyToastQueue` est la file vide.
 
 ## État d'un combobox
 

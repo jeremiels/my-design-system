@@ -16,15 +16,15 @@ import { property } from "lit/decorators.js";
 import { html } from "lit";
 import { DSBaseElement } from "../base-element.js";
 import alertStyles from "./alert.css" with { type: "css" };
-import type { AlertType } from "./alert.type.js";
+import type { AlertVariant } from "./alert.type.js";
 
 /** …JSDoc de la classe : voir component-api-docs… */
 export class Alert extends DSBaseElement {
   static override componentName = "alert";
 
-  /** Alert type: sets the colors and how assistive technologies announce it. */
+  /** The intent of the alert: sets its colors, its icon and how assistive technologies announce it. */
   @property({ type: String, reflect: true })
-  type: AlertType = "information";
+  variant: AlertVariant = "information";
 
   static styles = [DSBaseElement.styles ?? [], alertTokens, alertStyles];
 
@@ -42,6 +42,7 @@ export class Alert extends DSBaseElement {
 
 ## Propriétés
 
+- Nommez chaque attribut, propriété et valeur selon `docs/reference/api-des-composants.mdx`.
 - Déclarez chaque propriété avec `@property({ type: … })` et une description JSDoc d'une ligne. L'initialiseur donne la valeur par défaut.
 - Ajoutez `reflect: true` seulement quand le CSS ou l'ARIA lit l'attribut. Les variantes et les tailles le lisent : leurs tokens sont générés en règles `:host([variant="…"])`.
 - Nommez un attribut de plusieurs mots explicitement : `attribute: "action-label"`.
@@ -70,7 +71,7 @@ render() {
 ## Événements
 
 - Créez une sous-classe d'`Event` typée par événement, dans `packages/components/src/events/<composant>-<événement>.ts`, sur le modèle de `packages/components/src/events/modal-close.ts`.
-- Nommez l'événement `u-<événement>`, quel que soit le préfixe de la marque. Fixez ses `bubbles` et `composed`, et complétez `GlobalEventHandlersEventMap`.
+- Nommez l'événement, et fixez ses `bubbles`, `composed` et `cancelable`, selon `docs/reference/api-des-composants.mdx` (section 5). Complétez `GlobalEventHandlersEventMap`.
 - Émettez-le avec `this.dispatchEvent(new ModalCloseEvent())`, documentez-le avec `@fires` et exportez-le depuis `packages/components/src/index.ts`.
 - Créez un événement seulement s'il n'existe pas d'événement natif. Un `click` qui sort du shadow root depuis un `<button>` est l'événement du composant : documentez-le avec `@fires click`.
 - Un composant désactivé ne laisse sortir aucun événement natif (`ButtonBase.handleClick`).
@@ -80,8 +81,7 @@ render() {
 Un bouton contrôle un autre élément sans script : `<u-button commandfor="id" command="--show-modal">` (Invoker Commands, ADR 0008, `docs/adr/0008-commandes.mdx`).
 
 - Un composant qui s'ouvre, se ferme ou bascule reçoit des commandes : créez un `CommandsController` dans son constructeur, et passez-lui une méthode `protected handleCommand()`.
-- Nommez ses commandes avec `--`, sur le modèle des commandes natives : `--show-modal`, `--close`. Le navigateur n'envoie jamais une commande intégrée à un custom element.
-- Donnez la même action en méthode publique documentée : `showModal()` pour `--show-modal`.
+- Nommez ses commandes et leurs méthodes publiques selon `docs/reference/api-des-composants.mdx` (section 6). Le navigateur n'envoie jamais une commande intégrée à un custom element.
 - Un composant qui rend un `<button>` natif envoie des commandes : appliquez `withInvoker`.
 - Un élément du top layer (`<dialog>`, popover) anime sa sortie avec `closeWithTransition()` (`src/controllers/exit-transition.ts`).
 - Un popover attaché à un élément du shadow root (liste, menu, infobulle) s'ouvre avec un `AnchoredPopoverController`. Ajoutez `anchoredPopoverStyles` à `static styles`. Floating UI se charge seul, là où l'ancrage CSS manque : n'importez jamais `@floating-ui/dom` dans un composant.
@@ -91,9 +91,16 @@ Un bouton contrôle un autre élément sans script : `<u-button commandfor="id" 
 ## ElementInternals, formulaires, états
 
 - Passez par `withInternals()` (`this.internals`). N'appelez jamais `attachInternals()` vous-même : le second appel lève une erreur.
-- Composant associé à un formulaire : `static formAssociated = true` (voir `button.ts`).
+- Contrôle de formulaire (valeur, validité, réinitialisation, `readonly`) : appliquez `withFormControl` sur `withInternals` et `withDisabled`. Un bouton de soumission déclare seulement `static formAssociated = true` (voir `button.ts`).
 - Champ de formulaire (libellé, indice, erreur, validation) : étendez `FieldBase` et écrivez seulement `renderControl()`. Le contrat est dans la JSDoc de `packages/components/src/components/field/field-base.ts`, et `text-field.ts` en est l'exemple.
 - Champ dont le contrôle ouvre un popup (autocomplete, select, date picker) : étendez `ComboboxBase` et écrivez `renderCombobox()`, `renderPopup()` et `comboboxControls`. Son état est celui de `comboboxReducer()` : envoyez-lui des événements avec `dispatch()`, ne tenez pas l'ouverture dans un champ. Pour une liste d'options, créez un `ListboxController`. `packages/components/src/components/autocomplete/autocomplete.ts` en est l'exemple (ADR 0009, ADR 0010).
+- Case à cocher ou interrupteur, libellé après le contrôle : étendez `ToggleBase` et écrivez `renderIndicator()` (voir `checkbox.ts`). Groupe de choix, contrôle de formulaire de ses enfants : étendez `ChoiceGroupBase` et écrivez `items` et `groupRole` (voir `radio-group.ts`, ADR 0017).
+- Champ borné (`min`, `max`, `step`) sur un input natif : étendez `RangeFieldBase` et appelez `renderInput(type)` (voir `number-field.ts`, ADR 0019).
+- Champ sans contrôle natif : surchargez `syncValidity()` et appelez `syncValueValidity()`, avec un contrôle natif caché `class="validity-proxy"` pour le message du navigateur (voir `select.ts`).
+- Éléments d'un composant composite, un seul arrêt de Tab : créez un `RovingFocusController`. Recherche par saisie : `state/typeahead.ts`.
+- Popup ancré à un déclencheur (menu, popover, infobulle) : étendez `PopupBase` et écrivez `popup` et `anchor` (voir `menu.ts` et `popover.ts`, ADR 0021 et 0022). Le déclencheur prend `class="trigger"`, le popup `class="popup"`.
+- Dialogue modal (modale, tiroir) : étendez `ModalBase`, avec votre feuille (voir `drawer.ts`). Rendez le déclencheur dans le même shadow root que le popup : son ARIA doit l'atteindre.
+- Composant fait d'enfants (onglets, groupe, menu) : reconnaissez-les par `instanceof` et déclarez leur classe dans `static dependencies`. Un enfant pose son `role` sur son hôte, et demande un rendu à son parent quand `disabled` ou `value` change.
 - Champ d'une ligne : liez `@keydown=${this.submitOnEnter}` au contrôle. Entrée soumet alors le formulaire, comme dans un `<input>` natif.
 - Une brique qui vise un élément de `FieldBase` lit son `id` dans `fieldIds` (`fieldIds.label`), jamais dans une chaîne recopiée.
 - Rendez une option, une ligne ou une cellule désignée par `aria-activedescendant` dans le shadow root de son contrôle, jamais dans le light DOM ni dans un autre composant.
@@ -127,14 +134,15 @@ Une application peut rendre les composants sur un serveur (ADR 0014, `docs/adr/0
 ## Accessibilité
 
 - Utilisez d'abord les éléments natifs : `<button>`, `<a>`, `<dialog>`.
-- Ajoutez rôles et ARIA là où la sémantique native ne suffit pas. `alert.ts` associe chaque type à `role="alert"` ou `"status"`.
+- Ajoutez rôles et ARIA là où la sémantique native ne suffit pas. `alert.ts` associe chaque `variant` à `role="alert"` ou `"status"`.
 - Ne donnez jamais à un élément le rôle d'un autre : un lien reste un lien.
 - Un composant qui enveloppe un contrôle natif lui délègue le focus : `static shadowRootOptions = { ...super.shadowRootOptions, delegatesFocus: true }` (voir `button-base.ts`).
 - Une boîte de dialogue a un nom accessible (`label` de la modale).
 - Une région live existe avant son contenu : `alert` révèle son message 100 ms après son premier rendu.
 - N'écrivez aucun texte visible en dur dans un template : une propriété avec une valeur par défaut (`closeLabel`) ou un slot.
 - Une marque donne ces textes dans sa langue, par nom de propriété : `labels` de `designSystem()`. Nommez donc de la même façon une même propriété dans deux composants (`errorLabel`).
-- Un changement que l'utilisateur ne voit pas venir s'annonce dans une région live polie : le nombre de suggestions d'`autocomplete` (`ComboboxBase.popupStatus`).
+- Un changement que l'utilisateur ne voit pas venir s'annonce dans une région live polie, avec `AnnounceController` : le nombre de suggestions d'`autocomplete` (`ComboboxBase.popupStatus`).
+- Un popup se ferme sur Échap, un appui dehors ou la perte du focus avec `DismissController`. Son événement transmet la cause dans `reason`.
 - Les stories lancent l'addon a11y : une violation fait échouer le test.
 
 ## Support navigateurs
