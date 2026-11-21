@@ -3,7 +3,7 @@
 // tokens or attributes that don't exist — or miss tokens that do.
 import { describe, expect, it } from "vitest";
 import manifest from "../custom-elements.json";
-import type { DSBaseElement } from "./components/base-element.js";
+import type { DSBaseElement } from "./bases/base-element.js";
 import "./define.js";
 import { allComponents } from "./registry/catalog.js";
 

@@ -1,4 +1,5 @@
-// `npm run tokens`: each component's sheet, src/components/*/*.tokens.css,
+// `npm run tokens`: the sheet of each component, base or controller,
+// src/{components,bases}/*/*.tokens.css and src/controllers/*.tokens.css,
 // from the DTCG tokens of @unicorne/tokens (ADR 0002, ADR 0003): its tokens on
 // `:host`, one `:host([attribute="context"])` rule per context of its
 // modifiers. The page sheet is @unicorne/tokens/tokens.css. The output is
@@ -19,7 +20,7 @@ export default defineConfig({
       // The web binding: which host attribute selects each modifier's context.
       components: {
         button: {
-          file: "components/button/button.tokens.css",
+          file: "bases/button/button.tokens.css",
           attributes: { "button-variant": "variant", "button-size": "size" },
         },
         alert: {
@@ -28,14 +29,14 @@ export default defineConfig({
         },
         modal: { file: "components/modal/modal.tokens.css" },
         icon: { file: "components/icon/icon.tokens.css" },
-        field: { file: "components/field/field.tokens.css" },
-        combobox: { file: "components/combobox/combobox.tokens.css" },
-        listbox: { file: "components/listbox/listbox.tokens.css" },
-        toggle: { file: "components/toggle/toggle.tokens.css" },
+        field: { file: "bases/field/field.tokens.css" },
+        combobox: { file: "bases/combobox/combobox.tokens.css" },
+        listbox: { file: "controllers/listbox.tokens.css" },
+        toggle: { file: "bases/toggle/toggle.tokens.css" },
         checkbox: { file: "components/checkbox/checkbox.tokens.css" },
         switch: { file: "components/switch/switch.tokens.css" },
         radio: { file: "components/radio/radio.tokens.css" },
-        "choice-group": { file: "components/choice-group/choice-group.tokens.css" },
+        "choice-group": { file: "bases/choice-group/choice-group.tokens.css" },
         select: { file: "components/select/select.tokens.css" },
         slider: { file: "components/slider/slider.tokens.css" },
         tabs: { file: "components/tabs/tabs.tokens.css" },
@@ -44,7 +45,7 @@ export default defineConfig({
         breadcrumb: { file: "components/breadcrumb/breadcrumb.tokens.css" },
         pagination: { file: "components/pagination/pagination.tokens.css" },
         toolbar: { file: "components/toolbar/toolbar.tokens.css" },
-        popup: { file: "components/popup/popup.tokens.css" },
+        popup: { file: "bases/popup/popup.tokens.css" },
         drawer: { file: "components/drawer/drawer.tokens.css" },
         popover: { file: "components/popover/popover.tokens.css" },
         tooltip: { file: "components/tooltip/tooltip.tokens.css" },

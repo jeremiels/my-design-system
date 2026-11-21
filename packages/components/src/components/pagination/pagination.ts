@@ -2,7 +2,7 @@ import { html, nothing } from "lit";
 import { property } from "lit/decorators.js";
 import { AnnounceController, announceStyles } from "../../controllers/announce.js";
 import { paginationItems } from "../../state/pagination.js";
-import { DSBaseElement } from "../base-element.js";
+import { DSBaseElement } from "../../bases/base-element.js";
 import paginationStyles from "./pagination.css" with { type: "css" };
 import paginationTokens from "./pagination.tokens.css" with { type: "css" };
 

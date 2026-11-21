@@ -1,5 +1,5 @@
 import { html } from "lit";
-import { ToggleBase } from "../toggle/toggle-base.js";
+import { ToggleBase } from "../../bases/toggle/toggle-base.js";
 import switchStyles from "./switch.css" with { type: "css" };
 import switchTokens from "./switch.tokens.css" with { type: "css" };
 

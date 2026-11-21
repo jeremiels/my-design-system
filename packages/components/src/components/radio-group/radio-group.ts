@@ -1,7 +1,7 @@
 import type { PropertyValues } from "lit";
 import { RovingFocusController } from "../../controllers/roving-focus.js";
-import type { DSBaseElement } from "../base-element.js";
-import { ChoiceGroupBase } from "../choice-group/choice-group-base.js";
+import type { DSBaseElement } from "../../bases/base-element.js";
+import { ChoiceGroupBase } from "../../bases/choice-group/choice-group-base.js";
 import { Icon } from "../icon/icon.js";
 import { Radio } from "../radio/radio.js";
 

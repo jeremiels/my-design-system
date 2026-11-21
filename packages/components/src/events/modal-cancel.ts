@@ -1,4 +1,4 @@
-import type { ModalCancelReason } from "../components/modal/modal.type.js";
+import type { ModalCancelReason } from "../bases/modal/modal.type.js";
 
 /**
  * Fired by `modal` before it closes at the user's request: its close button,

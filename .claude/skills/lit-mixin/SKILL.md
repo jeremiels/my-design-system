@@ -27,7 +27,7 @@ Exemples :
 - Le comportement ne tient aucun état d'un composant : des fonctions.
 - Le composant a plusieurs dimensions d'état qui interagissent (un popup, un élément actif, une saisie) : une fonction d'état dans `src/state/`.
 - Le comportement est commun à tous les composants : `DSBaseElement`, qui reste mince.
-- Le comportement est propre à une famille (`button`, `button-link`) : une classe de base abstraite (`ButtonBase`).
+- Le comportement est propre à une famille (`button`, `button-link`) : une classe de base abstraite (`ButtonBase`), dans `packages/components/src/bases/<famille>/`.
 
 ## Écrivez une fonction d'état
 

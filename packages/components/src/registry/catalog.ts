@@ -2,7 +2,7 @@ import { Alert } from "../components/alert/alert.js";
 import { Autocomplete } from "../components/autocomplete/autocomplete.js";
 import { BreadcrumbItem } from "../components/breadcrumb-item/breadcrumb-item.js";
 import { Breadcrumb } from "../components/breadcrumb/breadcrumb.js";
-import { ButtonLink } from "../components/button/button-link.js";
+import { ButtonLink } from "../components/button-link/button-link.js";
 import { CheckboxGroup } from "../components/checkbox-group/checkbox-group.js";
 import { Checkbox } from "../components/checkbox/checkbox.js";
 import { DateField } from "../components/date-field/date-field.js";

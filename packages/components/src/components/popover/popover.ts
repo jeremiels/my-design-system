@@ -1,7 +1,7 @@
 import { html } from "lit";
 import { property } from "lit/decorators.js";
 import type { PopupToggleReason } from "../../events/popup-toggle.js";
-import { PopupBase } from "../popup/popup-base.js";
+import { PopupBase } from "../../bases/popup/popup-base.js";
 import popoverStyles from "./popover.css" with { type: "css" };
 import popoverTokens from "./popover.tokens.css" with { type: "css" };
 

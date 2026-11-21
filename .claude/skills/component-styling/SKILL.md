@@ -7,7 +7,7 @@ description: Écrire ou modifier le CSS d'un composant ou d'un mixin (la feuille
 
 Les règles des tokens sont dans `docs/reference/tokens-et-couches.mdx`. Lisez cette page avant d'écrire une feuille. Leurs raisons sont dans `docs/explication/architecture-css.mdx`.
 
-Exemples : `packages/components/src/components/button/button-base.css` (lecture des tokens, `forced-colors`) et `packages/components/src/components/modal/modal.css` (parts, exception `::backdrop`).
+Exemples : `packages/components/src/bases/button/button-base.css` (lecture des tokens, `forced-colors`) et `packages/components/src/components/modal/modal.css` (parts, exception `::backdrop`).
 
 ## 1. Créez la feuille
 

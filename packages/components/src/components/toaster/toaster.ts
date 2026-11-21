@@ -6,7 +6,7 @@ import { AnnounceController, announceStyles } from "../../controllers/announce.j
 import { ToastCloseEvent, type ToastCloseReason } from "../../events/toast-close.js";
 import { addToast, emptyToastQueue, removeToast, type ToastQueue } from "../../state/toast.js";
 import type { SemanticVariant } from "../../types/common.js";
-import { DSBaseElement } from "../base-element.js";
+import { DSBaseElement } from "../../bases/base-element.js";
 import { Icon } from "../icon/icon.js";
 import toasterStyles from "./toaster.css" with { type: "css" };
 import toasterTokens from "./toaster.tokens.css" with { type: "css" };

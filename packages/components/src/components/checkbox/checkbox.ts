@@ -1,6 +1,6 @@
 import { html } from "lit";
 import { property } from "lit/decorators.js";
-import { ToggleBase } from "../toggle/toggle-base.js";
+import { ToggleBase } from "../../bases/toggle/toggle-base.js";
 import checkboxStyles from "./checkbox.css" with { type: "css" };
 import checkboxTokens from "./checkbox.tokens.css" with { type: "css" };
 

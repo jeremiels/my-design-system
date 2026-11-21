@@ -2,7 +2,7 @@ import { icons, type IconLoader, type IconSet, type IconSource } from "@unicorne
 import { html, isServer, nothing, type PropertyValues } from "lit";
 import { property, state } from "lit/decorators.js";
 import { html as staticHtml, unsafeStatic } from "lit/static-html.js";
-import { DSBaseElement, type DesignSystemSettings } from "../base-element.js";
+import { DSBaseElement, type DesignSystemSettings } from "../../bases/base-element.js";
 import iconStyles from "./icon.css" with { type: "css" };
 import iconTokens from "./icon.tokens.css" with { type: "css" };
 

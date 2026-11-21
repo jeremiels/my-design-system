@@ -1,5 +1,5 @@
 import { property } from "lit/decorators.js";
-import { ModalBase } from "../modal/modal-base.js";
+import { ModalBase } from "../../bases/modal/modal-base.js";
 import drawerStyles from "./drawer.css" with { type: "css" };
 import drawerTokens from "./drawer.tokens.css" with { type: "css" };
 import type { DrawerPlacement } from "./drawer.type.js";

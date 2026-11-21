@@ -2,7 +2,7 @@ import { html } from "lit";
 import { property } from "lit/decorators.js";
 import { RovingFocusController } from "../../controllers/roving-focus.js";
 import type { Orientation } from "../../types/common.js";
-import { DSBaseElement } from "../base-element.js";
+import { DSBaseElement } from "../../bases/base-element.js";
 import toolbarStyles from "./toolbar.css" with { type: "css" };
 import toolbarTokens from "./toolbar.tokens.css" with { type: "css" };
 

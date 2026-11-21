@@ -1,4 +1,4 @@
-import { ModalBase } from "./modal-base.js";
+import { ModalBase } from "../../bases/modal/modal-base.js";
 import modalStyles from "./modal.css" with { type: "css" };
 import modalTokens from "./modal.tokens.css" with { type: "css" };
 

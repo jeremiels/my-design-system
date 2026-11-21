@@ -2,8 +2,8 @@ import { html } from "lit";
 import { property } from "lit/decorators.js";
 import { withInternals } from "../../mixins/withInternals.js";
 import { withInvoker } from "../../mixins/withInvoker.js";
-import { ButtonBase } from "./button-base.js";
-import type { ButtonType } from "./button.type.js";
+import { ButtonBase } from "../../bases/button/button-base.js";
+import type { ButtonType } from "../../bases/button/button.type.js";
 
 /**
  * A button that triggers an action, or submits or resets its form (`type`).

@@ -42,7 +42,7 @@ Ne mettez jamais de valeur littérale hors des primitives. Ne faites jamais poin
 
 1. Créez `packages/tokens/src/component/<composant>/<composant>.tokens.json`, avec un groupe `<composant>`.
 2. Ajoutez le fichier au set `component` du resolver.
-3. Ajoutez la sortie dans `packages/components/terrazzo.config.ts` : `<composant>: { file: "components/<composant>/<composant>.tokens.css" }`.
+3. Ajoutez la sortie dans `packages/components/terrazzo.config.ts` : `<composant>: { file: "components/<composant>/<composant>.tokens.css" }`. Les tokens d'une base vont dans son dossier (`bases/<famille>/`), ceux d'un contrôleur dans `controllers/`.
 4. Dans la classe, importez la feuille générée et placez-la avant la feuille du composant, dans `static styles`.
 5. Ajoutez `@tokens <composant>` à la JSDoc de la classe (skill `component-api-docs`).
 
@@ -56,7 +56,7 @@ npm run check                          # tokens:check, api:check, contrat, contr
 npm run example                        # ACME, construit sur les sources du socle
 ```
 
-- N'éditez jamais un fichier généré : `packages/tokens/css/tokens.css`, `packages/components/src/components/*/*.tokens.css`.
+- N'éditez jamais un fichier généré : `packages/tokens/css/tokens.css`, les `*.tokens.css` de `packages/components/src/`.
 - Un token renommé ou retiré est une rupture pour les marques et pour les plateformes natives : une version majeure de `@unicorne/tokens`. Relisez le diff de `packages/components/custom-elements.json`, et cherchez l'ancien nom dans `examples/` et `docs/`.
 - Une nouvelle paire de couleurs de premier plan et de fond va dans `contrastPairs` (`packages/tokens/testing/contrast.ts`).
 

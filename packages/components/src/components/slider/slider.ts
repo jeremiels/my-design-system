@@ -1,7 +1,7 @@
 import { html, type PropertyValues } from "lit";
 import { styleMap } from "lit/directives/style-map.js";
-import { fieldIds } from "../field/field-base.js";
-import { RangeFieldBase } from "../range-field/range-field-base.js";
+import { fieldIds } from "../../bases/field/field-base.js";
+import { RangeFieldBase } from "../../bases/range-field/range-field-base.js";
 import sliderStyles from "./slider.css" with { type: "css" };
 import sliderTokens from "./slider.tokens.css" with { type: "css" };
 

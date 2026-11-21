@@ -1,7 +1,7 @@
 import { html, type PropertyValues } from "lit";
 import { property } from "lit/decorators.js";
 import { withDisabled } from "../../mixins/withDisabled.js";
-import { DSBaseElement } from "../base-element.js";
+import { DSBaseElement } from "../../bases/base-element.js";
 import radioStyles from "./radio.css" with { type: "css" };
 import radioTokens from "./radio.tokens.css" with { type: "css" };
 

@@ -1,4 +1,4 @@
-import { RangeFieldBase } from "../range-field/range-field-base.js";
+import { RangeFieldBase } from "../../bases/range-field/range-field-base.js";
 
 /**
  * A number field: a label, an optional hint, a native `<input

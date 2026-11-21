@@ -1,6 +1,6 @@
 import { html, nothing, type LitElement, type ReactiveController } from "lit";
-import listboxTokens from "../components/listbox/listbox.tokens.css" with { type: "css" };
-import type { ListboxOption } from "../components/listbox/listbox.type.js";
+import listboxTokens from "./listbox.tokens.css" with { type: "css" };
+import type { ListboxOption } from "./listbox.type.js";
 import listboxStyles from "./listbox.css" with { type: "css" };
 
 /**

@@ -2,7 +2,7 @@ import { html } from "lit";
 import { property } from "lit/decorators.js";
 import { ifDefined } from "lit/directives/if-defined.js";
 import { live } from "lit/directives/live.js";
-import { FieldBase } from "../field/field-base.js";
+import { FieldBase } from "../../bases/field/field-base.js";
 import textareaStyles from "./textarea.css" with { type: "css" };
 
 /**

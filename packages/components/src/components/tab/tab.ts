@@ -1,7 +1,7 @@
 import { html, type PropertyValues } from "lit";
 import { property } from "lit/decorators.js";
 import { withDisabled } from "../../mixins/withDisabled.js";
-import { DSBaseElement } from "../base-element.js";
+import { DSBaseElement } from "../../bases/base-element.js";
 import tabStyles from "./tab.css" with { type: "css" };
 import tabTokens from "./tab.tokens.css" with { type: "css" };
 

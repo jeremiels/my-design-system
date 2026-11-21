@@ -1,7 +1,7 @@
 import { html } from "lit";
 import { property } from "lit/decorators.js";
 import { withDisabled } from "../../mixins/withDisabled.js";
-import { DSBaseElement } from "../base-element.js";
+import { DSBaseElement } from "../../bases/base-element.js";
 import menuItemStyles from "./menu-item.css" with { type: "css" };
 
 /**

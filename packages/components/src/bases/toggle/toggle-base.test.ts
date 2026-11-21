@@ -3,8 +3,8 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { userEvent } from "vitest/browser";
 import "../../define.js";
-import type { Checkbox } from "../checkbox/checkbox.js";
-import type { Switch } from "../switch/switch.js";
+import type { Checkbox } from "../../components/checkbox/checkbox.js";
+import type { Switch } from "../../components/switch/switch.js";
 
 async function mount(content: string) {
   const form = document.createElement("form");

@@ -75,7 +75,7 @@ Un appui dehors déplace le focus avant de se terminer. `DismissController` rece
 
 ## Conséquences
 
-- **Code :** `PopupBase` (`src/components/popup/`), `Menu`, `MenuItem` et `PopupToggleEvent` (`src/events/popup-toggle.ts`).
+- **Code :** `PopupBase` (`src/bases/popup/`), `Menu`, `MenuItem` et `PopupToggleEvent` (`src/events/popup-toggle.ts`).
 - **Tokens :** le groupe `menu`, pour le déclencheur et le popup, devenu le groupe `popup` de `PopupBase` ([ADR 0022](?path=/docs/documentation-adr-0022-tiroir-popover-infobulle-et-toasts--docs)). La liste prend ceux de `listbox`.
 - **Tests :** `menu.test.ts` (clavier réel, Chromium) et les stories dans trois moteurs.
 - **Limites :**

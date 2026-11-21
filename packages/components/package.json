@@ -47,7 +47,7 @@
       "import": "./dist/button.js"
     },
     "./button-link": {
-      "types": "./dist/components/button/button-link.d.ts",
+      "types": "./dist/components/button-link/button-link.d.ts",
       "import": "./dist/button-link.js"
     },
     "./alert": {
@@ -170,8 +170,8 @@
   "scripts": {
     "build": "npm run tokens && npm run analyze && vite build && tsc -p tsconfig.build.json && tsc -p tsconfig.plugin.json && cp src/css-modules.d.ts dist/",
     "analyze": "NODE_OPTIONS=--conditions=@unicorne/source cem analyze",
-    "tokens": "tz build && oxfmt src/components/*/*.tokens.css",
-    "tokens:check": "npm run tokens && git diff --exit-code -- 'src/components/*/*.tokens.css'",
+    "tokens": "tz build && oxfmt src/components/*/*.tokens.css src/bases/*/*.tokens.css src/controllers/*.tokens.css",
+    "tokens:check": "npm run tokens && git diff --exit-code -- 'src/*.tokens.css'",
     "api:check": "npm run analyze && git diff --exit-code -- custom-elements.json",
     "prepack": "node ../../scripts/pack-manifest.mjs prepack",
     "postpack": "node ../../scripts/pack-manifest.mjs postpack"

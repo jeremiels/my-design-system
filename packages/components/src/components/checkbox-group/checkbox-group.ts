@@ -1,9 +1,9 @@
 import { property } from "lit/decorators.js";
 import type { PropertyValues } from "lit";
 import type { FormValue } from "../../mixins/withFormControl.js";
-import type { DSBaseElement } from "../base-element.js";
+import type { DSBaseElement } from "../../bases/base-element.js";
 import { Checkbox } from "../checkbox/checkbox.js";
-import { ChoiceGroupBase } from "../choice-group/choice-group-base.js";
+import { ChoiceGroupBase } from "../../bases/choice-group/choice-group-base.js";
 import { Icon } from "../icon/icon.js";
 
 /**

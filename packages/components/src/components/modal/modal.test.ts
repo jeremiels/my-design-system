@@ -3,7 +3,7 @@
 import { afterEach, expect, it } from "vitest";
 import { userEvent } from "vitest/browser";
 import "../../define.js";
-import type { ModalCancelReason } from "./modal.type.js";
+import type { ModalCancelReason } from "../../bases/modal/modal.type.js";
 import type { Modal } from "./modal.js";
 
 afterEach(() => {

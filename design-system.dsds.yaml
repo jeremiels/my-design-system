@@ -19,5 +19,5 @@ entries:
 refs:
   - href: ./packages/components/src/components/button/button.dsds.yaml
     rel: file
-  - href: ./packages/components/src/components/button/button-link.dsds.yaml
+  - href: ./packages/components/src/components/button-link/button-link.dsds.yaml
     rel: file

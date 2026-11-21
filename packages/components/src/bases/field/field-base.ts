@@ -5,7 +5,7 @@ import { withDisabled } from "../../mixins/withDisabled.js";
 import { withFormControl } from "../../mixins/withFormControl.js";
 import { withInternals } from "../../mixins/withInternals.js";
 import { DSBaseElement } from "../base-element.js";
-import { Icon } from "../icon/icon.js";
+import { Icon } from "../../components/icon/icon.js";
 import fieldBaseStyles from "./field-base.css" with { type: "css" };
 import fieldTokens from "./field.tokens.css" with { type: "css" };
 
