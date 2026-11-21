@@ -704,7 +704,7 @@ dialog[open]:where(:not([data-closing])) {
 `packages/components/src/state/table.ts` tient le tri d'un tableau ([ADR 0030](?path=/docs/documentation-adr-0030-tableau--docs)). `Table` montre le tri ; l'application trie ses lignes.
 
 - `nextSort(tri, clé)` donne le tri après un appui sur l'en-tête de la colonne `clé` : l'autre sens sur la colonne qui trie, croissant sur une autre.
-- `sortRows(lignes, tri, langue)` renvoie une copie des lignes triées. Les nombres et les dates se comparent comme tels, le texte dans l'ordre de la langue, avec ses nombres. Les valeurs vides vont à la fin, dans les deux sens.
+- `sortRows(lignes, tri, langue)` renvoie une copie des lignes triées : les objets de l'application, que ses `table-row` montrent. Les nombres et les dates se comparent comme tels, le texte dans l'ordre de la langue, avec ses nombres. Les valeurs vides vont à la fin, dans les deux sens.
 
 ## File des toasts
 

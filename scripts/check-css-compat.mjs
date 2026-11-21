@@ -16,6 +16,10 @@ import postcss from "postcss";
 
 /** Reviewed findings, with why they're fine across the supported matrix. */
 const IGNORED = {
+  "css-display-contents":
+    "Partial means some browsers drop the element's own role from the " +
+    "accessibility tree. The hosts of table-cell and table-header-cell carry no " +
+    "role: the <td> or <th> of their shadow root is the cell (ADR 0030).",
   "css-clip-path":
     "Partial means no shapes from external SVG files; `clip-path: inset()` " +
     "(.visually-hidden) is a basic shape, supported matrix-wide.",

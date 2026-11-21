@@ -1180,6 +1180,21 @@
             },
             {
               "kind": "field",
+              "name": "labelHidden",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Hides the label from the screen: it stays the accessible name of the\ncontrol. For a control whose purpose the layout shows, the checkbox of\na table row for instance. The hint and the error still show. Reflected.",
+              "attribute": "label-hidden",
+              "reflects": true,
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
               "name": "hint",
               "type": {
                 "text": "string"
@@ -1679,6 +1694,19 @@
               "default": "\"\"",
               "description": "The visible label, and the accessible name of the control. Required.",
               "fieldName": "label",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "name": "label-hidden",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Hides the label from the screen: it stays the accessible name of the\ncontrol. For a control whose purpose the layout shows, the checkbox of\na table row for instance. The hint and the error still show. Reflected.",
+              "fieldName": "labelHidden",
               "inheritedFrom": {
                 "name": "FieldBase",
                 "module": "src/bases/field/field-base.ts"
@@ -2719,6 +2747,21 @@
             },
             {
               "kind": "field",
+              "name": "labelHidden",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Hides the label from the screen: it stays the accessible name of the\ncontrol. For a control whose purpose the layout shows, the checkbox of\na table row for instance. The hint and the error still show. Reflected.",
+              "attribute": "label-hidden",
+              "reflects": true,
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
               "name": "hint",
               "type": {
                 "text": "string"
@@ -3218,6 +3261,19 @@
               "default": "\"\"",
               "description": "The visible label, and the accessible name of the control. Required.",
               "fieldName": "label",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "name": "label-hidden",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Hides the label from the screen: it stays the accessible name of the\ncontrol. For a control whose purpose the layout shows, the checkbox of\na table row for instance. The hint and the error still show. Reflected.",
+              "fieldName": "labelHidden",
               "inheritedFrom": {
                 "name": "FieldBase",
                 "module": "src/bases/field/field-base.ts"
@@ -4852,6 +4908,21 @@
             },
             {
               "kind": "field",
+              "name": "labelHidden",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Hides the label from the screen: it stays the accessible name of the\ncontrol. For a control whose purpose the layout shows, the checkbox of\na table row for instance. The hint and the error still show. Reflected.",
+              "attribute": "label-hidden",
+              "reflects": true,
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
               "name": "hint",
               "type": {
                 "text": "string"
@@ -5396,6 +5467,19 @@
               }
             },
             {
+              "name": "label-hidden",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Hides the label from the screen: it stays the accessible name of the\ncontrol. For a control whose purpose the layout shows, the checkbox of\na table row for instance. The hint and the error still show. Reflected.",
+              "fieldName": "labelHidden",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
               "name": "hint",
               "type": {
                 "text": "string"
@@ -5673,6 +5757,17 @@
               "default": "\"\"",
               "description": "The visible label, and the accessible name of the control. Required.",
               "attribute": "label"
+            },
+            {
+              "kind": "field",
+              "name": "labelHidden",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Hides the label from the screen: it stays the accessible name of the\ncontrol. For a control whose purpose the layout shows, the checkbox of\na table row for instance. The hint and the error still show. Reflected.",
+              "attribute": "label-hidden",
+              "reflects": true
             },
             {
               "kind": "field",
@@ -6357,6 +6452,15 @@
               "default": "\"\"",
               "description": "The visible label, and the accessible name of the control. Required.",
               "fieldName": "label"
+            },
+            {
+              "name": "label-hidden",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Hides the label from the screen: it stays the accessible name of the\ncontrol. For a control whose purpose the layout shows, the checkbox of\na table row for instance. The hint and the error still show. Reflected.",
+              "fieldName": "labelHidden"
             },
             {
               "name": "hint",
@@ -8149,6 +8253,21 @@
             },
             {
               "kind": "field",
+              "name": "labelHidden",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Hides the label from the screen: it stays the accessible name of the\ncontrol. For a control whose purpose the layout shows, the checkbox of\na table row for instance. The hint and the error still show. Reflected.",
+              "attribute": "label-hidden",
+              "reflects": true,
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
               "name": "hint",
               "type": {
                 "text": "string"
@@ -8636,6 +8755,19 @@
               "default": "\"\"",
               "description": "The visible label, and the accessible name of the control. Required.",
               "fieldName": "label",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "name": "label-hidden",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Hides the label from the screen: it stays the accessible name of the\ncontrol. For a control whose purpose the layout shows, the checkbox of\na table row for instance. The hint and the error still show. Reflected.",
+              "fieldName": "labelHidden",
               "inheritedFrom": {
                 "name": "FieldBase",
                 "module": "src/bases/field/field-base.ts"
@@ -9699,6 +9831,21 @@
             },
             {
               "kind": "field",
+              "name": "labelHidden",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Hides the label from the screen: it stays the accessible name of the\ncontrol. For a control whose purpose the layout shows, the checkbox of\na table row for instance. The hint and the error still show. Reflected.",
+              "attribute": "label-hidden",
+              "reflects": true,
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
               "name": "hint",
               "type": {
                 "text": "string"
@@ -10243,6 +10390,19 @@
               "default": "\"\"",
               "description": "The visible label, and the accessible name of the control. Required.",
               "fieldName": "label",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "name": "label-hidden",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Hides the label from the screen: it stays the accessible name of the\ncontrol. For a control whose purpose the layout shows, the checkbox of\na table row for instance. The hint and the error still show. Reflected.",
+              "fieldName": "labelHidden",
               "inheritedFrom": {
                 "name": "FieldBase",
                 "module": "src/bases/field/field-base.ts"
@@ -11312,6 +11472,21 @@
             },
             {
               "kind": "field",
+              "name": "labelHidden",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Hides the label from the screen: it stays the accessible name of the\ncontrol. For a control whose purpose the layout shows, the checkbox of\na table row for instance. The hint and the error still show. Reflected.",
+              "attribute": "label-hidden",
+              "reflects": true,
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
               "name": "hint",
               "type": {
                 "text": "string"
@@ -11803,6 +11978,19 @@
               "default": "\"\"",
               "description": "The visible label, and the accessible name of the control. Required.",
               "fieldName": "label",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "name": "label-hidden",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Hides the label from the screen: it stays the accessible name of the\ncontrol. For a control whose purpose the layout shows, the checkbox of\na table row for instance. The hint and the error still show. Reflected.",
+              "fieldName": "labelHidden",
               "inheritedFrom": {
                 "name": "FieldBase",
                 "module": "src/bases/field/field-base.ts"
@@ -13383,6 +13571,21 @@
             },
             {
               "kind": "field",
+              "name": "labelHidden",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Hides the label from the screen: it stays the accessible name of the\ncontrol. For a control whose purpose the layout shows, the checkbox of\na table row for instance. The hint and the error still show. Reflected.",
+              "attribute": "label-hidden",
+              "reflects": true,
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
               "name": "hint",
               "type": {
                 "text": "string"
@@ -14353,6 +14556,19 @@
               "default": "\"\"",
               "description": "The visible label, and the accessible name of the control. Required.",
               "fieldName": "label",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "name": "label-hidden",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Hides the label from the screen: it stays the accessible name of the\ncontrol. For a control whose purpose the layout shows, the checkbox of\na table row for instance. The hint and the error still show. Reflected.",
+              "fieldName": "labelHidden",
               "inheritedFrom": {
                 "name": "FieldBase",
                 "module": "src/bases/field/field-base.ts"
@@ -17275,6 +17491,21 @@
             },
             {
               "kind": "field",
+              "name": "labelHidden",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Hides the label from the screen: it stays the accessible name of the\ncontrol. For a control whose purpose the layout shows, the checkbox of\na table row for instance. The hint and the error still show. Reflected.",
+              "attribute": "label-hidden",
+              "reflects": true,
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
               "name": "hint",
               "type": {
                 "text": "string"
@@ -17764,6 +17995,19 @@
               "default": "\"\"",
               "description": "The visible label, and the accessible name of the control. Required.",
               "fieldName": "label",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "name": "label-hidden",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Hides the label from the screen: it stays the accessible name of the\ncontrol. For a control whose purpose the layout shows, the checkbox of\na table row for instance. The hint and the error still show. Reflected.",
+              "fieldName": "labelHidden",
               "inheritedFrom": {
                 "name": "FieldBase",
                 "module": "src/bases/field/field-base.ts"
@@ -18981,6 +19225,21 @@
             },
             {
               "kind": "field",
+              "name": "labelHidden",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Hides the label from the screen: it stays the accessible name of the\ncontrol. For a control whose purpose the layout shows, the checkbox of\na table row for instance. The hint and the error still show. Reflected.",
+              "attribute": "label-hidden",
+              "reflects": true,
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
               "name": "hint",
               "type": {
                 "text": "string"
@@ -19471,6 +19730,19 @@
               "default": "\"\"",
               "description": "The visible label, and the accessible name of the control. Required.",
               "fieldName": "label",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "name": "label-hidden",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Hides the label from the screen: it stays the accessible name of the\ncontrol. For a control whose purpose the layout shows, the checkbox of\na table row for instance. The hint and the error still show. Reflected.",
+              "fieldName": "labelHidden",
               "inheritedFrom": {
                 "name": "FieldBase",
                 "module": "src/bases/field/field-base.ts"
@@ -20913,6 +21185,21 @@
             },
             {
               "kind": "field",
+              "name": "labelHidden",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Hides the label from the screen: it stays the accessible name of the\ncontrol. For a control whose purpose the layout shows, the checkbox of\na table row for instance. The hint and the error still show. Reflected.",
+              "attribute": "label-hidden",
+              "reflects": true,
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
               "name": "hint",
               "type": {
                 "text": "string"
@@ -21874,6 +22161,19 @@
               }
             },
             {
+              "name": "label-hidden",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Hides the label from the screen: it stays the accessible name of the\ncontrol. For a control whose purpose the layout shows, the checkbox of\na table row for instance. The hint and the error still show. Reflected.",
+              "fieldName": "labelHidden",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
               "name": "hint",
               "type": {
                 "text": "string"
@@ -22483,6 +22783,21 @@
               "default": "\"\"",
               "description": "The visible label, and the accessible name of the control. Required.",
               "attribute": "label",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "labelHidden",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Hides the label from the screen: it stays the accessible name of the\ncontrol. For a control whose purpose the layout shows, the checkbox of\na table row for instance. The hint and the error still show. Reflected.",
+              "attribute": "label-hidden",
+              "reflects": true,
               "inheritedFrom": {
                 "name": "FieldBase",
                 "module": "src/bases/field/field-base.ts"
@@ -23224,6 +23539,19 @@
               "default": "\"\"",
               "description": "The visible label, and the accessible name of the control. Required.",
               "fieldName": "label",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "name": "label-hidden",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Hides the label from the screen: it stays the accessible name of the\ncontrol. For a control whose purpose the layout shows, the checkbox of\na table row for instance. The hint and the error still show. Reflected.",
+              "fieldName": "labelHidden",
               "inheritedFrom": {
                 "name": "FieldBase",
                 "module": "src/bases/field/field-base.ts"
@@ -24677,6 +25005,21 @@
             },
             {
               "kind": "field",
+              "name": "labelHidden",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Hides the label from the screen: it stays the accessible name of the\ncontrol. For a control whose purpose the layout shows, the checkbox of\na table row for instance. The hint and the error still show. Reflected.",
+              "attribute": "label-hidden",
+              "reflects": true,
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
               "name": "hint",
               "type": {
                 "text": "string"
@@ -25188,6 +25531,19 @@
               "default": "\"\"",
               "description": "The visible label, and the accessible name of the control. Required.",
               "fieldName": "label",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "name": "label-hidden",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Hides the label from the screen: it stays the accessible name of the\ncontrol. For a control whose purpose the layout shows, the checkbox of\na table row for instance. The hint and the error still show. Reflected.",
+              "fieldName": "labelHidden",
               "inheritedFrom": {
                 "name": "FieldBase",
                 "module": "src/bases/field/field-base.ts"
@@ -27175,6 +27531,21 @@
             },
             {
               "kind": "field",
+              "name": "labelHidden",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Hides the label from the screen: it stays the accessible name of the\ncontrol. For a control whose purpose the layout shows, the checkbox of\na table row for instance. The hint and the error still show. Reflected.",
+              "attribute": "label-hidden",
+              "reflects": true,
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
               "name": "hint",
               "type": {
                 "text": "string"
@@ -27693,6 +28064,19 @@
               "default": "\"\"",
               "description": "The visible label, and the accessible name of the control. Required.",
               "fieldName": "label",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "name": "label-hidden",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Hides the label from the screen: it stays the accessible name of the\ncontrol. For a control whose purpose the layout shows, the checkbox of\na table row for instance. The hint and the error still show. Reflected.",
+              "fieldName": "labelHidden",
               "inheritedFrom": {
                 "name": "FieldBase",
                 "module": "src/bases/field/field-base.ts"
@@ -30317,6 +30701,21 @@
             },
             {
               "kind": "field",
+              "name": "labelHidden",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Hides the label from the screen: it stays the accessible name of the\ncontrol. For a control whose purpose the layout shows, the checkbox of\na table row for instance. The hint and the error still show. Reflected.",
+              "attribute": "label-hidden",
+              "reflects": true,
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
               "name": "hint",
               "type": {
                 "text": "string"
@@ -31051,6 +31450,19 @@
               "default": "\"\"",
               "description": "The visible label, and the accessible name of the control. Required.",
               "fieldName": "label",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "name": "label-hidden",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Hides the label from the screen: it stays the accessible name of the\ncontrol. For a control whose purpose the layout shows, the checkbox of\na table row for instance. The hint and the error still show. Reflected.",
+              "fieldName": "labelHidden",
               "inheritedFrom": {
                 "name": "FieldBase",
                 "module": "src/bases/field/field-base.ts"
@@ -33172,6 +33584,21 @@
             },
             {
               "kind": "field",
+              "name": "labelHidden",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Hides the label from the screen: it stays the accessible name of the\ncontrol. For a control whose purpose the layout shows, the checkbox of\na table row for instance. The hint and the error still show. Reflected.",
+              "attribute": "label-hidden",
+              "reflects": true,
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
               "name": "hint",
               "type": {
                 "text": "string"
@@ -33951,6 +34378,19 @@
               "default": "\"\"",
               "description": "The visible label, and the accessible name of the control. Required.",
               "fieldName": "label",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "name": "label-hidden",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Hides the label from the screen: it stays the accessible name of the\ncontrol. For a control whose purpose the layout shows, the checkbox of\na table row for instance. The hint and the error still show. Reflected.",
+              "fieldName": "labelHidden",
               "inheritedFrom": {
                 "name": "FieldBase",
                 "module": "src/bases/field/field-base.ts"
@@ -35890,6 +36330,21 @@
             },
             {
               "kind": "field",
+              "name": "labelHidden",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Hides the label from the screen: it stays the accessible name of the\ncontrol. For a control whose purpose the layout shows, the checkbox of\na table row for instance. The hint and the error still show. Reflected.",
+              "attribute": "label-hidden",
+              "reflects": true,
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
               "name": "hint",
               "type": {
                 "text": "string"
@@ -36400,6 +36855,19 @@
               "default": "\"\"",
               "description": "The visible label, and the accessible name of the control. Required.",
               "fieldName": "label",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "name": "label-hidden",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Hides the label from the screen: it stays the accessible name of the\ncontrol. For a control whose purpose the layout shows, the checkbox of\na table row for instance. The hint and the error still show. Reflected.",
+              "fieldName": "labelHidden",
               "inheritedFrom": {
                 "name": "FieldBase",
                 "module": "src/bases/field/field-base.ts"
@@ -37278,6 +37746,21 @@
             },
             {
               "kind": "field",
+              "name": "labelHidden",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Hides the label from the screen: it stays the accessible name of the\ncontrol. For a control whose purpose the layout shows, the checkbox of\na table row for instance. The hint and the error still show. Reflected.",
+              "attribute": "label-hidden",
+              "reflects": true,
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
               "name": "hint",
               "type": {
                 "text": "string"
@@ -37812,6 +38295,19 @@
               "default": "\"\"",
               "description": "The visible label, and the accessible name of the control. Required.",
               "fieldName": "label",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "name": "label-hidden",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Hides the label from the screen: it stays the accessible name of the\ncontrol. For a control whose purpose the layout shows, the checkbox of\na table row for instance. The hint and the error still show. Reflected.",
+              "fieldName": "labelHidden",
               "inheritedFrom": {
                 "name": "FieldBase",
                 "module": "src/bases/field/field-base.ts"
@@ -39511,6 +40007,21 @@
             },
             {
               "kind": "field",
+              "name": "labelHidden",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Hides the label from the screen: it stays the accessible name of the\ncontrol. For a control whose purpose the layout shows, the checkbox of\na table row for instance. The hint and the error still show. Reflected.",
+              "attribute": "label-hidden",
+              "reflects": true,
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
               "name": "hint",
               "type": {
                 "text": "string"
@@ -39999,6 +40510,19 @@
               "default": "\"\"",
               "description": "The visible label, and the accessible name of the control. Required.",
               "fieldName": "label",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "name": "label-hidden",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Hides the label from the screen: it stays the accessible name of the\ncontrol. For a control whose purpose the layout shows, the checkbox of\na table row for instance. The hint and the error still show. Reflected.",
+              "fieldName": "labelHidden",
               "inheritedFrom": {
                 "name": "FieldBase",
                 "module": "src/bases/field/field-base.ts"
@@ -40553,11 +41077,961 @@
     },
     {
       "kind": "javascript-module",
+      "path": "src/components/table-cell/table-cell.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "A cell of a `table-row`: text, links, buttons, a `badge` (ADR 0030).\n\nIt renders a `<td>` with `role=\"cell\"`, the box of the cell in the\ntable's layout: the host itself makes no box. `colspan` spans the cell\nover several columns, a row of details under a row for instance.",
+          "name": "TableCell",
+          "cssProperties": [
+            {
+              "description": "Font family.",
+              "name": "--u-table-font-family",
+              "default": "var(--u-font-family-body)"
+            },
+            {
+              "description": "Font size of the cells.",
+              "name": "--u-table-font-size",
+              "default": "var(--u-font-size-md)"
+            },
+            {
+              "description": "Text color.",
+              "name": "--u-table-text-color",
+              "default": "var(--u-color-text-default)"
+            },
+            {
+              "description": "Background color of the rows.",
+              "name": "--u-table-background-color",
+              "default": "var(--u-color-surface-default)"
+            },
+            {
+              "description": "Background color of the header row.",
+              "name": "--u-table-header-background-color",
+              "default": "var(--u-color-surface-raised)"
+            },
+            {
+              "description": "Font weight of the column headers.",
+              "name": "--u-table-header-font-weight",
+              "default": "var(--u-font-weight-semibold)"
+            },
+            {
+              "description": "Color of the lines between the rows, and of the border.",
+              "name": "--u-table-border-color",
+              "default": "var(--u-color-border-default)"
+            },
+            {
+              "description": "Width of the lines and of the border.",
+              "name": "--u-table-border-width",
+              "default": "var(--u-border-width)"
+            },
+            {
+              "description": "Corner radius of the table.",
+              "name": "--u-table-border-radius",
+              "default": "var(--u-radius-md)"
+            },
+            {
+              "description": "Horizontal padding of a cell.",
+              "name": "--u-table-cell-padding-inline",
+              "default": "var(--u-spacing-sm)"
+            },
+            {
+              "description": "Vertical padding of a cell.",
+              "name": "--u-table-cell-padding-block",
+              "default": "var(--u-spacing-xs)"
+            },
+            {
+              "description": "Space between the caption and the table.",
+              "name": "--u-table-caption-gap",
+              "default": "var(--u-spacing-xs)"
+            },
+            {
+              "description": "Font size of the caption.",
+              "name": "--u-table-caption-font-size",
+              "default": "var(--u-font-size-lg)"
+            },
+            {
+              "description": "Font weight of the caption.",
+              "name": "--u-table-caption-font-weight",
+              "default": "var(--u-font-weight-semibold)"
+            },
+            {
+              "description": "Background color of a selected row.",
+              "name": "--u-table-row-background-color-selected",
+              "default": "var(--u-color-surface-raised)"
+            },
+            {
+              "description": "Width and height of the sort arrow of a column header.",
+              "name": "--u-table-sort-icon-size",
+              "default": "var(--u-spacing-sm)"
+            },
+            {
+              "description": "Largest height of the table: its rows scroll past it, under the header row.",
+              "name": "--u-table-max-block-size",
+              "default": "var(--u-size-table)"
+            },
+            {
+              "description": "Opacity of the arrow of a sortable column that doesn't sort the rows.",
+              "name": "--u-table-sort-icon-opacity",
+              "default": "var(--u-opacity-disabled)"
+            },
+            {
+              "description": "Color of the focus ring of a sort button, and of the table while it scrolls.",
+              "name": "--u-table-focus-ring-color",
+              "default": "var(--u-color-focus-ring)"
+            },
+            {
+              "description": "Width of the focus ring.",
+              "name": "--u-table-focus-ring-width",
+              "default": "var(--u-focus-ring-width)"
+            },
+            {
+              "description": "Space between the focus ring and what it surrounds.",
+              "name": "--u-table-focus-ring-offset",
+              "default": "var(--u-focus-ring-offset)"
+            }
+          ],
+          "cssParts": [
+            {
+              "description": "The cell.",
+              "name": "cell"
+            }
+          ],
+          "slots": [
+            {
+              "description": "The content of the cell.",
+              "name": ""
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "componentName",
+              "type": {
+                "text": "string"
+              },
+              "static": true,
+              "default": "\"table-cell\"",
+              "description": "Name of the component in the catalog, without any tag prefix: the\nregistered tag is `<prefix>-<componentName>`. Every concrete component\nsets it; abstract bases (e.g. `ButtonBase`) don't.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "align",
+              "type": {
+                "text": "TableCellAlign"
+              },
+              "default": "\"start\"",
+              "description": "The alignment of its content: `end` for numbers.",
+              "attribute": "align",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "colspan",
+              "type": {
+                "text": "number"
+              },
+              "default": "1",
+              "description": "The number of columns the cell spans, as on a native `<td>`.",
+              "attribute": "colspan"
+            },
+            {
+              "kind": "field",
+              "name": "dependencies",
+              "type": {
+                "text": "readonly (typeof DSBaseElement)[]"
+              },
+              "static": true,
+              "default": "[]",
+              "description": "Components this one renders (ADR 0001, D2): `defineComponents()`\nregisters them too, and `tagFor()` resolves their tag. Never hard-code\nanother component's tag in a template, nor create one with\n`document.createElement` — a brand's override would be bypassed.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "forDesignSystem",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "T"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "this",
+                  "type": {
+                    "text": "T"
+                  }
+                },
+                {
+                  "name": "_settings",
+                  "type": {
+                    "text": "DesignSystemSettings"
+                  }
+                }
+              ],
+              "description": "The class a design system registers for this component, given its\nsettings: this class by default. A component that depends on a setting\nreturns a subclass that applies it, and leaves this class unchanged:\n`Icon` returns a subclass with the design system's `icons` over its own.\n`designSystem()` calls it once per class, after choosing the brand's\noverride, so the subclass extends the override.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "language",
+              "type": {
+                "text": "string | undefined"
+              },
+              "privacy": "protected",
+              "description": "The language of the component, for `Intl`: the `lang` of its closest\nancestor, through the shadow roots, or the document's. `undefined` on a\nserver, and without any: `Intl` takes its default.",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "tagFor",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "StaticValue"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "component",
+                  "type": {
+                    "text": "typeof DSBaseElement"
+                  }
+                }
+              ],
+              "description": "The tag of a component declared in `static dependencies`, for templates\nfrom `lit/static-html.js`: `` html`<${this.tagFor(Button)}>…</${…}>` ``.\nIt follows the registration of this element: `u-modal` renders\n`u-button`, `acme-modal` renders `acme-button` — the brand's override\nof `Button` if it has one.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            }
+          ],
+          "attributes": [
+            {
+              "name": "align",
+              "type": {
+                "text": "TableCellAlign"
+              },
+              "default": "\"start\"",
+              "description": "The alignment of its content: `end` for numbers.",
+              "fieldName": "align"
+            },
+            {
+              "name": "colspan",
+              "type": {
+                "text": "number"
+              },
+              "default": "1",
+              "description": "The number of columns the cell spans, as on a native `<td>`.",
+              "fieldName": "colspan"
+            }
+          ],
+          "superclass": {
+            "name": "DSBaseElement",
+            "module": "/src/bases/base-element.js"
+          },
+          "tagName": "u-table-cell",
+          "customElement": true,
+          "summary": "A cell of a table row."
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "TableCell",
+          "declaration": {
+            "name": "TableCell",
+            "module": "src/components/table-cell/table-cell.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/components/table-header-cell/table-header-cell.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "A header cell of a `table-row`: the header of a column, in a row of the\nhead, or of its row, with `scope=\"row\"` (ADR 0030).\n\nIt renders a `<th>` with `role=\"columnheader\"` or `\"rowheader\"`: the host\nitself makes no box. A column header with `sort-key` has a button that\nsorts the rows: its table fires `u-sort`, then shows the sort,\n`aria-sort` and an arrow. The headers of the head stay in view while the\nrows scroll.",
+          "name": "TableHeaderCell",
+          "cssProperties": [
+            {
+              "description": "Font family.",
+              "name": "--u-table-font-family",
+              "default": "var(--u-font-family-body)"
+            },
+            {
+              "description": "Font size of the cells.",
+              "name": "--u-table-font-size",
+              "default": "var(--u-font-size-md)"
+            },
+            {
+              "description": "Text color.",
+              "name": "--u-table-text-color",
+              "default": "var(--u-color-text-default)"
+            },
+            {
+              "description": "Background color of the rows.",
+              "name": "--u-table-background-color",
+              "default": "var(--u-color-surface-default)"
+            },
+            {
+              "description": "Background color of the header row.",
+              "name": "--u-table-header-background-color",
+              "default": "var(--u-color-surface-raised)"
+            },
+            {
+              "description": "Font weight of the column headers.",
+              "name": "--u-table-header-font-weight",
+              "default": "var(--u-font-weight-semibold)"
+            },
+            {
+              "description": "Color of the lines between the rows, and of the border.",
+              "name": "--u-table-border-color",
+              "default": "var(--u-color-border-default)"
+            },
+            {
+              "description": "Width of the lines and of the border.",
+              "name": "--u-table-border-width",
+              "default": "var(--u-border-width)"
+            },
+            {
+              "description": "Corner radius of the table.",
+              "name": "--u-table-border-radius",
+              "default": "var(--u-radius-md)"
+            },
+            {
+              "description": "Horizontal padding of a cell.",
+              "name": "--u-table-cell-padding-inline",
+              "default": "var(--u-spacing-sm)"
+            },
+            {
+              "description": "Vertical padding of a cell.",
+              "name": "--u-table-cell-padding-block",
+              "default": "var(--u-spacing-xs)"
+            },
+            {
+              "description": "Space between the caption and the table.",
+              "name": "--u-table-caption-gap",
+              "default": "var(--u-spacing-xs)"
+            },
+            {
+              "description": "Font size of the caption.",
+              "name": "--u-table-caption-font-size",
+              "default": "var(--u-font-size-lg)"
+            },
+            {
+              "description": "Font weight of the caption.",
+              "name": "--u-table-caption-font-weight",
+              "default": "var(--u-font-weight-semibold)"
+            },
+            {
+              "description": "Background color of a selected row.",
+              "name": "--u-table-row-background-color-selected",
+              "default": "var(--u-color-surface-raised)"
+            },
+            {
+              "description": "Width and height of the sort arrow of a column header.",
+              "name": "--u-table-sort-icon-size",
+              "default": "var(--u-spacing-sm)"
+            },
+            {
+              "description": "Largest height of the table: its rows scroll past it, under the header row.",
+              "name": "--u-table-max-block-size",
+              "default": "var(--u-size-table)"
+            },
+            {
+              "description": "Opacity of the arrow of a sortable column that doesn't sort the rows.",
+              "name": "--u-table-sort-icon-opacity",
+              "default": "var(--u-opacity-disabled)"
+            },
+            {
+              "description": "Color of the focus ring of a sort button, and of the table while it scrolls.",
+              "name": "--u-table-focus-ring-color",
+              "default": "var(--u-color-focus-ring)"
+            },
+            {
+              "description": "Width of the focus ring.",
+              "name": "--u-table-focus-ring-width",
+              "default": "var(--u-focus-ring-width)"
+            },
+            {
+              "description": "Space between the focus ring and what it surrounds.",
+              "name": "--u-table-focus-ring-offset",
+              "default": "var(--u-focus-ring-offset)"
+            }
+          ],
+          "cssParts": [
+            {
+              "description": "The header cell.",
+              "name": "header-cell"
+            },
+            {
+              "description": "The button of a sortable column's header.",
+              "name": "sort-button"
+            }
+          ],
+          "slots": [
+            {
+              "description": "The text of the header.",
+              "name": ""
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "componentName",
+              "type": {
+                "text": "string"
+              },
+              "static": true,
+              "default": "\"table-header-cell\"",
+              "description": "Name of the component in the catalog, without any tag prefix: the\nregistered tag is `<prefix>-<componentName>`. Every concrete component\nsets it; abstract bases (e.g. `ButtonBase`) don't.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "scope",
+              "type": {
+                "text": "TableHeaderScope"
+              },
+              "default": "\"col\"",
+              "description": "What it heads, as on a native `<th>`: its column, or its row. Reflected.",
+              "attribute": "scope",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "sortKey",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "The key its table sorts the rows by, in `sort-key` and `u-sort`. `\"\"`: the column doesn't sort.",
+              "attribute": "sort-key"
+            },
+            {
+              "kind": "field",
+              "name": "align",
+              "type": {
+                "text": "TableCellAlign"
+              },
+              "default": "\"start\"",
+              "description": "The alignment of its content: `end` over numbers.",
+              "attribute": "align",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "colspan",
+              "type": {
+                "text": "number"
+              },
+              "default": "1",
+              "description": "The number of columns the header spans, as on a native `<th>`.",
+              "attribute": "colspan"
+            },
+            {
+              "kind": "field",
+              "name": "#table",
+              "privacy": "private",
+              "type": {
+                "text": "Table | undefined"
+              },
+              "description": "The table of the cell: the parent of its row.",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "#sort",
+              "privacy": "private"
+            },
+            {
+              "kind": "field",
+              "name": "dependencies",
+              "type": {
+                "text": "readonly (typeof DSBaseElement)[]"
+              },
+              "static": true,
+              "default": "[]",
+              "description": "Components this one renders (ADR 0001, D2): `defineComponents()`\nregisters them too, and `tagFor()` resolves their tag. Never hard-code\nanother component's tag in a template, nor create one with\n`document.createElement` — a brand's override would be bypassed.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "forDesignSystem",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "T"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "this",
+                  "type": {
+                    "text": "T"
+                  }
+                },
+                {
+                  "name": "_settings",
+                  "type": {
+                    "text": "DesignSystemSettings"
+                  }
+                }
+              ],
+              "description": "The class a design system registers for this component, given its\nsettings: this class by default. A component that depends on a setting\nreturns a subclass that applies it, and leaves this class unchanged:\n`Icon` returns a subclass with the design system's `icons` over its own.\n`designSystem()` calls it once per class, after choosing the brand's\noverride, so the subclass extends the override.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "language",
+              "type": {
+                "text": "string | undefined"
+              },
+              "privacy": "protected",
+              "description": "The language of the component, for `Intl`: the `lang` of its closest\nancestor, through the shadow roots, or the document's. `undefined` on a\nserver, and without any: `Intl` takes its default.",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "tagFor",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "StaticValue"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "component",
+                  "type": {
+                    "text": "typeof DSBaseElement"
+                  }
+                }
+              ],
+              "description": "The tag of a component declared in `static dependencies`, for templates\nfrom `lit/static-html.js`: `` html`<${this.tagFor(Button)}>…</${…}>` ``.\nIt follows the registration of this element: `u-modal` renders\n`u-button`, `acme-modal` renders `acme-button` — the brand's override\nof `Button` if it has one.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            }
+          ],
+          "attributes": [
+            {
+              "name": "scope",
+              "type": {
+                "text": "TableHeaderScope"
+              },
+              "default": "\"col\"",
+              "description": "What it heads, as on a native `<th>`: its column, or its row. Reflected.",
+              "fieldName": "scope"
+            },
+            {
+              "name": "sort-key",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "The key its table sorts the rows by, in `sort-key` and `u-sort`. `\"\"`: the column doesn't sort.",
+              "fieldName": "sortKey"
+            },
+            {
+              "name": "align",
+              "type": {
+                "text": "TableCellAlign"
+              },
+              "default": "\"start\"",
+              "description": "The alignment of its content: `end` over numbers.",
+              "fieldName": "align"
+            },
+            {
+              "name": "colspan",
+              "type": {
+                "text": "number"
+              },
+              "default": "1",
+              "description": "The number of columns the header spans, as on a native `<th>`.",
+              "fieldName": "colspan"
+            }
+          ],
+          "superclass": {
+            "name": "DSBaseElement",
+            "module": "/src/bases/base-element.js"
+          },
+          "tagName": "u-table-header-cell",
+          "customElement": true,
+          "summary": "A header cell of a table row, which may sort the rows."
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "TableHeaderCell",
+          "declaration": {
+            "name": "TableHeaderCell",
+            "module": "src/components/table-header-cell/table-header-cell.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/components/table-row/table-row.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "A row of a `table`: its cells, `table-cell` and `table-header-cell`\nelements (ADR 0030). With `slot=\"head\"`, a row of the table's header.\n\nThe host has `role=\"row\"`. In a `selectable` table, the row starts with a\ncell holding a `checkbox`, set by its table: checked while the row is\n`selected`, named by the table's `selectMessage` and the row's name, the\ntext of its row header, or else of its first cell. A row without `value`\nhas an empty cell there, to keep the columns aligned. In the head, the\ncheckbox selects every row.",
+          "name": "TableRow",
+          "cssProperties": [
+            {
+              "description": "Font family.",
+              "name": "--u-table-font-family",
+              "default": "var(--u-font-family-body)"
+            },
+            {
+              "description": "Font size of the cells.",
+              "name": "--u-table-font-size",
+              "default": "var(--u-font-size-md)"
+            },
+            {
+              "description": "Text color.",
+              "name": "--u-table-text-color",
+              "default": "var(--u-color-text-default)"
+            },
+            {
+              "description": "Background color of the rows.",
+              "name": "--u-table-background-color",
+              "default": "var(--u-color-surface-default)"
+            },
+            {
+              "description": "Background color of the header row.",
+              "name": "--u-table-header-background-color",
+              "default": "var(--u-color-surface-raised)"
+            },
+            {
+              "description": "Font weight of the column headers.",
+              "name": "--u-table-header-font-weight",
+              "default": "var(--u-font-weight-semibold)"
+            },
+            {
+              "description": "Color of the lines between the rows, and of the border.",
+              "name": "--u-table-border-color",
+              "default": "var(--u-color-border-default)"
+            },
+            {
+              "description": "Width of the lines and of the border.",
+              "name": "--u-table-border-width",
+              "default": "var(--u-border-width)"
+            },
+            {
+              "description": "Corner radius of the table.",
+              "name": "--u-table-border-radius",
+              "default": "var(--u-radius-md)"
+            },
+            {
+              "description": "Horizontal padding of a cell.",
+              "name": "--u-table-cell-padding-inline",
+              "default": "var(--u-spacing-sm)"
+            },
+            {
+              "description": "Vertical padding of a cell.",
+              "name": "--u-table-cell-padding-block",
+              "default": "var(--u-spacing-xs)"
+            },
+            {
+              "description": "Space between the caption and the table.",
+              "name": "--u-table-caption-gap",
+              "default": "var(--u-spacing-xs)"
+            },
+            {
+              "description": "Font size of the caption.",
+              "name": "--u-table-caption-font-size",
+              "default": "var(--u-font-size-lg)"
+            },
+            {
+              "description": "Font weight of the caption.",
+              "name": "--u-table-caption-font-weight",
+              "default": "var(--u-font-weight-semibold)"
+            },
+            {
+              "description": "Background color of a selected row.",
+              "name": "--u-table-row-background-color-selected",
+              "default": "var(--u-color-surface-raised)"
+            },
+            {
+              "description": "Width and height of the sort arrow of a column header.",
+              "name": "--u-table-sort-icon-size",
+              "default": "var(--u-spacing-sm)"
+            },
+            {
+              "description": "Largest height of the table: its rows scroll past it, under the header row.",
+              "name": "--u-table-max-block-size",
+              "default": "var(--u-size-table)"
+            },
+            {
+              "description": "Opacity of the arrow of a sortable column that doesn't sort the rows.",
+              "name": "--u-table-sort-icon-opacity",
+              "default": "var(--u-opacity-disabled)"
+            },
+            {
+              "description": "Color of the focus ring of a sort button, and of the table while it scrolls.",
+              "name": "--u-table-focus-ring-color",
+              "default": "var(--u-color-focus-ring)"
+            },
+            {
+              "description": "Width of the focus ring.",
+              "name": "--u-table-focus-ring-width",
+              "default": "var(--u-focus-ring-width)"
+            },
+            {
+              "description": "Space between the focus ring and what it surrounds.",
+              "name": "--u-table-focus-ring-offset",
+              "default": "var(--u-focus-ring-offset)"
+            }
+          ],
+          "cssParts": [
+            {
+              "description": "The first cell of a row of a `selectable` table.",
+              "name": "select-cell"
+            },
+            {
+              "description": "Its `checkbox`: the `checkbox` component of the same registration.",
+              "name": "select"
+            }
+          ],
+          "slots": [
+            {
+              "description": "The cells of the row.",
+              "name": ""
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "componentName",
+              "type": {
+                "text": "string"
+              },
+              "static": true,
+              "default": "\"table-row\"",
+              "description": "Name of the component in the catalog, without any tag prefix: the\nregistered tag is `<prefix>-<componentName>`. Every concrete component\nsets it; abstract bases (e.g. `ButtonBase`) don't.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "dependencies",
+              "type": {
+                "text": "readonly (typeof DSBaseElement)[]"
+              },
+              "static": true,
+              "default": "[Checkbox]",
+              "description": "Renders its checkbox with the `checkbox` of its own registration.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "value",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "What identifies the row in the `values` of its table. A row without one isn't selectable.",
+              "attribute": "value"
+            },
+            {
+              "kind": "field",
+              "name": "selected",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether the row is selected. Set by its table, from its `values`. Reflected.",
+              "attribute": "selected",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "name",
+              "type": {
+                "text": "string"
+              },
+              "privacy": "private",
+              "default": "\"\"",
+              "description": "The name of the row, read once rendered: the first render depends on properties only."
+            },
+            {
+              "kind": "method",
+              "name": "#renderSelect",
+              "privacy": "private"
+            },
+            {
+              "kind": "field",
+              "name": "#table",
+              "privacy": "private",
+              "type": {
+                "text": "Table | undefined"
+              },
+              "description": "The table of the row: its parent.",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "#readName",
+              "privacy": "private",
+              "description": "The text of its row header, or else of its first cell."
+            },
+            {
+              "kind": "field",
+              "name": "#toggle",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "forDesignSystem",
+              "static": true,
+              "return": {
+                "type": {
+                  "text": "T"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "this",
+                  "type": {
+                    "text": "T"
+                  }
+                },
+                {
+                  "name": "_settings",
+                  "type": {
+                    "text": "DesignSystemSettings"
+                  }
+                }
+              ],
+              "description": "The class a design system registers for this component, given its\nsettings: this class by default. A component that depends on a setting\nreturns a subclass that applies it, and leaves this class unchanged:\n`Icon` returns a subclass with the design system's `icons` over its own.\n`designSystem()` calls it once per class, after choosing the brand's\noverride, so the subclass extends the override.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "field",
+              "name": "language",
+              "type": {
+                "text": "string | undefined"
+              },
+              "privacy": "protected",
+              "description": "The language of the component, for `Intl`: the `lang` of its closest\nancestor, through the shadow roots, or the document's. `undefined` on a\nserver, and without any: `Intl` takes its default.",
+              "readonly": true,
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            },
+            {
+              "kind": "method",
+              "name": "tagFor",
+              "privacy": "protected",
+              "return": {
+                "type": {
+                  "text": "StaticValue"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "component",
+                  "type": {
+                    "text": "typeof DSBaseElement"
+                  }
+                }
+              ],
+              "description": "The tag of a component declared in `static dependencies`, for templates\nfrom `lit/static-html.js`: `` html`<${this.tagFor(Button)}>…</${…}>` ``.\nIt follows the registration of this element: `u-modal` renders\n`u-button`, `acme-modal` renders `acme-button` — the brand's override\nof `Button` if it has one.",
+              "inheritedFrom": {
+                "name": "DSBaseElement",
+                "module": "src/bases/base-element.ts"
+              }
+            }
+          ],
+          "attributes": [
+            {
+              "name": "value",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "What identifies the row in the `values` of its table. A row without one isn't selectable.",
+              "fieldName": "value"
+            },
+            {
+              "name": "selected",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Whether the row is selected. Set by its table, from its `values`. Reflected.",
+              "fieldName": "selected"
+            }
+          ],
+          "superclass": {
+            "name": "DSBaseElement",
+            "module": "/src/bases/base-element.js"
+          },
+          "tagName": "u-table-row",
+          "customElement": true,
+          "summary": "A row of a table."
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "TableRow",
+          "declaration": {
+            "name": "TableRow",
+            "module": "src/components/table-row/table-row.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/components/table/table.ts",
       "declarations": [
         {
           "kind": "class",
-          "description": "A table of data: rows and columns, a caption, headers that sort, and\nrows the user selects (ADR 0030). It renders a native `<table>`, from\n`columns` and `rows`: assistive technologies read it as any table.\n\nA sortable column has a button in its header. A press fires `u-sort`,\nthen shows the new sort: `aria-sort` and an arrow. The table keeps the\norder of `rows`: the application sorts them, with `sortRows()` or on its\nserver.\n\nWith `selectable`, a column of checkboxes selects rows, and a box in its\nheader all of them. `values` holds the keys of the rows selected, from\n`row-key`; each choice of the user fires `change`. A checkbox is named by\n`select-label` and its row's header cell.\n\nThe table scrolls past the width of the page, and past\n`--u-table-max-block-size` under its header row. While it scrolls, it\ntakes the focus, for the keyboard, as a region named by its caption.",
+          "description": "A table of data, written with elements as an HTML table: `table-row`\nchildren, whose cells are `table-cell` and `table-header-cell` (ADR 0030).\nAny row fits: a row of details across the columns (`colspan`), a group\nheading, a cell holding links, buttons or a `badge`.\n\nThe rows with `slot=\"head\"` form its header, which stays in view while\nthe other rows scroll under it. `label` is its caption and its name.\n\nA header cell with `sort-key` sorts the rows: a press fires `u-sort`, then\nthe table shows the new sort, `aria-sort` and an arrow. The table keeps\nthe order of its rows: the application sorts them, with `sortRows()` or\non its server, and renders them again.\n\nWith `selectable`, each row gets a `checkbox` before its cells, named by\n`selectMessage` and its row header; the head gets one for every row.\n`values` holds the `value` of the rows selected; each choice of the user\nfires `change`. A row without `value`, a row of details for instance, has\nan empty cell there.\n\nThe table scrolls past the width of the page, and past\n`--u-table-max-block-size`. While it scrolls, it takes the focus, for the\nkeyboard, as a region named by its caption.",
           "name": "Table",
           "cssProperties": [
             {
@@ -40651,11 +42125,6 @@
               "default": "var(--u-opacity-disabled)"
             },
             {
-              "description": "Color of a checked checkbox.",
-              "name": "--u-table-checkbox-color",
-              "default": "var(--u-color-action-background)"
-            },
-            {
               "description": "Color of the focus ring of a sort button, and of the table while it scrolls.",
               "name": "--u-table-focus-ring-color",
               "default": "var(--u-color-focus-ring)"
@@ -40677,7 +42146,7 @@
               "name": "scroller"
             },
             {
-              "description": "The `<table>`.",
+              "description": "The table, `role=\"table\"`.",
               "name": "table"
             },
             {
@@ -40685,31 +42154,19 @@
               "name": "caption"
             },
             {
-              "description": "The header of a column.",
-              "name": "column-header"
-            },
-            {
-              "description": "The button of a sortable column's header.",
-              "name": "sort-button"
-            },
-            {
-              "description": "A row of the body. A selected one has `aria-selected=\"true\"`.",
-              "name": "row"
-            },
-            {
-              "description": "A cell of the body, row headers included.",
-              "name": "cell"
-            },
-            {
-              "description": "The checkbox of a row.",
-              "name": "select"
-            },
-            {
-              "description": "The checkbox of the header, for every row.",
-              "name": "select-all"
+              "description": "The box of the `empty` slot.",
+              "name": "empty"
             }
           ],
           "slots": [
+            {
+              "description": "The rows of the body, `table-row` elements.",
+              "name": ""
+            },
+            {
+              "description": "The rows of the header, `table-row` elements of `table-header-cell`.",
+              "name": "head"
+            },
             {
               "description": "What shows in place of the rows while there are none: \"No request yet\" for instance.",
               "name": "empty"
@@ -40742,40 +42199,12 @@
             },
             {
               "kind": "field",
-              "name": "columns",
-              "type": {
-                "text": "readonly TableColumn[]"
-              },
-              "default": "[]",
-              "description": "The columns, in order. Property only."
-            },
-            {
-              "kind": "field",
-              "name": "rows",
-              "type": {
-                "text": "readonly TableRow[]"
-              },
-              "default": "[]",
-              "description": "The rows, in the order the table shows them. Property only."
-            },
-            {
-              "kind": "field",
-              "name": "rowKey",
-              "type": {
-                "text": "string"
-              },
-              "default": "\"id\"",
-              "description": "The key of a row's value that identifies it, for `values`. Its index when the row has none.",
-              "attribute": "row-key"
-            },
-            {
-              "kind": "field",
               "name": "sortKey",
               "type": {
                 "text": "string"
               },
               "default": "\"\"",
-              "description": "The `key` of the column that sorts the rows, `\"\"` when none.",
+              "description": "The `sort-key` of the header cell that sorts the rows, `\"\"` when none.",
               "attribute": "sort-key"
             },
             {
@@ -40795,7 +42224,7 @@
                 "text": "boolean"
               },
               "default": "false",
-              "description": "Whether the user selects rows, with a column of checkboxes.",
+              "description": "Whether the user selects rows, with a checkbox before each one. Reflected.",
               "attribute": "selectable",
               "reflects": true
             },
@@ -40806,17 +42235,15 @@
                 "text": "readonly string[]"
               },
               "default": "[]",
-              "description": "The keys of the rows selected, in their order. Property only."
+              "description": "The `value` of the rows selected, in their order. Property only."
             },
             {
               "kind": "field",
-              "name": "selectLabel",
+              "name": "selectMessage",
               "type": {
-                "text": "string"
+                "text": "(name: string) => string"
               },
-              "default": "\"Select\"",
-              "description": "Read before the name of a row, in the name of its checkbox: \"Select Dupont\".",
-              "attribute": "select-label"
+              "description": "Writes the name of a row's checkbox from the name of the row: the text\nof its row header, or else of its first cell. Give it in the page's\nlanguage. Property only."
             },
             {
               "kind": "field",
@@ -40825,8 +42252,18 @@
                 "text": "string"
               },
               "default": "\"Select all rows\"",
-              "description": "The name of the checkbox of the header, which selects every row.",
+              "description": "The name of the checkbox of the head, which selects every row.",
               "attribute": "select-all-label"
+            },
+            {
+              "kind": "field",
+              "name": "empty",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "private",
+              "default": "true",
+              "description": "Whether the body has no row: the `empty` slot shows."
             },
             {
               "kind": "field",
@@ -40836,142 +42273,47 @@
             },
             {
               "kind": "field",
-              "name": "#keys",
+              "name": "#observer",
               "privacy": "private",
               "type": {
-                "text": "string[]"
-              },
-              "description": "The keys of the rows, by index.",
-              "readonly": true
-            },
-            {
-              "kind": "method",
-              "name": "#renderHeader",
-              "privacy": "private",
-              "parameters": [
-                {
-                  "name": "column",
-                  "type": {
-                    "text": "TableColumn"
-                  }
-                }
-              ]
-            },
-            {
-              "kind": "method",
-              "name": "#renderSelectAll",
-              "privacy": "private",
-              "parameters": [
-                {
-                  "name": "keys",
-                  "type": {
-                    "text": "readonly string[]"
-                  }
-                },
-                {
-                  "name": "selected",
-                  "type": {
-                    "text": "ReadonlySet<string>"
-                  }
-                }
-              ]
-            },
-            {
-              "kind": "method",
-              "name": "#renderRow",
-              "privacy": "private",
-              "parameters": [
-                {
-                  "name": "row",
-                  "type": {
-                    "text": "TableRow"
-                  }
-                },
-                {
-                  "name": "index",
-                  "type": {
-                    "text": "number"
-                  }
-                },
-                {
-                  "name": "key",
-                  "type": {
-                    "text": "string"
-                  }
-                },
-                {
-                  "name": "selected",
-                  "type": {
-                    "text": "ReadonlySet<string>"
-                  }
-                },
-                {
-                  "name": "named",
-                  "type": {
-                    "text": "number"
-                  }
-                }
-              ]
-            },
-            {
-              "kind": "method",
-              "name": "#format",
-              "privacy": "private",
-              "return": {
-                "type": {
-                  "text": "string"
-                }
-              },
-              "parameters": [
-                {
-                  "name": "value",
-                  "type": {
-                    "text": "unknown"
-                  }
-                }
-              ],
-              "description": "A value as text: numbers and dates in the page's language."
-            },
-            {
-              "kind": "method",
-              "name": "#sort",
-              "privacy": "private",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              },
-              "parameters": [
-                {
-                  "name": "key",
-                  "type": {
-                    "text": "string"
-                  }
-                }
-              ]
-            },
-            {
-              "kind": "method",
-              "name": "#select",
-              "privacy": "private",
-              "return": {
-                "type": {
-                  "text": "void"
-                }
-              },
-              "parameters": [
-                {
-                  "name": "key",
-                  "type": {
-                    "text": "string"
-                  }
-                }
-              ]
+                "text": "MutationObserver | undefined"
+              }
             },
             {
               "kind": "field",
-              "name": "#selectAll",
-              "privacy": "private"
+              "name": "#selectAllLabel",
+              "privacy": "private",
+              "description": "The name of the head's checkbox, as a row's: the same function at each render."
+            },
+            {
+              "kind": "field",
+              "name": "#headRows",
+              "privacy": "private",
+              "type": {
+                "text": "TableRow[]"
+              },
+              "description": "The rows of the head. None on a server: the element has no children there.",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "#bodyRows",
+              "privacy": "private",
+              "type": {
+                "text": "TableRow[]"
+              },
+              "description": "The rows of the body, in order.",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "#items",
+              "privacy": "private",
+              "type": {
+                "text": "{ value: string }[]"
+              },
+              "description": "The rows the user can select, as items: those with a `value`.",
+              "readonly": true
             },
             {
               "kind": "field",
@@ -41081,21 +42423,12 @@
               "fieldName": "label"
             },
             {
-              "name": "row-key",
-              "type": {
-                "text": "string"
-              },
-              "default": "\"id\"",
-              "description": "The key of a row's value that identifies it, for `values`. Its index when the row has none.",
-              "fieldName": "rowKey"
-            },
-            {
               "name": "sort-key",
               "type": {
                 "text": "string"
               },
               "default": "\"\"",
-              "description": "The `key` of the column that sorts the rows, `\"\"` when none.",
+              "description": "The `sort-key` of the header cell that sorts the rows, `\"\"` when none.",
               "fieldName": "sortKey"
             },
             {
@@ -41113,17 +42446,8 @@
                 "text": "boolean"
               },
               "default": "false",
-              "description": "Whether the user selects rows, with a column of checkboxes.",
+              "description": "Whether the user selects rows, with a checkbox before each one. Reflected.",
               "fieldName": "selectable"
-            },
-            {
-              "name": "select-label",
-              "type": {
-                "text": "string"
-              },
-              "default": "\"Select\"",
-              "description": "Read before the name of a row, in the name of its checkbox: \"Select Dupont\".",
-              "fieldName": "selectLabel"
             },
             {
               "name": "select-all-label",
@@ -41131,7 +42455,7 @@
                 "text": "string"
               },
               "default": "\"Select all rows\"",
-              "description": "The name of the checkbox of the header, which selects every row.",
+              "description": "The name of the checkbox of the head, which selects every row.",
               "fieldName": "selectAllLabel"
             }
           ],
@@ -41141,7 +42465,7 @@
           },
           "tagName": "u-table",
           "customElement": true,
-          "summary": "A table of data, sortable, whose rows the user may select."
+          "summary": "A table of data, written with row and cell elements, sortable, whose rows the user may select."
         }
       ],
       "exports": [
@@ -42540,6 +43864,21 @@
             },
             {
               "kind": "field",
+              "name": "labelHidden",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Hides the label from the screen: it stays the accessible name of the\ncontrol. For a control whose purpose the layout shows, the checkbox of\na table row for instance. The hint and the error still show. Reflected.",
+              "attribute": "label-hidden",
+              "reflects": true,
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
               "name": "hint",
               "type": {
                 "text": "string"
@@ -43064,6 +44403,19 @@
               "default": "\"\"",
               "description": "The visible label, and the accessible name of the control. Required.",
               "fieldName": "label",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "name": "label-hidden",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Hides the label from the screen: it stays the accessible name of the\ncontrol. For a control whose purpose the layout shows, the checkbox of\na table row for instance. The hint and the error still show. Reflected.",
+              "fieldName": "labelHidden",
               "inheritedFrom": {
                 "name": "FieldBase",
                 "module": "src/bases/field/field-base.ts"
@@ -43846,6 +45198,21 @@
             },
             {
               "kind": "field",
+              "name": "labelHidden",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Hides the label from the screen: it stays the accessible name of the\ncontrol. For a control whose purpose the layout shows, the checkbox of\na table row for instance. The hint and the error still show. Reflected.",
+              "attribute": "label-hidden",
+              "reflects": true,
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "kind": "field",
               "name": "hint",
               "type": {
                 "text": "string"
@@ -44361,6 +45728,19 @@
               "default": "\"\"",
               "description": "The visible label, and the accessible name of the control. Required.",
               "fieldName": "label",
+              "inheritedFrom": {
+                "name": "FieldBase",
+                "module": "src/bases/field/field-base.ts"
+              }
+            },
+            {
+              "name": "label-hidden",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "Hides the label from the screen: it stays the accessible name of the\ncontrol. For a control whose purpose the layout shows, the checkbox of\na table row for instance. The hint and the error still show. Reflected.",
+              "fieldName": "labelHidden",
               "inheritedFrom": {
                 "name": "FieldBase",
                 "module": "src/bases/field/field-base.ts"
@@ -48728,6 +50108,30 @@
           "name": "*",
           "declaration": {
             "name": "*",
+            "module": "src/components/table-row/table-row.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "*",
+          "declaration": {
+            "name": "*",
+            "module": "src/components/table-cell/table-cell.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "*",
+          "declaration": {
+            "name": "*",
+            "module": "src/components/table-header-cell/table-header-cell.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "*",
+          "declaration": {
+            "name": "*",
             "module": "src/mixins/withDisabled.js"
           }
         },
@@ -50765,7 +52169,7 @@
               }
             }
           ],
-          "description": "A copy of `rows`, sorted by their value at `sort.key`. Numbers and dates\ncompare as such, the rest as text in the order of `locale`, with its\nnumbers in it (\"item 2\" before \"item 10\"). Empty values go last. Equal\nrows keep their order."
+          "description": "A copy of `rows`, objects, sorted by their value at `sort.key`. Numbers and dates\ncompare as such, the rest as text in the order of `locale`, with its\nnumbers in it (\"item 2\" before \"item 10\"). Empty values go last. Equal\nrows keep their order."
         }
       ],
       "exports": [

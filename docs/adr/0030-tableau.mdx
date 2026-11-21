@@ -8,11 +8,13 @@ import { Meta } from "@storybook/addon-docs/blocks";
 
 ## Contexte
 
-Une application liste des dossiers : leur numéro, le demandeur, la date, le montant, l'état. L'agent les trie, en sélectionne plusieurs, et passe à la page suivante.
+Une application liste des dossiers : leur numéro, le demandeur, la date, le montant, l'état. L'agent les trie, en sélectionne plusieurs, ouvre le détail d'un dossier sous sa ligne, et passe à la page suivante.
 
 - Un `<table>` natif donne la légende, les en-têtes de colonnes et de lignes, et la navigation des lecteurs d'écran.
-- Un `<table>` ne se découpe pas en éléments personnalisés : `<tr>` et `<td>` n'existent que dans un `<table>`.
+- Un `<table>` ne se découpe pas en éléments personnalisés : le parseur HTML rejette un `<tr>` hors d'un `<table>`.
+- Le gabarit d'un shadow root peut commencer par un `<td>` ou un `<th>`. Leur `colspan` vaut dans une ligne CSS (`display: table-row`).
 - `aria-sort` dit le tri d'une colonne. Une seule colonne le porte.
+- `subgrid` manque à Chrome avant 117 : une grille CSS n'aligne pas les colonnes de lignes séparées dans la [matrice](?path=/docs/documentation-référence-support-navigateurs--docs).
 - `pagination` existe ([ADR 0020](?path=/docs/documentation-adr-0020-onglets-détails-et-navigation--docs)). Le socle n'a pas de grille de données.
 
 ### Ce que font les bibliothèques
@@ -35,13 +37,32 @@ Une application liste des dossiers : leur numéro, le demandeur, la date, le mon
       </td>
       <td>Un bouton dans l'en-tête.</td>
       <td>
-        Une case par ligne, nommée « Sélectionner la ligne 1 », `aria-selected` sur la ligne.
+        Une case par ligne, nommée « Sélectionner la ligne 1 », `aria-selected` sur la ligne. Une
+        cellule sans texte visible au-dessus.
       </td>
+    </tr>
+    <tr>
+      <td>Carbon</td>
+      <td>
+        Des éléments : `cds-table`, `cds-table-row`, `cds-table-cell`, en `display: table-*`, avec
+        leurs rôles. `cds-table-expanded-row` rend un `<td colspan>` dans son shadow root.
+      </td>
+      <td>`cds-table-header-cell` et son `sort-direction`.</td>
+      <td>La ligne rend une `cds-checkbox` de Carbon, avec `hide-label`.</td>
+    </tr>
+    <tr>
+      <td>UI5</td>
+      <td>
+        Des éléments : `ui5-table-row`, `ui5-table-cell`, `ui5-table-group-row`. Une grille CSS
+        et `subgrid`.
+      </td>
+      <td>`sort-indicator` sur l'en-tête, posé par l'application.</td>
+      <td>Une extension de sélection, qui rend la case de chaque ligne.</td>
     </tr>
     <tr>
       <td>Spectrum Web Components</td>
       <td>
-        Des éléments personnalisés avec `role="grid"`, `row` et `gridcell`. Une liste virtuelle
+        Des éléments avec `role="grid"`, `row` et `gridcell`. Une liste virtuelle
         (`@lit-labs/virtualizer`).
       </td>
       <td>`sortable` sur l'en-tête, l'événement `sorted`. L'application trie.</td>
@@ -56,16 +77,19 @@ Une application liste des dossiers : leur numéro, le demandeur, la date, le mon
   </tbody>
 </table>
 
-## D1 — Un `<table>` natif, rendu depuis des données
+## D1 — Des éléments, écrits comme un tableau HTML
 
-- **Option A — Des éléments personnalisés avec des rôles ARIA**, comme Spectrum. Chaque cellule est un élément, et `display: table` refait la mise en page.
-- **Option B — Un `<table>` natif dans le shadow root**, rendu depuis `columns` et `rows`.
+- **Option A — Un `<table>` rendu depuis des données**, `columns` et `rows`. Un contenu riche passe par une fonction de rendu. Une ligne d'une autre forme, un détail ou un titre de groupe, n'a pas de place.
+- **Option B — Des éléments, écrits comme un tableau HTML**, comme Carbon et UI5. L'application écrit chaque ligne et chaque cellule, avec son framework.
 
-**Décision : B.** La sémantique et la mise en page sont celles du navigateur, et les feuilles du composant atteignent chaque cellule.
+**Décision : B.** Une première version suivait A ; elle ne tenait aucune ligne de forme libre.
 
-- Une colonne a une `key`, un `label`, et au choix `sortable`, `align`, `rowHeader` et `render(row)`.
-- `render` rend un contenu riche : un lien, un `badge`. Par défaut, la cellule montre sa valeur, avec les nombres et les dates dans la langue de la page.
-- Une colonne `rowHeader` rend des `<th scope="row">`.
+- `table` contient des `table-row`. Les lignes avec `slot="head"` forment l'en-tête, les autres le corps.
+- Une ligne contient des `table-cell` et des `table-header-cell`. `scope="row"` fait d'un en-tête celui de sa ligne, comme sur un `<th>`.
+- Une cellule rend un `<td>` ou un `<th>` dans son shadow root ; l'hôte, en `display: contents`, ne fait aucune boîte. `colspan` étend la cellule sur plusieurs colonnes, comme le `<td colspan>` de Carbon.
+- Les rôles sont explicites : `table`, `rowgroup`, `row`, `cell`, `columnheader`, `rowheader`. Un `<td>` hors d'un `<table>` n'a pas de rôle implicite.
+- La mise en page est celle d'un tableau CSS (`display: table-*`), pas une grille : les colonnes s'alignent sans `subgrid`.
+- Le contenu d'une cellule est libre : un lien, un `button`, un `badge`.
 
 ## D2 — Un tableau, pas une grille
 
@@ -73,40 +97,41 @@ Les flèches ne déplacent pas une cellule active. Tab parcourt les boutons de t
 
 ## D3 — Le tri
 
-- **Option A — Le tableau trie ses lignes.** Un tri sur le serveur, courant avec la pagination, demande alors de le désactiver.
+- **Option A — Le tableau trie ses lignes.** Il déplacerait des éléments que le framework de l'application rend.
 - **Option B — Le tableau montre le tri, l'application trie**, comme Spectrum et React Aria.
 
-**Décision : B.** Un appui sur l'en-tête émet `u-sort`, annulable, avec la colonne et le sens. Puis le tableau montre le tri : `aria-sort` et une flèche.
+**Décision : B.** Un `table-header-cell` avec `sort-key` rend un bouton. Un appui émet `u-sort` depuis le tableau, annulable, avec la clé et le sens. Puis le tableau montre le tri : `aria-sort` et une flèche.
 
-- `sortRows(rows, sort, langue)` trie dans la page, en une ligne. Les nombres et les dates se comparent comme tels, le texte dans l'ordre de la langue.
+- `sortRows(rows, sort, langue)` trie les données de l'application, en une ligne. Les nombres et les dates se comparent comme tels, le texte dans l'ordre de la langue.
 - `nextSort()` donne le sens suivant : croissant sur une nouvelle colonne, puis l'autre sens.
 
-## D4 — La sélection
+## D4 — La sélection, avec `checkbox`
 
-- `selectable` ajoute une colonne de cases, comme le DSFR. `values` donne les clés des lignes choisies, lues dans `row-key`.
-- Une case est nommée par `select-label` et l'en-tête de sa ligne : « Select R-087 ».
-- La case de l'en-tête choisit toutes les lignes. Elle est indéterminée quand une partie l'est.
-- Chaque choix de l'utilisateur émet `change`. Une ligne qui disparaît de `rows` sort de `values`.
+- `selectable` donne à chaque ligne une cellule et un `checkbox` du socle, comme Carbon avec sa `cds-checkbox` : la case a le dessin, les états et les tokens des formulaires.
+- `label-hidden`, sur chaque champ, cache le libellé à l'écran, et le garde comme nom accessible. La case d'une ligne s'appelle `selectMessage(nom)` : « Select R-087 », d'après l'en-tête de sa ligne.
+- La case de l'en-tête choisit toutes les lignes, et devient indéterminée quand une partie l'est. Sa cellule est une simple cellule : elle n'a pas de texte visible d'en-tête (règle axe `empty-table-header`).
+- `values` donne le `value` des lignes choisies. Chaque choix de l'utilisateur émet `change` depuis le tableau. Une ligne retirée sort de `values`.
+- Une ligne sans `value`, un détail ou un titre de groupe, a une cellule vide à la place de la case : les colonnes restent alignées.
 
 ## D5 — Le défilement
 
-- Le tableau défile au-delà de la largeur de la page, et au-delà de `--u-table-max-block-size` sous la ligne d'en-tête.
+- Le tableau défile au-delà de la largeur de la page, et au-delà de `--u-table-max-block-size` sous ses en-têtes de colonnes.
 - Une zone qui défile doit s'atteindre au clavier (règle axe `scrollable-region-focusable`). Le tableau prend le focus seulement quand il défile, comme une région nommée par sa légende : `OverflowController` le dit (`scrolls`).
 
 ## Conséquences
 
-- **Code :** `Table`, `TableColumn`, `TableRow`, l'événement `TableSortEvent`, `state/table.ts`, `toggleAll()` dans `state/selection.ts` et `scrolls` dans `OverflowController`.
-- **Tokens :** le groupe `table`, et le token sémantique `size.table`.
-- **Tests :** `state/table.test.ts` dans Node, `table.test.ts` avec le vrai clavier, les stories dans trois moteurs.
+- **Code :** `Table`, `TableRow`, `TableCell`, `TableHeaderCell`, l'événement `TableSortEvent`, `state/table.ts`, `toggleAll()` dans `state/selection.ts`, `scrolls` dans `OverflowController`, `labelHidden` dans `FieldBase`.
+- **Tokens :** le groupe `table`, partagé par les lignes et les cellules, et le token sémantique `size.table`.
+- **Tests :** `state/table.test.ts` dans Node, `table.test.ts` avec le vrai clavier, les stories dans trois moteurs, dont une ligne de détail sur toute la largeur.
 - **Limites :**
-  - Le tableau rend toutes ses lignes. Pour des milliers de lignes, l'application pagine, avec `pagination`.
-  - Les cases sont les cases natives, colorées par `accent-color`.
+  - Chaque cellule est un élément avec son shadow root. Pour des milliers de lignes, l'application pagine, avec `pagination`.
+  - L'alignement se donne cellule par cellule (`align`), comme en HTML.
+  - Une ligne et un en-tête trouvent leur tableau par leurs parents : une ligne est un enfant direct du tableau.
 
 ## Questions ouvertes
 
 - **Liste virtuelle :** des milliers de lignes sans pagination ([ADR 0026](?path=/docs/documentation-adr-0026-grandes-listes-et-options-chargées--docs)).
 - **Chargement :** un état qui garde les lignes et montre un `spinner`.
-- **Lignes dépliables :** le détail d'un dossier sous sa ligne.
 - **Grille de données :** l'édition des cellules et la navigation aux flèches.
 
 ## Sources
@@ -114,5 +139,7 @@ Les flèches ne déplacent pas une cellule active. Tab parcourt les boutons de t
 Consultées le 21 novembre 2026.
 
 - [Accessibilité](https://github.com/GouvernementFR/dsfr/blob/main/src/dsfr/component/table/_part/doc/accessibility/index.md) et [code](https://github.com/GouvernementFR/dsfr/blob/main/src/dsfr/component/table/_part/doc/code/index.md) du tableau (DSFR).
+- [table-row.ts](https://github.com/carbon-design-system/carbon/blob/main/packages/web-components/src/components/data-table/table-row.ts), [table-expanded-row.ts](https://github.com/carbon-design-system/carbon/blob/main/packages/web-components/src/components/data-table/table-expanded-row.ts) et [\_table-core.scss](https://github.com/carbon-design-system/carbon/blob/main/packages/web-components/src/components/data-table/_table-core.scss) (IBM, Carbon).
+- [TableRowTemplate.tsx](https://github.com/SAP/ui5-webcomponents/blob/main/packages/main/src/TableRowTemplate.tsx), [TableHeaderCell.ts](https://github.com/SAP/ui5-webcomponents/blob/main/packages/main/src/TableHeaderCell.ts) et [Table.css](https://github.com/SAP/ui5-webcomponents/blob/main/packages/main/src/themes/Table.css) (SAP, UI5 Web Components).
 - [Table.ts](https://github.com/adobe/spectrum-web-components/blob/main/1st-gen/packages/table/src/Table.ts) et [TableHeadCell.ts](https://github.com/adobe/spectrum-web-components/blob/main/1st-gen/packages/table/src/TableHeadCell.ts) (Adobe, Spectrum Web Components).
 - [Table.tsx](https://github.com/adobe/react-spectrum/blob/main/packages/react-aria-components/src/Table.tsx) (Adobe, React Aria).

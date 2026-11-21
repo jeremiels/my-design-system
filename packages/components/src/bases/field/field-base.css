@@ -13,6 +13,19 @@
   color: var(--u-field-text-color);
 }
 
+/* `label-hidden`: the label stays the accessible name, off the screen. */
+:host([label-hidden]) .label {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
 .label {
   font-weight: var(--u-field-label-font-weight);
 }

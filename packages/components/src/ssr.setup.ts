@@ -52,7 +52,10 @@ const pages: Record<string, string> = {
   "file-field": `<u-file-field label="Proof of address" name="proof" accept=".pdf" required></u-file-field>`,
   step: `<u-step value="identity">Identity</u-step>`,
   stepper: `<u-stepper label="Your request" value="address"><u-step value="identity">Identity</u-step><u-step value="address">Address</u-step><u-step value="documents">Documents</u-step></u-stepper>`,
-  table: `<u-table label="Requests"><p slot="empty">No request yet</p></u-table>`,
+  table: `<u-table label="Requests" selectable sort-key="id"><u-table-row slot="head"><u-table-header-cell sort-key="id">Request</u-table-header-cell><u-table-header-cell align="end">Amount</u-table-header-cell></u-table-row><u-table-row value="R-104"><u-table-header-cell scope="row">R-104</u-table-header-cell><u-table-cell align="end">310</u-table-cell></u-table-row><p slot="empty">No request yet</p></u-table>`,
+  "table-row": `<u-table-row value="R-104"><u-table-cell>R-104</u-table-cell></u-table-row>`,
+  "table-cell": `<u-table-cell align="end" colspan="2">310</u-table-cell>`,
+  "table-header-cell": `<u-table-header-cell sort-key="id">Request</u-table-header-cell>`,
 };
 
 export default async function setup(project: TestProject): Promise<void> {
