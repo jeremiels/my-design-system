@@ -59,6 +59,7 @@ export * from "./state/typeahead.js";
 export * from "./state/pagination.js";
 export * from "./state/toast.js";
 export * from "./state/selection.js";
+export * from "./state/calendar.js";
 export * from "./events/modal-cancel.js";
 export * from "./events/modal-close.js";
 export * from "./events/listbox-select.js";

@@ -33751,6 +33751,14 @@
           "name": "*",
           "declaration": {
             "name": "*",
+            "module": "src/state/calendar.js"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "*",
+          "declaration": {
+            "name": "*",
             "module": "src/events/modal-cancel.js"
           }
         },
@@ -34812,6 +34820,376 @@
           "declaration": {
             "name": "loadInvokers",
             "module": "src/polyfills/invokers.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/state/calendar.ts",
+      "declarations": [
+        {
+          "kind": "function",
+          "name": "parseDate",
+          "return": {
+            "type": {
+              "text": "PlainDate | undefined"
+            }
+          },
+          "parameters": [
+            {
+              "name": "text",
+              "type": {
+                "text": "string"
+              }
+            }
+          ],
+          "description": "The date of a `YYYY-MM-DD` text, or `undefined` for another text or an impossible date."
+        },
+        {
+          "kind": "function",
+          "name": "formatDate",
+          "return": {
+            "type": {
+              "text": "string"
+            }
+          },
+          "parameters": [
+            {
+              "name": "{ year, month, day }",
+              "type": {
+                "text": "PlainDate"
+              }
+            }
+          ],
+          "description": "The `YYYY-MM-DD` text of a date."
+        },
+        {
+          "kind": "function",
+          "name": "daysInMonth",
+          "return": {
+            "type": {
+              "text": "number"
+            }
+          },
+          "parameters": [
+            {
+              "name": "year",
+              "type": {
+                "text": "number"
+              }
+            },
+            {
+              "name": "month",
+              "type": {
+                "text": "number"
+              }
+            }
+          ],
+          "description": "The number of days of a month."
+        },
+        {
+          "kind": "function",
+          "name": "compareDates",
+          "return": {
+            "type": {
+              "text": "number"
+            }
+          },
+          "parameters": [
+            {
+              "name": "a",
+              "type": {
+                "text": "PlainDate"
+              }
+            },
+            {
+              "name": "b",
+              "type": {
+                "text": "PlainDate"
+              }
+            }
+          ],
+          "description": "Negative when `a` comes before `b`, 0 on the same day, positive after."
+        },
+        {
+          "kind": "function",
+          "name": "dayOfWeek",
+          "return": {
+            "type": {
+              "text": "number"
+            }
+          },
+          "parameters": [
+            {
+              "name": "{ year, month, day }",
+              "type": {
+                "text": "PlainDate"
+              }
+            }
+          ],
+          "description": "The day of the week: 0 for Sunday, 6 for Saturday."
+        },
+        {
+          "kind": "function",
+          "name": "addDays",
+          "return": {
+            "type": {
+              "text": "PlainDate"
+            }
+          },
+          "parameters": [
+            {
+              "name": "{ year, month, day }",
+              "type": {
+                "text": "PlainDate"
+              }
+            },
+            {
+              "name": "days",
+              "type": {
+                "text": "number"
+              }
+            }
+          ],
+          "description": "The date `days` later, or earlier when negative."
+        },
+        {
+          "kind": "function",
+          "name": "addMonths",
+          "return": {
+            "type": {
+              "text": "PlainDate"
+            }
+          },
+          "parameters": [
+            {
+              "name": "{ year, month, day }",
+              "type": {
+                "text": "PlainDate"
+              }
+            },
+            {
+              "name": "months",
+              "type": {
+                "text": "number"
+              }
+            }
+          ],
+          "description": "The same day `months` later, or earlier: the last day of a shorter month."
+        },
+        {
+          "kind": "function",
+          "name": "isWithin",
+          "return": {
+            "type": {
+              "text": "boolean"
+            }
+          },
+          "parameters": [
+            {
+              "name": "date",
+              "type": {
+                "text": "PlainDate"
+              }
+            },
+            {
+              "name": "min",
+              "optional": true,
+              "type": {
+                "text": "PlainDate"
+              }
+            },
+            {
+              "name": "max",
+              "optional": true,
+              "type": {
+                "text": "PlainDate"
+              }
+            }
+          ],
+          "description": "Whether `date` lies within `min` and `max`, either of them optional."
+        },
+        {
+          "kind": "function",
+          "name": "clampDate",
+          "return": {
+            "type": {
+              "text": "PlainDate"
+            }
+          },
+          "parameters": [
+            {
+              "name": "date",
+              "type": {
+                "text": "PlainDate"
+              }
+            },
+            {
+              "name": "min",
+              "optional": true,
+              "type": {
+                "text": "PlainDate"
+              }
+            },
+            {
+              "name": "max",
+              "optional": true,
+              "type": {
+                "text": "PlainDate"
+              }
+            }
+          ],
+          "description": "`date` brought back within `min` and `max`."
+        },
+        {
+          "kind": "function",
+          "name": "monthWeeks",
+          "return": {
+            "type": {
+              "text": "(PlainDate | undefined)[][]"
+            }
+          },
+          "parameters": [
+            {
+              "name": "year",
+              "type": {
+                "text": "number"
+              }
+            },
+            {
+              "name": "month",
+              "type": {
+                "text": "number"
+              }
+            },
+            {
+              "name": "firstDay",
+              "type": {
+                "text": "number"
+              }
+            }
+          ],
+          "description": "The weeks of a month, from the week of its first day to the week of its\nlast, each starting on `firstDay` (0 for Sunday, 1 for Monday). A day of\nan adjacent month is `undefined`: the grid leaves its cell empty."
+        },
+        {
+          "kind": "function",
+          "name": "calendarKeyMove",
+          "return": {
+            "type": {
+              "text": "PlainDate | undefined"
+            }
+          },
+          "parameters": [
+            {
+              "name": "key",
+              "type": {
+                "text": "string"
+              }
+            },
+            {
+              "name": "date",
+              "type": {
+                "text": "PlainDate"
+              }
+            },
+            {
+              "name": "{ firstDay, direction = \"ltr\", shiftKey = false }",
+              "type": {
+                "text": "CalendarKeyOptions"
+              }
+            }
+          ],
+          "description": "The date a key moves the focus to, from `date`, as in the ARIA date\npicker: the arrows by a day or a week, Home and End to the start or end\nof the week, PageUp and PageDown by a month, or a year with Shift.\n`undefined` for another key."
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "parseDate",
+          "declaration": {
+            "name": "parseDate",
+            "module": "src/state/calendar.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "formatDate",
+          "declaration": {
+            "name": "formatDate",
+            "module": "src/state/calendar.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "daysInMonth",
+          "declaration": {
+            "name": "daysInMonth",
+            "module": "src/state/calendar.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "compareDates",
+          "declaration": {
+            "name": "compareDates",
+            "module": "src/state/calendar.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "dayOfWeek",
+          "declaration": {
+            "name": "dayOfWeek",
+            "module": "src/state/calendar.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "addDays",
+          "declaration": {
+            "name": "addDays",
+            "module": "src/state/calendar.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "addMonths",
+          "declaration": {
+            "name": "addMonths",
+            "module": "src/state/calendar.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "isWithin",
+          "declaration": {
+            "name": "isWithin",
+            "module": "src/state/calendar.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "clampDate",
+          "declaration": {
+            "name": "clampDate",
+            "module": "src/state/calendar.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "monthWeeks",
+          "declaration": {
+            "name": "monthWeeks",
+            "module": "src/state/calendar.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "calendarKeyMove",
+          "declaration": {
+            "name": "calendarKeyMove",
+            "module": "src/state/calendar.ts"
           }
         }
       ]
