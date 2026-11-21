@@ -123,7 +123,7 @@ describe("tokensManifest", () => {
     const names = (
       moduleDoc.declarations[0] as { cssProperties?: { name: string }[] }
     ).cssProperties!.map(({ name }) => name);
-    expect(names).toContain("--u-select-chevron-size");
+    expect(names).toContain("--u-select-selected-font-weight");
     expect(names.some((name) => name.startsWith("--u-listbox-"))).toBe(true);
   });
 

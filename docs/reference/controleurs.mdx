@@ -606,6 +606,16 @@ dialog[open]:where(:not([data-closing])) {
 - `toggleValue(éléments, valeurs, valeur)` choisit la valeur, ou la retire, dans l'ordre des éléments. Un élément désactivé ne change rien : le même tableau revient.
 - `orderedValues(éléments, valeurs)` range les valeurs dans l'ordre des éléments, sans les valeurs inconnues.
 
+## Dates d'un calendrier
+
+`packages/components/src/state/calendar.ts` calcule les dates de `calendar` et de `date-picker`. Une date est `{ year, month, day }`, sans heure ni fuseau horaire.
+
+- `parseDate(texte)` et `formatDate(date)` lisent et écrivent le format de HTML, `YYYY-MM-DD`. Une date impossible donne `undefined`.
+- `addDays()` et `addMonths()` déplacent une date. Un mois plus court donne son dernier jour.
+- `isWithin()` et `clampDate()` tiennent une date entre `min` et `max`.
+- `monthWeeks(année, mois, premierJour)` donne les semaines d'un mois. Un jour d'un mois voisin vaut `undefined`.
+- `calendarKeyMove(touche, date, options)` donne la date d'une touche de la grille, dans le sens du texte.
+
 ## File des toasts
 
 `packages/components/src/state/toast.ts` tient les messages d'un `toaster`, le plus récent à la fin.

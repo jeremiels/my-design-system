@@ -165,6 +165,14 @@
     "./toaster": {
       "types": "./dist/components/toaster/toaster.d.ts",
       "import": "./dist/toaster.js"
+    },
+    "./calendar": {
+      "types": "./dist/components/calendar/calendar.d.ts",
+      "import": "./dist/calendar.js"
+    },
+    "./date-picker": {
+      "types": "./dist/components/date-picker/date-picker.d.ts",
+      "import": "./dist/date-picker.js"
     }
   },
   "scripts": {

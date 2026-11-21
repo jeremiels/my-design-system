@@ -1,0 +1,21 @@
+/* Generated from ../tokens/src/u.resolver.json by @unicorne/tokens/terrazzo-plugin (ADR 0002). Do not edit: change the tokens. */
+:host {
+  --u-calendar-font-family: var(--u-font-family-body);
+  --u-calendar-font-size: var(--u-font-size-md);
+  --u-calendar-text-color: var(--u-color-text-default);
+  --u-calendar-gap: var(--u-spacing-sm);
+  --u-calendar-heading-font-weight: var(--u-font-weight-semibold);
+  --u-calendar-weekday-font-size: var(--u-font-size-sm);
+  --u-calendar-day-size: var(--u-size-icon);
+  --u-calendar-day-border-radius: var(--u-radius-md);
+  --u-calendar-day-background-color-hover: var(--u-color-secondary-background-hover);
+  --u-calendar-selected-background-color: var(--u-color-action-background);
+  --u-calendar-selected-text-color: var(--u-color-action-text);
+  --u-calendar-today-border-color: var(--u-color-border-control);
+  --u-calendar-border-width: var(--u-border-width);
+  --u-calendar-chevron-size: var(--u-spacing-sm);
+  --u-calendar-disabled-opacity: var(--u-opacity-disabled);
+  --u-calendar-focus-ring-color: var(--u-color-focus-ring);
+  --u-calendar-focus-ring-width: var(--u-focus-ring-width);
+  --u-calendar-focus-ring-offset: var(--u-focus-ring-offset);
+}

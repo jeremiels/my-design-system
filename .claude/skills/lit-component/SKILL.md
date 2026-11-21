@@ -98,6 +98,7 @@ Un bouton contrôle un autre élément sans script : `<u-button commandfor="id" 
 - Champ borné (`min`, `max`, `step`) sur un input natif : étendez `RangeFieldBase` et appelez `renderInput(type)` (voir `number-field.ts`, ADR 0019).
 - Champ sans contrôle natif : surchargez `syncValidity()` et appelez `syncValueValidity()`, avec un contrôle natif caché `class="validity-proxy"` pour le message du navigateur (voir `select.ts`).
 - Éléments d'un composant composite, un seul arrêt de Tab : créez un `RovingFocusController`. Recherche par saisie : `state/typeahead.ts`.
+- Champ qui montre la valeur choisie et ouvre un popup (select, date picker) : étendez `PickerBase` et écrivez `displayText`, `openPicker()` et `renderPopup()` (voir `date-picker.ts`, ADR 0023).
 - Popup ancré à un déclencheur (menu, popover, infobulle) : étendez `PopupBase` et écrivez `popup` et `anchor` (voir `menu.ts` et `popover.ts`, ADR 0021 et 0022). Le déclencheur prend `class="trigger"`, le popup `class="popup"`.
 - Dialogue modal (modale, tiroir) : étendez `ModalBase`, avec votre feuille (voir `drawer.ts`). Rendez le déclencheur dans le même shadow root que le popup : son ARIA doit l'atteindre.
 - Composant fait d'enfants (onglets, groupe, menu) : reconnaissez-les par `instanceof` et déclarez leur classe dans `static dependencies`. Un enfant pose son `role` sur son hôte, et demande un rendu à son parent quand `disabled` ou `value` change.

@@ -38,6 +38,8 @@ const pages: Record<string, string> = {
   popover: `<u-popover label="Shipping">Free from 50 €.</u-popover>`,
   tooltip: `<u-tooltip><button>Copy</button><span slot="content">Copy the link</span></u-tooltip>`,
   toaster: `<u-toaster></u-toaster>`,
+  calendar: `<u-calendar value="2026-11-21"></u-calendar>`,
+  "date-picker": `<u-date-picker label="Arrival" value="2026-11-21"></u-date-picker>`,
   "menu-item": `<u-menu-item>Rename</u-menu-item>`,
 };
 

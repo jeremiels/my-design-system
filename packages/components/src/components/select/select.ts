@@ -10,7 +10,7 @@ import {
   typeahead,
   type TypeaheadState,
 } from "../../state/typeahead.js";
-import { ComboboxBase } from "../../bases/combobox/combobox-base.js";
+import { PickerBase, type PickerEntry } from "../../bases/picker/picker-base.js";
 import { fieldIds } from "../../bases/field/field-base.js";
 import type { ListboxOption } from "../../controllers/listbox.type.js";
 import selectStyles from "./select.css" with { type: "css" };
@@ -20,8 +20,9 @@ import selectTokens from "./select.tokens.css" with { type: "css" };
  * A select: the user picks one value among its options, in a list below
  * the control. The value is always one of the options, or `""`: for a free
  * text, use `autocomplete`. The label, the hint, the error and the form
- * behavior are those of `FieldBase`; the popup and its state are those of
- * `ComboboxBase`; the list is that of a `ListboxController` (ADR 0018).
+ * behavior are those of `FieldBase`; the control is that of `PickerBase`; the
+ * popup and its state are those of `ComboboxBase`; the list is that of a
+ * `ListboxController` (ADR 0018).
  *
  * The options are `options`, or else the `<option>` children of the select.
  * The control shows the label of the selected option, or `placeholder`.
@@ -49,13 +50,12 @@ import selectTokens from "./select.tokens.css" with { type: "css" };
  * @element u-select
  * @summary A labelled list of options to pick one from, that takes part in its form.
  * @slot - The options as `<option>` elements, when `options` isn't set: their `value`, their `label` or text, and `disabled`. They aren't shown: the list renders copies of them.
- * @csspart button - The control, `role="combobox"`: the label of the selected option, or the placeholder, and a chevron.
  * @csspart listbox - The list of options, in the popup.
  * @csspart option - An option. The active one has `aria-selected="true"`, a disabled one `aria-disabled="true"`.
- * @tokens select - Its tokens (`@cssprop`), from `@unicorne/tokens` (`src/component/select/`): `npm run analyze` documents them.
+ * @tokens select - Its options' tokens (`@cssprop`), from `@unicorne/tokens` (`src/component/select/`): `npm run analyze` documents them.
  * @tokens listbox - Its list's tokens (`@cssprop`), shared by every list of options, from `@unicorne/tokens` (`src/component/listbox/`): `npm run analyze` documents them.
  */
-export class Select extends ComboboxBase {
+export class Select extends PickerBase {
   static override componentName = "select";
 
   static styles = [super.styles ?? [], listboxTokens, listboxStyles, selectTokens, selectStyles];
@@ -66,10 +66,6 @@ export class Select extends ComboboxBase {
    */
   @property({ attribute: false })
   options?: readonly ListboxOption[];
-
-  /** Shown in the control while no option is selected: "Choose a country". */
-  @property({ type: String })
-  placeholder = "";
 
   /** The user chooses several options: `values`. Reflected. */
   @property({ type: Boolean, reflect: true })
@@ -168,23 +164,17 @@ export class Select extends ComboboxBase {
     this.#values = undefined;
   }
 
-  /** A missing value: `required` and empty. */
-  protected override syncValidity(): void {
-    this.syncValueValidity(
-      this.required && (this.multiple ? this.values.length === 0 : this.value === ""),
-      this.renderRoot.querySelector<HTMLElement>(`#${fieldIds.control}`) ?? undefined,
-    );
+  /** A missing value: `required`, and no value, or no chosen value with `multiple`. */
+  protected override get valueMissing(): boolean {
+    return this.required && (this.multiple ? this.values.length === 0 : this.value === "");
   }
 
-  /** The label isn't a `<label for>`: the control isn't a native one. A click on it focuses the control. */
-  protected override renderLabel() {
-    return html`<label part="label" class="label" id=${fieldIds.label} @click=${() => this.focus()}
-      >${this.renderLabelContent()}</label
-    >`;
+  protected override get controlActiveDescendant() {
+    return this.#listbox.activeDescendant;
   }
 
   /** The text of the control: the chosen options' labels, or the placeholder. */
-  protected get displayText(): string {
+  protected override get displayText(): string {
     if (this.multiple) {
       return this.availableOptions
         .filter((option) => this.values.includes(option.value))
@@ -193,38 +183,6 @@ export class Select extends ComboboxBase {
     }
     const selected = this.selectedOption;
     return selected ? selected.label || selected.value : "";
-  }
-
-  protected renderCombobox() {
-    const text = this.displayText;
-    return html`
-      <div
-        part="button"
-        class="control"
-        id=${fieldIds.control}
-        role="combobox"
-        tabindex=${this.isDisabled ? "-1" : "0"}
-        aria-haspopup="listbox"
-        aria-labelledby=${fieldIds.label}
-        aria-expanded=${this.comboboxExpanded}
-        aria-controls=${this.comboboxControls}
-        aria-activedescendant=${this.#listbox.activeDescendant}
-        aria-required=${this.required ? "true" : nothing}
-        aria-readonly=${this.readOnly ? "true" : nothing}
-        aria-disabled=${this.isDisabled ? "true" : nothing}
-        aria-invalid=${this.controlInvalid}
-        aria-describedby=${this.controlDescribedBy}
-        @click=${this.#toggle}
-        @keydown=${this.handleComboboxKeydown}
-      >
-        <span class="value${text ? "" : " value--placeholder"}">${text || this.placeholder}</span>
-        <span class="chevron" aria-hidden="true"></span>
-      </div>
-      <!-- The browser's message of a missing value, in its language. -->
-      <select class="validity-proxy" required hidden tabindex="-1">
-        <option value=""></option>
-      </select>
-    `;
   }
 
   protected renderPopup() {
@@ -240,7 +198,7 @@ export class Select extends ComboboxBase {
     >`;
   }
 
-  /** The keys of the list closed, then those of `ComboboxBase`. */
+  /** Typeahead, and the keys that pick, then those of `PickerBase`. */
   protected override handleComboboxKeydown(event: KeyboardEvent): void {
     if (this.isDisabled || this.readOnly || event.isComposing || event.keyCode === 229) {
       return;
@@ -252,22 +210,7 @@ export class Select extends ComboboxBase {
       return;
     }
     const { key, altKey } = event;
-    if (!this.open) {
-      const entry =
-        key === "ArrowDown" || key === "Enter" || key === " "
-          ? "selected"
-          : key === "ArrowUp" || key === "Home"
-            ? "first"
-            : key === "End"
-              ? "last"
-              : undefined;
-      if (entry) {
-        event.preventDefault();
-        this.#openOn(entry);
-      }
-      return;
-    }
-    if (!this.multiple && (key === "Tab" || (key === "ArrowUp" && altKey))) {
+    if (this.open && !this.multiple && (key === "Tab" || (key === "ArrowUp" && altKey))) {
       this.#pickActive();
     }
     super.handleComboboxKeydown(event);
@@ -322,7 +265,7 @@ export class Select extends ComboboxBase {
   }
 
   /** Opens the list, on the selected option, or on the first or last enabled one. */
-  #openOn(entry: "selected" | "first" | "last"): void {
+  protected openPicker(entry: PickerEntry): void {
     const selected = this.availableOptions.findIndex((option) => option.value === this.value);
     if (entry === "selected" && selected >= 0 && !this.availableOptions[selected]!.disabled) {
       this.showPopup("none");
@@ -331,17 +274,6 @@ export class Select extends ComboboxBase {
       this.showPopup(entry === "last" ? "last" : "first");
     }
   }
-
-  #toggle = () => {
-    if (this.isDisabled || this.readOnly) {
-      return;
-    }
-    if (this.open) {
-      this.hidePopup();
-    } else {
-      this.#openOn("selected");
-    }
-  };
 
   #typeAhead(key: string, time: number): void {
     const options = this.availableOptions;

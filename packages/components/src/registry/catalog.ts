@@ -3,9 +3,11 @@ import { Autocomplete } from "../components/autocomplete/autocomplete.js";
 import { BreadcrumbItem } from "../components/breadcrumb-item/breadcrumb-item.js";
 import { Breadcrumb } from "../components/breadcrumb/breadcrumb.js";
 import { ButtonLink } from "../components/button-link/button-link.js";
+import { Calendar } from "../components/calendar/calendar.js";
 import { CheckboxGroup } from "../components/checkbox-group/checkbox-group.js";
 import { Checkbox } from "../components/checkbox/checkbox.js";
 import { DateField } from "../components/date-field/date-field.js";
+import { DatePicker } from "../components/date-picker/date-picker.js";
 import { Details } from "../components/details/details.js";
 import { Drawer } from "../components/drawer/drawer.js";
 import { Button } from "../components/button/button.js";
@@ -72,6 +74,8 @@ export const allComponents = [
   Popover,
   Tooltip,
   Toaster,
+  Calendar,
+  DatePicker,
 ] as const;
 
 /** A component of a catalog, as types: its element, and its own events by name. */
@@ -94,9 +98,11 @@ export interface Catalog {
   "breadcrumb-item": { element: BreadcrumbItem; events: {} };
   button: { element: Button; events: {} };
   "button-link": { element: ButtonLink; events: {} };
+  calendar: { element: Calendar; events: {} };
   checkbox: { element: Checkbox; events: {} };
   "checkbox-group": { element: CheckboxGroup; events: {} };
   "date-field": { element: DateField; events: {} };
+  "date-picker": { element: DatePicker; events: {} };
   details: { element: Details; events: {} };
   drawer: { element: Drawer; events: { "u-cancel": ModalCancelEvent; "u-close": ModalCloseEvent } };
   icon: { element: Icon; events: {} };

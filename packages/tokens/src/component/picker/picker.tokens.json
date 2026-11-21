@@ -1,0 +1,25 @@
+{
+  "picker": {
+    "$description": "Tokens of the pickers, a control that shows the picked value and opens a popup: `select` and `date-picker` (`PickerBase`). The box of the control takes those of `field`.",
+    "gap": {
+      "$type": "dimension",
+      "$value": "{spacing.sm}",
+      "$description": "Space between the text of the control and its chevron."
+    },
+    "chevron-size": {
+      "$type": "dimension",
+      "$value": "{spacing.sm}",
+      "$description": "Width and height of the chevron. Its stroke is twice the border's width."
+    },
+    "chevron-color": {
+      "$type": "color",
+      "$value": "{color.text.default}",
+      "$description": "Color of the chevron."
+    },
+    "placeholder-color": {
+      "$type": "color",
+      "$value": "{color.text.default}",
+      "$description": "Text color of the placeholder, while no option is selected."
+    }
+  }
+}
