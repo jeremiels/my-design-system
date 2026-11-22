@@ -1,0 +1,79 @@
+# Quand utiliser toolbar, et ses règles (DSDS). Son API vit dans custom-elements.json.
+kind: component
+id: toolbar
+name: Toolbar
+description: Un groupe de contrôles, atteints par une seule tabulation.
+metadata:
+  origin:
+    method: authored
+    author: assisted
+  status:
+    status: experimental
+
+sections:
+  - kind: guidelines
+    for: all
+    framing: when-to-use
+    items:
+      - level: must
+        statement: "Utilisez `toolbar` pour un groupe de boutons qui agissent sur un même contenu : les outils d'un éditeur."
+        checkedBy: manual
+      - level: should-not
+        statement: N'utilisez pas `toolbar` pour deux ou trois boutons d'un formulaire. Placez-les dans la page.
+        checkedBy: manual
+
+  - kind: guidelines
+    for: all
+    title: Contrôles
+    items:
+      - level: must
+        statement: "Écrivez les contrôles en enfants directs : des boutons ou des liens, natifs ou <dsds:button> et <dsds:toggle-button>. Pas de champ de texte : ses flèches déplacent le curseur."
+        checks:
+          - href: npm:@unicorne/catalog#allowed-children
+            role: lint-rule
+        checkedBy: automated
+        $extensions:
+          dev.unicorne:
+            check:
+              elements:
+                - button
+                - a
+              components:
+                - button
+                - toggle-button
+                - button-link
+                - link
+
+  - kind: guidelines
+    for: all
+    title: Accessibilité
+    items:
+      - level: must
+        statement: "Donnez à la barre un `label` : il dit sur quoi ses contrôles agissent."
+        checks:
+          - href: npm:@unicorne/catalog#required-attribute
+            role: lint-rule
+        checkedBy: automated
+        $extensions:
+          dev.unicorne:
+            check:
+              attributes:
+                - label
+
+refs:
+  - href: ./toolbar.stories.ts
+    rel: demo
+    role: Stories (CSF)
+
+sourceFiles:
+  - platform: web-component
+    file: ./toolbar.ts
+
+imports:
+  - platform: web-component
+    code: import "@unicorne/components/define";
+    package: "@unicorne/components"
+
+specs:
+  - href: ../../../custom-elements.json
+    role: Custom Elements Manifest

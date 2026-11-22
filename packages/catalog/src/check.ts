@@ -7,6 +7,7 @@ import type {
   MarkupElement,
   Rule,
 } from "./model.ts";
+import { usageRules } from "./usage-rules.ts";
 
 /** Attributes any element takes: they need no documentation. */
 const GLOBAL_ATTRIBUTES = new Set([
@@ -154,12 +155,16 @@ export const unknownSlot: Rule = {
   },
 };
 
-/** The rules of `check`, by default. */
+/**
+ * The rules of `check`, by default: those of the API, then those the usage
+ * rules of the DSDS documents turn on.
+ */
 export const defaultRules: readonly Rule[] = [
   unknownAttribute,
   invalidValue,
   unknownEvent,
   unknownSlot,
+  ...usageRules,
 ];
 
 // The few parse5 shapes this module reads.
@@ -170,6 +175,7 @@ interface Location {
 }
 interface Parse5Node {
   nodeName: string;
+  value?: string;
   tagName?: string;
   attrs?: { name: string; value: string }[];
   childNodes?: Parse5Node[];
@@ -214,14 +220,30 @@ function attributeOf(raw: string, value: string, line: number, column: number): 
   return at(raw, "attribute");
 }
 
-/** The template of a Vue single-file component, with the line it starts on. */
+/** The elements of HTML that have no end tag. */
+const VOID_ELEMENTS = new Set(
+  "area base br col embed hr img input link meta source track wbr".split(" "),
+);
+
+/** A self-closing tag of Vue, `<acme-icon name="x" />`, with its attributes. */
+const SELF_CLOSING =
+  /<([A-Za-z][\w.-]*)((?:\s+[^\s"'>/=]+(?:\s*=\s*(?:"[^"]*"|'[^']*'|[^\s"'>]+))?)*)\s*\/>/g;
+
+/**
+ * The template of a Vue single-file component, with the line it starts on.
+ * Vue closes `<acme-icon />`; HTML doesn't, and would nest what follows in
+ * it: the template gets end tags.
+ */
 function vueTemplate(source: string): { markup: string; line: number } | undefined {
   const match = /^<template(\s[^>]*)?>\r?\n?([\s\S]*)^<\/template>/m.exec(source);
   if (!match) {
     return undefined;
   }
   const before = source.slice(0, match.index + match[0].indexOf(match[2]!));
-  return { markup: match[2]!, line: before.split("\n").length };
+  const markup = match[2]!.replace(SELF_CLOSING, (tag, name: string, attributes: string) =>
+    VOID_ELEMENTS.has(name.toLowerCase()) ? tag : `<${name}${attributes}></${name}>`,
+  );
+  return { markup, line: before.split("\n").length };
 }
 
 /** Options of `checkMarkup()`. */
@@ -277,13 +299,19 @@ export function checkMarkup(
             at?.startCol ?? column,
           );
         }),
+        text: (node.childNodes ?? [])
+          .filter(({ nodeName }) => nodeName === "#text")
+          .map(({ value }) => value ?? "")
+          .join("")
+          .replace(/\s+/g, " ")
+          .trim(),
         // A `<template>` of Vue or Lit holds its elements in `content`.
         children: nested.flatMap(elementsOf),
       },
     ];
   };
 
-  const visit = (element: MarkupElement) => {
+  const visit = (element: MarkupElement, ancestors: readonly MarkupElement[]) => {
     if (element.tag.startsWith(`${docs.prefix}-`)) {
       const component = byTag.get(element.tag);
       if (!component) {
@@ -300,16 +328,21 @@ export function checkMarkup(
           rule.check(element, {
             docs,
             component,
+            ancestors,
             report: (diagnostic) =>
               diagnostics.push({ ...diagnostic, rule: rule.id, ...(file ? { file } : {}) }),
           });
         }
       }
     }
-    element.children.forEach(visit);
+    for (const child of element.children) {
+      visit(child, [element, ...ancestors]);
+    }
   };
-  elementsOf(
+  for (const element of elementsOf(
     parseFragment(markup, { sourceCodeLocationInfo: true }) as unknown as Parse5Node,
-  ).forEach(visit);
+  )) {
+    visit(element, []);
+  }
   return diagnostics.sort((a, b) => a.line - b.line || a.column - b.column);
 }

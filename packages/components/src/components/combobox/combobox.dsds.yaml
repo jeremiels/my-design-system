@@ -46,6 +46,52 @@ sections:
             role: test
         checkedBy: automated
 
+  - kind: guidelines
+    for: all
+    title: Options
+    items:
+      - level: must
+        statement: Écrivez les options en éléments `<option>`, enfants directs du champ, ou donnez-les par `options`.
+        checks:
+          - href: npm:@unicorne/catalog#allowed-children
+            role: lint-rule
+        checkedBy: automated
+        $extensions:
+          dev.unicorne:
+            check:
+              elements:
+                - option
+
+  - kind: guidelines
+    for: all
+    title: Accessibilité
+    items:
+      - level: must
+        statement: "Donnez au champ un `label` : il s'affiche, et nomme le contrôle."
+        checks:
+          - href: npm:@unicorne/catalog#required-attribute
+            role: lint-rule
+        checkedBy: automated
+        $extensions:
+          dev.unicorne:
+            check:
+              attributes:
+                - label
+      - level: should
+        statement: Écrivez dans `hint` le format attendu, et dans `error-message` comment corriger l'erreur.
+        checkedBy: manual
+      - level: must-not
+        statement: "N'enveloppez pas le champ dans un `<label>` : il rend son propre libellé."
+        checks:
+          - href: npm:@unicorne/catalog#forbidden-ancestor
+            role: lint-rule
+        checkedBy: automated
+        $extensions:
+          dev.unicorne:
+            check:
+              elements:
+                - label
+
 refs:
   - href: ./combobox.stories.ts
     rel: demo

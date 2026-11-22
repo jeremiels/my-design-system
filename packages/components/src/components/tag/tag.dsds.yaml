@@ -1,0 +1,73 @@
+# Quand utiliser tag, et ses règles (DSDS). Son API vit dans custom-elements.json.
+kind: component
+id: tag
+name: Tag
+description: Un mot-clé, que l'usager peut retirer.
+metadata:
+  origin:
+    method: authored
+    author: assisted
+  status:
+    status: experimental
+
+sections:
+  - kind: guidelines
+    for: all
+    framing: when-to-use
+    items:
+      - level: must
+        statement: Utilisez `tag` pour un mot-clé, un filtre appliqué ou une valeur choisie parmi plusieurs.
+        checkedBy: manual
+      - level: should
+        statement: Pour un statut, utilisez <dsds:badge>.
+        alternatives:
+          - to: badge
+        checkedBy: manual
+      - level: should
+        statement: Mettez plusieurs tags dans un <dsds:tag-group>.
+        alternatives:
+          - to: tag-group
+        checkedBy: manual
+
+  - kind: guidelines
+    for: all
+    title: Retrait
+    items:
+      - level: must
+        statement: "Avec `removable`, retirez le tag à son `u-remove` : il reste sinon."
+        checkedBy: manual
+      - level: must
+        statement: Traduisez `removeMessage`. Il nomme le bouton de retrait, avec le texte du tag.
+        checkedBy: manual
+
+  - kind: guidelines
+    for: all
+    title: Accessibilité
+    items:
+      - level: must
+        statement: Écrivez le mot-clé dans le tag. Il nomme aussi son bouton de retrait.
+        checks:
+          - href: npm:@unicorne/catalog#accessible-name
+            role: lint-rule
+        checkedBy: automated
+        $extensions:
+          dev.unicorne:
+            check: {}
+
+refs:
+  - href: ./tag.stories.ts
+    rel: demo
+    role: Stories (CSF)
+
+sourceFiles:
+  - platform: web-component
+    file: ./tag.ts
+
+imports:
+  - platform: web-component
+    code: import "@unicorne/components/define";
+    package: "@unicorne/components"
+
+specs:
+  - href: ../../../custom-elements.json
+    role: Custom Elements Manifest

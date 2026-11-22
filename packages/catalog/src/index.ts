@@ -14,6 +14,14 @@ export {
   type CheckOptions,
 } from "./check.ts";
 export {
+  accessibleName,
+  allowedChildren,
+  forbiddenAncestor,
+  requiredAttribute,
+  requiredParent,
+  usageRules,
+} from "./usage-rules.ts";
+export {
   formatComponent,
   formatComponentList,
   formatDiagnostics,

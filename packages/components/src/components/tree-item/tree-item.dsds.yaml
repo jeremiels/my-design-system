@@ -1,0 +1,66 @@
+# Quand utiliser tree-item, et ses règles (DSDS). Son API vit dans custom-elements.json.
+kind: component
+id: tree-item
+name: Tree item
+description: Un élément d'un arbre, et ses enfants.
+metadata:
+  origin:
+    method: authored
+    author: assisted
+  status:
+    status: experimental
+
+sections:
+  - kind: guidelines
+    for: all
+    framing: when-to-use
+    items:
+      - level: must
+        statement: Utilisez `tree-item` comme un élément de <dsds:tree>, son enfant direct ou celui d'un autre élément.
+        checks:
+          - href: npm:@unicorne/catalog#required-parent
+            role: lint-rule
+        checkedBy: automated
+        $extensions:
+          dev.unicorne:
+            check:
+              components:
+                - tree
+                - tree-item
+
+  - kind: guidelines
+    for: all
+    title: Accessibilité
+    items:
+      - level: must
+        statement: "Donnez à chaque élément un `label` : il s'affiche sur sa ligne, et le nomme."
+        checks:
+          - href: npm:@unicorne/catalog#required-attribute
+            role: lint-rule
+        checkedBy: automated
+        $extensions:
+          dev.unicorne:
+            check:
+              attributes:
+                - label
+      - level: must
+        statement: Donnez à chaque élément un `value` unique dans l'arbre.
+        checkedBy: manual
+
+refs:
+  - href: ../tree/tree.stories.ts
+    rel: demo
+    role: Stories (CSF)
+
+sourceFiles:
+  - platform: web-component
+    file: ./tree-item.ts
+
+imports:
+  - platform: web-component
+    code: import "@unicorne/components/define";
+    package: "@unicorne/components"
+
+specs:
+  - href: ../../../custom-elements.json
+    role: Custom Elements Manifest

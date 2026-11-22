@@ -1,0 +1,60 @@
+# Quand utiliser tab, et ses règles (DSDS). Son API vit dans custom-elements.json.
+kind: component
+id: tab
+name: Tab
+description: Un onglet d'un composant tabs.
+metadata:
+  origin:
+    method: authored
+    author: assisted
+  status:
+    status: experimental
+
+sections:
+  - kind: guidelines
+    for: all
+    framing: when-to-use
+    items:
+      - level: must
+        statement: Utilisez `tab` comme un onglet de <dsds:tabs>, son enfant direct.
+        checks:
+          - href: npm:@unicorne/catalog#required-parent
+            role: lint-rule
+        checkedBy: automated
+        $extensions:
+          dev.unicorne:
+            check:
+              components:
+                - tabs
+
+  - kind: guidelines
+    for: all
+    title: Accessibilité
+    items:
+      - level: must
+        statement: Écrivez le libellé de l'onglet dans l'élément. Il est son nom accessible.
+        checks:
+          - href: npm:@unicorne/catalog#accessible-name
+            role: lint-rule
+        checkedBy: automated
+        $extensions:
+          dev.unicorne:
+            check: {}
+
+refs:
+  - href: ../tabs/tabs.stories.ts
+    rel: demo
+    role: Stories (CSF)
+
+sourceFiles:
+  - platform: web-component
+    file: ./tab.ts
+
+imports:
+  - platform: web-component
+    code: import "@unicorne/components/define";
+    package: "@unicorne/components"
+
+specs:
+  - href: ../../../custom-elements.json
+    role: Custom Elements Manifest

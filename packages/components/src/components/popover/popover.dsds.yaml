@@ -1,0 +1,69 @@
+# Quand utiliser popover, et ses règles (DSDS). Son API vit dans custom-elements.json.
+kind: component
+id: popover
+name: Popover
+description: Un bouton qui montre un panneau de contenu.
+metadata:
+  origin:
+    method: authored
+    author: assisted
+  status:
+    status: experimental
+
+sections:
+  - kind: guidelines
+    for: all
+    framing: when-to-use
+    items:
+      - level: must
+        statement: "Utilisez `popover` pour un contenu à la demande près de son bouton : une explication, quelques champs, des liens."
+        checkedBy: manual
+      - level: should
+        statement: Pour décrire un contrôle en quelques mots, utilisez <dsds:tooltip>.
+        alternatives:
+          - to: tooltip
+        checkedBy: manual
+      - level: should
+        statement: Pour une liste d'actions, utilisez <dsds:menu>.
+        alternatives:
+          - to: menu
+        checkedBy: manual
+      - level: should
+        statement: Pour une tâche qui interrompt la page, utilisez <dsds:modal>.
+        alternatives:
+          - to: modal
+        checkedBy: manual
+
+  - kind: guidelines
+    for: all
+    title: Accessibilité
+    items:
+      - level: must
+        statement: "Donnez au popover un `label` : il nomme le bouton et le panneau."
+        checks:
+          - href: npm:@unicorne/catalog#required-attribute
+            role: lint-rule
+        checkedBy: automated
+        $extensions:
+          dev.unicorne:
+            check:
+              attributes:
+                - label
+
+refs:
+  - href: ./popover.stories.ts
+    rel: demo
+    role: Stories (CSF)
+
+sourceFiles:
+  - platform: web-component
+    file: ./popover.ts
+
+imports:
+  - platform: web-component
+    code: import "@unicorne/components/define";
+    package: "@unicorne/components"
+
+specs:
+  - href: ../../../custom-elements.json
+    role: Custom Elements Manifest

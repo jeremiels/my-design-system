@@ -1,0 +1,66 @@
+# Quand utiliser menu-item, et ses règles (DSDS). Son API vit dans custom-elements.json.
+kind: component
+id: menu-item
+name: Menu item
+description: Une action, ou un choix, d'un menu.
+metadata:
+  origin:
+    method: authored
+    author: assisted
+  status:
+    status: experimental
+
+sections:
+  - kind: guidelines
+    for: all
+    framing: when-to-use
+    items:
+      - level: must
+        statement: Utilisez `menu-item` comme une action d'un <dsds:menu>, son enfant direct.
+        checks:
+          - href: npm:@unicorne/catalog#required-parent
+            role: lint-rule
+        checkedBy: automated
+        $extensions:
+          dev.unicorne:
+            check:
+              components:
+                - menu
+      - level: may
+        statement: Pour un réglage qui bascule, posez `type="checkbox"`. Pour un choix parmi plusieurs, `type="radio"` et le même `name`.
+        checkedBy: manual
+
+  - kind: guidelines
+    for: all
+    title: Accessibilité
+    items:
+      - level: must
+        statement: Écrivez le libellé de l'action dans l'item. Il est son nom accessible.
+        checks:
+          - href: npm:@unicorne/catalog#accessible-name
+            role: lint-rule
+        checkedBy: automated
+        $extensions:
+          dev.unicorne:
+            check: {}
+      - level: should
+        statement: "Commencez le libellé par un verbe : « Renommer », « Supprimer »."
+        checkedBy: manual
+
+refs:
+  - href: ../menu/menu.stories.ts
+    rel: demo
+    role: Stories (CSF)
+
+sourceFiles:
+  - platform: web-component
+    file: ./menu-item.ts
+
+imports:
+  - platform: web-component
+    code: import "@unicorne/components/define";
+    package: "@unicorne/components"
+
+specs:
+  - href: ../../../custom-elements.json
+    role: Custom Elements Manifest

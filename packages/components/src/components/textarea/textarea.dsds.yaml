@@ -1,0 +1,94 @@
+# Quand utiliser textarea, et ses règles (DSDS). Son API vit dans custom-elements.json.
+kind: component
+id: textarea
+name: Textarea
+description: Un champ de saisie de plusieurs lignes de texte, avec son libellé.
+metadata:
+  origin:
+    method: authored
+    author: assisted
+  status:
+    status: experimental
+
+sections:
+  - kind: guidelines
+    for: all
+    framing: when-to-use
+    items:
+      - level: must
+        statement: "Utilisez `textarea` pour un texte sur plusieurs lignes : un message, une description."
+        checkedBy: manual
+      - level: should
+        statement: Pour une réponse d'une ligne, utilisez <dsds:text-field>.
+        alternatives:
+          - to: text-field
+        checkedBy: manual
+
+  - kind: guidelines
+    for: all
+    title: Saisie
+    items:
+      - level: should
+        statement: Donnez à `rows` la hauteur d'une réponse habituelle.
+        checkedBy: manual
+      - level: should
+        statement: "Avec `maxlength`, dites la limite dans `hint` : la saisie s'arrête là."
+        checkedBy: manual
+
+  - kind: guidelines
+    for: all
+    title: Accessibilité
+    items:
+      - level: must
+        statement: "Donnez au champ un `label` : il s'affiche, et nomme le contrôle."
+        checks:
+          - href: npm:@unicorne/catalog#required-attribute
+            role: lint-rule
+        checkedBy: automated
+        $extensions:
+          dev.unicorne:
+            check:
+              attributes:
+                - label
+      - level: should
+        statement: Écrivez dans `hint` le format attendu, et dans `error-message` comment corriger l'erreur.
+        checkedBy: manual
+      - level: may
+        statement: Masquez le libellé avec `label-hidden` quand la mise en page dit le but du champ. Il nomme toujours le contrôle.
+        checkedBy: manual
+      - level: must-not
+        statement: "N'enveloppez pas le champ dans un `<label>` : il rend son propre libellé."
+        checks:
+          - href: npm:@unicorne/catalog#forbidden-ancestor
+            role: lint-rule
+        checkedBy: automated
+        $extensions:
+          dev.unicorne:
+            check:
+              elements:
+                - label
+
+  - kind: guidelines
+    for: agent
+    items:
+      - level: must-not
+        statement: N'écrivez pas la valeur par défaut dans le contenu de l'élément. Écrivez-la dans `value`.
+        checkedBy: manual
+
+refs:
+  - href: ./textarea.stories.ts
+    rel: demo
+    role: Stories (CSF)
+
+sourceFiles:
+  - platform: web-component
+    file: ./textarea.ts
+
+imports:
+  - platform: web-component
+    code: import "@unicorne/components/define";
+    package: "@unicorne/components"
+
+specs:
+  - href: ../../../custom-elements.json
+    role: Custom Elements Manifest

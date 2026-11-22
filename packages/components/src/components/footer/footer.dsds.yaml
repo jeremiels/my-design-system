@@ -1,0 +1,51 @@
+# Quand utiliser footer, et ses règles (DSDS). Son API vit dans custom-elements.json.
+kind: component
+id: footer
+name: Footer
+description: "Le pied d'une page : le service et ses liens obligatoires."
+metadata:
+  origin:
+    method: authored
+    author: assisted
+  status:
+    status: experimental
+
+sections:
+  - kind: guidelines
+    for: all
+    framing: when-to-use
+    items:
+      - level: must
+        statement: Utilisez un seul `footer` par page, dans le slot `footer` de <dsds:page>.
+        alternatives:
+          - to: page
+        checkedBy: manual
+
+  - kind: guidelines
+    for: all
+    title: Contenu
+    items:
+      - level: must
+        statement: "Listez dans le slot `links` les liens de chaque page : accessibilité, mentions légales, données personnelles."
+        checkedBy: manual
+      - level: must
+        statement: "Pour un service public, écrivez son état de conformité, lié à sa déclaration : « Accessibilité : partiellement conforme »."
+        checkedBy: manual
+
+refs:
+  - href: ./footer.stories.ts
+    rel: demo
+    role: Stories (CSF)
+
+sourceFiles:
+  - platform: web-component
+    file: ./footer.ts
+
+imports:
+  - platform: web-component
+    code: import "@unicorne/components/define";
+    package: "@unicorne/components"
+
+specs:
+  - href: ../../../custom-elements.json
+    role: Custom Elements Manifest

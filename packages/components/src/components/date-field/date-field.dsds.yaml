@@ -1,0 +1,87 @@
+# Quand utiliser date-field, et ses règles (DSDS). Son API vit dans custom-elements.json.
+kind: component
+id: date-field
+name: Date field
+description: Un champ de saisie d'une date, avec son libellé.
+metadata:
+  origin:
+    method: authored
+    author: assisted
+  status:
+    status: experimental
+
+sections:
+  - kind: guidelines
+    for: all
+    framing: when-to-use
+    items:
+      - level: must
+        statement: "Utilisez `date-field` pour une date que l'usager connaît et tape : une date de naissance."
+        checkedBy: manual
+      - level: should
+        statement: Pour choisir une date proche dans un calendrier, une date de rendez-vous, utilisez <dsds:date-picker>.
+        alternatives:
+          - to: date-picker
+        checkedBy: manual
+
+  - kind: guidelines
+    for: all
+    title: Saisie
+    items:
+      - level: should
+        statement: Bornez les dates possibles avec `min` et `max`.
+        checkedBy: manual
+      - level: must
+        statement: Écrivez `value`, `min` et `max` au format `YYYY-MM-DD`. Le navigateur montre la date au format de l'usager.
+        checkedBy: manual
+
+  - kind: guidelines
+    for: all
+    title: Accessibilité
+    items:
+      - level: must
+        statement: "Donnez au champ un `label` : il s'affiche, et nomme le contrôle."
+        checks:
+          - href: npm:@unicorne/catalog#required-attribute
+            role: lint-rule
+        checkedBy: automated
+        $extensions:
+          dev.unicorne:
+            check:
+              attributes:
+                - label
+      - level: should
+        statement: Écrivez dans `hint` le format attendu, et dans `error-message` comment corriger l'erreur.
+        checkedBy: manual
+      - level: may
+        statement: Masquez le libellé avec `label-hidden` quand la mise en page dit le but du champ. Il nomme toujours le contrôle.
+        checkedBy: manual
+      - level: must-not
+        statement: "N'enveloppez pas le champ dans un `<label>` : il rend son propre libellé."
+        checks:
+          - href: npm:@unicorne/catalog#forbidden-ancestor
+            role: lint-rule
+        checkedBy: automated
+        $extensions:
+          dev.unicorne:
+            check:
+              elements:
+                - label
+
+refs:
+  - href: ./date-field.stories.ts
+    rel: demo
+    role: Stories (CSF)
+
+sourceFiles:
+  - platform: web-component
+    file: ./date-field.ts
+
+imports:
+  - platform: web-component
+    code: import "@unicorne/components/define";
+    package: "@unicorne/components"
+
+specs:
+  - href: ../../../custom-elements.json
+    role: Custom Elements Manifest

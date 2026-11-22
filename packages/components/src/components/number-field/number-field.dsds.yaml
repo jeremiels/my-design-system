@@ -1,0 +1,95 @@
+# Quand utiliser number-field, et ses règles (DSDS). Son API vit dans custom-elements.json.
+kind: component
+id: number-field
+name: Number field
+description: Un champ de saisie d'un nombre, avec son libellé.
+metadata:
+  origin:
+    method: authored
+    author: assisted
+  status:
+    status: experimental
+
+sections:
+  - kind: guidelines
+    for: all
+    framing: when-to-use
+    items:
+      - level: must
+        statement: "Utilisez `number-field` pour une quantité ou un montant : un nombre que l'on compte ou calcule."
+        checkedBy: manual
+      - level: must-not
+        statement: N'utilisez pas `number-field` pour un code fait de chiffres, un code postal ou un numéro de carte. Utilisez <dsds:text-field>.
+        alternatives:
+          - to: text-field
+        checkedBy: manual
+      - level: should
+        statement: Pour une valeur approchée entre deux bornes, utilisez <dsds:slider>.
+        alternatives:
+          - to: slider
+        checkedBy: manual
+
+  - kind: guidelines
+    for: all
+    title: Saisie
+    items:
+      - level: should
+        statement: "Donnez `min`, `max` et `step` : le navigateur les valide, et les flèches suivent `step`."
+        checkedBy: manual
+      - level: should
+        statement: Pour un montant ou un pourcentage, formatez le nombre avec `formatOptions`, dans la langue de la page.
+        checkedBy: manual
+      - level: must
+        statement: Dites l'unité dans le libellé ou dans `hint`, quand `formatOptions` ne la montre pas.
+        checkedBy: manual
+
+  - kind: guidelines
+    for: all
+    title: Accessibilité
+    items:
+      - level: must
+        statement: "Donnez au champ un `label` : il s'affiche, et nomme le contrôle."
+        checks:
+          - href: npm:@unicorne/catalog#required-attribute
+            role: lint-rule
+        checkedBy: automated
+        $extensions:
+          dev.unicorne:
+            check:
+              attributes:
+                - label
+      - level: should
+        statement: Écrivez dans `hint` le format attendu, et dans `error-message` comment corriger l'erreur.
+        checkedBy: manual
+      - level: may
+        statement: Masquez le libellé avec `label-hidden` quand la mise en page dit le but du champ. Il nomme toujours le contrôle.
+        checkedBy: manual
+      - level: must-not
+        statement: "N'enveloppez pas le champ dans un `<label>` : il rend son propre libellé."
+        checks:
+          - href: npm:@unicorne/catalog#forbidden-ancestor
+            role: lint-rule
+        checkedBy: automated
+        $extensions:
+          dev.unicorne:
+            check:
+              elements:
+                - label
+
+refs:
+  - href: ./number-field.stories.ts
+    rel: demo
+    role: Stories (CSF)
+
+sourceFiles:
+  - platform: web-component
+    file: ./number-field.ts
+
+imports:
+  - platform: web-component
+    code: import "@unicorne/components/define";
+    package: "@unicorne/components"
+
+specs:
+  - href: ../../../custom-elements.json
+    role: Custom Elements Manifest

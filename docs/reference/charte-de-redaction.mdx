@@ -86,7 +86,7 @@ La documentation décrit le système tel qu'il est.
 
 - Chaque règle vit dans une seule page. Les autres pages et les skills mettent un lien vers elle.
 - La JSDoc est la source de l'API des composants. Storybook l'affiche, et les pages ne la recopient pas.
-- Le document DSDS d'un composant (`<nom>.dsds.yaml`) est la source de ses règles d'usage. Storybook les affiche dans la page du composant. Dix-sept composants en ont un ; `unicorne` et `unicorne-mcp` les lisent ([ADR 0039](?path=/docs/documentation-adr-0039-outils-de-documentation--docs)).
+- Le document DSDS d'un composant (`<nom>.dsds.yaml`) est la source de ses règles d'usage. Storybook les affiche dans la page du composant. Chaque composant en a un ; `unicorne` et `unicorne-mcp` les lisent ([ADR 0039](?path=/docs/documentation-adr-0039-outils-de-documentation--docs)), et `check` vérifie celles que le markup montre ([ADR 0040](?path=/docs/documentation-adr-0040-règles-d-usage-vérifiées--docs)).
 - Un fait exact dans le code (un fichier, une commande) se cite par son chemin.
 
 ## Langue

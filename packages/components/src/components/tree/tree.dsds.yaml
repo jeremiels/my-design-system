@@ -1,0 +1,75 @@
+# Quand utiliser tree, et ses règles (DSDS). Son API vit dans custom-elements.json.
+kind: component
+id: tree
+name: Tree
+description: Des éléments en niveaux, à ouvrir, fermer et choisir.
+metadata:
+  origin:
+    method: authored
+    author: assisted
+  status:
+    status: experimental
+
+sections:
+  - kind: guidelines
+    for: all
+    framing: when-to-use
+    items:
+      - level: must
+        statement: "Utilisez `tree` pour des éléments en niveaux que l'usager ouvre et choisit : des dossiers et des fichiers."
+        checkedBy: manual
+      - level: should
+        statement: Pour les pages d'une rubrique, utilisez <dsds:side-nav>.
+        alternatives:
+          - to: side-nav
+        checkedBy: manual
+
+  - kind: guidelines
+    for: all
+    title: Éléments
+    items:
+      - level: must
+        statement: Écrivez chaque élément dans un <dsds:tree-item>, enfant direct de l'arbre ou d'un autre élément.
+        checks:
+          - href: npm:@unicorne/catalog#allowed-children
+            role: lint-rule
+        checkedBy: automated
+        $extensions:
+          dev.unicorne:
+            check:
+              components:
+                - tree-item
+
+  - kind: guidelines
+    for: all
+    title: Accessibilité
+    items:
+      - level: must
+        statement: "Donnez à l'arbre un `label` : il dit ce que sont ses éléments."
+        checks:
+          - href: npm:@unicorne/catalog#required-attribute
+            role: lint-rule
+        checkedBy: automated
+        $extensions:
+          dev.unicorne:
+            check:
+              attributes:
+                - label
+
+refs:
+  - href: ./tree.stories.ts
+    rel: demo
+    role: Stories (CSF)
+
+sourceFiles:
+  - platform: web-component
+    file: ./tree.ts
+
+imports:
+  - platform: web-component
+    code: import "@unicorne/components/define";
+    package: "@unicorne/components"
+
+specs:
+  - href: ../../../custom-elements.json
+    role: Custom Elements Manifest

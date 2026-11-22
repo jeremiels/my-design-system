@@ -1,0 +1,66 @@
+# Quand utiliser tooltip, et ses règles (DSDS). Son API vit dans custom-elements.json.
+kind: component
+id: tooltip
+name: Tooltip
+description: Une courte description de son déclencheur, au survol et au focus.
+metadata:
+  origin:
+    method: authored
+    author: assisted
+  status:
+    status: experimental
+
+sections:
+  - kind: guidelines
+    for: all
+    framing: when-to-use
+    items:
+      - level: must
+        statement: Utilisez `tooltip` pour décrire en quelques mots un bouton ou un lien, une icône seule par exemple.
+        checkedBy: manual
+      - level: must-not
+        statement: "N'y mettez ni lien, ni bouton, ni information indispensable : un usager d'écran tactile ne la voit pas. Utilisez <dsds:popover>."
+        alternatives:
+          - to: popover
+        checkedBy: manual
+
+  - kind: guidelines
+    for: all
+    title: Déclencheur
+    items:
+      - level: must
+        statement: Le déclencheur est un `<button>` ou un `<a>` natif, enfant direct du tooltip. Un composant ne transmet pas la description à son contrôle.
+        checks:
+          - href: npm:@unicorne/catalog#allowed-children
+            role: lint-rule
+        checkedBy: automated
+        $extensions:
+          dev.unicorne:
+            check:
+              elements:
+                - button
+                - a
+      - level: must
+        statement: 'Écrivez le texte dans un élément `slot="content"` : `<span slot="content">`.'
+        checkedBy: manual
+      - level: must
+        statement: Donnez au déclencheur son propre nom. Le tooltip le décrit, il ne le nomme pas.
+        checkedBy: manual
+
+refs:
+  - href: ./tooltip.stories.ts
+    rel: demo
+    role: Stories (CSF)
+
+sourceFiles:
+  - platform: web-component
+    file: ./tooltip.ts
+
+imports:
+  - platform: web-component
+    code: import "@unicorne/components/define";
+    package: "@unicorne/components"
+
+specs:
+  - href: ../../../custom-elements.json
+    role: Custom Elements Manifest

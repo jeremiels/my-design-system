@@ -1,0 +1,70 @@
+# Quand utiliser tag-group, et ses règles (DSDS). Son API vit dans custom-elements.json.
+kind: component
+id: tag-group
+name: Tag group
+description: Une liste de tags, avec son nom.
+metadata:
+  origin:
+    method: authored
+    author: assisted
+  status:
+    status: experimental
+
+sections:
+  - kind: guidelines
+    for: all
+    framing: when-to-use
+    items:
+      - level: must
+        statement: "Utilisez `tag-group` pour une liste de tags : les filtres appliqués, les valeurs choisies."
+        checkedBy: manual
+
+  - kind: guidelines
+    for: all
+    title: Tags
+    items:
+      - level: must
+        statement: Écrivez chaque tag dans un <dsds:tag>, enfant direct du groupe.
+        checks:
+          - href: npm:@unicorne/catalog#allowed-children
+            role: lint-rule
+        checkedBy: automated
+        $extensions:
+          dev.unicorne:
+            check:
+              components:
+                - tag
+
+  - kind: guidelines
+    for: all
+    title: Accessibilité
+    items:
+      - level: should
+        statement: "Donnez au groupe un `label` : ce que sont ses tags, « Filtres appliqués »."
+        checks:
+          - href: npm:@unicorne/catalog#required-attribute
+            role: lint-rule
+        checkedBy: automated
+        $extensions:
+          dev.unicorne:
+            check:
+              attributes:
+                - label
+
+refs:
+  - href: ../tag/tag.stories.ts
+    rel: demo
+    role: Stories (CSF)
+
+sourceFiles:
+  - platform: web-component
+    file: ./tag-group.ts
+
+imports:
+  - platform: web-component
+    code: import "@unicorne/components/define";
+    package: "@unicorne/components"
+
+specs:
+  - href: ../../../custom-elements.json
+    role: Custom Elements Manifest

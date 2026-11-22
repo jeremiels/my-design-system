@@ -22,6 +22,7 @@ Les chemins partent de `packages/components/`, sauf ceux de `packages/tokens/` e
 - `<nom>.css` : sa feuille (skill `component-styling`). Elle lit les tokens `--u-<nom>-<propriété-css>`. Ajoutez `part="…"` sur les éléments que les marques peuvent styler.
 - `<nom>.type.ts` : ses types union, s'il en a.
 - `<nom>.stories.ts` : voir l'étape 4.
+- `<nom>.dsds.yaml` : ses règles d'usage, au format DSDS (skill `storybook-documentation`, section 3). Ajoutez-le aux `refs` de `design-system.dsds.yaml`. Un sous-composant a le sien.
 - La JSDoc de la classe : `@element u-<nom>`, `@summary`, slots, parts, `@tokens <nom>`, événements (skill `component-api-docs`).
 - Un nouvel événement : sa classe dans `src/events/<nom>-<événement>.ts`, nommée `u-<événement>`.
 

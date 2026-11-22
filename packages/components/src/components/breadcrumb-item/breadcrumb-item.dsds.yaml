@@ -1,0 +1,63 @@
+# Quand utiliser breadcrumb-item, et ses règles (DSDS). Son API vit dans custom-elements.json.
+kind: component
+id: breadcrumb-item
+name: Breadcrumb item
+description: Une page d'un fil d'Ariane.
+metadata:
+  origin:
+    method: authored
+    author: assisted
+  status:
+    status: experimental
+
+sections:
+  - kind: guidelines
+    for: all
+    framing: when-to-use
+    items:
+      - level: must
+        statement: Utilisez `breadcrumb-item` comme une page d'un <dsds:breadcrumb>, son enfant direct.
+        checks:
+          - href: npm:@unicorne/catalog#required-parent
+            role: lint-rule
+        checkedBy: automated
+        $extensions:
+          dev.unicorne:
+            check:
+              components:
+                - breadcrumb
+
+  - kind: guidelines
+    for: all
+    title: Liens
+    items:
+      - level: must
+        statement: Donnez un `href` à chaque page, sauf à la page courante.
+        checkedBy: manual
+      - level: must
+        statement: Écrivez le nom de la page dans l'item. Il est le texte du lien.
+        checks:
+          - href: npm:@unicorne/catalog#accessible-name
+            role: lint-rule
+        checkedBy: automated
+        $extensions:
+          dev.unicorne:
+            check: {}
+
+refs:
+  - href: ../breadcrumb/breadcrumb.stories.ts
+    rel: demo
+    role: Stories (CSF)
+
+sourceFiles:
+  - platform: web-component
+    file: ./breadcrumb-item.ts
+
+imports:
+  - platform: web-component
+    code: import "@unicorne/components/define";
+    package: "@unicorne/components"
+
+specs:
+  - href: ../../../custom-elements.json
+    role: Custom Elements Manifest

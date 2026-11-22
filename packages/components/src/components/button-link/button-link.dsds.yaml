@@ -24,6 +24,45 @@ sections:
           - to: button
         checkedBy: manual
 
+  - kind: guidelines
+    for: all
+    title: Accessibilité
+    items:
+      - level: must
+        statement: "Donnez au lien un `href` : sans lui, il ne mène nulle part."
+        checks:
+          - href: npm:@unicorne/catalog#required-attribute
+            role: lint-rule
+        checkedBy: automated
+        $extensions:
+          dev.unicorne:
+            check:
+              attributes:
+                - href
+      - level: must
+        statement: Donnez au lien un libellé dans son slot. Un lien qui ne montre qu'une icône reçoit son nom par `label`.
+        checks:
+          - href: npm:@unicorne/catalog#accessible-name
+            role: lint-rule
+        checkedBy: automated
+        $extensions:
+          dev.unicorne:
+            check:
+              attributes:
+                - label
+      - level: must-not
+        statement: N'enveloppez pas `button-link` dans un `<a>` ou un `<button>`. Le composant rend déjà son propre `<a>`.
+        checks:
+          - href: npm:@unicorne/catalog#forbidden-ancestor
+            role: lint-rule
+        checkedBy: automated
+        $extensions:
+          dev.unicorne:
+            check:
+              elements:
+                - a
+                - button
+
 refs:
   - href: ./button-link.stories.ts
     rel: demo

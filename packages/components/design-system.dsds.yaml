@@ -1,4 +1,4 @@
-# Documentation DSDS du socle (pilote) : https://designsystemdocspec.org.
+# Documentation DSDS du socle : https://designsystemdocspec.org.
 # Ce document racine liste les documents des composants. L'API des
 # composants vit dans custom-elements.json : DSDS n'en recopie rien.
 schemaVersion: "0.23.1"
@@ -50,4 +50,82 @@ refs:
   - href: ./src/components/alert/alert.dsds.yaml
     rel: file
   - href: ./src/components/toaster/toaster.dsds.yaml
+    rel: file
+  - href: ./src/components/badge/badge.dsds.yaml
+    rel: file
+  - href: ./src/components/breadcrumb/breadcrumb.dsds.yaml
+    rel: file
+  - href: ./src/components/breadcrumb-item/breadcrumb-item.dsds.yaml
+    rel: file
+  - href: ./src/components/calendar/calendar.dsds.yaml
+    rel: file
+  - href: ./src/components/checkbox-group/checkbox-group.dsds.yaml
+    rel: file
+  - href: ./src/components/date-field/date-field.dsds.yaml
+    rel: file
+  - href: ./src/components/date-picker/date-picker.dsds.yaml
+    rel: file
+  - href: ./src/components/details/details.dsds.yaml
+    rel: file
+  - href: ./src/components/file-field/file-field.dsds.yaml
+    rel: file
+  - href: ./src/components/footer/footer.dsds.yaml
+    rel: file
+  - href: ./src/components/header/header.dsds.yaml
+    rel: file
+  - href: ./src/components/icon/icon.dsds.yaml
+    rel: file
+  - href: ./src/components/menu/menu.dsds.yaml
+    rel: file
+  - href: ./src/components/menu-item/menu-item.dsds.yaml
+    rel: file
+  - href: ./src/components/number-field/number-field.dsds.yaml
+    rel: file
+  - href: ./src/components/popover/popover.dsds.yaml
+    rel: file
+  - href: ./src/components/progress/progress.dsds.yaml
+    rel: file
+  - href: ./src/components/radio/radio.dsds.yaml
+    rel: file
+  - href: ./src/components/radio-group/radio-group.dsds.yaml
+    rel: file
+  - href: ./src/components/side-nav/side-nav.dsds.yaml
+    rel: file
+  - href: ./src/components/side-nav-item/side-nav-item.dsds.yaml
+    rel: file
+  - href: ./src/components/slider/slider.dsds.yaml
+    rel: file
+  - href: ./src/components/spinner/spinner.dsds.yaml
+    rel: file
+  - href: ./src/components/step/step.dsds.yaml
+    rel: file
+  - href: ./src/components/stepper/stepper.dsds.yaml
+    rel: file
+  - href: ./src/components/tab/tab.dsds.yaml
+    rel: file
+  - href: ./src/components/tab-panel/tab-panel.dsds.yaml
+    rel: file
+  - href: ./src/components/table-cell/table-cell.dsds.yaml
+    rel: file
+  - href: ./src/components/table-header-cell/table-header-cell.dsds.yaml
+    rel: file
+  - href: ./src/components/table-row/table-row.dsds.yaml
+    rel: file
+  - href: ./src/components/tabs/tabs.dsds.yaml
+    rel: file
+  - href: ./src/components/tag/tag.dsds.yaml
+    rel: file
+  - href: ./src/components/tag-group/tag-group.dsds.yaml
+    rel: file
+  - href: ./src/components/text-field/text-field.dsds.yaml
+    rel: file
+  - href: ./src/components/textarea/textarea.dsds.yaml
+    rel: file
+  - href: ./src/components/toolbar/toolbar.dsds.yaml
+    rel: file
+  - href: ./src/components/tooltip/tooltip.dsds.yaml
+    rel: file
+  - href: ./src/components/tree/tree.dsds.yaml
+    rel: file
+  - href: ./src/components/tree-item/tree-item.dsds.yaml
     rel: file

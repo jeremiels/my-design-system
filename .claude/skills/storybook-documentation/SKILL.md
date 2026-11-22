@@ -70,17 +70,33 @@ Un tableau Markdown à barres verticales s'affiche en texte brut. Écrivez le ta
 - `<` suivi d'une lettre ou de `/` ouvre une balise JSX. Écrivez `Firefox avant 126`, ou mettez le texte dans du code.
 - Un commentaire s'écrit `{/* commentaire */}`, jamais `<!-- -->`.
 
-## 3. Écrivez les règles d'usage d'un composant (DSDS, pilote)
+## 3. Écrivez les règles d'usage d'un composant (DSDS)
 
-Les règles d'usage d'un composant vivent dans son document DSDS : `packages/components/src/components/<nom>/<nom>.dsds.yaml`. `packages/components/design-system.dsds.yaml` liste ces documents. `unicorne` et `unicorne-mcp` les lisent, comme la commande et le serveur de chaque marque (ADR 0039). La spec est sur [designsystemdocspec.org](https://designsystemdocspec.org), en version 0.23.1.
+Chaque composant a un document DSDS, sous-composants compris : `packages/components/src/components/<nom>/<nom>.dsds.yaml`. `packages/components/design-system.dsds.yaml` liste ces documents. Le test de `@unicorne/catalog` échoue pour un composant sans document. `unicorne` et `unicorne-mcp` les lisent, comme la commande et le serveur de chaque marque (ADR 0039). La spec est sur [designsystemdocspec.org](https://designsystemdocspec.org), en version 0.23.1.
 
 1. Écrivez chaque règle comme un élément de `guidelines` : un `level` (`must`, `should`, `may`, `should-not`, `must-not`) et un `statement` au présent, à l'impératif.
 2. Donnez un `checkedBy` à chaque règle. Une règle `automated` cite dans `checks` le test qui la vérifie : `./button.stories.ts#Disabled`.
 3. Réservez aux agents ce qui ne sert qu'à eux : une section `for: agent`. Storybook ne l'affiche pas.
 4. Ne recopiez jamais l'API : attributs, slots, parts et tokens restent dans `custom-elements.json`. Les `traits` donnent seulement le sens de chaque valeur.
-5. Marquez une règle pour les seuls contributeurs du socle : `$extensions: { dev.unicorne: { context: …, audience: contributors } }`. La documentation d'une marque la laisse de côté.
-6. Mettez les champs dans l'ordre de la spec : `npx dsds-format <fichier>`.
-7. Lancez `npm run dsds`, puis `npx vitest run --project browser .storybook/dsds.test.ts`. Le test compare les traits au composant et vérifie chaque lien vers un fichier ou une story.
+5. Faites vérifier par `check` une règle que le markup montre : un libellé, un parent, un enfant permis. Citez la règle dans `checks`, et donnez ses options dans `$extensions` :
+
+   ```yaml
+   checks:
+     - href: npm:@unicorne/catalog#required-attribute
+       role: lint-rule
+   checkedBy: automated
+   $extensions:
+     dev.unicorne:
+       check:
+         attributes: [label]
+   ```
+
+   Les règles sont `required-attribute`, `accessible-name`, `required-parent`, `forbidden-ancestor` et `allowed-children`. Leurs options sont dans l'ADR 0040 (`docs/adr/0040-regles-d-usage-verifiees.mdx`).
+
+6. Marquez une règle pour les seuls contributeurs du socle : `$extensions: { dev.unicorne: { context: …, audience: contributors } }`. La documentation d'une marque la laisse de côté.
+7. Mettez les champs dans l'ordre de la spec : `npx dsds-format <fichier>`.
+8. Lancez `npm run dsds`, puis `npx vitest run --project browser .storybook/dsds.test.ts`. Le test compare les traits au composant et vérifie chaque lien vers un fichier ou une story.
+9. Lancez `npx vitest run --project unit packages/catalog`. Le test vérifie que chaque règle de `check` citée existe, et que ses options nomment des attributs et des composants du socle.
 
 `.storybook/dsds.ts` lit les documents, et `.storybook/DocumentationTemplate.mdx` affiche les règles dans la page du composant.
 

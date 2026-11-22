@@ -1,0 +1,69 @@
+# Quand utiliser table-row, et ses règles (DSDS). Son API vit dans custom-elements.json.
+kind: component
+id: table-row
+name: Table row
+description: Une ligne d'un tableau.
+metadata:
+  origin:
+    method: authored
+    author: assisted
+  status:
+    status: experimental
+
+sections:
+  - kind: guidelines
+    for: all
+    framing: when-to-use
+    items:
+      - level: must
+        statement: Utilisez `table-row` comme une ligne de <dsds:table>, son enfant direct.
+        checks:
+          - href: npm:@unicorne/catalog#required-parent
+            role: lint-rule
+        checkedBy: automated
+        $extensions:
+          dev.unicorne:
+            check:
+              components:
+                - table
+
+  - kind: guidelines
+    for: all
+    title: Cellules
+    items:
+      - level: must
+        statement: "Écrivez les cellules en enfants directs : <dsds:table-cell> et <dsds:table-header-cell>."
+        checks:
+          - href: npm:@unicorne/catalog#allowed-children
+            role: lint-rule
+        checkedBy: automated
+        $extensions:
+          dev.unicorne:
+            check:
+              components:
+                - table-cell
+                - table-header-cell
+      - level: must
+        statement: "Dans un tableau `selectable`, donnez à chaque ligne un `value` : il l'identifie dans `values`."
+        checkedBy: manual
+      - level: may
+        statement: 'Placez les lignes d''en-tête dans le slot `head` du tableau : `slot="head"`.'
+        checkedBy: manual
+
+refs:
+  - href: ../table/table.stories.ts
+    rel: demo
+    role: Stories (CSF)
+
+sourceFiles:
+  - platform: web-component
+    file: ./table-row.ts
+
+imports:
+  - platform: web-component
+    code: import "@unicorne/components/define";
+    package: "@unicorne/components"
+
+specs:
+  - href: ../../../custom-elements.json
+    role: Custom Elements Manifest

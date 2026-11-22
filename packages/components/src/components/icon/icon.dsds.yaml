@@ -1,0 +1,70 @@
+# Quand utiliser icon, et ses règles (DSDS). Son API vit dans custom-elements.json.
+kind: component
+id: icon
+name: Icon
+description: Une icône du jeu, par son nom.
+metadata:
+  origin:
+    method: authored
+    author: assisted
+  status:
+    status: experimental
+
+sections:
+  - kind: guidelines
+    for: all
+    framing: when-to-use
+    items:
+      - level: must
+        statement: Utilisez `icon` pour une icône du jeu, dans un texte ou un composant.
+        checkedBy: manual
+      - level: must
+        statement: Donnez à `icon` le `name` d'une icône du jeu.
+        checks:
+          - href: npm:@unicorne/catalog#required-attribute
+            role: lint-rule
+        checkedBy: automated
+        $extensions:
+          dev.unicorne:
+            check:
+              attributes:
+                - name
+
+  - kind: guidelines
+    for: all
+    title: Accessibilité
+    items:
+      - level: must
+        statement: Donnez un `label` à une icône qui porte seule un sens. Sans `label`, elle est décorative.
+        checkedBy: manual
+      - level: should-not
+        statement: Ne donnez pas de `label` à une icône près d'un texte qui dit la même chose.
+        checkedBy: manual
+      - level: must
+        statement: Dans un bouton qui ne montre qu'une icône, nommez le bouton par son `label`, pas l'icône.
+        checkedBy: manual
+
+  - kind: guidelines
+    for: agent
+    items:
+      - level: must-not
+        statement: N'écrivez pas le SVG d'une icône dans la page. Utilisez `icon` et le nom de l'icône.
+        checkedBy: manual
+
+refs:
+  - href: ./icon.stories.ts
+    rel: demo
+    role: Stories (CSF)
+
+sourceFiles:
+  - platform: web-component
+    file: ./icon.ts
+
+imports:
+  - platform: web-component
+    code: import "@unicorne/components/define";
+    package: "@unicorne/components"
+
+specs:
+  - href: ../../../custom-elements.json
+    role: Custom Elements Manifest

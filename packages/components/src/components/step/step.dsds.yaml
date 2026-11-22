@@ -1,0 +1,63 @@
+# Quand utiliser step, et ses règles (DSDS). Son API vit dans custom-elements.json.
+kind: component
+id: step
+name: Step
+description: Une étape d'un stepper.
+metadata:
+  origin:
+    method: authored
+    author: assisted
+  status:
+    status: experimental
+
+sections:
+  - kind: guidelines
+    for: all
+    framing: when-to-use
+    items:
+      - level: must
+        statement: Utilisez `step` comme une étape de <dsds:stepper>, son enfant direct.
+        checks:
+          - href: npm:@unicorne/catalog#required-parent
+            role: lint-rule
+        checkedBy: automated
+        $extensions:
+          dev.unicorne:
+            check:
+              components:
+                - stepper
+
+  - kind: guidelines
+    for: all
+    title: Accessibilité
+    items:
+      - level: must
+        statement: Écrivez le nom de l'étape dans l'élément.
+        checks:
+          - href: npm:@unicorne/catalog#accessible-name
+            role: lint-rule
+        checkedBy: automated
+        $extensions:
+          dev.unicorne:
+            check: {}
+      - level: must
+        statement: Traduisez `completed-label`. Il dit, après le nom, qu'une étape est faite.
+        checkedBy: manual
+
+refs:
+  - href: ../stepper/stepper.stories.ts
+    rel: demo
+    role: Stories (CSF)
+
+sourceFiles:
+  - platform: web-component
+    file: ./step.ts
+
+imports:
+  - platform: web-component
+    code: import "@unicorne/components/define";
+    package: "@unicorne/components"
+
+specs:
+  - href: ../../../custom-elements.json
+    role: Custom Elements Manifest

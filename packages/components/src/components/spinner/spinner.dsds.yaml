@@ -1,0 +1,73 @@
+# Quand utiliser spinner, et ses règles (DSDS). Son API vit dans custom-elements.json.
+kind: component
+id: spinner
+name: Spinner
+description: Un indicateur de chargement, de durée inconnue.
+metadata:
+  origin:
+    method: authored
+    author: assisted
+  status:
+    status: experimental
+
+sections:
+  - kind: guidelines
+    for: all
+    framing: when-to-use
+    items:
+      - level: must
+        statement: Utilisez `spinner` pour un chargement court, de durée inconnue.
+        checkedBy: manual
+      - level: should
+        statement: Pour une tâche dont on connaît la part faite, utilisez <dsds:progress>.
+        alternatives:
+          - to: progress
+        checkedBy: manual
+
+  - kind: guidelines
+    for: all
+    title: Taille
+    items:
+      - level: should
+        statement: "Choisissez `size` : `small` dans un contrôle, `medium` près d'un texte, `large` pour une zone."
+        checkedBy: manual
+
+  - kind: guidelines
+    for: all
+    title: Accessibilité
+    items:
+      - level: should
+        statement: "Donnez au spinner un `label` : ce qui charge, « Envoi du fichier »."
+        checks:
+          - href: npm:@unicorne/catalog#required-attribute
+            role: lint-rule
+        checkedBy: automated
+        $extensions:
+          dev.unicorne:
+            check:
+              attributes:
+                - label
+      - level: must
+        statement: Annoncez un chargement que l'usager attend dans une région live, ou posez `aria-busy` sur la zone qui charge.
+        checkedBy: manual
+      - level: must
+        statement: Traduisez `loading-label`. Il nomme le spinner sans `label`.
+        checkedBy: manual
+
+refs:
+  - href: ./spinner.stories.ts
+    rel: demo
+    role: Stories (CSF)
+
+sourceFiles:
+  - platform: web-component
+    file: ./spinner.ts
+
+imports:
+  - platform: web-component
+    code: import "@unicorne/components/define";
+    package: "@unicorne/components"
+
+specs:
+  - href: ../../../custom-elements.json
+    role: Custom Elements Manifest

@@ -66,7 +66,14 @@ sections:
           - href: ./button.stories.ts
             role: test
             note: L'addon a11y lance axe sur chaque story, dans Chromium, Firefox et WebKit.
+          - href: npm:@unicorne/catalog#accessible-name
+            role: lint-rule
         checkedBy: automated
+        $extensions:
+          dev.unicorne:
+            check:
+              attributes:
+                - label
       - level: must
         statement: Gardez l'anneau de focus visible, avec un contraste de 3:1 sur les surfaces.
         checks:
@@ -82,7 +89,16 @@ sections:
     items:
       - level: must-not
         statement: N'enveloppez pas `u-button` dans un `<button>` ou un `<a>`. Le composant rend déjà son propre `<button>`.
-        checkedBy: manual
+        checks:
+          - href: npm:@unicorne/catalog#forbidden-ancestor
+            role: lint-rule
+        checkedBy: automated
+        $extensions:
+          dev.unicorne:
+            check:
+              elements:
+                - button
+                - a
       - level: must-not
         statement: Ne recopiez pas la liste des attributs ou des tokens. Lisez `custom-elements.json`.
         checkedBy: manual

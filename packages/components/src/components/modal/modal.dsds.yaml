@@ -36,7 +36,14 @@ sections:
         checks:
           - href: ./modal.stories.ts#Opened
             role: test
+          - href: npm:@unicorne/catalog#required-attribute
+            role: lint-rule
         checkedBy: automated
+        $extensions:
+          dev.unicorne:
+            check:
+              attributes:
+                - label
       - level: must
         statement: Traduisez `close-label`. Il nomme le bouton de fermeture, qui ne montre qu'une icône.
         checks:

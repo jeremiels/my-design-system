@@ -319,6 +319,8 @@ describe("the base's documentation", async () => {
     const button = findComponent(socle, "u-button")!;
     expect(button.attributes.find(({ name }) => name === "variant")!.values).toContain("neutral");
     expect(button.guidelines.some(({ scope }) => scope === "contributors")).toBe(true);
+    // Every component has a DSDS document, its sub-components too (ADR 0040).
+    expect(socle.components.filter(({ usage }) => !usage).map(({ name }) => name)).toEqual([]);
   });
 
   it("leaves nothing of the base in a design system's view, but the names of its events and tokens", () => {
