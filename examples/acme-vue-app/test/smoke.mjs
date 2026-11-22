@@ -1,7 +1,8 @@
 // Tests the Vue app's build (dist/) in Chromium, as a user fills its form:
 // v-model in both directions, on a text field, an autocomplete and a textarea, the browser's
-// validation, the app's own check, the submitted data and the reset. Playwright is resolved from the
-// repository's node_modules.
+// validation, the app's own check, the submitted data and the reset; the
+// requests page; and the assistant page, whose agent sends its interface with
+// A2UI. Playwright is resolved from the repository's node_modules.
 import { readFile } from "node:fs/promises";
 import { createServer } from "node:http";
 import { extname, join, normalize } from "node:path";
@@ -484,6 +485,91 @@ try {
   await check("the focus goes back to the button that opened the drawer", async () => {
     const host = await hostOfFocus();
     return [host === `Modifier ${c}`, `focus: ${await focused()} of "${host}"`];
+  });
+
+  // The assistant page: an agent sends its interface, and ACME's components
+  // draw it (A2UI, ADR 0052 of the base). The other pages load none of it.
+  const scriptsBefore = [...new Set(requested.filter((path) => path.endsWith(".js")))];
+  await check("the form and the requests pages download nothing of A2UI", async () => {
+    const texts = await Promise.all(
+      scriptsBefore.map((path) => readFile(join(dist, path), "utf8")),
+    );
+    const found = scriptsBefore.filter((_, index) => texts[index].includes("a2ui-surface"));
+    return [
+      found.length === 0,
+      found.join(", ") || `${scriptsBefore.length} scripts, none of A2UI`,
+    ];
+  });
+
+  await page.goto(`http://127.0.0.1:${server.address().port}/agent.html`);
+  await page.locator("a2ui-surface acme-text-field").first().waitFor({ timeout: 15_000 });
+  await check("ACME's components draw the surface the agent sends", async () => {
+    const state = await page.evaluate(() => {
+      const surface = document.querySelector("a2ui-surface");
+      return {
+        heading: surface.querySelector("acme-a2ui-text h2")?.className,
+        fields: surface.querySelectorAll("acme-a2ui-text-field > acme-text-field").length,
+        select: surface.querySelectorAll("acme-a2ui-select > acme-select").length,
+        textarea: surface.querySelector("acme-textarea")?.rows,
+        alert: surface.querySelector("acme-alert")?.variant,
+        buttons: [...surface.querySelectorAll("acme-button")].map((element) =>
+          element.textContent.trim(),
+        ),
+      };
+    });
+    return [
+      state.heading === "acme-text-heading-lg" &&
+        state.fields === 2 &&
+        state.select === 1 &&
+        state.textarea === 3 &&
+        state.alert === "information" &&
+        state.buttons.join(" | ") === "Annuler | Envoyer la demande",
+      JSON.stringify(state),
+    ];
+  });
+  await check("the user's input reaches the agent with its action", async () => {
+    await page.getByRole("textbox", { name: "Nom" }).fill("Ada Lovelace");
+    await page.getByRole("textbox", { name: "E-mail" }).fill("ada@example.com");
+    await page.getByRole("combobox", { name: "Équipe" }).click();
+    await page.getByRole("option", { name: "Données" }).click();
+    await page.getByRole("textbox", { name: "Motif" }).fill("Suivre les demandes.");
+    await button("Envoyer la demande").click();
+    await page.locator("#received").waitFor({ timeout: 5_000 });
+    const received = JSON.parse(await page.locator("#received").textContent());
+    return [
+      received.name === "send_request" &&
+        received.context.name === "Ada Lovelace" &&
+        received.context.email === "ada@example.com" &&
+        received.context.team === "data" &&
+        received.context.reason === "Suivre les demandes.",
+      JSON.stringify(received),
+    ];
+  });
+  await check("the agent answers with ACME's own card", async () => {
+    await page.locator("a2ui-surface acme-card").waitFor({ timeout: 5_000 });
+    const card = await page.evaluate(() => {
+      const element = document.querySelector("a2ui-surface acme-card");
+      return {
+        heading: element.heading,
+        text: element.textContent.replace(/\s+/g, " ").trim(),
+        badge: element.querySelector("acme-badge")?.textContent.trim(),
+        form: document.querySelectorAll("a2ui-surface acme-text-field").length,
+      };
+    });
+    return [
+      card.heading === "Demande envoyée" &&
+        card.badge === "En attente" &&
+        card.text.includes("Ada Lovelace rejoint l'équipe data") &&
+        card.form === 0,
+      JSON.stringify(card),
+    ];
+  });
+  await check("cancelling the request deletes the surface", async () => {
+    await page.reload();
+    await button("Annuler").click();
+    await page.getByText("Demande annulée.").waitFor({ timeout: 5_000 });
+    const left = await page.locator("a2ui-surface").count();
+    return [left === 0, `surfaces left: ${left}`];
   });
 
   record("no runtime errors", errors.length === 0, errors.join(" | ") || "none");

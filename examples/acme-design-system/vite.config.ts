@@ -20,6 +20,8 @@ export default defineConfig({
         // ACME's catalog and texts, and its documentation, in Node (ADR 0039 of the base).
         brand: resolve(root, "src/brand.ts"),
         docs: resolve(root, "src/docs.ts"),
+        // ACME's components in an A2UI surface, for the page of an agent (ADR 0052 of the base).
+        a2ui: resolve(root, "src/a2ui.ts"),
         // Also loaded on demand by src/design-system.ts: its own chunk.
         "acme-button": resolve(root, "src/components/acme-button/acme-button.ts"),
         styles: resolve(root, "src/styles.css"),
@@ -34,7 +36,8 @@ export default defineConfig({
       // Republish, don't bundle: Lit and the base stay dependencies, so the
       // app gets a single copy of each.
       // Node's modules stay imports: src/docs.ts runs in Node only.
-      external: [/^lit/, /^@unicorne\//, /^node:/],
+      // The A2UI renderer stays a dependency of the application.
+      external: [/^lit/, /^@unicorne\//, /^@a2ui\//, /^node:/],
     },
   },
 });

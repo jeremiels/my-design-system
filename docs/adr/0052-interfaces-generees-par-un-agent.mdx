@@ -1,0 +1,441 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+import emptyForm from "./0052-spike-1-clair-vide.png";
+import openList from "./0052-spike-2-clair-liste-ouverte.png";
+import filledForm from "./0052-spike-3-clair-rempli.png";
+import darkForm from "./0052-spike-4-sombre-rempli.png";
+import vueForm from "./0052-spike-5-vue.png";
+
+<Meta title="Documentation/ADR/0052 Interfaces générées par un agent" />
+
+# ADR 0052 — Interfaces générées par un agent
+
+**Statut :** accepté · **Date :** 22 novembre 2026
+
+## Contexte
+
+Une application peut embarquer un agent : un assistant, un formulaire qu'il compose, des cartes de résultat. L'agent décrit une interface, et l'application la dessine. Aucune application de la DSI n'embarque d'agent aujourd'hui. Cet ADR décide de la place du socle, et l'application Vue d'exemple montre le résultat.
+
+[A2UI](https://a2ui.org/) est un protocole ouvert pour ce besoin, publié par Google sous licence Apache 2.0. Sa version 1.0 date du 11 novembre 2026. Cette page emploie trois de ses termes :
+
+- **Surface :** la zone de l'application qu'un agent remplit.
+- **Catalogue A2UI :** le document JSON Schema des composants qu'un agent peut placer. Le « catalogue » du socle reste la liste des composants d'un design system (`designSystem({ catalog })`).
+- **Renderer :** le code de l'application qui lit les messages de l'agent et dessine la surface.
+
+### Ce qu'est A2UI
+
+Faits vérifiés le 22 novembre 2026, avec leurs sources en fin de page :
+
+- **Messages :** l'agent envoie un flux de messages JSON : `createSurface`, `updateComponents`, `updateDataModel`, `deleteSurface`, `callRendererFunction` et `agentFunctionResponse`. Le transport est libre : A2A, AG-UI, MCP, SSE ou WebSocket.
+- **Composants :** une liste plate. Chaque composant a un `id` et un type (`component`). Un conteneur cite ses enfants par `child` ou `children`.
+- **Données :** une valeur est littérale, ou liée au modèle de données de la surface : `{"@path": "/form/name"}`. Un champ écrit la saisie de l'usager dans ce modèle.
+- **Actions :** un bouton renvoie à l'agent `{ action: { name, surfaceId, sourceComponentId, context } }`. Le `context` porte des valeurs lues dans le modèle.
+- **Catalogue A2UI :** un `catalogId` (une URI), `protocolVersion`, un schéma par composant, des `functions`, et des `instructions`, du Markdown ajouté au prompt de l'agent. Un composant peut limiter ses parents et ses enfants : `allowedParents`, `allowedChildren`.
+- **Négociation :** le renderer annonce ses `supportedCatalogIds`, et l'agent choisit un `catalogId` par surface. Un composant absent du catalogue A2UI n'est pas rendu, sans repli.
+- **Style :** la version 1.0 retire `theme` et `primaryColor`. Le style appartient à l'application : l'agent n'envoie ni couleur, ni police, ni CSS.
+- **Sécurité :** l'agent n'envoie aucun code. Le renderer accepte seulement les composants du catalogue A2UI, et filtre les URL (`http:` et `https:`).
+- **Catalogue de base :** 18 composants génériques (`Text`, `Button`, `Row`, `Column`, `Card`, `TextField`, `ChoicePicker`…), stylés par des custom properties `--a2ui-*`. La spécification le dit facultatif.
+- **Adoption :** Gemini Enterprise, Atlassian, Bloomberg et Lynx (ByteDance) l'utilisent, d'après l'annonce de la version 1.0.
+- **MCP Apps :** l'autre approche. Un serveur MCP fournit une page HTML, affichée dans une iframe. Les composants du socle y fonctionnent sans catalogue A2UI.
+
+### Le renderer Lit
+
+- `@a2ui/lit` et `@a2ui/web_core` sont publiés en 0.15.0. Presque chaque version mineure contient une rupture, par exemple le passage au light DOM (0.11, 0.14).
+- Une implémentation de composant est un objet `{ name, schema, tagName, element }`. `schema` est un schéma Zod 3.
+- L'élément étend `A2uiLitElement`, marqué `@experimental`. Il lit ses valeurs résolues dans `this.controller.props`.
+- Dans ces valeurs, `setValue()` écrit dans le modèle, `action()` envoie l'action, et `renderNode()` rend un enfant.
+- Ces éléments marchent dans les renderers Lit, React et Angular. Le renderer enregistre leur balise quand il monte la surface.
+- `@a2ui/web_core` dépend de `lit`, de `zod` 3, de `@preact/signals-core` et de `@lit/context`. `lit` y est une dépendance, pas une peer dependency.
+- `import "@a2ui/lit"` enregistre `<a2ui-surface>` par effet de bord.
+- Vue n'a qu'un renderer communautaire, `a2ui-vue`, pour les versions 0.8 et 0.9 du protocole.
+
+### Ce qui existe ailleurs
+
+<table>
+  <thead>
+    <tr>
+      <th>Projet</th>
+      <th>Plateforme</th>
+      <th>Ce qu'il fournit</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Catalogue de base (`@a2ui/web_core`)</td>
+      <td>Lit, React, Angular</td>
+      <td>18 composants génériques, stylés par `--a2ui-*`</td>
+    </tr>
+    <tr>
+      <td>Google Maps Platform (`@googlemaps/a2ui`)</td>
+      <td>Lit, Android, iOS</td>
+      <td>
+        Le catalogue de base, plus `GoogleMap` et `PlaceDetailsCompact`, sous un seul `catalogId`
+      </td>
+    </tr>
+    <tr>
+      <td>`generative-mui`</td>
+      <td>React</td>
+      <td>Un renderer en Material UI, qui suit le `ThemeProvider` de l'application</td>
+    </tr>
+    <tr>
+      <td>`material3-expressive-a2ui`</td>
+      <td>React</td>
+      <td>Un renderer en Material 3 Expressive, sur `@a2ui/web_core`</td>
+    </tr>
+    <tr>
+      <td>`a2ui-sdk`, `ai-kit-a2ui`, `@xpert-ai/a2ui-react`</td>
+      <td>React</td>
+      <td>Des renderers sur Radix ou shadcn/ui</td>
+    </tr>
+    <tr>
+      <td>`json-render` (Vercel)</td>
+      <td>React, Vue, Svelte, Solid</td>
+      <td>Son propre format, des catalogues en Zod, et un adaptateur A2UI</td>
+    </tr>
+    <tr>
+      <td>Spectrum, Web Awesome, Carbon, Vaadin, Lion</td>
+      <td>Web components</td>
+      <td>Aucun catalogue A2UI trouvé</td>
+    </tr>
+  </tbody>
+</table>
+
+Ces projets rendent le catalogue de base, ou un catalogue écrit à la main, avec une bibliothèque de composants. La recherche n'a trouvé aucun catalogue A2UI tiré de la documentation d'un design system.
+
+### Ce que le socle a déjà
+
+- **La documentation de chaque marque :** `extendDocs()` (`@unicorne/catalog`) donne les composants de la marque, sous son préfixe. Pour chaque attribut, elle donne son type, ses valeurs, sa valeur par défaut et sa description ([ADR 0039](?path=/docs/documentation-adr-0039-outils-de-documentation--docs)).
+- **Les règles d'usage :** les documents DSDS, avec leurs règles `for: agent` et les options de `check` ([ADR 0040](?path=/docs/documentation-adr-0040-règles-d-usage-vérifiées--docs)). `required-attribute` nomme les attributs obligatoires.
+- **Les balises :** `designSystem().define()` renvoie la balise de chaque composant enregistré. Aucun code n'écrit une balise à la main.
+- **Les champs :** ils exposent `value`, ou `checked`, et émettent `input` et `change`, comme un contrôle natif.
+- **Les composants à enfants :** `radio-group`, `checkbox-group` et `tabs` reconnaissent leurs enfants par `instanceof`. `select` et `combobox` acceptent aussi une propriété `options`.
+- **Ce qui manque :** aucun composant de mise en page. Le texte stylé passe par les classes des [styles de texte](?path=/docs/documentation-adr-0051-styles-de-texte--docs). ACME a son propre `card`.
+- **La source de l'API :** la JSDoc et `custom-elements.json` ([ADR 0016](?path=/docs/documentation-adr-0016-api-partagée-entre-le-code-et-figma--docs), D1). Une correspondance vit à côté du code qu'elle décrit (D4).
+
+### Spike du 22 novembre 2026
+
+Un prototype, hors du dépôt, vérifie la chaîne entière sur les archives du socle. Il utilise `@a2ui/lit` 0.15.0, `@a2ui/web_core` 0.15.0, `lit` 3.3.3, et Chromium par Playwright 1.65.
+
+- Un script Node passe la documentation du socle par `extendDocs()`, sous le préfixe `acme`. Il écrit un catalogue A2UI de huit composants : `Button`, `TextField`, `CheckBox`, `Select`, `Alert`, `Row`, `Column` et `Text`.
+- Une correspondance par composant donne ce que la documentation ignore : le nom A2UI, les attributs exposés, la propriété liée, l'événement de l'action.
+- Dans le navigateur, une fabrique crée un adaptateur par composant. L'adaptateur étend `A2uiLitElement` et rend la balise que `define()` renvoie.
+- Un flux de messages décrit un formulaire lié à `/form`, et un bouton dont l'action porte ce formulaire.
+
+Les captures montrent la surface que ce flux décrit, rendue par les composants d'ACME. Chromium, à une densité de pixels de 2.
+
+<div
+  style={{
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fill, minmax(14rem, 1fr))",
+    gap: "1rem",
+  }}
+>
+  <figure style={{ margin: 0 }}>
+    <img
+      src={emptyForm}
+      alt="Le formulaire « Demande d'accès » vide : un titre, une alerte d'information, les champs Nom et Adresse e-mail, la liste Équipe, une case à cocher, et les boutons Annuler et Envoyer."
+      style={{ width: "100%", height: "auto" }}
+    />
+    <figcaption>Thème clair, formulaire vide</figcaption>
+  </figure>
+  <figure style={{ margin: 0 }}>
+    <img
+      src={openList}
+      alt="Le même formulaire, champs Nom et Adresse e-mail remplis, la liste Équipe ouverte sur les options Web et Données."
+      style={{ width: "100%", height: "auto" }}
+    />
+    <figcaption>Liste `acme-select` ouverte</figcaption>
+  </figure>
+  <figure style={{ margin: 0 }}>
+    <img
+      src={filledForm}
+      alt="Le formulaire rempli : l'équipe Données choisie, la case des conditions cochée, le focus sur le bouton Envoyer."
+      style={{ width: "100%", height: "auto" }}
+    />
+    <figcaption>Thème clair, formulaire rempli</figcaption>
+  </figure>
+  <figure style={{ margin: 0 }}>
+    <img
+      src={darkForm}
+      alt="Le formulaire rempli, en thème sombre : fond sombre, textes clairs, alerte et bouton Envoyer aux couleurs du thème sombre."
+      style={{ width: "100%", height: "auto" }}
+    />
+    <figcaption>Thème sombre, `[data-theme="dark"]`</figcaption>
+  </figure>
+  <figure style={{ margin: 0 }}>
+    <img
+      src={vueForm}
+      alt="La même surface montée dans une application Vue, après la saisie du nom et la case cochée."
+      style={{ width: "100%", height: "auto" }}
+    />
+    <figcaption>Surface montée dans une application Vue</figcaption>
+  </figure>
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th>Mesure</th>
+      <th>Résultat</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Validité du catalogue A2UI généré</td>
+      <td>
+        Valide contre `catalog_definition.json` v1.0. `Catalog.fromJson()` le lit, et `toJson()` le
+        rend identique, à l'ordre des clés près.
+      </td>
+    </tr>
+    <tr>
+      <td>Schémas Zod</td>
+      <td>
+        `Catalog.fromJson()` les dérive du JSON. Celui de `Button` rejette `variant: "pink"`. Aucun
+        schéma n'est écrit à la main.
+      </td>
+    </tr>
+    <tr>
+      <td>Taille du catalogue A2UI</td>
+      <td>10,8 ko pour huit composants et 34 instructions</td>
+    </tr>
+    <tr>
+      <td>Rendu</td>
+      <td>
+        Les cinq composants d'ACME, deux conteneurs, et un `h2` stylé par `.u-text-heading-lg`
+      </td>
+    </tr>
+    <tr>
+      <td>Liaison</td>
+      <td>
+        Une saisie dans `acme-text-field`, un choix dans `acme-select` et une case cochée écrivent
+        dans `/form`. Un `updateDataModel` de l'agent change la valeur du champ.
+      </td>
+    </tr>
+    <tr>
+      <td>Focus</td>
+      <td>Il reste dans le champ pendant la saisie : le rendu ne recrée pas l'élément.</td>
+    </tr>
+    <tr>
+      <td>Action</td>
+      <td>
+        Un clic sur `acme-button` envoie `submit_request`, avec les valeurs lues dans `/form`.
+      </td>
+    </tr>
+    <tr>
+      <td>Thème</td>
+      <td>`[data-theme="dark"]` change les couleurs des composants de la surface.</td>
+    </tr>
+    <tr>
+      <td>Accessibilité</td>
+      <td>axe ne relève aucune violation.</td>
+    </tr>
+    <tr>
+      <td>Composant inconnu</td>
+      <td>
+        `Video` n'est pas rendu, et ses voisins le sont. L'`errorHandler` du renderer ne reçoit
+        rien.
+      </td>
+    </tr>
+    <tr>
+      <td>Vue</td>
+      <td>
+        `h("a2ui-surface", {surface})` monte la surface dans une application Vue. L'action remonte.
+      </td>
+    </tr>
+    <tr>
+      <td>Poids</td>
+      <td>
+        Avec les seuls composants, la page pèse 105 Kio de JavaScript minifié, 34 Kio en gzip. A2UI
+        ajoute 325 Kio, 85 Kio en gzip.
+      </td>
+    </tr>
+    <tr>
+      <td>Copies de Lit</td>
+      <td>Une seule, `lit` 3.3.3 : npm déduplique la dépendance de `@a2ui/web_core`.</td>
+    </tr>
+  </tbody>
+</table>
+
+- **Light DOM :** en 0.15.0, `A2uiLitElement` rend dans un shadow DOM. La documentation en ligne, écrite pour la branche `main` (0.16), annonce le light DOM par défaut. L'adaptateur demande le light DOM lui-même (`createRenderRoot()`), pour que les classes de la page l'atteignent.
+- **Noms des propriétés :** le catalogue A2UI prend le nom de la propriété (`errorMessage`), pas celui de l'attribut (`error-message`).
+- **Règles DSDS :** sur 34 règles, 15 valent telles quelles pour un agent A2UI. 12 portent sur le markup ou le CSS : `type="submit"`, l'élément qui enveloppe, l'anneau de focus. 7 nomment un composant absent du catalogue A2UI du spike : `textarea`, `switch`, `combobox`…
+- **Non mesurés :** `GenericBinder` sans Lit, un template Vue, Firefox et WebKit, les composants à enfants, les popups.
+
+### Critères de décision
+
+1. Un agent place seulement les composants de la marque, avec leurs noms, leurs valeurs et leurs règles.
+2. Une seule source : la JSDoc, `custom-elements.json` et les documents DSDS.
+3. Une application sans agent n'installe et ne charge rien de plus.
+4. Une marque ajoute, remplace ou retire un composant de son catalogue A2UI.
+5. Les composants n'ont aucune API propre à A2UI.
+6. Un écart entre le catalogue A2UI publié et les composants se détecte par un script.
+
+## D1 — Place d'A2UI dans le socle
+
+- **Option A — Rien dans le socle.** Chaque application écrit sa correspondance entre A2UI et les composants. Deux applications d'une même marque divergent, et l'agent apprend deux vocabulaires.
+- **Option B — Chaque marque.** Chaque marque refait le même travail sur les mêmes composants du socle.
+- **Option C — Le socle outille, chaque marque applique.** Le socle génère le catalogue A2UI d'une marque et ses adaptateurs, comme il génère sa documentation.
+
+**Décision : C.** Le socle ne fournit ni agent, ni transport : l'application les choisit.
+
+## D2 — Vocabulaire de l'agent
+
+- **Option A — Le catalogue de base d'A2UI, rendu par les composants de la marque.** Tout agent A2UI le connaît. Il n'a ni alerte, ni badge, ni select, ni tableau. Ses variantes (`default`, `primary`, `borderless`) ne sont pas celles de la marque. Il demande `Video` et `AudioPlayer`, absents du socle.
+- **Option B — Le catalogue A2UI de la marque :** ses composants, ses valeurs et ses règles. L'agent reçoit ce catalogue A2UI dans sa configuration.
+- **Option C — Les deux.** Deux correspondances à tenir, pour des agents que la DSI n'écrit pas.
+
+**Décision : B.**
+
+- La DSI écrit l'agent et l'application. La négociation se réduit à un `catalogId` fixe par marque : `https://<domaine de la marque>/a2ui/v1/catalog.json`.
+- Le `v1` du `catalogId` change à chaque rupture du catalogue A2UI, comme A2UI le recommande.
+
+## D3 — Source du catalogue A2UI
+
+- **Option A — Un `catalog.json` écrit à la main.** Une seconde description de l'API, qui diverge de la JSDoc.
+- **Option B — Des schémas Zod dans les adaptateurs,** comme dans les guides d'A2UI. Une seconde description de l'API, en TypeScript.
+- **Option C — Généré depuis la documentation de la marque,** plus une correspondance par composant. La correspondance donne seulement ce que la documentation ignore.
+
+**Décision : C.**
+
+- La correspondance donne le nom A2UI et les attributs exposés à l'agent. Elle donne aussi le texte d'un slot, la propriété liée, les événements, et les enfants générés.
+- Le nom A2UI d'un composant du socle est celui de sa classe : `TextField`, `Checkbox`, `RadioGroup`.
+- La documentation donne le reste : le type, les valeurs, la valeur par défaut et la description de chaque attribut.
+- `required-attribute` devient `required`. `required-parent` et `allowed-children` deviennent `allowedParents` et `allowedChildren`.
+- Les noms d'icônes forment un `enum`, tiré du manifest d'icônes de la marque.
+- Les règles DSDS deviennent les `instructions`. Une règle qui cite une règle de `check` devient une contrainte du schéma, ou disparaît.
+- Une règle `for: agent` vise l'agent qui écrit du markup : le catalogue A2UI la laisse.
+- Le générateur écarte aussi une règle qui nomme un attribut non exposé.
+- Le générateur remplace le nom d'un composant par son nom A2UI. Il écarte une règle qui nomme un composant absent du catalogue A2UI.
+- Une correspondance dont le composant manque au catalogue de la marque est laissée : le catalogue A2UI d'ACME n'a ni `Checkbox` ni `RadioGroup`.
+- Le renderer lit le même document : `Catalog.fromJson()` en dérive les schémas Zod. L'agent et le renderer partagent ce seul fichier JSON.
+- Les correspondances du socle vivent dans le package A2UI (D6), pas à côté de la classe comme les `.figma.ts` : `@unicorne/components` ne dépend pas d'A2UI.
+- Le générateur échoue quand une correspondance nomme un attribut absent de la documentation. Pour le socle, `a2ui:check` signale l'écart dans la PR qui change l'API.
+
+## D4 — Adaptateurs
+
+- **Option A — Les composants deviennent des éléments A2UI.** Chaque composant dépend alors de `@a2ui/web_core`, contre les critères 3 et 5.
+- **Option B — Un adaptateur écrit à la main par composant.** Du code répété, et une correspondance de plus à tenir.
+- **Option C — Une fabrique,** qui crée un adaptateur par correspondance.
+
+**Décision : C.**
+
+- L'adaptateur étend `A2uiLitElement`, rend dans le light DOM, et rend le composant de la marque.
+- Il prend la balise du composant dans le résultat de `define()`, jamais dans une chaîne écrite à la main.
+- Sa propre balise est `<préfixe>-a2ui-<nom>` : `acme-a2ui-text-field`. Le renderer l'enregistre au montage de la surface, aucun module à l'import.
+- Il passe les valeurs résolues au composant par ses propriétés. Il n'écrit aucun HTML : Lit échappe le texte de l'agent.
+- Il écoute les événements natifs de la correspondance. `input` ou `change` écrit la valeur liée, et `click` appelle `action()`.
+- Il passe les `options` de l'agent à la propriété `options` d'un `Select`. Pour un `RadioGroup`, il rend un `radio` de la même registration par option.
+- Un second catalogue du même design system reprend les adaptateurs déjà définis : une balise n'est définie qu'une fois.
+
+## D5 — Mise en page et texte
+
+- **Option A — `Row` et `Column` du catalogue de base,** mêlés au catalogue A2UI de la marque par `@catalogId`. Ils apportent les styles `--a2ui-*`, un second langage visuel.
+- **Option B — Des conteneurs propres au catalogue A2UI.** Ils existent seulement dans le package A2UI.
+- **Option C — Un composant de mise en page dans le socle.** Aucune application n'en a besoin aujourd'hui.
+
+**Décision : B.**
+
+- `Row` et `Column` n'ont ni bordure ni fond. Leur `gap` est un `enum` des tokens d'espace sémantiques, de `2xs` à `2xl` ([ADR 0050](?path=/docs/documentation-adr-0050-règles-d-usage-des-espaces-de-la-typographie-et-du-mouvement--docs)).
+- Leur `align` aligne les enfants. Un `Row` les aligne en bas par défaut, où un champ suit un bouton. Un `Column` leur donne toute la largeur.
+- `Text` est du texte brut, sans Markdown. Son `style` est un `enum` des styles de texte de la marque, et `level` en fait un titre.
+- `Card` existe seulement dans le catalogue A2UI d'une marque qui a un composant `card`, comme ACME.
+
+## D6 — Package, livraison et contrôle
+
+- **Option A — Une entrée `./a2ui` dans `@unicorne/components`.** Chaque application installe alors `@a2ui/web_core` et Zod.
+- **Option B — `@unicorne/catalog`.** Ce package tourne dans Node, et les adaptateurs tournent dans le navigateur.
+- **Option C — Un septième package, `@unicorne/a2ui`.**
+
+**Décision : C.**
+
+- L'entrée `.`, pour le navigateur, exporte `a2uiCatalog({ designSystem, document, components, mappings })`. Cette fonction enregistre les composants du document et renvoie le `Catalog` du renderer.
+- La même entrée exporte `socleComponents`, les classes des composants que les correspondances du socle rendent. Une marque y ajoute les siennes.
+- L'entrée `./document`, pour Node, exporte `a2uiCatalogDocument(docs, { catalogId, mappings })`, et `a2uiCommand()`, la commande `a2ui` de la CLI d'une marque.
+- Ses peer dependencies sont `@unicorne/components` et `lit`. `@unicorne/catalog` et `@a2ui/web_core` sont facultatives : une application sans agent ne les installe pas.
+- `mappings` ajoute une correspondance, en remplace une, ou en retire une avec `null`, comme les commandes de `createCli()`.
+- L'application charge A2UI sur la page de l'agent seulement : A2UI pèse 85 Kio en gzip.
+- Le socle commite son `a2ui-catalog.json`. `a2ui:check` le compare au fichier régénéré, comme `api:check`.
+- Une marque génère le sien à son build, `acme a2ui > a2ui-catalog.json`, et le publie avec ses manifests. Son entrée `./a2ui` donne son catalogue au renderer : `acmeA2uiCatalog(document)`.
+
+## Récapitulatif
+
+<table>
+  <thead>
+    <tr>
+      <th>Décision</th>
+      <th>Choix</th>
+      <th>Pourquoi</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>D1 — Place</td>
+      <td>Le socle génère, chaque marque applique</td>
+      <td>Un vocabulaire par marque, écrit une fois</td>
+    </tr>
+    <tr>
+      <td>D2 — Vocabulaire</td>
+      <td>Le catalogue A2UI de la marque</td>
+      <td>L'agent place les composants, les valeurs et les règles de la marque</td>
+    </tr>
+    <tr>
+      <td>D3 — Source</td>
+      <td>La documentation de la marque et une correspondance par composant</td>
+      <td>Une seule description de l'API, pour l'agent et pour le renderer</td>
+    </tr>
+    <tr>
+      <td>D4 — Adaptateurs</td>
+      <td>Une fabrique, sur `A2uiLitElement`, en light DOM</td>
+      <td>Les composants ne savent rien d'A2UI</td>
+    </tr>
+    <tr>
+      <td>D5 — Mise en page et texte</td>
+      <td>`Row`, `Column` et `Text`, propres au catalogue A2UI</td>
+      <td>Les tokens et les styles de texte de la marque, sans second langage visuel</td>
+    </tr>
+    <tr>
+      <td>D6 — Package</td>
+      <td>`@unicorne/a2ui`, chargé à la demande</td>
+      <td>Une application sans agent ne paie rien</td>
+    </tr>
+  </tbody>
+</table>
+
+## Conséquences
+
+- **Socle :** le package `@unicorne/a2ui`, ses correspondances et ses adaptateurs. Ses tests tournent dans Node (le document) et dans Chromium (une surface).
+- **Contrôle :** `npm run a2ui` écrit le catalogue A2UI du socle, et `a2ui:check` le vérifie dans `npm run check`.
+- **ACME :** `src/a2ui-mappings.ts` ajoute `Card`. `acme a2ui` écrit `a2ui-catalog.json` au build, et l'entrée `@acme/design-system/a2ui` donne son catalogue au renderer.
+- **Application Vue :** la page `agent.html` monte la surface d'un agent simulé. Son test remplit le formulaire, vérifie l'action reçue et la carte d'ACME en réponse.
+- **Documentation :** le guide [Afficher l'interface d'un agent](?path=/docs/documentation-guides-afficher-l-interface-d-un-agent--docs), une section du guide de marque, et `AGENTS.md`.
+
+## Questions ouvertes
+
+- **Premier besoin :** aucune application de la DSI n'embarque d'agent. Le vocabulaire du catalogue A2UI attend l'avis de sa première application.
+- **Stabilité :** les renderers sont en 0.x, et `A2uiLitElement` est expérimental. Le package fixe la version exacte de `@a2ui/web_core`, 0.15.0.
+- **Règles du markup :** l'anneau de focus ne cite aucune règle de `check`, et le générateur le garde. Une marque DSDS sur ces règles les écarterait. Son nom reste à choisir.
+- **Composants à enfants :** `checkbox-group` et `tabs` demandent des enfants générés, de la même registration, comme `radio-group`. Leurs correspondances restent à écrire.
+- **Popups :** le `Modal` d'A2UI a `trigger` et `content`. Le socle ouvre ses popups par commandes ([ADR 0008](?path=/docs/documentation-adr-0008-commandes-et-modale--docs)).
+- **Tableau :** A2UI génère des enfants depuis une liste du modèle (`{ path, componentId }`). Sa correspondance avec `table` reste à écrire.
+- **Textes :** les `labels` d'une marque ([ADR 0006](?path=/docs/documentation-adr-0006-design-system-de-marque--docs)) s'appliquent aux composants rendus. Les `instructions` restent dans la langue des documents DSDS.
+- **Évaluation :** mesurer les surfaces d'un agent avec et sans les `instructions`, comme le propose l'[ADR 0040](?path=/docs/documentation-adr-0040-règles-d-usage-vérifiées--docs) pour `check_markup`.
+- **Outils de documentation :** le serveur MCP d'une marque peut servir son catalogue A2UI. Un agent A2UI le lit plutôt dans le package de la marque.
+
+## Sources
+
+Consultées le 22 novembre 2026.
+
+**A2UI**
+
+- [A2UI](https://a2ui.org/) : le protocole, le catalogue comme liste des composants permis.
+- [Spécification v1.0](https://a2ui.org/specification/v1.0-a2ui/) : messages, composants, liaison, actions, négociation, sécurité.
+- [Guide du catalogue de base v1.0](https://a2ui.org/specification/v1.0-basic-catalog-implementation-guide/) : les 18 composants, le retrait du thème, le style laissé à l'application.
+- [Catalogs](https://a2ui.org/concepts/catalogs/) : la structure d'un catalogue A2UI, la négociation, l'absence de repli.
+- [How to Define a Catalog](https://a2ui.org/guides/defining-a-catalog/) : `catalog.json`, `instructions`, la version dans le `catalogId`, l'accessibilité.
+- [Authoring Universal Web Components](https://a2ui.org/guides/authoring-universal-components/) : `A2uiLitElement`, `GenericBinder`, les valeurs résolues, le light DOM.
+- [How to Integrate A2UI into a Client](https://a2ui.org/guides/client-integration/) : `MessageProcessor`, les capacités du renderer, les custom properties `--a2ui-*`.
+- [Embed MCP Apps in A2UI Surfaces](https://a2ui.org/guides/mcp-apps-in-a2ui/) : MCP Apps, des pages HTML isolées dans des iframes.
+- [Community Projects](https://a2ui.org/ecosystem/renderers/) : les renderers, catalogues et projets voisins du tableau.
+- [versions.json](https://a2ui.org/specification/versions.json) : l'état des versions du protocole.
+- [Renderer Lit](https://github.com/a2ui-project/a2ui/tree/main/typescript/renderers/lit) (README et CHANGELOG, 0.16.0 sur `main`) : l'API, les ruptures de chaque version.
+- [@a2ui/lit](https://www.npmjs.com/package/@a2ui/lit) et [@a2ui/web_core](https://www.npmjs.com/package/@a2ui/web_core) (npm) : la version publiée, 0.15.0, et les dépendances.
+- [A2UI 1.0](https://developers.googleblog.com/a2ui-10-build-delightful-fast-reliable-agentic-experiences/) (blog Google for Developers, 11 novembre 2026) : la version stable, l'adoption, MCP Apps.

@@ -35,6 +35,7 @@ examples/*/.base
 examples/*/custom-elements.json
 examples/*/token-manifest.json
 examples/*/icon-manifest.json
+examples/*/a2ui-catalog.json
 examples/*/src/theme.css
 examples/*/tokens/.*.resolver.json
 examples/*/src/**/*.tokens.css

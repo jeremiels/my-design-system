@@ -72,6 +72,44 @@ record(
   JSON.stringify(inherited),
 );
 
+// --- ACME's A2UI catalog (ADR 0052 of the base): its build writes it with `acme a2ui`.
+{
+  const { Catalog } = await import("@a2ui/web_core");
+  const text = await readFile(join(root, "a2ui-catalog.json"), "utf8");
+  const document = JSON.parse(text);
+  const names = Object.keys(document.components);
+  const catalog = Catalog.fromJson(document);
+  record(
+    "a2ui-catalog.json offers ACME's card, and no component outside ACME's catalog",
+    catalog.id === "https://acme.example/a2ui/v1/catalog.json" &&
+      names.includes("Card") &&
+      names.includes("TextField") &&
+      !names.includes("Checkbox") &&
+      !names.includes("RadioGroup"),
+    names.join(", "),
+  );
+  record(
+    "its instructions name A2UI components, never a tag or a package of the base",
+    document.instructions.includes("`Textarea`") && !/`u-|@unicorne\//.test(text),
+    `${document.instructions.split("\n").length} lines`,
+  );
+  const { spawnSync } = await import("node:child_process");
+  const printed = spawnSync("node", ["bin/acme.js", "a2ui"], { cwd: root, encoding: "utf8" });
+  record(
+    "`acme a2ui` prints the published document",
+    printed.status === 0 && JSON.stringify(JSON.parse(printed.stdout)) === JSON.stringify(document),
+    `exit ${printed.status}`,
+  );
+  const a2ui = await readFile(join(root, "dist/a2ui.js"), "utf8");
+  record(
+    "dist/a2ui.js imports the base's adapters, and dist/index.js nothing of A2UI",
+    a2ui.includes('from "@unicorne/a2ui"') &&
+      !a2ui.includes("A2uiLitElement") &&
+      !dist.includes("a2ui"),
+    `dist/a2ui.js imports @unicorne/a2ui: ${a2ui.includes('from "@unicorne/a2ui"')}`,
+  );
+}
+
 // --- ACME in a browser
 // ACME publishes its values alone too: a page of another design system loads
 // them for an ACME zone, without a second copy of the base's tokens (ADR 0013).

@@ -1,0 +1,504 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://unicorne.example/a2ui/v1/catalog.json",
+  "catalogId": "https://unicorne.example/a2ui/v1/catalog.json",
+  "protocolVersion": "1.0",
+  "title": "Unicorne components",
+  "description": "Un socle marque blanche pour design systems : des composants Lit, des tokens `--u-` et l'outillage pour les étendre.",
+  "instructions": "Rules for the components of Unicorne, from its documentation.\n\"must\" and \"must-not\" rules are mandatory.\n\n- Button (must): Utilisez `Button` pour une action dans la page, comme envoyer un formulaire ou ouvrir une modale.\n- Button (should): Limitez chaque zone de l'écran à un seul bouton `primary`.\n- Button (should-not): Ne choisissez pas une variante pour sa couleur. Choisissez-la pour l'intention de l'action.\n- Button (should): Donnez l'apparence `outlined` ou `plain` aux actions secondaires d'une zone, et `neutral` aux actions sans intention, comme fermer ou retirer.\n- Button (must): Désactivez le bouton avec `disabled`. Il n'émet alors aucun `click` et porte `aria-disabled`.\n- Button (must): Gardez l'anneau de focus visible, avec un contraste de 3:1 sur les surfaces.\n- Button (should-not): Ne retirez pas le bouton de l'ordre de tabulation.\n- Alert (must): Utilisez `Alert` pour un message lié au contenu qui l'entoure, comme le résultat d'un formulaire.\n- Badge (must): Utilisez `Badge` pour un statut court à côté de ce qu'il qualifie : « Envoyée », « Brouillon ».\n- Badge (must-not): Ne faites pas d'un badge un bouton ou un lien : il n'a aucune interaction.\n- Badge (should): Choisissez `variant` pour l'intention du statut, pas pour sa couleur.\n- Icon (must): Utilisez `Icon` pour une icône du jeu, dans un texte ou un composant.\n- Icon (must): Donnez un `label` à une icône qui porte seule un sens. Sans `label`, elle est décorative.\n- Icon (should-not): Ne donnez pas de `label` à une icône près d'un texte qui dit la même chose.\n- Icon (must): Dans un bouton qui ne montre qu'une icône, nommez le bouton par son `label`, pas l'icône.\n- TextField (must): Utilisez `TextField` pour une saisie libre sur une ligne : un nom, une adresse e-mail.\n- TextField (should): Pour un texte sur plusieurs lignes, utilisez `Textarea`.\n- TextField (should): Choisissez le `type` de la donnée : `email`, `tel`, `url`. Le clavier des mobiles et la validation le suivent.\n- TextField (should): Écrivez dans `hint` le format attendu, et dans `errorMessage` comment corriger l'erreur.\n- Textarea (must): Utilisez `Textarea` pour un texte sur plusieurs lignes : un message, une description.\n- Textarea (should): Pour une réponse d'une ligne, utilisez `TextField`.\n- Textarea (should): Donnez à `rows` la hauteur d'une réponse habituelle.\n- Textarea (should): Écrivez dans `hint` le format attendu, et dans `errorMessage` comment corriger l'erreur.\n- Checkbox (must): Utilisez `Checkbox` pour un choix oui ou non qu'un formulaire envoie, comme accepter des conditions.\n- Checkbox (should): Pour un réglage qui s'applique tout de suite, utilisez `Switch`.\n- Switch (must): Utilisez `Switch` pour un réglage qui s'applique dès qu'il change, comme les notifications.\n- Switch (should): Pour un choix qu'un formulaire envoie à sa validation, utilisez `Checkbox`.\n- Select (must): Utilisez `Select` pour choisir parmi quelques options, connues de l'usager.\n- Select (should): Écrivez dans `hint` le format attendu, et dans `errorMessage` comment corriger l'erreur.\n- RadioGroup (must): Utilisez `RadioGroup` pour choisir une option parmi quelques-unes, toutes visibles.\n- RadioGroup (should): Au-delà de cinq ou six options, utilisez `Select`.\n- RadioGroup (should): Pour un choix oui ou non, utilisez `Checkbox`.\n- RadioGroup (should): Donnez une valeur par défaut avec `value`, sauf quand l'usager doit choisir lui-même.\n- RadioGroup (should): Écrivez dans `hint` le format attendu, et dans `errorMessage` comment corriger l'erreur.",
+  "components": {
+    "Column": {
+      "type": "object",
+      "description": "Lays out its children one below the other, without border or background.",
+      "properties": {
+        "component": {
+          "const": "Column"
+        },
+        "children": {
+          "$ref": "common_types.json#/$defs/ChildList"
+        },
+        "gap": {
+          "type": "string",
+          "enum": ["2xs", "xs", "sm", "md", "lg", "xl", "2xl"],
+          "default": "md",
+          "description": "The space between the children: a spacing token of the design system."
+        },
+        "align": {
+          "type": "string",
+          "enum": ["start", "center", "end", "stretch"],
+          "default": "stretch",
+          "description": "How the children line up horizontally. `stretch` gives them the full width."
+        }
+      },
+      "required": ["component", "children"]
+    },
+    "Row": {
+      "type": "object",
+      "description": "Lays out its children side by side, without border or background.",
+      "properties": {
+        "component": {
+          "const": "Row"
+        },
+        "children": {
+          "$ref": "common_types.json#/$defs/ChildList"
+        },
+        "gap": {
+          "type": "string",
+          "enum": ["2xs", "xs", "sm", "md", "lg", "xl", "2xl"],
+          "default": "md",
+          "description": "The space between the children: a spacing token of the design system."
+        },
+        "align": {
+          "type": "string",
+          "enum": ["start", "center", "end", "stretch"],
+          "default": "end",
+          "description": "How the children line up vertically. `end` aligns fields and buttons on their bottom."
+        }
+      },
+      "required": ["component", "children"]
+    },
+    "Text": {
+      "type": "object",
+      "description": "Plain text, in a text style of the design system. Markdown isn't read.",
+      "properties": {
+        "component": {
+          "const": "Text"
+        },
+        "text": {
+          "$ref": "common_types.json#/$defs/DynamicString"
+        },
+        "style": {
+          "type": "string",
+          "enum": ["heading-xl", "heading-lg", "heading-md", "heading-sm", "body-md", "body-sm"],
+          "default": "body-md",
+          "description": "A text style of the design system."
+        },
+        "level": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 6,
+          "description": "Makes the text a heading of this level, in the outline of the page."
+        }
+      },
+      "required": ["component", "text"]
+    },
+    "Button": {
+      "type": "object",
+      "description": "Triggers an action or submits a form.",
+      "properties": {
+        "component": {
+          "const": "Button"
+        },
+        "variant": {
+          "type": "string",
+          "enum": [
+            "primary",
+            "secondary",
+            "neutral",
+            "success",
+            "danger",
+            "warning",
+            "information"
+          ],
+          "default": "primary",
+          "description": "Button variant: `primary`, `secondary`, `neutral` or a semantic variant. It sets the colors."
+        },
+        "appearance": {
+          "type": "string",
+          "enum": ["filled", "outlined", "plain"],
+          "default": "filled",
+          "description": "How the variant paints the button: `filled`, `outlined` (a border, no fill) or `plain` (its text only)."
+        },
+        "size": {
+          "type": "string",
+          "enum": ["small", "medium", "large"],
+          "default": "medium",
+          "description": "Button size."
+        },
+        "disabled": {
+          "$ref": "common_types.json#/$defs/DynamicBoolean",
+          "description": "Disables interaction; also sets `aria-disabled=\"true\"` on the host."
+        },
+        "text": {
+          "$ref": "common_types.json#/$defs/DynamicString",
+          "description": "The button label."
+        },
+        "action": {
+          "$ref": "common_types.json#/$defs/Action",
+          "description": "What the agent receives when the user activates it."
+        }
+      },
+      "required": ["component", "text"]
+    },
+    "Alert": {
+      "type": "object",
+      "description": "Displays a message, announced to assistive technologies.",
+      "properties": {
+        "component": {
+          "const": "Alert"
+        },
+        "variant": {
+          "type": "string",
+          "enum": ["success", "danger", "warning", "information"],
+          "default": "information",
+          "description": "The intent of the alert: sets its colors, its icon and how assistive technologies announce it."
+        },
+        "text": {
+          "$ref": "common_types.json#/$defs/DynamicString",
+          "description": "The content of the alert."
+        }
+      },
+      "required": ["component", "text"]
+    },
+    "Badge": {
+      "type": "object",
+      "description": "A short status, as colored text.",
+      "properties": {
+        "component": {
+          "const": "Badge"
+        },
+        "variant": {
+          "type": "string",
+          "enum": ["success", "danger", "warning", "information"],
+          "default": "information",
+          "description": "The intent of the status: sets its colors. Its text must say it too."
+        },
+        "text": {
+          "$ref": "common_types.json#/$defs/DynamicString",
+          "description": "The text of the badge."
+        }
+      },
+      "required": ["component", "text"]
+    },
+    "Icon": {
+      "type": "object",
+      "description": "Displays an icon of the set, by name.",
+      "properties": {
+        "component": {
+          "const": "Icon"
+        },
+        "name": {
+          "type": "string",
+          "enum": [
+            "chevron-down",
+            "chevron-left",
+            "chevron-right",
+            "chevron-up",
+            "chevron-up-down",
+            "close",
+            "danger",
+            "external-link",
+            "information",
+            "success",
+            "warning"
+          ],
+          "description": "Name of the icon in the set."
+        },
+        "label": {
+          "$ref": "common_types.json#/$defs/DynamicString",
+          "description": "Accessible name. Without it, the icon is decorative."
+        }
+      },
+      "required": ["component", "name"]
+    },
+    "TextField": {
+      "type": "object",
+      "description": "A labelled text input that takes part in its form.",
+      "properties": {
+        "component": {
+          "const": "TextField"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["text", "email", "password", "tel", "url", "search"],
+          "default": "text",
+          "description": "Type of the input: `text`, `email`, `password`, `tel`, `url` or `search`."
+        },
+        "label": {
+          "$ref": "common_types.json#/$defs/DynamicString",
+          "description": "The visible label, and the accessible name of the control. Required."
+        },
+        "hint": {
+          "$ref": "common_types.json#/$defs/DynamicString",
+          "description": "A help text between the label and the control, read with the control."
+        },
+        "required": {
+          "$ref": "common_types.json#/$defs/DynamicBoolean",
+          "description": "The form can't be submitted while the control is empty."
+        },
+        "disabled": {
+          "$ref": "common_types.json#/$defs/DynamicBoolean",
+          "description": "Disables interaction; also sets `aria-disabled=\"true\"` on the host."
+        },
+        "errorMessage": {
+          "$ref": "common_types.json#/$defs/DynamicString",
+          "description": "The error message, in place of the browser's. Say how to fix the error."
+        },
+        "value": {
+          "$ref": "common_types.json#/$defs/DynamicString",
+          "description": "The value, submitted with the form. The `value` attribute is the\ndefault value: the form's reset restores it. Bind it to a path of the data model: the component writes the user's input there."
+        }
+      },
+      "required": ["component", "label"]
+    },
+    "Textarea": {
+      "type": "object",
+      "description": "A labelled multi-line text input that takes part in its form.",
+      "properties": {
+        "component": {
+          "const": "Textarea"
+        },
+        "rows": {
+          "$ref": "common_types.json#/$defs/DynamicNumber",
+          "description": "Visible height, in lines of text. The browser's default is 2."
+        },
+        "label": {
+          "$ref": "common_types.json#/$defs/DynamicString",
+          "description": "The visible label, and the accessible name of the control. Required."
+        },
+        "hint": {
+          "$ref": "common_types.json#/$defs/DynamicString",
+          "description": "A help text between the label and the control, read with the control."
+        },
+        "required": {
+          "$ref": "common_types.json#/$defs/DynamicBoolean",
+          "description": "The form can't be submitted while the control is empty."
+        },
+        "disabled": {
+          "$ref": "common_types.json#/$defs/DynamicBoolean",
+          "description": "Disables interaction; also sets `aria-disabled=\"true\"` on the host."
+        },
+        "errorMessage": {
+          "$ref": "common_types.json#/$defs/DynamicString",
+          "description": "The error message, in place of the browser's. Say how to fix the error."
+        },
+        "value": {
+          "$ref": "common_types.json#/$defs/DynamicString",
+          "description": "The value, submitted with the form. The `value` attribute is the\ndefault value: the form's reset restores it. Bind it to a path of the data model: the component writes the user's input there."
+        }
+      },
+      "required": ["component", "label"]
+    },
+    "Checkbox": {
+      "type": "object",
+      "description": "A labelled checkbox that takes part in its form.",
+      "properties": {
+        "component": {
+          "const": "Checkbox"
+        },
+        "label": {
+          "$ref": "common_types.json#/$defs/DynamicString",
+          "description": "The visible label, and the accessible name of the control. Required."
+        },
+        "hint": {
+          "$ref": "common_types.json#/$defs/DynamicString",
+          "description": "A help text between the label and the control, read with the control."
+        },
+        "required": {
+          "$ref": "common_types.json#/$defs/DynamicBoolean",
+          "description": "The form can't be submitted while the control is empty."
+        },
+        "disabled": {
+          "$ref": "common_types.json#/$defs/DynamicBoolean",
+          "description": "Disables interaction; also sets `aria-disabled=\"true\"` on the host."
+        },
+        "errorMessage": {
+          "$ref": "common_types.json#/$defs/DynamicString",
+          "description": "The error message, in place of the browser's. Say how to fix the error."
+        },
+        "checked": {
+          "$ref": "common_types.json#/$defs/DynamicBoolean",
+          "description": "Whether the control is checked. The `checked` attribute is the default state: the form's reset restores it. Bind it to a path of the data model: the component writes the user's input there."
+        }
+      },
+      "required": ["component", "label"]
+    },
+    "Switch": {
+      "type": "object",
+      "description": "A labelled on/off switch that takes part in its form.",
+      "properties": {
+        "component": {
+          "const": "Switch"
+        },
+        "label": {
+          "$ref": "common_types.json#/$defs/DynamicString",
+          "description": "The visible label, and the accessible name of the control. Required."
+        },
+        "hint": {
+          "$ref": "common_types.json#/$defs/DynamicString",
+          "description": "A help text between the label and the control, read with the control."
+        },
+        "disabled": {
+          "$ref": "common_types.json#/$defs/DynamicBoolean",
+          "description": "Disables interaction; also sets `aria-disabled=\"true\"` on the host."
+        },
+        "checked": {
+          "$ref": "common_types.json#/$defs/DynamicBoolean",
+          "description": "Whether the control is checked. The `checked` attribute is the default state: the form's reset restores it. Bind it to a path of the data model: the component writes the user's input there."
+        }
+      },
+      "required": ["component", "label"]
+    },
+    "Select": {
+      "type": "object",
+      "description": "A labelled list of options to pick one from, that takes part in its form.",
+      "properties": {
+        "component": {
+          "const": "Select"
+        },
+        "placeholder": {
+          "$ref": "common_types.json#/$defs/DynamicString",
+          "description": "Shown in the control while nothing is picked: \"Choose a country\"."
+        },
+        "label": {
+          "$ref": "common_types.json#/$defs/DynamicString",
+          "description": "The visible label, and the accessible name of the control. Required."
+        },
+        "hint": {
+          "$ref": "common_types.json#/$defs/DynamicString",
+          "description": "A help text between the label and the control, read with the control."
+        },
+        "required": {
+          "$ref": "common_types.json#/$defs/DynamicBoolean",
+          "description": "The form can't be submitted while the control is empty."
+        },
+        "disabled": {
+          "$ref": "common_types.json#/$defs/DynamicBoolean",
+          "description": "Disables interaction; also sets `aria-disabled=\"true\"` on the host."
+        },
+        "errorMessage": {
+          "$ref": "common_types.json#/$defs/DynamicString",
+          "description": "The error message, in place of the browser's. Say how to fix the error."
+        },
+        "value": {
+          "$ref": "common_types.json#/$defs/DynamicString",
+          "description": "The value, submitted with the form. The `value` attribute is the\ndefault value: the form's reset restores it. Bind it to a path of the data model: the component writes the user's input there."
+        },
+        "options": {
+          "type": "array",
+          "description": "The options the user chooses from: a value, and the label the user reads.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string"
+              },
+              "label": {
+                "type": "string"
+              }
+            },
+            "required": ["value", "label"]
+          }
+        }
+      },
+      "required": ["component", "options", "label"]
+    },
+    "RadioGroup": {
+      "type": "object",
+      "description": "A labelled group of radios that takes part in its form.",
+      "properties": {
+        "component": {
+          "const": "RadioGroup"
+        },
+        "orientation": {
+          "type": "string",
+          "enum": ["horizontal", "vertical"],
+          "default": "vertical",
+          "description": "The direction of the choices: one below the other, or side by side. Reflected."
+        },
+        "label": {
+          "$ref": "common_types.json#/$defs/DynamicString",
+          "description": "The visible label, and the accessible name of the control. Required."
+        },
+        "hint": {
+          "$ref": "common_types.json#/$defs/DynamicString",
+          "description": "A help text between the label and the control, read with the control."
+        },
+        "required": {
+          "$ref": "common_types.json#/$defs/DynamicBoolean",
+          "description": "The form can't be submitted while the control is empty."
+        },
+        "disabled": {
+          "$ref": "common_types.json#/$defs/DynamicBoolean",
+          "description": "Disables interaction; also sets `aria-disabled=\"true\"` on the host."
+        },
+        "errorMessage": {
+          "$ref": "common_types.json#/$defs/DynamicString",
+          "description": "The error message, in place of the browser's. Say how to fix the error."
+        },
+        "value": {
+          "$ref": "common_types.json#/$defs/DynamicString",
+          "description": "The value, submitted with the form. The `value` attribute is the\ndefault value: the form's reset restores it. Bind it to a path of the data model: the component writes the user's input there."
+        },
+        "options": {
+          "type": "array",
+          "description": "The options the user chooses from: a value, and the label the user reads.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string"
+              },
+              "label": {
+                "type": "string"
+              }
+            },
+            "required": ["value", "label"]
+          }
+        }
+      },
+      "required": ["component", "options", "label"]
+    }
+  },
+  "$defs": {
+    "anyComponent": {
+      "oneOf": [
+        {
+          "$ref": "#/components/Column"
+        },
+        {
+          "$ref": "#/components/Row"
+        },
+        {
+          "$ref": "#/components/Text"
+        },
+        {
+          "$ref": "#/components/Button"
+        },
+        {
+          "$ref": "#/components/Alert"
+        },
+        {
+          "$ref": "#/components/Badge"
+        },
+        {
+          "$ref": "#/components/Icon"
+        },
+        {
+          "$ref": "#/components/TextField"
+        },
+        {
+          "$ref": "#/components/Textarea"
+        },
+        {
+          "$ref": "#/components/Checkbox"
+        },
+        {
+          "$ref": "#/components/Switch"
+        },
+        {
+          "$ref": "#/components/Select"
+        },
+        {
+          "$ref": "#/components/RadioGroup"
+        }
+      ],
+      "discriminator": {
+        "propertyName": "component"
+      }
+    },
+    "anyFunction": {
+      "not": {}
+    }
+  }
+}

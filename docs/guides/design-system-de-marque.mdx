@@ -352,8 +352,15 @@ import { brandResolver } from "@unicorne/tokens/dtcg-sources";
 
 export default {
   globs: ["src/**/*.ts"],
-  // The documentation tools' modules (Node) document no component.
-  exclude: ["src/define.ts", "src/**/*.d.ts", "src/docs.ts", "src/brand.ts"],
+  // The modules of its documentation tools (Node) and of A2UI document no component.
+  exclude: [
+    "src/define.ts",
+    "src/**/*.d.ts",
+    "src/docs.ts",
+    "src/brand.ts",
+    "src/a2ui.ts",
+    "src/a2ui-mappings.ts",
+  ],
   outdir: ".",
   litelement: true,
   dependencies: true,
@@ -378,9 +385,55 @@ La marque publie sa commande et son serveur MCP, `acme` et `acme-mcp`, sur sa do
 - Gardez le catalogue et les textes de `designSystem()` dans un module sans import, `src/brand.ts` : la documentation les lit dans Node.
 - Écrivez les descriptions de ses composants pour leurs utilisateurs. Une note pour les auteurs de la marque va dans un commentaire du code.
 
-## 10. Vérifiez
+## 10. Publiez le catalogue A2UI
 
-À la racine du dépôt du socle, lancez `npm run example`. La commande empaquette les six packages du socle, puis installe, construit et teste ACME. Le test vérifie que :
+Une application de la marque peut afficher l'interface d'un agent, dessinée par les composants de la marque ([ADR 0052](?path=/docs/documentation-adr-0052-interfaces-générées-par-un-agent--docs)). La marque publie son catalogue A2UI, et l'entrée qui le rend.
+
+1. Ajoutez `@unicorne/a2ui` aux dépendances. Ajoutez `@a2ui/web_core` 0.15.0 aux devDependencies et aux peer dependencies facultatives.
+2. Écrivez les correspondances de la marque dans un module sans import, `src/a2ui-mappings.ts` :
+
+   ```ts
+   import type { A2uiMappingLayer } from "@unicorne/a2ui/document";
+
+   export const acmeCatalogId = "https://acme.example/a2ui/v1/catalog.json";
+   export const acmeMappings: A2uiMappingLayer = {
+     Card: { component: "card", attributes: ["heading"], children: "children" },
+   };
+   ```
+
+3. Exportez-les depuis `src/docs.ts`, et ajoutez la commande `a2ui` à la CLI de la marque :
+
+   ```js
+   // bin/acme.js
+   commands: { a2ui: a2uiCommand({ catalogId: acmeCatalogId, mappings: acmeMappings }) },
+   ```
+
+4. Écrivez le catalogue A2UI à la fin du build : `… && cem analyze && node bin/acme.js a2ui > a2ui-catalog.json`.
+5. Écrivez l'entrée du renderer, `src/a2ui.ts` :
+
+   ```ts
+   import { a2uiCatalog, socleComponents, type A2uiCatalogDocument } from "@unicorne/a2ui";
+
+   export const acmeA2uiCatalog = (document: A2uiCatalogDocument) =>
+     a2uiCatalog({
+       designSystem: acme,
+       document,
+       components: { ...socleComponents, card: AcmeCard },
+       mappings: acmeMappings,
+     });
+   ```
+
+6. Ajoutez `src/a2ui.ts` aux entrées de Vite, et `/^@a2ui\//` à `external`.
+7. Exportez `./a2ui` et `./a2ui-catalog.json`. Ajoutez `a2ui-catalog.json` à `files`.
+
+- Le catalogue A2UI reprend les correspondances du socle dont le composant est dans le catalogue de la marque.
+- Une correspondance du même nom remplace celle du socle. `{ Badge: null }` la retire.
+- Une correspondance donne ce que la documentation ignore. Sa JSDoc, `ComponentMapping`, en décrit les champs.
+- Une application suit le guide [Afficher l'interface d'un agent](?path=/docs/documentation-guides-afficher-l-interface-d-un-agent--docs).
+
+## 11. Vérifiez
+
+À la racine du dépôt du socle, lancez `npm run example`. La commande empaquette les sept packages du socle, puis installe, construit et teste ACME. Le test vérifie que :
 
 - le `dist/` d'ACME importe `@unicorne/components` au lieu de le copier ;
 - `dist/theme.css` contient les seules valeurs d'ACME, sur `[data-brand="acme"]` ;
@@ -404,6 +457,8 @@ La marque publie sa commande et son serveur MCP, `acme` et `acme-mcp`, sur sa do
 - le manifest d'ACME documente ce qu'`AcmeButton` hérite du socle ;
 - `acme` liste le catalogue d'ACME, montre un composant avec ses textes, vérifie du markup, et a sa commande `texts` ;
 - `acme-mcp` répond à un client MCP, avec son outil `get_texts` ;
+- `a2ui-catalog.json` offre la carte d'ACME, et aucun composant hors de son catalogue ; `acme a2ui` affiche ce document ;
+- `dist/a2ui.js` importe les adaptateurs du socle, et `dist/index.js` n'importe rien d'A2UI ;
 - la documentation d'ACME ne nomme ni le socle, ni ses ADR, ni ses classes.
 
 Une marque dont une application rend ses pages sur un serveur suit le guide [Rendre une marque sur un serveur](?path=/docs/documentation-guides-rendre-une-marque-sur-un-serveur--docs).

@@ -46,6 +46,11 @@ export default defineConfig({
       // Imported by src/polyfills/anchor-positioning.ts, where CSS anchor
       // positioning is missing.
       "@floating-ui/dom",
+      // Imported by @unicorne/a2ui (ADR 0052) and its tests.
+      "lit/directives/ref.js",
+      "@a2ui/web_core",
+      "@a2ui/web_core/universal",
+      "@a2ui/lit",
     ],
   },
 });

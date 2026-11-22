@@ -1,0 +1,115 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Documentation/Guides/Afficher l'interface d'un agent" />
+
+# Afficher l'interface d'un agent
+
+Ce guide affiche, dans une application, l'interface qu'un agent envoie avec le protocole [A2UI](https://a2ui.org/). Les composants de la marque la dessinent : l'agent ne place que ceux de son catalogue A2UI. Les raisons sont dans l'[ADR 0052](?path=/docs/documentation-adr-0052-interfaces-générées-par-un-agent--docs).
+
+L'exemple complet est la page `agent.html` de `examples/acme-vue-app`. Les extraits de ce guide en sont tirés, simplifiés.
+
+## Prérequis
+
+- Une marque qui publie son catalogue A2UI, comme ACME : `@acme/design-system/a2ui-catalog.json` et l'entrée `@acme/design-system/a2ui`. Une marque le publie en suivant la section 10 du guide [Créer un design system de marque](?path=/docs/documentation-guides-créer-un-design-system-de-marque--docs).
+- Un agent qui envoie des messages A2UI 1.0, et le transport qui les porte : A2A, AG-UI, MCP, SSE ou WebSocket.
+
+## 1. Déclarez les dépendances
+
+```json
+{
+  "dependencies": {
+    "@a2ui/lit": "0.15.0",
+    "@a2ui/web_core": "0.15.0",
+    "@acme/design-system": "^1.0.0"
+  }
+}
+```
+
+- `@a2ui/web_core` lit les messages de l'agent. `@a2ui/lit` dessine une surface, `<a2ui-surface>`.
+- Gardez la version exacte que la marque déclare : les versions 0.x d'A2UI changent leur API.
+- Une application sans agent n'installe aucun des deux.
+
+## 2. Donnez le catalogue A2UI à l'agent
+
+`@acme/design-system/a2ui-catalog.json` décrit les composants que l'agent peut placer : leurs propriétés, leurs valeurs et leurs règles d'usage.
+
+1. Chargez ce fichier dans l'agent, avec le SDK d'agent d'A2UI : `Catalog.fromJson()`.
+2. Demandez à l'agent le `catalogId` du fichier dans chaque `createSurface`.
+3. Mettez à jour le fichier avec la version de la marque.
+
+`acme a2ui` affiche le même document, pour le lire.
+
+## 3. Créez le catalogue du renderer
+
+```ts
+// src/agent.ts
+import "@acme/design-system/styles.css";
+import "@a2ui/lit"; // enregistre <a2ui-surface>
+import { acmeA2uiCatalog } from "@acme/design-system/a2ui";
+import document from "@acme/design-system/a2ui-catalog.json";
+
+const catalog = await acmeA2uiCatalog(document);
+```
+
+- `acmeA2uiCatalog()` enregistre les composants du catalogue A2UI, avec les surcharges de la marque.
+- Le renderer lit le même document que l'agent : il refuse un composant ou une valeur hors du catalogue.
+- Dans `tsconfig.json`, activez `resolveJsonModule` pour importer le document.
+
+## 4. Reliez le renderer à l'agent
+
+```ts
+import { MessageProcessor } from "@a2ui/web_core";
+
+const processor = new MessageProcessor([catalog], (action) => sendToAgent(action), {
+  version: "1.0",
+});
+onAgentMessages((messages) => processor.processMessages(messages));
+```
+
+- `sendToAgent()` et `onAgentMessages()` sont votre transport.
+- Le second argument reçoit l'action d'un bouton : son `name`, et son `context`, lu dans le modèle de données.
+- Ce que l'usager saisit dans un champ lié (`{"@path": "/request/name"}`) va dans le modèle de données de la surface.
+
+## 5. Montez la surface
+
+Dans un composant Vue :
+
+```vue
+<script setup lang="ts">
+import type { SurfaceModel } from "@a2ui/web_core";
+import { shallowRef } from "vue";
+
+const surface = shallowRef<SurfaceModel>();
+processor.onSurfaceCreated((created) => (surface.value = created));
+processor.onSurfaceDeleted(() => (surface.value = undefined));
+</script>
+
+<template>
+  <a2ui-surface v-if="surface" :surface="surface"></a2ui-surface>
+</template>
+```
+
+Déclarez `<a2ui-surface>` à Vue, à côté des balises de la marque :
+
+```ts
+// vite.config.ts
+isCustomElement: (tag) => acme.isCustomElement(tag) || tag.startsWith("a2ui-"),
+```
+
+- Les adaptateurs ont le préfixe de la marque, `acme-a2ui-text-field` : `acme.isCustomElement()` les reconnaît.
+- Dans un template Lit, liez la propriété : `` html`<a2ui-surface .surface=${surface}></a2ui-surface>` ``.
+
+## 6. Chargez A2UI sur la page de l'agent seulement
+
+- Écrivez une page, ou un import dynamique, pour l'agent : `agent.html` et `src/agent.ts` dans l'exemple.
+- N'importez ni `@a2ui/lit` ni `@acme/design-system/a2ui` depuis les autres pages. A2UI y ajouterait 85 Kio en gzip.
+
+## 7. Vérifiez
+
+À la racine du dépôt du socle, lancez `npm run example`. Le test de l'application Vue vérifie que :
+
+- les pages du formulaire et des demandes ne téléchargent rien d'A2UI ;
+- les composants d'ACME dessinent la surface de l'agent : champs, liste, zone de texte, alerte et boutons ;
+- l'action reçue par l'agent porte ce que l'usager a saisi ;
+- l'agent répond avec la carte d'ACME, un composant propre à la marque ;
+- annuler la demande supprime la surface.

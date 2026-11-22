@@ -2,7 +2,7 @@
   "name": "@acme/vue-app",
   "version": "0.0.0",
   "private": true,
-  "description": "A Vue application on ACME's design system, as a product team would write it: a form of acme-text-field bound with v-model. Built and tested against the archives of ACME and the base: run `npm run example` from the repository root. `overrides` points ACME's dependencies to the base's archives, which a registry would provide.",
+  "description": "A Vue application on ACME's design system, as a product team would write it: a form of acme-text-field bound with v-model, and an assistant whose agent sends its interface with A2UI (ADR 0052). Built and tested against the archives of ACME and the base: run `npm run example` from the repository root. `overrides` points ACME's dependencies to the base's archives, which a registry would provide.",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -10,6 +10,8 @@
     "test": "node test/smoke.mjs"
   },
   "dependencies": {
+    "@a2ui/lit": "0.15.0",
+    "@a2ui/web_core": "0.15.0",
     "@acme/design-system": "file:.base/acme-design-system-0.0.0.tgz",
     "lit": "^3.3.3",
     "vue": "^3.5.45"
@@ -21,6 +23,7 @@
     "vue-tsc": "^3.3.14"
   },
   "overrides": {
+    "@unicorne/a2ui": "file:.base/unicorne-a2ui-0.0.0.tgz",
     "@unicorne/catalog": "file:.base/unicorne-catalog-0.0.0.tgz",
     "@unicorne/cli": "file:.base/unicorne-cli-0.0.0.tgz",
     "@unicorne/components": "file:.base/unicorne-components-0.0.0.tgz",

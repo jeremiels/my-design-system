@@ -46,6 +46,8 @@ export default mergeConfig(
               "packages/catalog/src/**/*.test.ts",
               "packages/cli/src/**/*.test.ts",
               "packages/mcp/src/**/*.test.ts",
+              // The A2UI catalog's document (ADR 0052).
+              "packages/a2ui/src/document.test.ts",
             ],
             environment: "node",
           },
@@ -60,6 +62,8 @@ export default mergeConfig(
               "packages/components/src/**/*.test.ts",
               "packages/tokens/testing/**/*.test.ts",
               ".storybook/**/*.test.ts",
+              // The A2UI adapters, in a surface (ADR 0052).
+              "packages/a2ui/src/catalog.test.ts",
             ],
             exclude: ["packages/components/src/state/**", "packages/components/src/ssr.test.ts"],
             setupFiles: ["packages/components/src/browser.setup.ts"],

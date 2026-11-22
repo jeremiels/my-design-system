@@ -1,0 +1,17 @@
+{
+  // Builds src/ into dist/, with its types (ADR 0052): the browser entry
+  // (adapters) and the Node one (the A2UI catalog's document).
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "rewriteRelativeImportExtensions": true,
+    "declaration": true,
+    // Types come from the built packages, not from their sources.
+    "customConditions": [],
+    "types": [],
+    "rootDir": "src",
+    "outDir": "dist"
+  },
+  "include": ["src"],
+  "exclude": ["**/*.test.ts"]
+}

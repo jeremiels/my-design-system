@@ -2,7 +2,7 @@
   "name": "@acme/design-system",
   "version": "0.0.0",
   "private": true,
-  "description": "Example brand design system built on @unicorne/tokens, @unicorne/icons and @unicorne/components (ADR 0001, ADR 0003, ADR 0005), with its own documentation tools, `acme` and `acme-mcp` (ADR 0039): run `npm run example` from the repository root.",
+  "description": "Example brand design system built on @unicorne/tokens, @unicorne/icons and @unicorne/components (ADR 0001, ADR 0003, ADR 0005), with its own documentation tools, `acme` and `acme-mcp` (ADR 0039), and its A2UI catalog (ADR 0052): run `npm run example` from the repository root.",
   "bin": {
     "acme": "./bin/acme.js",
     "acme-mcp": "./bin/acme-mcp.js"
@@ -13,6 +13,7 @@
     "custom-elements.json",
     "token-manifest.json",
     "icon-manifest.json",
+    "a2ui-catalog.json",
     "design-system.dsds.yaml",
     "src/components/*/*.dsds.yaml"
   ],
@@ -34,6 +35,10 @@
       "types": "./dist/docs.d.ts",
       "import": "./dist/docs.js"
     },
+    "./a2ui": {
+      "types": "./dist/a2ui.d.ts",
+      "import": "./dist/a2ui.js"
+    },
     "./acme-button": {
       "types": "./dist/components/acme-button/acme-button.d.ts",
       "import": "./dist/acme-button.js"
@@ -44,13 +49,15 @@
       "types": "./dist/vue.d.ts"
     },
     "./reset.css": "./dist/reset.css",
-    "./custom-elements.json": "./custom-elements.json"
+    "./custom-elements.json": "./custom-elements.json",
+    "./a2ui-catalog.json": "./a2ui-catalog.json"
   },
   "scripts": {
-    "build": "tz build && unicorne-icons icons --out src/icons --export acmeIcons --manifest icon-manifest.json && vite build && tsc -p tsconfig.build.json && cem analyze",
+    "build": "tz build && unicorne-icons icons --out src/icons --export acmeIcons --manifest icon-manifest.json && vite build && tsc -p tsconfig.build.json && cem analyze && node bin/acme.js a2ui > a2ui-catalog.json",
     "test": "node test/smoke.mjs"
   },
   "dependencies": {
+    "@unicorne/a2ui": "file:.base/unicorne-a2ui-0.0.0.tgz",
     "@unicorne/catalog": "file:.base/unicorne-catalog-0.0.0.tgz",
     "@unicorne/cli": "file:.base/unicorne-cli-0.0.0.tgz",
     "@unicorne/components": "file:.base/unicorne-components-0.0.0.tgz",
@@ -59,15 +66,20 @@
     "@unicorne/tokens": "file:.base/unicorne-tokens-0.0.0.tgz"
   },
   "devDependencies": {
+    "@a2ui/web_core": "0.15.0",
     "@types/node": "^26.6.6",
     "vue": "^3.5.45"
   },
   "peerDependencies": {
+    "@a2ui/web_core": "0.15.0",
     "lit": "^3.3.3",
     "vue": "^3.5.0"
   },
   "peerDependenciesMeta": {
     "vue": {
+      "optional": true
+    },
+    "@a2ui/web_core": {
       "optional": true
     }
   },

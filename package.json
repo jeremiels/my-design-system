@@ -9,7 +9,8 @@
     "packages/components",
     "packages/catalog",
     "packages/cli",
-    "packages/mcp"
+    "packages/mcp",
+    "packages/a2ui"
   ],
   "type": "module",
   "scripts": {
@@ -20,9 +21,10 @@
     "tokens": "npm run tokens --workspaces --if-present",
     "icons": "npm run icons -w @unicorne/icons",
     "analyze": "npm run analyze -w @unicorne/components",
-    "check": "oxlint packages/components/src packages/catalog/src packages/cli/src packages/mcp/src packages/tokens/testing .storybook && oxfmt --check && tsc -p tsconfig.json --noEmit && npm run tokens:check --workspaces --if-present && npm run icons:check -w @unicorne/icons && npm run api:check -w @unicorne/components && npm run dsds && vitest run",
+    "a2ui": "npm run a2ui -w @unicorne/a2ui",
+    "check": "oxlint packages/components/src packages/catalog/src packages/cli/src packages/mcp/src packages/a2ui/src packages/a2ui/plugins packages/tokens/testing .storybook && oxfmt --check && tsc -p tsconfig.json --noEmit && npm run tokens:check --workspaces --if-present && npm run icons:check -w @unicorne/icons && npm run api:check -w @unicorne/components && npm run a2ui:check -w @unicorne/a2ui && npm run dsds && vitest run",
     "coverage": "COVERAGE=1 vitest run --coverage",
-    "lint": "oxlint packages/components/src packages/catalog/src packages/cli/src packages/mcp/src packages/tokens/testing .storybook --fix",
+    "lint": "oxlint packages/components/src packages/catalog/src packages/cli/src packages/mcp/src packages/a2ui/src packages/a2ui/plugins packages/tokens/testing .storybook --fix",
     "fmt": "oxfmt",
     "fmt:check": "oxfmt --check",
     "compat": "npm run build && es-check checkBrowser \"packages/*/dist/**/*.js\" --module --checkFeatures && node scripts/check-css-compat.mjs",
