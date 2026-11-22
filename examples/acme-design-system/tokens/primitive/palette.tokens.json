@@ -1,7 +1,7 @@
 {
   "palette": {
     "$type": "color",
-    "$description": "ACME's palettes, lightness steps from 100 (lightest) to 900. Same steps as the base's, so the base's semantic tokens keep their contrast in both themes.",
+    "$description": "ACME's palettes, lightness steps from 100 (lightest) to 900. Each step keeps the lightness the semantic tokens expect, so they keep their contrast in both themes.",
     "brand": {
       "$description": "ACME purple: actions.",
       "100": {

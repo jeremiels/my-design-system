@@ -159,6 +159,22 @@ describe("Icon", () => {
     expect(box(brand).innerHTML).toContain('d="M0 0h24"');
   });
 
+  it("renders an alias as the icon it names, the one a brand gives included (ADR 0049)", async () => {
+    const prefix = `icontest${++count}`;
+    class TestIcon extends Icon {
+      static override icons = { star: SVG };
+      static override aliases = { favorite: "star" };
+    }
+    defineComponents({ prefix, components: [TestIcon] });
+    const icon = create(`${prefix}-icon`, "favorite");
+    await icon.updateComplete;
+    expect(box(icon).innerHTML).toContain('d="M0 0h24"');
+
+    const Brand = Icon.forDesignSystem({ iconAliases: { cross: "close" } }) as typeof Icon;
+    expect(Brand.aliases.cross).toBe("close");
+    expect(Object.keys(Brand.icons)).toEqual(Object.keys(Icon.icons));
+  });
+
   it("loads the icons of the base on demand", () => {
     for (const source of Object.values(Icon.icons)) {
       expect(typeof source).toBe("function");

@@ -28,14 +28,17 @@ Les raisons de ces règles sont dans [Architecture CSS](?path=/docs/documentatio
     <tr>
       <td>`@unicorne/tokens/tokens.css`</td>
       <td>`packages/tokens/css/tokens.css`, généré</td>
-      <td>Les primitives et les tokens sémantiques. Ne style aucun élément de la page.</td>
+      <td>
+        Les primitives, les tokens sémantiques et les classes des styles de texte. Ne style aucun
+        élément de la page.
+      </td>
     </tr>
     <tr>
       <td>`@unicorne/components/reset.css`</td>
       <td>`packages/components/src/styles/reset.css`</td>
       <td>
-        Optionnelle : le reset et les styles de base (`body`, titres, médias, champs). Utilise les
-        tokens de `tokens.css`.
+        Optionnelle : le reset et les styles de base (`body` et titres en styles de texte, médias,
+        champs). Utilise les tokens de `tokens.css`.
       </td>
     </tr>
   </tbody>
@@ -44,6 +47,7 @@ Les raisons de ces règles sont dans [Architecture CSS](?path=/docs/documentatio
 - L'application charge `styles.css`, puis `tokens.css`, une seule fois.
 - `packages/components/src/index.ts` n'importe aucune feuille.
 - Une application sans composants charge seulement `tokens.css`.
+- Le CSS d'une application lit les tokens sémantiques, jamais une primitive ni une valeur brute qu'un token porte. `check` le vérifie ([ADR 0043](?path=/docs/documentation-adr-0043-tokens-vérifiés-dans-le-css--docs)).
 
 ## Couches
 
@@ -75,7 +79,7 @@ Les raisons de ces règles sont dans [Architecture CSS](?path=/docs/documentatio
     </tr>
     <tr>
       <td>`u.base`</td>
-      <td>Les styles des éléments HTML (`reset.css`)</td>
+      <td>Les styles des éléments HTML (`reset.css`) : le texte de la page et ses titres</td>
     </tr>
     <tr>
       <td>`u.components`</td>
@@ -83,7 +87,10 @@ Les raisons de ces règles sont dans [Architecture CSS](?path=/docs/documentatio
     </tr>
     <tr>
       <td>`u.utilities`</td>
-      <td>Les classes utilitaires</td>
+      <td>
+        Les classes utilitaires : `.visually-hidden`, et les classes des styles de texte
+        (`tokens.css`)
+      </td>
     </tr>
     <tr>
       <td>`u.shame`</td>
@@ -232,7 +239,7 @@ Le resolver déclare trois sets et des modifiers. Chaque modifier a des contexte
 Le plugin de génération fait échouer le build quand une de ces règles n'est pas respectée :
 
 - Seules les primitives contiennent des valeurs littérales. Une primitive ne référence que des primitives.
-- Un token sémantique est un alias de primitive ou de token sémantique.
+- Un token sémantique est un alias de primitive ou de token sémantique, avec une `$description` : quand l'utiliser. Les outils de documentation la donnent ([ADR 0042](?path=/docs/documentation-adr-0042-tokens-dans-les-outils-de-documentation--docs)).
 - Un token de composant est un alias de token sémantique, avec une `$description`. Un contexte peut aussi viser un token du même composant : `text-color` d'`appearance.plain` vaut `{button.foreground-color}`, que fixe la variante. Le `var()` suit les deux attributs.
 - Un token reste à un seul niveau.
 - Un contexte change seulement des tokens qui ont une valeur par défaut.
@@ -279,9 +286,9 @@ Les intentions sont `action` (palette `brand`), `secondary` (`accent`), `success
 
 ## Génération
 
-`npm run tokens` lance Terrazzo dans chaque package, sur le même resolver. Les deux builds utilisent le plugin `packages/tokens/plugins/terrazzo-plugin.ts`, exporté en `@unicorne/tokens/terrazzo-plugin`.
+`npm run tokens` lance Terrazzo dans chaque package, sur le même resolver. Les deux builds utilisent les plugins de `packages/tokens/plugins/terrazzo-plugin.ts`, exporté en `@unicorne/tokens/terrazzo-plugin` : `tokensCss()` écrit le CSS, `tokenManifest()` le manifest de tokens.
 
-- `packages/tokens/terrazzo.config.ts` génère la feuille de page.
+- `packages/tokens/terrazzo.config.ts` génère la feuille de page et le manifest de tokens.
 - `packages/components/terrazzo.config.ts` génère les feuilles des composants. Il associe chaque modifier de composant à un attribut de l'hôte.
 
 <table>
@@ -307,6 +314,15 @@ Les intentions sont `action` (palette `brand`), `secondary` (`accent`), `success
       <td>`packages/tokens/css/tokens.css`</td>
       <td>`:root, [data-brand]` sous `@media (prefers-reduced-motion: reduce)`</td>
       <td>Les tokens que change le contexte `motion: reduced`</td>
+    </tr>
+    <tr>
+      <td>`packages/tokens/token-manifest.json`</td>
+      <td>Aucun</td>
+      <td>
+        Chaque token : sa custom property, son niveau, son type, sa description, sa valeur dans le
+        contexte par défaut et dans chaque contexte qui la change. La commande et le serveur MCP
+        le lisent ([ADR 0042](?path=/docs/documentation-adr-0042-tokens-dans-les-outils-de-documentation--docs)).
+      </td>
     </tr>
     <tr>
       <td>`packages/components/src/components/<composant>/<composant>.tokens.css`</td>
@@ -408,9 +424,23 @@ Une zone de la page change de thème ou de marque par un attribut ([ADR 0013](?p
 - Une page charge `styles.css` et `tokens.css` une seule fois. Une zone d'une autre marque ajoute la feuille `theme.css` de cette marque.
 - Une page utilise une seule version majeure de `@unicorne/tokens`.
 
+## Styles de texte
+
+Un style de texte est un token `typography` du groupe `text` : une police, une taille, une graisse, un interligne et un espacement des lettres ([ADR 0051](?path=/docs/documentation-adr-0051-styles-de-texte--docs)).
+
+- Chaque partie est un alias d'un token `font`. Une partie littérale fait échouer le build.
+- `tokens.css` écrit le style en raccourci `font`, `--u-text-heading-xl`, et une classe `.u-text-heading-xl` dans `u.utilities`.
+- La feuille d'une marque écrit les classes sous son préfixe : `.acme-text-heading-xl`.
+- Les styles, leurs exemples et leur usage sont dans [Styles de texte](?path=/docs/documentation-référence-styles-de-texte--docs).
+
 ## Mouvement réduit
 
-Le contexte `motion: reduced` met `motion.duration.*` à `{duration.0}` et `motion.scale.*` à `{scale.100}`, sous `@media (prefers-reduced-motion: reduce)`. Les composants lisent ces tokens et n'ont pas leur propre media query.
+Le contexte `motion: reduced` s'applique sous `@media (prefers-reduced-motion: reduce)`. Les composants lisent ces tokens et n'ont pas leur propre media query.
+
+- `motion.duration.fast` et `motion.duration.base` valent `{duration.0}` : une transition s'arrête.
+- `motion.duration.loop` vaut `{duration.2000}` : l'animation d'un chargement ralentit, sans s'arrêter.
+- `motion.scale.*` vaut `{scale.100}` : un overlay entre sans changer d'échelle.
+- Les règles d'usage de ces tokens sont dans `packages/tokens/src/semantic/motion.dsds.yaml` ([ADR 0050](?path=/docs/documentation-adr-0050-règles-d-usage-des-espaces-de-la-typographie-et-du-mouvement--docs)).
 
 ## Contraste
 
@@ -446,6 +476,10 @@ Le contexte `motion: reduced` met `motion.duration.*` à `{duration.0}` et `moti
 </table>
 
 `packages/tokens/testing/tokens.test.ts` vérifie les tokens du socle dans les deux thèmes.
+
+- Le tableau résume `contrastPairs`, la liste complète des paires mesurées.
+- Chaque paire mesurée est aussi un `combo` de l'entrée DSDS de son premier plan, dans `packages/tokens/src/semantic/color.dsds.yaml`. Le test de `@unicorne/catalog` vérifie que les deux listes sont les mêmes ([ADR 0046](?path=/docs/documentation-adr-0046-règles-d-usage-des-tokens--docs)).
+- Une nouvelle paire va dans les deux. La commande, le serveur MCP et la règle `token-pair` de `check` lisent les combos.
 
 ## Feuille d'un composant
 

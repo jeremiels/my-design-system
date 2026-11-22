@@ -2,11 +2,12 @@
   "name": "@unicorne/tokens",
   "version": "0.0.0",
   "private": true,
-  "description": "The design tokens of the base, for every platform: DTCG sources and their resolver, and the CSS custom properties of the web (ADR 0003).",
+  "description": "The design tokens of the base, for every platform: DTCG sources and their resolver, the CSS custom properties of the web (ADR 0003), and the token manifest the documentation tools read (ADR 0042).",
   "files": [
     "src",
     "css",
-    "dist"
+    "dist",
+    "token-manifest.json"
   ],
   "type": "module",
   "sideEffects": [
@@ -15,6 +16,7 @@
   "exports": {
     "./tokens.css": "./css/tokens.css",
     "./resolver.json": "./src/u.resolver.json",
+    "./token-manifest.json": "./token-manifest.json",
     "./src/*": "./src/*",
     "./terrazzo-plugin": {
       "@unicorne/source": "./plugins/terrazzo-plugin.ts",
@@ -33,8 +35,8 @@
     }
   },
   "scripts": {
-    "tokens": "tz build && oxfmt css/tokens.css",
-    "tokens:check": "npm run tokens && git diff --exit-code -- css/tokens.css",
+    "tokens": "tz build && oxfmt css/tokens.css token-manifest.json",
+    "tokens:check": "npm run tokens && git diff --exit-code -- css/tokens.css token-manifest.json",
     "build": "npm run tokens && tsc -p tsconfig.build.json",
     "prepack": "node ../../scripts/pack-manifest.mjs prepack",
     "postpack": "node ../../scripts/pack-manifest.mjs postpack"

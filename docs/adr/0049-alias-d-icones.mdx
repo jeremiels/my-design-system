@@ -1,0 +1,94 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Documentation/ADR/0049 Alias d'icônes" />
+
+# ADR 0049 — Alias d'icônes
+
+**Statut :** accepté · **Date :** 22 novembre 2026
+
+## Contexte
+
+Le nom d'une icône est une API ([ADR 0005](?path=/docs/documentation-adr-0005-icônes--docs)). Une application écrit `<acme-icon name="favorite">`. Renommer l'icône `star` casse cette page : le composant n'affiche rien, et avertit dans la console.
+
+- Un renommage corrige un nom mal choisi, une faute, ou un doublon de deux icônes semblables.
+- Une marque renomme ses propres icônes, et le socle les siennes.
+- `check` connaît les noms du jeu ([ADR 0044](?path=/docs/documentation-adr-0044-icônes-dans-les-outils-de-documentation--docs)) : il refuse l'ancien nom sans dire le nouveau.
+
+### Ce qui existe
+
+<table>
+  <thead>
+    <tr>
+      <th>Source</th>
+      <th>Un ancien nom</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Lucide</td>
+      <td>
+        `aliases`, dans le JSON d'une icône : des objets `name`, `deprecated`, `deprecationReason`
+        (`alias.typo`, `alias.name`, `alias.duplicate`) et `toBeRemovedInVersion`. Une raison
+        demande `deprecated`.
+      </td>
+    </tr>
+    <tr>
+      <td>Font Awesome</td>
+      <td>
+        `aliases.names` dans `icons.yml`. La version 7 garde des icônes renommées comme alias de
+        leur nouveau nom.
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## D1 — Les alias d'une icône
+
+- **Option A — Copier l'icône sous son ancien nom.** Deux icônes à tenir, et une marque qui remplace l'une garde l'autre.
+- **Option B — Un alias**, dans le `<nom>.json` de l'icône, comme Lucide.
+
+**Décision : B.**
+
+```json
+{ "aliases": [{ "name": "favorite", "deprecated": true, "deprecationReason": "alias.name" }] }
+```
+
+- Un alias sans `deprecated` est un autre nom de l'icône. Un alias `deprecated` est un ancien nom.
+- `unicorne-icons` refuse un alias qui n'est pas un nom d'icône, qui porte le nom d'une icône ou d'un autre alias, et une raison sans `deprecated`.
+- Le socle n'a pas de versions : `toBeRemovedInVersion` attend les versions de l'[ADR 0015](?path=/docs/documentation-adr-0015-versions-et-contrat-api--docs).
+
+## D2 — Un alias affiche l'icône qu'il nomme
+
+- `unicorne-icons` exporte la table des alias à côté du jeu : `iconAliases` pour le socle, `acmeIconAliases` pour `--export acmeIcons`. Le type `IconAlias` liste les alias.
+- `Icon.aliases` lit la table du socle. `designSystem({ iconAliases })` y ajoute celle d'une marque.
+- `icon` résout un alias avant de chercher l'icône : l'icône qu'une marque met à la place de celle du socle s'affiche sous ses deux noms.
+
+## D3 — `check` signale un ancien nom, et le corrige
+
+- `deprecated-icon` signale l'ancien nom, en avertissement : la page l'affiche encore.
+- Sa correction écrit le nouveau nom. Elle est sûre : la même icône s'affiche ([ADR 0045](?path=/docs/documentation-adr-0045-corrections-de-check--docs)).
+- `unknown-icon` connaît les alias. `icons` et `list_icons` les listent, et une recherche les trouve.
+
+```
+src/page.html:1:12 warning name="favorite" on <acme-icon>: the icon is renamed "star". (deprecated-icon) [fix]
+```
+
+## Conséquences
+
+- **`@unicorne/icons` :** `aliases` dans `<nom>.json`, la table des alias et le type `IconAlias` dans `js/index.js`, les alias dans `icon-manifest.json`.
+- **`@unicorne/components` :** `Icon.aliases`, `iconAliases` de `designSystem()` et de `DesignSystemSettings`.
+- **`@unicorne/catalog` :** `IconDoc.aliases`, `findIcon()` par alias, la règle `deprecated-icon`.
+- **ACME :** `star` s'appelait `favorite`. Son test affiche l'ancien nom dans le navigateur, et le fait corriger par `check --fix`.
+
+## Questions ouvertes
+
+- **Retrait :** quand retirer un alias déprécié, une fois les versions décidées.
+
+## Sources
+
+Consultées le 22 novembre 2026.
+
+- [icon.schema.json](https://raw.githubusercontent.com/lucide-icons/lucide/main/icon.schema.json) (Lucide) : `aliases`, `deprecated`, `deprecationReason`, `toBeRemovedInVersion`.
+- [Aliased names](https://lucide.dev/guide/advanced/aliased-names) (Lucide) : plusieurs noms pour une icône.
+- [What's changed](https://docs.fontawesome.com/web/setup/upgrade/whats-changed) (Font Awesome 7) : icônes renommées gardées comme alias.
+- [icons.yml](https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/metadata/icons.yml) (Font Awesome, branche `6.x`) : `aliases.names`.

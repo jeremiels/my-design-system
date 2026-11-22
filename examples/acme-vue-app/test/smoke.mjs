@@ -304,6 +304,17 @@ try {
     },
   );
 
+  await check(
+    "the page heading takes ACME's text style, by its class (ADR 0051 of the base)",
+    async () => {
+      const font = await page.getByRole("heading", { level: 1 }).evaluate((heading) => {
+        const { fontSize, fontWeight, fontFamily } = getComputedStyle(heading);
+        return `${fontWeight} ${fontSize} ${fontFamily}`;
+      });
+      return [/^600 32px .*Georgia/.test(font), font];
+    },
+  );
+
   await check("the page has its landmarks, named in French", async () => {
     const landmarks = await Promise.all([
       page.getByRole("banner").count(),

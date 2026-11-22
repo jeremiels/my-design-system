@@ -1,0 +1,141 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Documentation/ADR/0045 Corrections de check" />
+
+# ADR 0045 — Corrections de check
+
+**Statut :** accepté · **Date :** 22 novembre 2026
+
+## Contexte
+
+`check` signale une valeur brute qu'un token porte, et donne le token ([ADR 0043](?path=/docs/documentation-adr-0043-tokens-vérifiés-dans-le-css--docs)). Une application qui adopte le design system en compte des centaines : `padding: 16px` devient `padding: var(--u-spacing-md)`, un par un.
+
+- Le remplacement est mécanique quand un seul token porte la valeur.
+- Il change ce que la page montre quand le token suit un contexte : une couleur en thème sombre, une durée en mouvement réduit. C'est voulu, mais une personne relit.
+- Quand deux tokens portent la valeur, l'intention décide. Aucun outil ne la connaît.
+- Un agent qui écrit du CSS appelle `check_markup`. Il réécrit lui-même chaque valeur.
+
+### Ce qui existe
+
+<table>
+  <thead>
+    <tr>
+      <th>Outil</th>
+      <th>Corrections</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>ESLint</td>
+      <td>
+        Une règle donne un `fix`, que `--fix` applique, ou une suggestion, qu'un éditeur propose.
+        Une suggestion sert quand la correction peut changer le comportement, ou quand plusieurs
+        sont valides. `--fix` repasse jusqu'à 10 fois ; deux corrections qui se chevauchent ne
+        s'appliquent pas dans la même passe.
+      </td>
+    </tr>
+    <tr>
+      <td>Biome</td>
+      <td>
+        Une correction sûre ne change pas le sens du code : `--write` l'applique. Une correction non
+        sûre peut le changer : `--write --unsafe` l'applique, et une personne relit.
+      </td>
+    </tr>
+    <tr>
+      <td>Stylelint</td>
+      <td>
+        `--fix` applique les corrections des règles qui en ont, en passes, jusqu'à 10. Aucune
+        distinction entre sûre et non sûre.
+      </td>
+    </tr>
+    <tr>
+      <td>Primer (`primer/spacing`)</td>
+      <td>Corrige une marge ou un padding quand une variable a la même valeur.</td>
+    </tr>
+  </tbody>
+</table>
+
+## D1 — Une correction par problème, sûre ou non
+
+- **Option A — Aucune correction.** Les messages donnent le token ; l'application le recopie.
+- **Option B — Des corrections, toutes appliquées par `--fix`.** Une couleur change en thème sombre sans relecture.
+- **Option C — Des corrections sûres et non sûres**, comme Biome.
+
+**Décision : C.**
+
+- Un diagnostic porte sa correction : un intervalle du texte et son remplacement, sûr ou non.
+- Une correction est sûre quand la page reste la même dans chaque contexte : le token a la même valeur en thème clair et sombre, et avec le mouvement réduit.
+- Une correction est non sûre quand le token suit un contexte : une couleur, une durée.
+- Il n'y a aucune correction quand plusieurs tokens conviennent : `#fff` dans `color` est le texte de quatre fonds.
+
+<table>
+  <thead>
+    <tr>
+      <th>Règle</th>
+      <th>Correction</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>`raw-value`, une dimension, une graisse, une ombre</td>
+      <td>Le seul token de la famille qui porte la valeur : sûre</td>
+    </tr>
+    <tr>
+      <td>`raw-value`, une durée</td>
+      <td>Le seul token qui porte la valeur : non sûre, il vaut 0 en mouvement réduit</td>
+    </tr>
+    <tr>
+      <td>`raw-value`, une couleur</td>
+      <td>Le seul token du rôle de la propriété qui porte la couleur : non sûre</td>
+    </tr>
+    <tr>
+      <td>`primitive-token`</td>
+      <td>Le seul token sémantique alias de la primitive : non sûre</td>
+    </tr>
+    <tr>
+      <td>`unknown-token`, `unknown-icon`, les règles du markup</td>
+      <td>Aucune : le nom voulu reste une supposition</td>
+    </tr>
+  </tbody>
+</table>
+
+## D2 — Appliquer les corrections
+
+- `check --fix` écrit les corrections sûres dans les fichiers. `check --fix --unsafe` écrit aussi les autres.
+- `fixMarkup()` repasse jusqu'à 10 fois, comme ESLint : deux corrections qui se chevauchent attendent la passe suivante.
+- La commande donne le nombre de problèmes corrigés, puis ceux qui restent.
+- Chaque diagnostic montre sa correction : `[fix]` ou `[unsafe fix]`. Le décompte final les compte.
+
+```
+src/app.css:2:3 warning `16px` in padding: use `var(--u-spacing-md)`. (raw-value) [fix]
+src/app.css:3:3 warning `150ms` in transition: use `var(--u-motion-duration-fast)`. (raw-value) [unsafe fix]
+0 errors, 2 warnings. Fixes: 1 safe, 1 unsafe.
+```
+
+## D3 — Le serveur rend le texte corrigé
+
+- `check_markup` prend `fix: "safe"` ou `fix: "all"`. Il rend le texte corrigé, puis les problèmes qui restent.
+- Le serveur n'écrit aucun fichier : l'agent écrit le texte rendu.
+
+## Conséquences
+
+- **`@unicorne/catalog` :** `Fix` et `Diagnostic.fix`, `CssDeclaration.valueStart`, `fixMarkup()` et `applyFixes()`. Les trois règles CSS donnent leur correction.
+- **Commande :** `check --fix [--unsafe]`. **Serveur :** `fix` de `check_markup`.
+- **ACME :** son test corrige un fichier CSS.
+- **Limites :**
+  - Un attribut `style` et une valeur avec un commentaire ne se corrigent pas : leur position dans le fichier n'est pas connue.
+  - Les règles du markup n'ont pas de correction.
+
+## Questions ouvertes
+
+- **Suggestions :** un nom proche pour `unknown-token` ou `unknown-icon`, proposé à l'agent sans être appliqué, comme une suggestion d'ESLint.
+- **Éditeur :** les corrections dans un serveur de langage ([ADR 0039](?path=/docs/documentation-adr-0039-outils-de-documentation--docs)).
+
+## Sources
+
+Consultées le 22 novembre 2026.
+
+- [Custom Rules](https://eslint.org/docs/latest/extend/custom-rules) (ESLint) : `fix`, suggestions, corrections en conflit, passes.
+- [Linter](https://biomejs.dev/linter/#safe-fixes) (Biome) : corrections sûres et non sûres, `--write` et `--unsafe`.
+- [Options](https://stylelint.io/user-guide/options#fix) et [Writing rules](https://stylelint.io/developer-guide/rules) (Stylelint) : `--fix`, passes.
+- [spacing.js](https://raw.githubusercontent.com/primer/stylelint-config/main/plugins/spacing.js) (Primer) : correction d'une marge ou d'un padding.

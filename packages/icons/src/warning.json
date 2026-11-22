@@ -1,0 +1,5 @@
+{
+  "description": "A warning that asks for attention: the status of an alert or a message.",
+  "tags": ["caution", "alert", "attention"],
+  "categories": ["status"]
+}

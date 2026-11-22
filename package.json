@@ -27,7 +27,7 @@
     "fmt:check": "oxfmt --check",
     "compat": "npm run build && es-check checkBrowser \"packages/*/dist/**/*.js\" --module --checkFeatures && node scripts/check-css-compat.mjs",
     "example": "node scripts/run-example.mjs",
-    "dsds": "dsds-validate --strict packages/components/design-system.dsds.yaml packages/components/src/components/*/*.dsds.yaml && dsds-format --check packages/components/design-system.dsds.yaml packages/components/src/components/*/*.dsds.yaml"
+    "dsds": "dsds-validate --strict packages/components/design-system.dsds.yaml packages/components/src/components/*/*.dsds.yaml packages/tokens/src/tokens.dsds.yaml packages/tokens/src/semantic/*.dsds.yaml && dsds-format --check packages/components/design-system.dsds.yaml packages/components/src/components/*/*.dsds.yaml packages/tokens/src/tokens.dsds.yaml packages/tokens/src/semantic/*.dsds.yaml"
   },
   "devDependencies": {
     "@chromatic-com/storybook": "^5.6.0",

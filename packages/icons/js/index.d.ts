@@ -20,3 +20,7 @@ export type IconName =
   | "warning";
 /** Icon name → loader of its module: a page downloads only the icons it renders. */
 export declare const icons: Readonly<Record<IconName, IconLoader>>;
+/** The other names of this set's icons. */
+export type IconAlias = never;
+/** Another name → the icon it renders (ADR 0049). */
+export declare const iconAliases: Readonly<Record<IconAlias, IconName>>;

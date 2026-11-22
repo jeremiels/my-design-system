@@ -1,0 +1,141 @@
+import { Meta, Unstyled } from "@storybook/addon-docs/blocks";
+import manifest from "../../packages/tokens/token-manifest.json";
+
+<Meta title="Documentation/Référence/Styles de texte" />
+
+export const usage = {
+  "text.heading.xl": "Le titre d'une page : son h1.",
+  "text.heading.lg": "Le titre d'une section de la page : un h2.",
+  "text.heading.md": "Le titre d'une région, comme celui d'une modale ou d'un tiroir : un h3.",
+  "text.heading.sm":
+    "Un petit titre, de la taille du texte, comme celui d'un groupe de champs : un h4.",
+  "text.body.md": "Le texte de la page.",
+  "text.body.sm": "Un texte secondaire : une légende, une aide, une note.",
+};
+
+export const styles = manifest.tokens.filter(({ type }) => type === "typography");
+
+# Styles de texte
+
+Un style de texte réunit une police, une taille, une graisse, un interligne et un espacement des lettres. Les décisions sont dans l'[ADR 0051](?path=/docs/documentation-adr-0051-styles-de-texte--docs).
+
+## Les styles
+
+Le tableau lit `packages/tokens/token-manifest.json` : chaque exemple utilise la classe du style.
+
+<table>
+  <thead>
+    <tr>
+      <th>Classe</th>
+      <th>Exemple</th>
+      <th>Usage</th>
+      <th>Valeur</th>
+    </tr>
+  </thead>
+  <tbody>
+    {styles.map((style) => (
+      <tr key={style.id}>
+        <td>
+          <code>{style.className}</code>
+        </td>
+        <td>
+          <Unstyled>
+            <p className={style.className}>Demandes de congés</p>
+          </Unstyled>
+        </td>
+        <td>{usage[style.id] ?? style.description}</td>
+        <td>
+          <code>{style.value}</code>
+        </td>
+      </tr>
+    ))}
+  </tbody>
+</table>
+
+- Chaque style est un token `typography` du groupe `text`, au niveau sémantique. Chaque partie est un alias d'un token `font`.
+- Une marque change un style par ses tokens `font` : sa police, ses tailles. Ses classes portent son préfixe : `acme-text-heading-xl`.
+
+## Dans le HTML
+
+Donnez la classe d'un style à n'importe quel élément.
+
+```html
+<h1 class="u-text-heading-xl">Demandes</h1>
+<h2 class="u-text-heading-xl">Mes demandes en cours</h2>
+<p class="u-text-body-sm">Mise à jour il y a 5 minutes.</p>
+```
+
+- Choisissez la balise d'un titre selon la structure de la page, et sa classe selon son importance.
+- Les classes sont dans `tokens.css`, dans la couche `u.utilities`. Une marque les écrit dans sa feuille, sous son préfixe.
+- Une classe suit la marque et le thème de sa zone : ses `var()` se résolvent sur l'élément.
+
+### Avec reset.css
+
+`@unicorne/components/reset.css` donne leur style au texte de la page et à ses titres, dans la couche `u.base`.
+
+<table>
+  <thead>
+    <tr>
+      <th>Élément</th>
+      <th>Style</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>`body`</td>
+      <td>`text.body.md`</td>
+    </tr>
+    <tr>
+      <td>`h1`</td>
+      <td>`text.heading.xl`</td>
+    </tr>
+    <tr>
+      <td>`h2`</td>
+      <td>`text.heading.lg`</td>
+    </tr>
+    <tr>
+      <td>`h3`</td>
+      <td>`text.heading.md`</td>
+    </tr>
+    <tr>
+      <td>`h4`, `h5`, `h6`</td>
+      <td>`text.heading.sm`</td>
+    </tr>
+  </tbody>
+</table>
+
+Une classe l'emporte sur ces styles : `u.utilities` vient après `u.base`.
+
+## Dans le CSS
+
+Appliquez un style par le raccourci `font`, et son espacement des lettres à part :
+
+```css
+.card-title {
+  font: var(--u-text-heading-md);
+  letter-spacing: var(--u-font-letter-spacing-normal);
+}
+```
+
+- Le raccourci `font` ne porte pas d'espacement des lettres.
+- Le raccourci sert aussi dans le shadow DOM d'un composant de marque : une custom property traverse le shadow DOM, une classe non.
+- `font` remet à leur valeur initiale les propriétés qu'il ne cite pas, comme `font-style` et `font-variant`.
+
+## Dans Figma
+
+- Un style devient un style de texte : `text.heading.xl` donne `text/heading/xl`.
+- Sa police, sa graisse, sa taille et son espacement des lettres se lient aux variables de leurs tokens.
+- Son interligne est un pourcentage du style : 125 % ou 150 %. Tokens Studio lit un interligne sans unité en pixels.
+
+## Vérifier
+
+- `npx unicorne token text.heading.xl` donne la classe, le CSS et les parties d'un style. `npx unicorne tokens text` donne les règles d'usage des styles.
+- `check` signale une classe `u-text-…` qu'aucun style ne porte (`unknown-text-style`), avec une suggestion.
+- `check` signale un raccourci `font` brut qu'un style porte (`raw-value`), et le corrige en `var(--u-text-…)`.
+
+## Ajouter un style
+
+1. Écrivez le token dans `packages/tokens/src/semantic/semantic.tokens.json`, sous `text`, avec ses cinq parties en alias.
+2. Donnez-lui une `$description` : l'usage du style.
+3. Lancez `npm run tokens` : la classe et la ligne du manifest se génèrent.
+4. Ajoutez son usage, en français, au tableau de cette page (`usage`).

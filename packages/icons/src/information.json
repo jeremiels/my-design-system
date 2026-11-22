@@ -1,0 +1,5 @@
+{
+  "description": "Information: the status of an alert, a message or a badge.",
+  "tags": ["info", "help", "details", "notice"],
+  "categories": ["status"]
+}

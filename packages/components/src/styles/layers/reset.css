@@ -54,12 +54,11 @@
     }
   }
 
-  /* The page follows the tokens, dark mode included (tokens from styles.css) */
+  /* The page follows the tokens, dark mode included (tokens from styles.css).
+     Its text style is in base.css: text.body.md. */
   body {
     /* dvh follows the toolbar of mobile browsers; 100vh overflows the screen there */
     min-height: 100dvh;
-    line-height: var(--u-font-line-height-body);
-    font-family: var(--u-font-family-body);
     background-color: var(--u-color-surface-default);
     color: var(--u-color-text-default);
   }

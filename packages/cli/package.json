@@ -2,7 +2,7 @@
   "name": "@unicorne/cli",
   "version": "0.0.0",
   "private": true,
-  "description": "The command line of a design system's documentation (ADR 0039): list, show, search and check. `unicorne` consults the base's; a design system builds its own with `createCli()`.",
+  "description": "The command line of a design system's documentation (ADR 0039): list, show, search and check its components, and its tokens (ADR 0042). `unicorne` consults the base's; a design system builds its own with `createCli()`.",
   "bin": {
     "unicorne": "./dist/bin.js"
   },

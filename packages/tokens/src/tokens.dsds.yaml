@@ -1,0 +1,18 @@
+# Le document racine de l'usage des tokens (DSDS) : il liste un document par famille.
+schemaVersion: "0.23.1"
+$schema: https://designsystemdocspec.org/v0.23.1/dsds.bundled.yaml
+name: Tokens du socle
+entries:
+  - kind: entry
+    id: tokens
+    name: "Tokens du socle"
+    description: "L'usage des tokens sémantiques : leurs règles, et les tokens qui vont ensemble (ADR 0046). Leurs valeurs vivent dans les sources DTCG."
+refs:
+  - href: ./semantic/color.dsds.yaml
+    rel: file
+  - href: ./semantic/spacing.dsds.yaml
+    rel: file
+  - href: ./semantic/typography.dsds.yaml
+    rel: file
+  - href: ./semantic/motion.dsds.yaml
+    rel: file

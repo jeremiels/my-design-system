@@ -1,13 +1,16 @@
 /**
  * ACME's documentation, for its tools (ADR 0039 of the base): the
  * components of its catalog, its own and its overrides, their usage rules,
- * and its texts. `acme` and `acme-mcp` (bin/) consult it. Node only.
+ * its tokens (ADR 0042), its icons (ADR 0044) and its texts. `acme` and `acme-mcp` (bin/) consult
+ * it. Node only.
  */
 import { readFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   extendDocs,
+  readIconManifest,
+  readTokenManifest,
   readUsage,
   type CustomElementsManifest,
   type DesignSystemDocs,
@@ -40,6 +43,10 @@ export async function loadAcmeDocs(): Promise<DesignSystemDocs> {
     labels,
     manifest,
     usage: await readUsage(fileOf("design-system.dsds.yaml")),
+    // Its tokens, with its values: its Terrazzo build writes the manifest.
+    tokens: await readTokenManifest(fileOf("token-manifest.json")),
+    // Its own icons, over the base's: `unicorne-icons --manifest` writes them.
+    icons: await readIconManifest(fileOf("icon-manifest.json")),
     importCode: (component) =>
       [
         `import { acme, ${component.className} } from "@acme/design-system";`,

@@ -18,7 +18,7 @@ export interface SearchResult {
 }
 
 /** A text without case nor accents, for a search. */
-const normalize = (text: string) =>
+export const normalize = (text: string) =>
   text
     .normalize("NFD")
     .replace(/\p{Diacritic}/gu, "")

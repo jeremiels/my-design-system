@@ -237,20 +237,146 @@ try {
       checked.stdout.includes("3 errors"),
     "text-field label, card heading",
   );
+  // The tokens in CSS (ADR 0043 of the base), with ACME's values.
+  const styles = await mkdtemp(join(tmpdir(), "acme-css-"));
+  await writeFile(
+    join(styles, "app.css"),
+    [
+      ".card {",
+      "  gap: var(--u-spacing-medium);",
+      "  background: var(--u-palette-brand-600);",
+      "  border-color: #7a4aba;",
+      "}",
+      ".card-title {",
+      "  color: var(--u-color-action-text);",
+      "  background: var(--u-color-surface-default);",
+      "}",
+    ].join("\n"),
+  );
+  const css = acmeCli("check", styles);
+  record(
+    "acme check: the tokens in CSS, an unknown one, a primitive, a raw color of ACME's",
+    css.status === 1 &&
+      css.stdout.includes("ACME has no token `--u-spacing-medium`.") &&
+      css.stdout.includes("`--u-palette-brand-600` is a primitive") &&
+      css.stdout.includes("`#7a4aba` in border-color") &&
+      css.stdout.includes("`var(--u-color-action-background)`"),
+    css.stdout.trim().split("\n").at(-1),
+  );
+  // The pairs of the tokens (ADR 0046 of the base): documented, and checked.
+  record(
+    "acme token and check: the pairs of a token, and a text on a background it doesn't allow",
+    acmeCli("token", "color.action.text").stdout.includes(
+      "- **MUST** be paired with `--u-color-action-background`",
+    ) && css.stdout.includes("`--u-color-action-text` on `--u-color-surface-default`"),
+    "color.action.text on color.surface.default",
+  );
+  // The Lit templates of a script (ADR 0048 of the base), at their place in the file.
+  const litFolder = await mkdtemp(join(tmpdir(), "acme-lit-"));
+  await writeFile(
+    join(litFolder, "view.ts"),
+    'import { html } from "lit";\nexport const view = () => html`<acme-card heading="Titre"><acme-buton>Go</acme-buton></acme-card>`;\n',
+  );
+  const lit = acmeCli("check", litFolder);
+  record(
+    "acme check: the Lit templates of a script, with the name a typo meant",
+    lit.status === 1 &&
+      lit.stdout.includes(
+        "view.ts:2:59 error ACME has no <acme-buton>. Did you mean <acme-button>?",
+      ),
+    lit.stdout.trim().split("\n")[0],
+  );
+
+  // The safe fixes of check (ADR 0045 of the base): written in the file.
+  const fixFolder = await mkdtemp(join(tmpdir(), "acme-fix-"));
+  await writeFile(join(fixFolder, "app.css"), ".card { padding: 16px; }\n");
+  const fixedRun = acmeCli("check", fixFolder, "--fix");
+  const fixedCss = await readFile(join(fixFolder, "app.css"), "utf8");
+  record(
+    "acme check --fix: a raw value becomes its token, in the file",
+    fixedRun.status === 0 &&
+      fixedRun.stdout.includes("Fixed 1 problem in 1 file.") &&
+      fixedCss === ".card { padding: var(--u-spacing-md); }\n",
+    fixedCss.trim(),
+  );
+
+  // ACME's icons over the base's (ADR 0044 of the base): listed, and checked.
+  const iconFolder = await mkdtemp(join(tmpdir(), "acme-icons-"));
+  await writeFile(join(iconFolder, "page.html"), `<acme-icon name="stra"></acme-icon>`);
+  const iconCheck = acmeCli("check", iconFolder);
+  const favorites = acmeCli("icons", "favorite").stdout;
+  // The old name of a renamed icon (ADR 0049 of the base): listed, and fixed.
+  await writeFile(join(iconFolder, "old.html"), `<acme-icon name="favorite"></acme-icon>`);
+  const renamed = acmeCli("check", join(iconFolder, "old.html"));
+  record(
+    "acme check: the old name of a renamed icon, with a safe fix to its new name",
+    renamed.stdout.includes(
+      'name="favorite" on <acme-icon>: the icon is renamed "star". (deprecated-icon) [fix]',
+    ) && acmeCli("icons", "star").stdout.includes("Also: `favorite` (deprecated)."),
+    renamed.stdout.trim().split("\n")[0],
+  );
+  record(
+    "acme icons: ACME's star among the base's icons, and check knows their names",
+    favorites.includes("- `star` — A favorite") &&
+      acmeCli("icons").stdout.includes("12 icons") &&
+      iconCheck.status === 1 &&
+      iconCheck.stdout.includes('ACME has no icon "stra". Close: "star".'),
+    iconCheck.stdout.trim().split("\n")[0],
+  );
   record(
     "acme has ACME's own command, texts",
     acmeCli("texts").stdout.includes("`closeLabel`: Fermer"),
     "closeLabel: Fermer",
   );
 
+  // ACME's tokens (ADR 0042 of the base): the base's, with ACME's values.
+  const action = acmeCli("token", "color.action.background").stdout;
+  const padding = acmeCli("token", "card.padding").stdout;
+  const body = acmeCli("token", "--u-font-family-body").stdout;
+  record(
+    "acme token: ACME's values, its card's prefix, the base's descriptions it keeps",
+    action.includes("- default: `#7a4aba`") &&
+      padding.includes("# `--acme-card-padding`") &&
+      body.includes("Text of the page and of the components.") &&
+      body.includes("Georgia"),
+    action.split("\n").find((line) => line.startsWith("- default")),
+  );
+
+  // ACME's text styles (ADR 0051 of the base): its classes, in its sheet and its docs.
+  const heading = acmeCli("token", "text.heading.xl").stdout;
+  await writeFile(join(iconFolder, "text.html"), `<h1 class="acme-text-heading-xxl">Demandes</h1>`);
+  const unknownStyle = acmeCli("check", join(iconFolder, "text.html")).stdout;
+  record(
+    "acme text styles: ACME's classes in theme.css and in its docs, checked by check",
+    /\.acme-text-heading-xl\s*\{/.test(themeSheet) &&
+      heading.includes('In HTML: `class="acme-text-heading-xl"`.') &&
+      unknownStyle.includes(
+        'Did you mean "acme-text-heading-xl"? (unknown-text-style) [suggestion]',
+      ),
+    unknownStyle.trim().split("\n")[0],
+  );
+
+  // The usage rules of a group of tokens (ADR 0050 of the base), with the tokens.
+  const spacing = acmeCli("tokens", "spacing").stdout;
+  record(
+    "acme tokens spacing: the rules of the group, and what check verifies of them",
+    spacing.includes("## Rules of `spacing`") && spacing.includes("_Partly checked by `check`._"),
+    spacing.split("\n").find((line) => line.startsWith("- **MUST**")),
+  );
+
   // Nothing of what ACME builds on, but the names of the events and tokens,
   // which every design system shares.
   const { loadAcmeDocs } = await import(pathToFileURL(join(root, "dist/docs.js")).href);
-  const { formatComponent } = await import("@unicorne/catalog");
+  const { formatComponent, formatIconList, formatToken, formatTokenList } =
+    await import("@unicorne/catalog");
   const docs = await loadAcmeDocs();
-  const everything = docs.components
-    .map((component) => formatComponent(docs, component, "agent"))
-    .join("\n");
+  const everything = [
+    ...docs.components.map((component) => formatComponent(docs, component, "agent")),
+    ...docs.tokens.map((token) => formatToken(docs, token)),
+    ...["primitive", "semantic", "component"].map((level) => formatTokenList(docs, { level })),
+    ...docs.tokenGroups.map(({ name }) => formatTokenList(docs, { group: name })),
+    formatIconList(docs),
+  ].join("\n");
   const leaks = everything
     .replace(/`u-(?:close|cancel|select|toggle|sort|remove)`/g, "")
     .replace(/--u-[\w-]+/g, "")
@@ -272,6 +398,11 @@ try {
   const tools = (await client.listTools()).tools.map(({ name }) => name);
   const card = await client.callTool({ name: "get_component", arguments: { name: "card" } });
   const texts = await client.callTool({ name: "get_texts", arguments: {} });
+  const purple = await client.callTool({ name: "search_docs", arguments: { query: "#7A4ABA" } });
+  const radius = await client.callTool({
+    name: "get_token",
+    arguments: { name: "button.border-radius" },
+  });
   const markup = await client.callTool({
     name: "check_markup",
     arguments: {
@@ -287,6 +418,13 @@ try {
       card.content[0].text.includes("Utilisez `card` pour résumer") &&
       texts.content[0].text.includes("Fermer"),
     `tools: ${tools.join(", ")}`,
+  );
+  record(
+    "acme-mcp finds ACME's tokens, by value too",
+    tools.includes("list_tokens") &&
+      purple.content[0].text.startsWith("- `--u-color-action-background` `#7a4aba`") &&
+      radius.content[0].text.includes("- default: `9999px`"),
+    purple.content[0].text.split("\n")[0],
   );
   const reported = markup.content[0].text;
   record(

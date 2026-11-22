@@ -1,0 +1,141 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Documentation/ADR/0047 Suggestions de check" />
+
+# ADR 0047 — Suggestions de check
+
+**Statut :** accepté · **Date :** 22 novembre 2026
+
+## Contexte
+
+`check` signale un nom que le design system n'a pas : une balise, un attribut, une valeur, un événement, un slot, une icône, un token. Une faute de frappe en est souvent la cause : `varient`, `primay`, `--u-spacing-mdd`.
+
+- Les corrections de l'[ADR 0045](?path=/docs/documentation-adr-0045-corrections-de-check--docs) ne couvrent pas ces noms : le nom voulu reste une supposition.
+- Les messages listaient parfois des noms proches (`unknown-icon`, `unknown-token`), sans dire lequel, ni où l'écrire.
+- Un agent qui reçoit `check_markup` corrige mieux avec le nom probable et sa place dans le texte.
+
+### Ce qui existe
+
+<table>
+  <thead>
+    <tr>
+      <th>Outil</th>
+      <th>Un nom probable</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>TypeScript</td>
+      <td>
+        `getSpellingSuggestion()` donne le candidat le plus proche, ou aucun. Une insertion ou une
+        suppression coûte 1, une substitution 2, une différence de casse 0,1. Un candidat compte si
+        sa longueur diffère d'au plus `max(2, 0,34 × longueur)` et sa distance reste sous `0,4 ×
+        longueur + 1`.
+      </td>
+    </tr>
+    <tr>
+      <td>ESLint</td>
+      <td>
+        Une règle donne des suggestions (`suggest`) : une description et une correction, qu'un
+        éditeur propose et qu'une personne applique. Elles servent quand plusieurs corrections sont
+        valides, ou quand une correction change le comportement.
+      </td>
+    </tr>
+    <tr>
+      <td>LSP 3.17</td>
+      <td>
+        Une `CodeAction` de type `quickfix` résout des diagnostics. `isPreferred` marque celle
+        qu'une commande « auto fix » applique.
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## D1 — Le nom probable
+
+- **Option A — Les noms proches par un seuil maison.** Chaque règle a le sien.
+- **Option B — L'algorithme de TypeScript**, ses coûts et ses seuils, pour toutes les règles.
+
+**Décision : B.**
+
+- `spellingSuggestion()` de `@unicorne/catalog` reprend `getSpellingSuggestion()` de TypeScript 5.9.3 : un seul candidat, ou aucun.
+- `stra` ne donne pas `star` : deux lettres inversées coûtent 4, au-dessus du seuil d'un nom de 4 lettres. `unknown-icon` garde sa liste des icônes proches par leurs mots-clés ([ADR 0044](?path=/docs/documentation-adr-0044-icônes-dans-les-outils-de-documentation--docs)).
+
+## D2 — Une suggestion, jamais appliquée par `--fix`
+
+- **Option A — Une correction non sûre.** `--fix --unsafe` écrirait un nom que personne n'a choisi.
+- **Option B — Une suggestion**, comme ESLint : une description et ses modifications, qu'une personne ou un agent applique.
+
+**Décision : B.**
+
+- Un diagnostic porte ses `suggestions` : `Replace with "primary"`, et les modifications du texte.
+- Le message dit le nom : `Did you mean "primary"?`. La liste montre `[suggestion]`.
+- `--fix` ne les applique pas, même avec `--unsafe`. La sortie JSON de `check` les donne, pour un éditeur.
+
+<table>
+  <thead>
+    <tr>
+      <th>Règle</th>
+      <th>Candidats</th>
+      <th>Ce que la suggestion réécrit</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>`unknown-element`</td>
+      <td>Les balises du design system</td>
+      <td>Le nom dans la balise ouvrante et dans la balise fermante</td>
+    </tr>
+    <tr>
+      <td>`unknown-attribute`</td>
+      <td>Les attributs et les propriétés du composant</td>
+      <td>Le nom, sans sa liaison : `variant` de `:varient`</td>
+    </tr>
+    <tr>
+      <td>`invalid-value`</td>
+      <td>Les valeurs de l'attribut</td>
+      <td>La valeur</td>
+    </tr>
+    <tr>
+      <td>`unknown-event`, `unknown-slot`</td>
+      <td>Les événements, les slots du composant</td>
+      <td>Le nom de l'événement, la valeur de `slot`</td>
+    </tr>
+    <tr>
+      <td>`unknown-icon`</td>
+      <td>Les icônes du jeu</td>
+      <td>La valeur de `name`</td>
+    </tr>
+    <tr>
+      <td>`unknown-token`</td>
+      <td>Les tokens et les custom properties des composants</td>
+      <td>Le nom dans `var()`</td>
+    </tr>
+  </tbody>
+</table>
+
+## D3 — La place d'un nom dans le fichier
+
+- `check` lit la position de chaque attribut et de chaque balise dans le markup (parse5).
+- Un template Vue reçoit des balises fermantes pour ses éléments auto-fermants : la suggestion garde les positions du fichier, et ne réécrit pas une balise fermante qu'il n'a pas.
+- Un attribut `style` ne reçoit pas de suggestion pour un token : la position d'une valeur n'y est pas connue.
+
+## Conséquences
+
+- **`@unicorne/catalog` :** `spelling.ts` (`spellingSuggestion()`, `spellingDistance()`), `Edit`, `Suggestion` et `Diagnostic.suggestions`, les plages de `MarkupAttribute` et `MarkupElement`. Six règles donnent leur suggestion.
+- **Commande et serveur :** le message dit le nom probable ; la sortie JSON donne les modifications.
+- **Limites :**
+  - Un seul nom par problème, ou aucun.
+  - Les templates Lit sont lus depuis l'[ADR 0048](?path=/docs/documentation-adr-0048-templates-lit-dans-check--docs).
+
+## Questions ouvertes
+
+- **Éditeur :** les suggestions en `quickfix` d'un serveur de langage.
+
+## Sources
+
+Consultées le 22 novembre 2026.
+
+- [core.ts](https://github.com/microsoft/TypeScript/blob/v5.9.3/src/compiler/core.ts) (TypeScript 5.9.3) : `getSpellingSuggestion()`, `levenshteinWithMax()`.
+- [Providing Suggestions](https://eslint.org/docs/latest/extend/custom-rules#providing-suggestions) (ESLint) : `suggest`, `hasSuggestions`, application manuelle.
+- [Code Action Request](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/) (LSP 3.17) : `quickfix`, `isPreferred`, `source.fixAll`.

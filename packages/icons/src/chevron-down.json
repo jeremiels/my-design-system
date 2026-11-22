@@ -1,0 +1,5 @@
+{
+  "description": "Opens what is below or after: a list, a panel, a menu. Also a column sorted in descending order.",
+  "tags": ["arrow", "caret", "expand", "open", "descending"],
+  "categories": ["navigation"]
+}

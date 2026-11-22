@@ -155,7 +155,7 @@ function save() {
       </acme-side-nav-item>
     </acme-side-nav>
     <div class="content">
-      <h1>Demandes</h1>
+      <h1 class="acme-text-heading-xl">Demandes</h1>
 
       <section class="filters" aria-label="Filtres">
         <acme-select

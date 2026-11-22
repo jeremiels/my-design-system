@@ -2,9 +2,11 @@ import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { parse } from "yaml";
 import { createDocs } from "./docs.ts";
-import { readUsage } from "./dsds.ts";
+import { readTokenUsage, readUsage } from "./dsds.ts";
 import type { CustomElementsManifest } from "./manifest.ts";
 import type { DesignSystemDocs } from "./model.ts";
+import { readIconManifest } from "./icons.ts";
+import { readTokenManifest } from "./tokens.ts";
 
 /** A reference to an ADR of the base, in parentheses: `(ADR 0031)`, `(ADR 0001, D2)`. */
 const ADR_REFERENCE = /\s*\([^()]*\bADRs? \d{4}\b[^()]*\)/g;
@@ -34,8 +36,11 @@ const fileOf = (path: string) => fileURLToPath(import.meta.resolve(`@unicorne/co
 
 /**
  * The documentation of the base: the components of `@unicorne/components`,
- * from its manifest and its DSDS documents. A design system extends it with
- * `extendDocs()`: the references to the base's ADRs leave its view.
+ * from its manifest and its DSDS documents, and the tokens of
+ * `@unicorne/tokens`, from its token manifest (ADR 0042), and the icons of
+ * `@unicorne/icons`, from its icon manifest (ADR 0044). A design system
+ * extends it with `extendDocs()`: the references to the base's ADRs leave its
+ * view.
  */
 export async function loadSocleDocs(): Promise<DesignSystemDocs> {
   const manifest = JSON.parse(
@@ -51,6 +56,15 @@ export async function loadSocleDocs(): Promise<DesignSystemDocs> {
     description: system?.description?.trim() ?? "",
     manifest,
     usage: await readUsage(root),
+    tokens: await readTokenManifest(
+      fileURLToPath(import.meta.resolve("@unicorne/tokens/token-manifest.json")),
+    ),
+    tokenUsage: await readTokenUsage(
+      fileURLToPath(import.meta.resolve("@unicorne/tokens/src/tokens.dsds.yaml")),
+    ),
+    icons: await readIconManifest(
+      fileURLToPath(import.meta.resolve("@unicorne/icons/icon-manifest.json")),
+    ),
     importCode: (component) =>
       [
         `import { defineComponents, ${component.className} } from "@unicorne/components";`,

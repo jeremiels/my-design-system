@@ -1,0 +1,5 @@
+{
+  "description": "An error, or a destructive action: the status of an alert, a message or a field.",
+  "tags": ["error", "alert", "invalid", "critical"],
+  "categories": ["status"]
+}

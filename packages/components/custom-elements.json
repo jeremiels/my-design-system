@@ -30032,6 +30032,16 @@
               "description": "The icon set: icon name → its SVG markup, or a loader of its module.\nThe default is the set of `@unicorne/icons`. A brand adds or replaces\nicons by name in a subclass, registered with `overrides: { icon: … }`,\nso every component of the registration renders them:\n`static override icons = { ...Icon.icons, ...brandIcons }`.\nRendered as HTML: trusted markup only, such as the output of `unicorne-icons`."
             },
             {
+              "kind": "field",
+              "name": "aliases",
+              "type": {
+                "text": "Readonly<Record<string, string>>"
+              },
+              "static": true,
+              "default": "iconAliases",
+              "description": "Other names of the set's icons: an old name → the icon it renders (ADR\n0049). The default is the aliases of `@unicorne/icons`. An alias renders\nwhatever icon its target name has: a brand's icon that replaces the\nbase's renders under both names."
+            },
+            {
               "kind": "method",
               "name": "bundle",
               "static": true,
@@ -30067,7 +30077,7 @@
                   }
                 },
                 {
-                  "name": "{ icons: designSystemIcons }",
+                  "name": "{ icons: designSystemIcons, iconAliases: designSystemAliases }",
                   "type": {
                     "text": "DesignSystemSettings"
                   }
@@ -30133,7 +30143,7 @@
               },
               "parameters": [
                 {
-                  "name": "name",
+                  "name": "requested",
                   "type": {
                     "text": "string"
                   }

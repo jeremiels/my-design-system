@@ -1,0 +1,57 @@
+# Les règles d'usage des tokens de mouvement (DSDS, ADR 0050) : elles valent pour chaque token `motion`.
+schemaVersion: "0.23.1"
+$schema: https://designsystemdocspec.org/v0.23.1/dsds.bundled.yaml
+name: "Tokens de mouvement"
+entries:
+  - kind: entry
+    id: motion
+    name: "Mouvement"
+    description: "Les durées, les courbes et les échelles des transitions et des animations."
+    metadata:
+      group: motion
+    sections:
+      - kind: guidelines
+        for: all
+        items:
+          - level: must
+            statement: "Donnez sa durée à une transition par `motion.duration.fast` ou `motion.duration.base` : ils valent 0 quand l'utilisateur demande moins de mouvement."
+            checkedBy: manual
+          - level: should
+            statement: "Donnez sa durée à une animation qui dit qu'un chargement continue par `motion.duration.loop` : elle ralentit en mouvement réduit, sans s'arrêter."
+            checkedBy: manual
+          - level: should
+            statement: "Faites entrer un overlay depuis `motion.scale.enter` : il vaut 1 en mouvement réduit."
+            checkedBy: manual
+          - level: must-not
+            statement: "N'écrivez pas de durée brute : elle ignore `prefers-reduced-motion`. WCAG 2.3.3 demande qu'un mouvement déclenché par une interaction puisse s'arrêter."
+            checks:
+              - href: npm:@unicorne/catalog#raw-value
+                role: lint-rule
+            checkedBy: assisted
+  - kind: token
+    id: motion.duration.fast
+    name: "Durée courte"
+    description: "Le changement d'état d'un contrôle, ou un popup qui s'ouvre : un bouton, un interrupteur, une combobox, un toast. Vaut 0 en mouvement réduit."
+    source: ./semantic.tokens.json
+    combos:
+      - subject: "{motion.duration.fast}"
+        level: should
+        items:
+          - "{motion.easing.standard}"
+        note: "Les transitions des composants prennent cette courbe."
+  - kind: token
+    id: motion.duration.base
+    name: "Durée de base"
+    description: "Un overlay qui couvre la page en entrant : une modale, un tiroir. Vaut 0 en mouvement réduit."
+    source: ./semantic.tokens.json
+    combos:
+      - subject: "{motion.duration.base}"
+        level: should
+        items:
+          - "{motion.easing.standard}"
+        note: "Les transitions des composants prennent cette courbe."
+  - kind: token
+    id: motion.easing.standard
+    name: "Courbe standard"
+    description: "La courbe de chaque transition, avec `motion.duration.fast` ou `motion.duration.base`."
+    source: ./semantic.tokens.json

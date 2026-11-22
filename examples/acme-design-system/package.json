@@ -11,6 +11,8 @@
     "dist",
     "bin",
     "custom-elements.json",
+    "token-manifest.json",
+    "icon-manifest.json",
     "design-system.dsds.yaml",
     "src/components/*/*.dsds.yaml"
   ],
@@ -45,7 +47,7 @@
     "./custom-elements.json": "./custom-elements.json"
   },
   "scripts": {
-    "build": "tz build && unicorne-icons icons --out src/icons --export acmeIcons && vite build && tsc -p tsconfig.build.json && cem analyze",
+    "build": "tz build && unicorne-icons icons --out src/icons --export acmeIcons --manifest icon-manifest.json && vite build && tsc -p tsconfig.build.json && cem analyze",
     "test": "node test/smoke.mjs"
   },
   "dependencies": {

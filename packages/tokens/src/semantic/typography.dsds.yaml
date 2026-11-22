@@ -1,0 +1,75 @@
+# Les règles d'usage des tokens de typographie (DSDS, ADR 0050) : elles valent pour chaque token `font`,
+# et celles des styles de texte pour chaque token `text` (ADR 0051).
+schemaVersion: "0.23.1"
+$schema: https://designsystemdocspec.org/v0.23.1/dsds.bundled.yaml
+name: "Tokens de typographie"
+entries:
+  - kind: entry
+    id: font
+    name: "Typographie"
+    description: "La police, la taille, la graisse et l'interligne des textes."
+    metadata:
+      group: font
+    sections:
+      - kind: guidelines
+        for: all
+        items:
+          - level: must
+            statement: "Écrivez la police, la taille, la graisse et l'interligne d'un texte avec un token `font` : une marque change sa typographie, la page suit."
+            checks:
+              - href: npm:@unicorne/catalog#raw-value
+                role: lint-rule
+            checkedBy: assisted
+          - level: should
+            statement: "Écrivez l'interligne d'un texte de plusieurs lignes avec `font.line-height.body`."
+            checkedBy: manual
+          - level: must-not
+            statement: "Ne fixez pas la hauteur d'un bloc de texte : WCAG 1.4.12 demande qu'il supporte un interligne de 1,5 fois sa taille."
+            checkedBy: manual
+  - kind: token
+    id: font.size.lg
+    name: "Taille de titre"
+    description: "Le titre d'une région : une modale, un tiroir, la légende d'un tableau. Avec `font.weight.semibold`."
+    source: ./semantic.tokens.json
+    combos:
+      - subject: "{font.size.lg}"
+        level: should
+        items:
+          - "{font.weight.semibold}"
+        note: "Un titre de modale, de tiroir ou de tableau prend cette graisse."
+  - kind: token
+    id: font.weight.semibold
+    name: "Graisse forte"
+    description: "Un titre, et ce qui ressort d'une liste : l'élément courant d'une navigation ou d'étapes, l'option choisie d'un select."
+    source: ./semantic.tokens.json
+  - kind: entry
+    id: text
+    name: "Styles de texte"
+    description: "Une police, une taille, une graisse, un interligne et un espacement des lettres qui vont ensemble : une classe de la page, et un style de texte dans Figma."
+    metadata:
+      group: text
+    sections:
+      - kind: guidelines
+        for: all
+        items:
+          - level: should
+            statement: "Donnez son style à un texte de la page par un style de texte : une classe comme `u-text-body-sm` dans le HTML, `font: var(--u-text-body-sm)` dans le CSS."
+            checks:
+              - href: npm:@unicorne/catalog#raw-value
+                role: lint-rule
+            checkedBy: assisted
+          - level: should
+            statement: "Choisissez la balise d'un titre selon la structure de la page, et son style selon son importance : un `h2` peut prendre `u-text-heading-xl`."
+            checkedBy: manual
+          - level: should
+            statement: "Écrivez aussi le `letter-spacing` d'un style de texte appliqué par `font: var(--u-text-body-md)` : le raccourci `font` n'en porte pas."
+            checkedBy: manual
+          - level: must-not
+            statement: "N'écrivez pas une classe de style de texte qui n'existe pas : elle ne donne aucun style."
+            checks:
+              - href: npm:@unicorne/catalog#unknown-text-style
+                role: lint-rule
+            checkedBy: automated
+          - level: may
+            statement: "Chargez le `reset.css` du design system : le texte de la page et les titres de `h1` à `h6` prennent alors leur style de texte."
+            checkedBy: manual

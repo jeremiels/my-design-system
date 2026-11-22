@@ -1,0 +1,5 @@
+{
+  "description": "A success or a confirmation: the status of an alert or a message.",
+  "tags": ["check", "done", "valid", "confirmed"],
+  "categories": ["status"]
+}

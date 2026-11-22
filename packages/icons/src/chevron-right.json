@@ -1,0 +1,5 @@
+{
+  "description": "Goes forward: the next page, month or tab, or the next level of a breadcrumb. In a right-to-left page, it points back.",
+  "tags": ["arrow", "caret", "next", "forward"],
+  "categories": ["navigation"]
+}

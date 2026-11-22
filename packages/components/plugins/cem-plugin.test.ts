@@ -8,7 +8,7 @@ const declaration = (
   value: unknown,
   description?: string,
   file = "base/button.tokens.json",
-): Declaration => ({ id, file, value, description });
+): Declaration => ({ id, file, value, description, groupDescription: undefined });
 
 /** A semantic token, a button with a variant, and a brand that changes one default. */
 const sources: ResolverSources = {

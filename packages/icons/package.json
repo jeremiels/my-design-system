@@ -2,14 +2,15 @@
   "name": "@unicorne/icons",
   "version": "0.0.0",
   "private": true,
-  "description": "The icons of the base (ADR 0005): optimized SVG, one module per icon loaded on demand, and the generator brands build their own icons with.",
+  "description": "The icons of the base (ADR 0005): optimized SVG, one module per icon loaded on demand, the generator brands build their own icons with, and the icon manifest the documentation tools read (ADR 0044).",
   "bin": {
     "unicorne-icons": "./dist/plugins/cli.js"
   },
   "files": [
     "js",
     "svg",
-    "dist"
+    "dist",
+    "icon-manifest.json"
   ],
   "type": "module",
   "sideEffects": false,
@@ -23,6 +24,7 @@
       "types": "./dist/plugins/icon-set.d.ts",
       "import": "./dist/plugins/icon-set.js"
     },
+    "./icon-manifest.json": "./icon-manifest.json",
     "./svg/*": "./svg/*",
     "./*": {
       "types": "./js/*.d.ts",
@@ -30,8 +32,8 @@
     }
   },
   "scripts": {
-    "icons": "node plugins/cli.ts src --out js --svg-out svg && oxfmt js",
-    "icons:check": "npm run icons && git diff --exit-code -- js svg",
+    "icons": "node plugins/cli.ts src --out js --svg-out svg --manifest icon-manifest.json && oxfmt js icon-manifest.json",
+    "icons:check": "npm run icons && git diff --exit-code -- js svg icon-manifest.json",
     "build": "npm run icons && tsc -p tsconfig.build.json",
     "prepack": "node ../../scripts/pack-manifest.mjs prepack",
     "postpack": "node ../../scripts/pack-manifest.mjs postpack"

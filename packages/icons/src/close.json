@@ -1,0 +1,5 @@
+{
+  "description": "Closes a dialog or a message, or removes an item, like a tag.",
+  "tags": ["cross", "x", "dismiss", "remove", "clear"],
+  "categories": ["action"]
+}

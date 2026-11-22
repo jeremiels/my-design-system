@@ -2,7 +2,7 @@
   "name": "@unicorne/mcp",
   "version": "0.0.0",
   "private": true,
-  "description": "The MCP server of a design system's documentation (ADR 0039): tools that list, show, search and check its components, for agents. `unicorne-mcp` serves the base's; a design system builds its own with `createMcpServer()`.",
+  "description": "The MCP server of a design system's documentation (ADR 0039): tools that list, show, search and check its components, and its tokens (ADR 0042), for agents. `unicorne-mcp` serves the base's; a design system builds its own with `createMcpServer()`.",
   "bin": {
     "unicorne-mcp": "./dist/bin.js"
   },
