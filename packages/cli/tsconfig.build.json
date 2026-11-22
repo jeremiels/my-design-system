@@ -1,0 +1,16 @@
+{
+  // Builds src/ (Node code) into dist/, with its types (ADR 0039).
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "rewriteRelativeImportExtensions": true,
+    "declaration": true,
+    // Types come from the built packages, not from their sources.
+    "customConditions": [],
+    "types": ["node"],
+    "rootDir": "src",
+    "outDir": "dist"
+  },
+  "include": ["src"],
+  "exclude": ["**/*.test.ts"]
+}

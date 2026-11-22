@@ -1,0 +1,18 @@
+# The documentation of ACME's own components (DSDS). The others are those of
+# the components ACME builds on: its documentation tools merge them.
+schemaVersion: "0.23.1"
+$schema: https://designsystemdocspec.org/v0.23.1/dsds.bundled.yaml
+name: ACME
+entries:
+  - kind: system
+    id: acme
+    name: ACME
+    description: Le design system d'ACME, ses composants, en français, aux couleurs d'ACME.
+    metadata:
+      origin:
+        method: authored
+        author: assisted
+      platforms: [web-component]
+refs:
+  - href: ./src/components/acme-card/acme-card.dsds.yaml
+    rel: file

@@ -1,0 +1,35 @@
+# Quand utiliser card (DSDS). Son API vit dans custom-elements.json.
+kind: component
+id: card
+name: Card
+description: Une carte, qui résume un élément et mène à sa page.
+metadata:
+  origin:
+    method: authored
+    author: assisted
+  status:
+    status: experimental
+
+sections:
+  - kind: guidelines
+    for: all
+    framing: when-to-use
+    items:
+      - level: must
+        statement: Utilisez `card` pour résumer un élément d'une liste, comme un article ou une offre.
+        checkedBy: manual
+      - level: must-not
+        statement: N'utilisez pas `card` pour un message. Utilisez une alerte.
+        checkedBy: manual
+
+  - kind: guidelines
+    for: all
+    title: Contenu
+    items:
+      - level: should
+        statement: Donnez à la carte une seule action, celle qui mène à l'élément.
+        checkedBy: manual
+
+sourceFiles:
+  - platform: web-component
+    file: ./acme-card.ts

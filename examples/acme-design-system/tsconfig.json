@@ -10,6 +10,8 @@
     "verbatimModuleSyntax": true,
     "strict": true,
     "skipLibCheck": true,
+    // src/docs.ts runs in Node: ACME's documentation tools.
+    "types": ["node"],
     "noEmit": true
   },
   "include": ["src"]

@@ -7,7 +7,8 @@ import { brandResolver } from "@unicorne/tokens/dtcg-sources";
 
 export default {
   globs: ["src/**/*.ts"],
-  exclude: ["src/define.ts", "src/**/*.d.ts"],
+  // The documentation tools' modules (Node) document no component.
+  exclude: ["src/define.ts", "src/**/*.d.ts", "src/docs.ts", "src/brand.ts"],
   outdir: ".",
   litelement: true,
   dependencies: true,

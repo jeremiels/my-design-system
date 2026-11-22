@@ -112,3 +112,95 @@ export function componentCssProperties(
       };
     });
 }
+
+// The few TypeScript shapes the type-alias plugin reads.
+interface TypeNode {
+  kind: number;
+  types?: readonly TypeNode[];
+  literal?: { kind: number; text?: string };
+  typeName?: { text?: string };
+}
+interface AliasPhase {
+  ts: {
+    isTypeAliasDeclaration(node: unknown): boolean;
+    isUnionTypeNode(node: unknown): boolean;
+    isLiteralTypeNode(node: unknown): boolean;
+    isStringLiteral(node: unknown): boolean;
+    isTypeReferenceNode(node: unknown): boolean;
+  };
+  node: { name?: { text: string }; type?: TypeNode };
+}
+interface TypedEntry {
+  type?: { text?: string };
+}
+interface LinkPhase {
+  customElementsManifest: {
+    modules: { declarations?: { attributes?: TypedEntry[]; members?: TypedEntry[] }[] }[];
+  };
+}
+
+/**
+ * Custom Elements Manifest analyzer plugin: writes the values of a union of
+ * strings in place of its alias, `"primary" | "secondary"` for
+ * `ButtonVariant`, in the types of attributes and fields (ADR 0039). The
+ * documentation, its tools and Storybook's controls then know the values.
+ * An alias of other aliases expands too; any other type stays as it is.
+ */
+export function typeAliasesManifest() {
+  /** Alias name → its parts: a quoted string, or the name of another alias. */
+  const aliases = new Map<string, string[]>();
+
+  /** The text of a type with its aliases expanded, or `undefined` when none is known. */
+  const expand = (text: string, seen = new Set<string>()): string[] | undefined => {
+    let changed = false;
+    const parts = text
+      .split("|")
+      .map((part) => part.trim())
+      .flatMap((part) => {
+        const alias = aliases.get(part);
+        if (!alias || seen.has(part)) {
+          return [part];
+        }
+        changed = true;
+        return alias.flatMap((inner) => expand(inner, new Set([...seen, part])) ?? [inner]);
+      });
+    return changed ? [...new Set(parts)] : undefined;
+  };
+
+  return {
+    name: "@unicorne/components:type-aliases",
+    analyzePhase({ ts, node }: AliasPhase) {
+      if (!ts.isTypeAliasDeclaration(node) || !node.name || !node.type) {
+        return;
+      }
+      const members = ts.isUnionTypeNode(node.type) ? (node.type.types ?? []) : [node.type];
+      const parts: string[] = [];
+      for (const member of members) {
+        if (ts.isLiteralTypeNode(member) && member.literal && ts.isStringLiteral(member.literal)) {
+          parts.push(JSON.stringify(member.literal.text));
+        } else if (ts.isTypeReferenceNode(member) && member.typeName?.text) {
+          parts.push(member.typeName.text);
+        } else {
+          // Not a union of strings: its name says more than its parts.
+          return;
+        }
+      }
+      aliases.set(node.name.text, parts);
+    },
+    packageLinkPhase({ customElementsManifest }: LinkPhase) {
+      for (const module of customElementsManifest.modules) {
+        for (const declaration of module.declarations ?? []) {
+          for (const entry of [...(declaration.attributes ?? []), ...(declaration.members ?? [])]) {
+            const expanded = entry.type?.text ? expand(entry.type.text) : undefined;
+            if (expanded) {
+              // Only strings, and `undefined`: anything else keeps its alias.
+              if (expanded.every((part) => part.startsWith('"') || part === "undefined")) {
+                entry.type = { ...entry.type, text: expanded.join(" | ") };
+              }
+            }
+          }
+        }
+      }
+    },
+  };
+}

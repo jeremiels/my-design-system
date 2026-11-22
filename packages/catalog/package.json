@@ -1,0 +1,38 @@
+{
+  "name": "@unicorne/catalog",
+  "version": "0.0.0",
+  "private": true,
+  "description": "The documentation of a design system built on the base, for tools (ADR 0039): its components from its Custom Elements Manifest, their usage rules from its DSDS documents, and queries on them. A design system extends the base's documentation with its own layer.",
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "@unicorne/source": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./socle": {
+      "@unicorne/source": "./src/socle.ts",
+      "types": "./dist/socle.d.ts",
+      "import": "./dist/socle.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "prepack": "node ../../scripts/pack-manifest.mjs prepack",
+    "postpack": "node ../../scripts/pack-manifest.mjs postpack"
+  },
+  "dependencies": {
+    "parse5": "^7.3.0",
+    "yaml": "^2.9.1"
+  },
+  "peerDependencies": {
+    "@unicorne/components": "0.0.0"
+  },
+  "engines": {
+    "node": ">=26"
+  }
+}

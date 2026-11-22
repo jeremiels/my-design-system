@@ -481,5 +481,21 @@ try {
   server.close();
 }
 
+// The app's templates, checked against ACME's documentation (ADR 0039 of the base).
+{
+  const { spawnSync } = await import("node:child_process");
+  const checked = spawnSync("npx", ["--no-install", "acme", "check", "src", "--json"], {
+    cwd: join(import.meta.dirname, ".."),
+    encoding: "utf8",
+  });
+  const diagnostics = JSON.parse(checked.stdout || "[]");
+  record(
+    "acme check: the app's templates use ACME's components as documented",
+    checked.status === 0 && diagnostics.length === 0,
+    diagnostics.map(({ file, line, message }) => `${file}:${line} ${message}`).join(" | ") ||
+      "0 errors, 0 warnings",
+  );
+}
+
 for (const { name, ok, detail } of results) console.log(`${ok ? "✓" : "✗"} ${name} — ${detail}`);
 process.exit(results.length > 0 && results.every((result) => result.ok) ? 0 : 1);

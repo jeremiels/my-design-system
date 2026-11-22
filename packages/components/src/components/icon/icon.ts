@@ -21,14 +21,10 @@ const reported = new Set<string>();
 /**
  * An icon of the set of its registration, by name (ADR 0005).
  *
- * The set of the base is `@unicorne/icons`: one module per icon, loaded the
- * first time an icon renders, so a page downloads only the icons it shows.
- * A component that draws an icon of the base in its own controls, a
- * chevron, bundles its markup with `Icon.bundle()`: the icon renders at
- * once, on a server too, and a page without that component downloads none.
- * The box keeps its size while the icon loads, and `updateComplete` resolves
- * once the icon is rendered. The icon takes the color of the text
- * (`currentColor`).
+ * Each icon loads the first time it renders, so a page downloads only the
+ * icons it shows. The box keeps its size while the icon loads, and
+ * `updateComplete` resolves once the icon is rendered. The icon takes the
+ * color of the text (`currentColor`).
  *
  * Without `label`, the icon is decorative: assistive technologies ignore it.
  * Give a `label` to an icon that carries meaning on its own.

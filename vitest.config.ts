@@ -42,6 +42,10 @@ export default mergeConfig(
             include: [
               "packages/*/plugins/**/*.test.ts",
               "packages/components/src/state/**/*.test.ts",
+              // The documentation tools (ADR 0039): Node only.
+              "packages/catalog/src/**/*.test.ts",
+              "packages/cli/src/**/*.test.ts",
+              "packages/mcp/src/**/*.test.ts",
             ],
             environment: "node",
           },

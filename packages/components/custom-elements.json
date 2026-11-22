@@ -226,7 +226,7 @@
               "kind": "field",
               "name": "size",
               "type": {
-                "text": "ButtonSize"
+                "text": "\"small\" | \"medium\" | \"large\""
               },
               "default": "\"medium\"",
               "description": "Button size.",
@@ -237,7 +237,7 @@
               "kind": "field",
               "name": "variant",
               "type": {
-                "text": "ButtonVariant"
+                "text": "\"primary\" | \"secondary\" | \"neutral\" | \"success\" | \"danger\" | \"warning\" | \"information\""
               },
               "default": "\"primary\"",
               "description": "Button variant: `primary`, `secondary`, `neutral` or a semantic variant. It sets the colors.",
@@ -248,7 +248,7 @@
               "kind": "field",
               "name": "appearance",
               "type": {
-                "text": "ButtonAppearance"
+                "text": "\"filled\" | \"outlined\" | \"plain\""
               },
               "default": "\"filled\"",
               "description": "How the variant paints the button: `filled`, `outlined` (a border, no fill) or `plain` (its text only).",
@@ -269,7 +269,7 @@
               "kind": "field",
               "name": "current",
               "type": {
-                "text": "ButtonCurrent | undefined"
+                "text": "\"page\" | \"step\" | \"location\" | \"date\" | \"time\" | \"true\" | undefined"
               },
               "description": "The item of a set the button stands for, `page` in a pagination: `aria-current`.",
               "attribute": "current"
@@ -505,7 +505,7 @@
             {
               "name": "size",
               "type": {
-                "text": "ButtonSize"
+                "text": "\"small\" | \"medium\" | \"large\""
               },
               "default": "\"medium\"",
               "description": "Button size.",
@@ -514,7 +514,7 @@
             {
               "name": "variant",
               "type": {
-                "text": "ButtonVariant"
+                "text": "\"primary\" | \"secondary\" | \"neutral\" | \"success\" | \"danger\" | \"warning\" | \"information\""
               },
               "default": "\"primary\"",
               "description": "Button variant: `primary`, `secondary`, `neutral` or a semantic variant. It sets the colors.",
@@ -523,7 +523,7 @@
             {
               "name": "appearance",
               "type": {
-                "text": "ButtonAppearance"
+                "text": "\"filled\" | \"outlined\" | \"plain\""
               },
               "default": "\"filled\"",
               "description": "How the variant paints the button: `filled`, `outlined` (a border, no fill) or `plain` (its text only).",
@@ -541,7 +541,7 @@
             {
               "name": "current",
               "type": {
-                "text": "ButtonCurrent | undefined"
+                "text": "\"page\" | \"step\" | \"location\" | \"date\" | \"time\" | \"true\" | undefined"
               },
               "description": "The item of a set the button stands for, `page` in a pagination: `aria-current`.",
               "fieldName": "current"
@@ -868,7 +868,7 @@
               "kind": "field",
               "name": "orientation",
               "type": {
-                "text": "Orientation"
+                "text": "\"horizontal\" | \"vertical\""
               },
               "default": "\"vertical\"",
               "description": "The direction of the choices: one below the other, or side by side. Reflected.",
@@ -1767,7 +1767,7 @@
             {
               "name": "orientation",
               "type": {
-                "text": "Orientation"
+                "text": "\"horizontal\" | \"vertical\""
               },
               "default": "\"vertical\"",
               "description": "The direction of the choices: one below the other, or side by side. Reflected.",
@@ -4037,7 +4037,7 @@
               "kind": "field",
               "name": "filter",
               "type": {
-                "text": "ComboboxFilter"
+                "text": "\"contains\" | \"starts-with\" | \"none\""
               },
               "default": "\"contains\"",
               "description": "Which options match the text, without case nor accents: those that\n`contains` it, those that `starts-with` it, or all of them with `none`,\nwhen the application filters them itself.",
@@ -5599,7 +5599,7 @@
             {
               "name": "filter",
               "type": {
-                "text": "ComboboxFilter"
+                "text": "\"contains\" | \"starts-with\" | \"none\""
               },
               "default": "\"contains\"",
               "description": "Which options match the text, without case nor accents: those that\n`contains` it, those that `starts-with` it, or all of them with `none`,\nwhen the application filters them itself.",
@@ -6988,7 +6988,7 @@
               "kind": "field",
               "name": "closedBy",
               "type": {
-                "text": "ModalClosedBy"
+                "text": "\"any\" | \"closerequest\" | \"none\""
               },
               "default": "\"closerequest\"",
               "description": "What closes the modal besides its close button, commands and methods:\n`closerequest`, Escape and the back gesture; `any`, also a click outside;\n`none`, nothing else.",
@@ -7344,7 +7344,7 @@
             {
               "name": "closedby",
               "type": {
-                "text": "ModalClosedBy"
+                "text": "\"any\" | \"closerequest\" | \"none\""
               },
               "default": "\"closerequest\"",
               "description": "What closes the modal besides its close button, commands and methods:\n`closerequest`, Escape and the back gesture; `any`, also a click outside;\n`none`, nothing else.",
@@ -9286,7 +9286,7 @@
               "name": "#reason",
               "privacy": "private",
               "type": {
-                "text": "PopupToggleReason"
+                "text": "\"trigger-press\" | \"hover\" | \"focus-in\" | \"item-press\" | \"escape-key\" | \"outside-press\" | \"focus-out\" | \"imperative\""
               },
               "default": "\"imperative\"",
               "description": "The cause of the next change of `open`."
@@ -12559,7 +12559,7 @@
               "kind": "field",
               "name": "variant",
               "type": {
-                "text": "AlertVariant"
+                "text": "\"success\" | \"danger\" | \"warning\" | \"information\""
               },
               "default": "\"information\"",
               "description": "The intent of the alert: sets its colors, its icon and how assistive technologies announce it.",
@@ -12653,7 +12653,7 @@
             {
               "name": "variant",
               "type": {
-                "text": "AlertVariant"
+                "text": "\"success\" | \"danger\" | \"warning\" | \"information\""
               },
               "default": "\"information\"",
               "description": "The intent of the alert: sets its colors, its icon and how assistive technologies announce it.",
@@ -12763,7 +12763,7 @@
               "kind": "field",
               "name": "filter",
               "type": {
-                "text": "ComboboxFilter"
+                "text": "\"contains\" | \"starts-with\" | \"none\""
               },
               "default": "\"contains\"",
               "description": "Which options match the text, without case nor accents: those that\n`contains` it, those that `starts-with` it, or all of them with `none`,\nwhen the application filters them itself.",
@@ -14879,7 +14879,7 @@
             {
               "name": "filter",
               "type": {
-                "text": "ComboboxFilter"
+                "text": "\"contains\" | \"starts-with\" | \"none\""
               },
               "default": "\"contains\"",
               "description": "Which options match the text, without case nor accents: those that\n`contains` it, those that `starts-with` it, or all of them with `none`,\nwhen the application filters them itself.",
@@ -15222,7 +15222,7 @@
               "kind": "field",
               "name": "variant",
               "type": {
-                "text": "BadgeVariant"
+                "text": "\"success\" | \"danger\" | \"warning\" | \"information\""
               },
               "default": "\"information\"",
               "description": "The intent of the status: sets its colors. Its text must say it too.",
@@ -15314,7 +15314,7 @@
             {
               "name": "variant",
               "type": {
-                "text": "BadgeVariant"
+                "text": "\"success\" | \"danger\" | \"warning\" | \"information\""
               },
               "default": "\"information\"",
               "description": "The intent of the status: sets its colors. Its text must say it too.",
@@ -15794,7 +15794,7 @@
               "kind": "field",
               "name": "target",
               "type": {
-                "text": "LinkTarget | undefined"
+                "text": "\"_blank\" | \"_self\" | \"_parent\" | \"_top\" | undefined"
               },
               "default": "\"_self\"",
               "description": "Where to open the link; `_blank` also sets `rel=\"noopener noreferrer\"`.",
@@ -15897,7 +15897,7 @@
               "kind": "field",
               "name": "size",
               "type": {
-                "text": "ButtonSize"
+                "text": "\"small\" | \"medium\" | \"large\""
               },
               "default": "\"medium\"",
               "description": "Button size.",
@@ -15912,7 +15912,7 @@
               "kind": "field",
               "name": "variant",
               "type": {
-                "text": "ButtonVariant"
+                "text": "\"primary\" | \"secondary\" | \"neutral\" | \"success\" | \"danger\" | \"warning\" | \"information\""
               },
               "default": "\"primary\"",
               "description": "Button variant: `primary`, `secondary`, `neutral` or a semantic variant. It sets the colors.",
@@ -15927,7 +15927,7 @@
               "kind": "field",
               "name": "appearance",
               "type": {
-                "text": "ButtonAppearance"
+                "text": "\"filled\" | \"outlined\" | \"plain\""
               },
               "default": "\"filled\"",
               "description": "How the variant paints the button: `filled`, `outlined` (a border, no fill) or `plain` (its text only).",
@@ -15956,7 +15956,7 @@
               "kind": "field",
               "name": "current",
               "type": {
-                "text": "ButtonCurrent | undefined"
+                "text": "\"page\" | \"step\" | \"location\" | \"date\" | \"time\" | \"true\" | undefined"
               },
               "description": "The item of a set the button stands for, `page` in a pagination: `aria-current`.",
               "attribute": "current",
@@ -16117,7 +16117,7 @@
             {
               "name": "target",
               "type": {
-                "text": "LinkTarget | undefined"
+                "text": "\"_blank\" | \"_self\" | \"_parent\" | \"_top\" | undefined"
               },
               "default": "\"_self\"",
               "description": "Where to open the link; `_blank` also sets `rel=\"noopener noreferrer\"`.",
@@ -16139,7 +16139,7 @@
             {
               "name": "size",
               "type": {
-                "text": "ButtonSize"
+                "text": "\"small\" | \"medium\" | \"large\""
               },
               "default": "\"medium\"",
               "description": "Button size.",
@@ -16152,7 +16152,7 @@
             {
               "name": "variant",
               "type": {
-                "text": "ButtonVariant"
+                "text": "\"primary\" | \"secondary\" | \"neutral\" | \"success\" | \"danger\" | \"warning\" | \"information\""
               },
               "default": "\"primary\"",
               "description": "Button variant: `primary`, `secondary`, `neutral` or a semantic variant. It sets the colors.",
@@ -16165,7 +16165,7 @@
             {
               "name": "appearance",
               "type": {
-                "text": "ButtonAppearance"
+                "text": "\"filled\" | \"outlined\" | \"plain\""
               },
               "default": "\"filled\"",
               "description": "How the variant paints the button: `filled`, `outlined` (a border, no fill) or `plain` (its text only).",
@@ -16191,7 +16191,7 @@
             {
               "name": "current",
               "type": {
-                "text": "ButtonCurrent | undefined"
+                "text": "\"page\" | \"step\" | \"location\" | \"date\" | \"time\" | \"true\" | undefined"
               },
               "description": "The item of a set the button stands for, `page` in a pagination: `aria-current`.",
               "fieldName": "current",
@@ -16489,7 +16489,7 @@
               "kind": "field",
               "name": "type",
               "type": {
-                "text": "ButtonType"
+                "text": "\"button\" | \"submit\" | \"reset\""
               },
               "default": "\"button\"",
               "description": "Button type.",
@@ -16530,7 +16530,7 @@
               "kind": "field",
               "name": "popup",
               "type": {
-                "text": "ButtonPopup | undefined"
+                "text": "\"menu\" | \"listbox\" | \"tree\" | \"grid\" | \"dialog\" | undefined"
               },
               "description": "The popup the button opens, `menu` or `dialog` for instance: `aria-haspopup`. None by default.",
               "attribute": "popup"
@@ -16792,7 +16792,7 @@
               "kind": "field",
               "name": "size",
               "type": {
-                "text": "ButtonSize"
+                "text": "\"small\" | \"medium\" | \"large\""
               },
               "default": "\"medium\"",
               "description": "Button size.",
@@ -16807,7 +16807,7 @@
               "kind": "field",
               "name": "variant",
               "type": {
-                "text": "ButtonVariant"
+                "text": "\"primary\" | \"secondary\" | \"neutral\" | \"success\" | \"danger\" | \"warning\" | \"information\""
               },
               "default": "\"primary\"",
               "description": "Button variant: `primary`, `secondary`, `neutral` or a semantic variant. It sets the colors.",
@@ -16822,7 +16822,7 @@
               "kind": "field",
               "name": "appearance",
               "type": {
-                "text": "ButtonAppearance"
+                "text": "\"filled\" | \"outlined\" | \"plain\""
               },
               "default": "\"filled\"",
               "description": "How the variant paints the button: `filled`, `outlined` (a border, no fill) or `plain` (its text only).",
@@ -16851,7 +16851,7 @@
               "kind": "field",
               "name": "current",
               "type": {
-                "text": "ButtonCurrent | undefined"
+                "text": "\"page\" | \"step\" | \"location\" | \"date\" | \"time\" | \"true\" | undefined"
               },
               "description": "The item of a set the button stands for, `page` in a pagination: `aria-current`.",
               "attribute": "current",
@@ -16972,7 +16972,7 @@
             {
               "name": "type",
               "type": {
-                "text": "ButtonType"
+                "text": "\"button\" | \"submit\" | \"reset\""
               },
               "default": "\"button\"",
               "description": "Button type.",
@@ -17008,7 +17008,7 @@
             {
               "name": "popup",
               "type": {
-                "text": "ButtonPopup | undefined"
+                "text": "\"menu\" | \"listbox\" | \"tree\" | \"grid\" | \"dialog\" | undefined"
               },
               "description": "The popup the button opens, `menu` or `dialog` for instance: `aria-haspopup`. None by default.",
               "fieldName": "popup"
@@ -17071,7 +17071,7 @@
             {
               "name": "size",
               "type": {
-                "text": "ButtonSize"
+                "text": "\"small\" | \"medium\" | \"large\""
               },
               "default": "\"medium\"",
               "description": "Button size.",
@@ -17084,7 +17084,7 @@
             {
               "name": "variant",
               "type": {
-                "text": "ButtonVariant"
+                "text": "\"primary\" | \"secondary\" | \"neutral\" | \"success\" | \"danger\" | \"warning\" | \"information\""
               },
               "default": "\"primary\"",
               "description": "Button variant: `primary`, `secondary`, `neutral` or a semantic variant. It sets the colors.",
@@ -17097,7 +17097,7 @@
             {
               "name": "appearance",
               "type": {
-                "text": "ButtonAppearance"
+                "text": "\"filled\" | \"outlined\" | \"plain\""
               },
               "default": "\"filled\"",
               "description": "How the variant paints the button: `filled`, `outlined` (a border, no fill) or `plain` (its text only).",
@@ -17123,7 +17123,7 @@
             {
               "name": "current",
               "type": {
-                "text": "ButtonCurrent | undefined"
+                "text": "\"page\" | \"step\" | \"location\" | \"date\" | \"time\" | \"true\" | undefined"
               },
               "description": "The item of a set the button stands for, `page` in a pagination: `aria-current`.",
               "fieldName": "current",
@@ -18077,7 +18077,7 @@
               "kind": "field",
               "name": "orientation",
               "type": {
-                "text": "Orientation"
+                "text": "\"horizontal\" | \"vertical\""
               },
               "default": "\"vertical\"",
               "description": "The direction of the choices: one below the other, or side by side. Reflected.",
@@ -18901,7 +18901,7 @@
             {
               "name": "orientation",
               "type": {
-                "text": "Orientation"
+                "text": "\"horizontal\" | \"vertical\""
               },
               "default": "\"vertical\"",
               "description": "The direction of the choices: one below the other, or side by side. Reflected.",
@@ -21370,7 +21370,7 @@
               "kind": "field",
               "name": "filter",
               "type": {
-                "text": "ComboboxFilter"
+                "text": "\"contains\" | \"starts-with\" | \"none\""
               },
               "default": "\"contains\"",
               "description": "Which options match the text, without case nor accents: those that\n`contains` it, those that `starts-with` it, or all of them with `none`,\nwhen the application filters them itself.",
@@ -22811,7 +22811,7 @@
             {
               "name": "filter",
               "type": {
-                "text": "ComboboxFilter"
+                "text": "\"contains\" | \"starts-with\" | \"none\""
               },
               "default": "\"contains\"",
               "description": "Which options match the text, without case nor accents: those that\n`contains` it, those that `starts-with` it, or all of them with `none`,\nwhen the application filters them itself.",
@@ -27299,7 +27299,7 @@
               "kind": "field",
               "name": "placement",
               "type": {
-                "text": "DrawerPlacement"
+                "text": "\"start\" | \"end\""
               },
               "default": "\"start\"",
               "description": "The edge it slides from, along the text: `start` (left in left-to-right text) or `end`. Reflected.",
@@ -27391,7 +27391,7 @@
               "kind": "field",
               "name": "closedBy",
               "type": {
-                "text": "ModalClosedBy"
+                "text": "\"any\" | \"closerequest\" | \"none\""
               },
               "default": "\"closerequest\"",
               "description": "What closes the modal besides its close button, commands and methods:\n`closerequest`, Escape and the back gesture; `any`, also a click outside;\n`none`, nothing else.",
@@ -27758,7 +27758,7 @@
             {
               "name": "placement",
               "type": {
-                "text": "DrawerPlacement"
+                "text": "\"start\" | \"end\""
               },
               "default": "\"start\"",
               "description": "The edge it slides from, along the text: `start` (left in left-to-right text) or `end`. Reflected.",
@@ -27818,7 +27818,7 @@
             {
               "name": "closedby",
               "type": {
-                "text": "ModalClosedBy"
+                "text": "\"any\" | \"closerequest\" | \"none\""
               },
               "default": "\"closerequest\"",
               "description": "What closes the modal besides its close button, commands and methods:\n`closerequest`, Escape and the back gesture; `any`, also a click outside;\n`none`, nothing else.",
@@ -29991,7 +29991,7 @@
       "declarations": [
         {
           "kind": "class",
-          "description": "An icon of the set of its registration, by name (ADR 0005).\n\nThe set of the base is `@unicorne/icons`: one module per icon, loaded the\nfirst time an icon renders, so a page downloads only the icons it shows.\nA component that draws an icon of the base in its own controls, a\nchevron, bundles its markup with `Icon.bundle()`: the icon renders at\nonce, on a server too, and a page without that component downloads none.\nThe box keeps its size while the icon loads, and `updateComplete` resolves\nonce the icon is rendered. The icon takes the color of the text\n(`currentColor`).\n\nWithout `label`, the icon is decorative: assistive technologies ignore it.\nGive a `label` to an icon that carries meaning on its own.",
+          "description": "An icon of the set of its registration, by name (ADR 0005).\n\nEach icon loads the first time it renders, so a page downloads only the\nicons it shows. The box keeps its size while the icon loads, and\n`updateComplete` resolves once the icon is rendered. The icon takes the\ncolor of the text (`currentColor`).\n\nWithout `label`, the icon is decorative: assistive technologies ignore it.\nGive a `label` to an icon that carries meaning on its own.",
           "name": "Icon",
           "cssProperties": [
             {
@@ -30622,7 +30622,7 @@
               "kind": "field",
               "name": "type",
               "type": {
-                "text": "MenuItemType"
+                "text": "\"normal\" | \"checkbox\" | \"radio\""
               },
               "default": "\"normal\"",
               "description": "An action (`normal`), a choice that toggles (`checkbox`), or one choice of a group (`radio`). Reflected.",
@@ -30833,7 +30833,7 @@
             {
               "name": "type",
               "type": {
-                "text": "MenuItemType"
+                "text": "\"normal\" | \"checkbox\" | \"radio\""
               },
               "default": "\"normal\"",
               "description": "An action (`normal`), a choice that toggles (`checkbox`), or one choice of a group (`radio`). Reflected.",
@@ -31448,7 +31448,7 @@
               "name": "#reason",
               "privacy": "private",
               "type": {
-                "text": "PopupToggleReason"
+                "text": "\"trigger-press\" | \"hover\" | \"focus-in\" | \"item-press\" | \"escape-key\" | \"outside-press\" | \"focus-out\" | \"imperative\""
               },
               "default": "\"imperative\"",
               "description": "The cause of the next change of `open`.",
@@ -31932,7 +31932,7 @@
               "kind": "field",
               "name": "closedBy",
               "type": {
-                "text": "ModalClosedBy"
+                "text": "\"any\" | \"closerequest\" | \"none\""
               },
               "default": "\"closerequest\"",
               "description": "What closes the modal besides its close button, commands and methods:\n`closerequest`, Escape and the back gesture; `any`, also a click outside;\n`none`, nothing else.",
@@ -32409,7 +32409,7 @@
             {
               "name": "closedby",
               "type": {
-                "text": "ModalClosedBy"
+                "text": "\"any\" | \"closerequest\" | \"none\""
               },
               "default": "\"closerequest\"",
               "description": "What closes the modal besides its close button, commands and methods:\n`closerequest`, Escape and the back gesture; `any`, also a click outside;\n`none`, nothing else.",
@@ -32559,7 +32559,7 @@
               "kind": "field",
               "name": "variant",
               "type": {
-                "text": "NoticeVariant"
+                "text": "\"information\" | \"warning\" | \"danger\""
               },
               "default": "\"information\"",
               "description": "The intent of the notice: its colors and its icon. Reflected.",
@@ -32672,7 +32672,7 @@
             {
               "name": "variant",
               "type": {
-                "text": "NoticeVariant"
+                "text": "\"information\" | \"warning\" | \"danger\""
               },
               "default": "\"information\"",
               "description": "The intent of the notice: its colors and its icon. Reflected.",
@@ -35202,7 +35202,7 @@
               "name": "#reason",
               "privacy": "private",
               "type": {
-                "text": "PopupToggleReason"
+                "text": "\"trigger-press\" | \"hover\" | \"focus-in\" | \"item-press\" | \"escape-key\" | \"outside-press\" | \"focus-out\" | \"imperative\""
               },
               "default": "\"imperative\"",
               "description": "The cause of the next change of `open`.",
@@ -35996,7 +35996,7 @@
               "kind": "field",
               "name": "orientation",
               "type": {
-                "text": "Orientation"
+                "text": "\"horizontal\" | \"vertical\""
               },
               "default": "\"vertical\"",
               "description": "The direction of the choices: one below the other, or side by side. Reflected.",
@@ -37153,7 +37153,7 @@
             {
               "name": "orientation",
               "type": {
-                "text": "Orientation"
+                "text": "\"horizontal\" | \"vertical\""
               },
               "default": "\"vertical\"",
               "description": "The direction of the choices: one below the other, or side by side. Reflected.",
@@ -42045,7 +42045,7 @@
               "kind": "field",
               "name": "size",
               "type": {
-                "text": "ComponentSize"
+                "text": "\"small\" | \"medium\" | \"large\""
               },
               "default": "\"medium\"",
               "description": "The size: `small` inside a control, `medium` next to text, `large` for a region.",
@@ -42155,7 +42155,7 @@
             {
               "name": "size",
               "type": {
-                "text": "ComponentSize"
+                "text": "\"small\" | \"medium\" | \"large\""
               },
               "default": "\"medium\"",
               "description": "The size: `small` inside a control, `medium` next to text, `large` for a region.",
@@ -42287,7 +42287,7 @@
               "kind": "field",
               "name": "status",
               "type": {
-                "text": "StepStatus"
+                "text": "\"complete\" | \"current\" | \"upcoming\""
               },
               "default": "\"upcoming\"",
               "description": "Where the step stands. Set by its `stepper`, from the `value` of the `stepper`. Reflected.",
@@ -42298,7 +42298,7 @@
               "kind": "field",
               "name": "orientation",
               "type": {
-                "text": "Orientation"
+                "text": "\"horizontal\" | \"vertical\""
               },
               "default": "\"horizontal\"",
               "description": "The direction of its `stepper`: set by it. Reflected.",
@@ -42409,7 +42409,7 @@
             {
               "name": "status",
               "type": {
-                "text": "StepStatus"
+                "text": "\"complete\" | \"current\" | \"upcoming\""
               },
               "default": "\"upcoming\"",
               "description": "Where the step stands. Set by its `stepper`, from the `value` of the `stepper`. Reflected.",
@@ -42418,7 +42418,7 @@
             {
               "name": "orientation",
               "type": {
-                "text": "Orientation"
+                "text": "\"horizontal\" | \"vertical\""
               },
               "default": "\"horizontal\"",
               "description": "The direction of its `stepper`: set by it. Reflected.",
@@ -42579,7 +42579,7 @@
               "kind": "field",
               "name": "orientation",
               "type": {
-                "text": "Orientation"
+                "text": "\"horizontal\" | \"vertical\""
               },
               "default": "\"horizontal\"",
               "description": "The direction of the steps: `horizontal`, or `vertical` for a narrow column. Reflected.",
@@ -42693,7 +42693,7 @@
             {
               "name": "orientation",
               "type": {
-                "text": "Orientation"
+                "text": "\"horizontal\" | \"vertical\""
               },
               "default": "\"horizontal\"",
               "description": "The direction of the steps: `horizontal`, or `vertical` for a narrow column. Reflected.",
@@ -44825,7 +44825,7 @@
               "kind": "field",
               "name": "align",
               "type": {
-                "text": "TableCellAlign"
+                "text": "\"start\" | \"end\""
               },
               "default": "\"start\"",
               "description": "The alignment of its content: `end` for numbers.",
@@ -44927,7 +44927,7 @@
             {
               "name": "align",
               "type": {
-                "text": "TableCellAlign"
+                "text": "\"start\" | \"end\""
               },
               "default": "\"start\"",
               "description": "The alignment of its content: `end` for numbers.",
@@ -45132,7 +45132,7 @@
               "kind": "field",
               "name": "scope",
               "type": {
-                "text": "TableHeaderScope"
+                "text": "\"col\" | \"row\""
               },
               "default": "\"col\"",
               "description": "What it heads, as on a native `<th>`: its column, or its row. Reflected.",
@@ -45153,7 +45153,7 @@
               "kind": "field",
               "name": "align",
               "type": {
-                "text": "TableCellAlign"
+                "text": "\"start\" | \"end\""
               },
               "default": "\"start\"",
               "description": "The alignment of its content: `end` over numbers.",
@@ -45256,7 +45256,7 @@
             {
               "name": "scope",
               "type": {
-                "text": "TableHeaderScope"
+                "text": "\"col\" | \"row\""
               },
               "default": "\"col\"",
               "description": "What it heads, as on a native `<th>`: its column, or its row. Reflected.",
@@ -45274,7 +45274,7 @@
             {
               "name": "align",
               "type": {
-                "text": "TableCellAlign"
+                "text": "\"start\" | \"end\""
               },
               "default": "\"start\"",
               "description": "The alignment of its content: `end` over numbers.",
@@ -45852,7 +45852,7 @@
               "kind": "field",
               "name": "sortDirection",
               "type": {
-                "text": "SortDirection"
+                "text": "\"ascending\" | \"descending\""
               },
               "default": "\"ascending\"",
               "description": "The direction of the sort.",
@@ -46082,7 +46082,7 @@
             {
               "name": "sort-direction",
               "type": {
-                "text": "SortDirection"
+                "text": "\"ascending\" | \"descending\""
               },
               "default": "\"ascending\"",
               "description": "The direction of the sort.",
@@ -46284,7 +46284,7 @@
               "kind": "field",
               "name": "orientation",
               "type": {
-                "text": "Orientation"
+                "text": "\"horizontal\" | \"vertical\""
               },
               "default": "\"horizontal\"",
               "description": "The direction of the list of tabs: in a row, or one below the other. Reflected.",
@@ -46465,7 +46465,7 @@
             {
               "name": "orientation",
               "type": {
-                "text": "Orientation"
+                "text": "\"horizontal\" | \"vertical\""
               },
               "default": "\"horizontal\"",
               "description": "The direction of the list of tabs: in a row, or one below the other. Reflected.",
@@ -47102,7 +47102,7 @@
               "kind": "field",
               "name": "type",
               "type": {
-                "text": "TextFieldType"
+                "text": "\"text\" | \"email\" | \"password\" | \"tel\" | \"url\" | \"search\""
               },
               "default": "\"text\"",
               "description": "Type of the input: `text`, `email`, `password`, `tel`, `url` or `search`.",
@@ -47966,7 +47966,7 @@
             {
               "name": "type",
               "type": {
-                "text": "TextFieldType"
+                "text": "\"text\" | \"email\" | \"password\" | \"tel\" | \"url\" | \"search\""
               },
               "default": "\"text\"",
               "description": "Type of the input: `text`, `email`, `password`, `tel`, `url` or `search`.",
@@ -50426,7 +50426,7 @@
               "kind": "field",
               "name": "variant",
               "type": {
-                "text": "ButtonVariant"
+                "text": "\"primary\" | \"secondary\" | \"neutral\" | \"success\" | \"danger\" | \"warning\" | \"information\""
               },
               "default": "\"neutral\"",
               "description": "Button variant, for its released state. `neutral` by default.",
@@ -50441,7 +50441,7 @@
               "kind": "field",
               "name": "appearance",
               "type": {
-                "text": "ButtonAppearance"
+                "text": "\"filled\" | \"outlined\" | \"plain\""
               },
               "default": "\"outlined\"",
               "description": "How the variant paints the released button. `outlined` by default: a control, before it is pressed.",
@@ -50568,7 +50568,7 @@
               "kind": "field",
               "name": "size",
               "type": {
-                "text": "ButtonSize"
+                "text": "\"small\" | \"medium\" | \"large\""
               },
               "default": "\"medium\"",
               "description": "Button size.",
@@ -50597,7 +50597,7 @@
               "kind": "field",
               "name": "current",
               "type": {
-                "text": "ButtonCurrent | undefined"
+                "text": "\"page\" | \"step\" | \"location\" | \"date\" | \"time\" | \"true\" | undefined"
               },
               "description": "The item of a set the button stands for, `page` in a pagination: `aria-current`.",
               "attribute": "current",
@@ -50756,7 +50756,7 @@
             {
               "name": "variant",
               "type": {
-                "text": "ButtonVariant"
+                "text": "\"primary\" | \"secondary\" | \"neutral\" | \"success\" | \"danger\" | \"warning\" | \"information\""
               },
               "default": "\"neutral\"",
               "description": "Button variant, for its released state. `neutral` by default.",
@@ -50769,7 +50769,7 @@
             {
               "name": "appearance",
               "type": {
-                "text": "ButtonAppearance"
+                "text": "\"filled\" | \"outlined\" | \"plain\""
               },
               "default": "\"outlined\"",
               "description": "How the variant paints the released button. `outlined` by default: a control, before it is pressed.",
@@ -50804,7 +50804,7 @@
             {
               "name": "size",
               "type": {
-                "text": "ButtonSize"
+                "text": "\"small\" | \"medium\" | \"large\""
               },
               "default": "\"medium\"",
               "description": "Button size.",
@@ -50830,7 +50830,7 @@
             {
               "name": "current",
               "type": {
-                "text": "ButtonCurrent | undefined"
+                "text": "\"page\" | \"step\" | \"location\" | \"date\" | \"time\" | \"true\" | undefined"
               },
               "description": "The item of a set the button stands for, `page` in a pagination: `aria-current`.",
               "fieldName": "current",
@@ -50936,7 +50936,7 @@
               "kind": "field",
               "name": "orientation",
               "type": {
-                "text": "Orientation"
+                "text": "\"horizontal\" | \"vertical\""
               },
               "default": "\"horizontal\"",
               "description": "The direction of the controls: in a row, or one below the other. Reflected.",
@@ -51057,7 +51057,7 @@
             {
               "name": "orientation",
               "type": {
-                "text": "Orientation"
+                "text": "\"horizontal\" | \"vertical\""
               },
               "default": "\"horizontal\"",
               "description": "The direction of the controls: in a row, or one below the other. Reflected.",
@@ -51402,7 +51402,7 @@
               "name": "#reason",
               "privacy": "private",
               "type": {
-                "text": "PopupToggleReason"
+                "text": "\"trigger-press\" | \"hover\" | \"focus-in\" | \"item-press\" | \"escape-key\" | \"outside-press\" | \"focus-out\" | \"imperative\""
               },
               "default": "\"imperative\"",
               "description": "The cause of the next change of `open`.",
@@ -53826,7 +53826,7 @@
               "kind": "field",
               "name": "reason",
               "type": {
-                "text": "ModalCancelReason"
+                "text": "\"close-press\" | \"escape-key\" | \"outside-press\" | \"back\" | \"imperative\""
               },
               "readonly": true,
               "description": "Why the modal is about to close.",
@@ -53935,7 +53935,7 @@
               "kind": "field",
               "name": "reason",
               "type": {
-                "text": "PopupToggleReason"
+                "text": "\"trigger-press\" | \"hover\" | \"focus-in\" | \"item-press\" | \"escape-key\" | \"outside-press\" | \"focus-out\" | \"imperative\""
               },
               "readonly": true,
               "description": "Why the popup opened or closed.",
@@ -53982,7 +53982,7 @@
               "kind": "field",
               "name": "direction",
               "type": {
-                "text": "SortDirection"
+                "text": "\"ascending\" | \"descending\""
               },
               "readonly": true,
               "description": "The direction of the sort.",
@@ -54054,7 +54054,7 @@
               "kind": "field",
               "name": "reason",
               "type": {
-                "text": "ToastCloseReason"
+                "text": "\"timeout\" | \"close-press\" | \"imperative\""
               },
               "readonly": true,
               "description": "Why the message closed.",

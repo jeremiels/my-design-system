@@ -2,7 +2,7 @@
 // JSDoc and TypeScript by `npm run analyze`, committed so API changes show up
 // in review, and published with the package (`customElements` field).
 import { fileURLToPath } from "node:url";
-import { tokensManifest } from "./plugins/cem-plugin.ts";
+import { tokensManifest, typeAliasesManifest } from "./plugins/cem-plugin.ts";
 
 // The DTCG tokens of @unicorne/tokens, which hold the components' tokens (ADR 0003).
 const resolver = fileURLToPath(import.meta.resolve("@unicorne/tokens/resolver.json"));
@@ -26,6 +26,8 @@ export default {
   plugins: [
     // `@tokens button`: the component's tokens, from the DTCG tokens (ADR 0002).
     tokensManifest({ resolver, prefix: "u" }),
+    // `variant: ButtonVariant` documents its values: `"primary" | "secondary" | …`.
+    typeAliasesManifest(),
     {
       // `dispatchEvent(new ModalCloseEvent())` yields an unnamed event next to
       // the documented one (`@fires u-close`), and `new ListboxSelectEvent(option)`

@@ -6,8 +6,8 @@ import acmeCardStyles from "./acme-card.css" with { type: "css" };
 import acmeCardTokens from "./acme-card.tokens.css" with { type: "css" };
 
 /**
- * An ACME-only component: a card with a heading, content and an optional
- * action. Its action is the `button` of its registration — `AcmeButton`.
+ * A card: a heading, its content, and an optional action, an
+ * `acme-button`. It sums up an item of a list, or links to a page.
  *
  * @element acme-card
  * @summary A card with a heading and an action.
