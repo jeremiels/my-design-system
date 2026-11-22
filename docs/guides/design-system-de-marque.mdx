@@ -346,7 +346,8 @@ import { brandResolver } from "@unicorne/tokens/dtcg-sources";
 
 export default {
   globs: ["src/**/*.ts"],
-  exclude: ["src/define.ts", "src/**/*.d.ts"],
+  // The documentation tools' modules (Node) document no component.
+  exclude: ["src/define.ts", "src/**/*.d.ts", "src/docs.ts", "src/brand.ts"],
   outdir: ".",
   litelement: true,
   dependencies: true,
@@ -364,9 +365,16 @@ export default {
 - `tokensManifest()` documente les tokens de chaque classe qui porte `@tokens`, depuis les sources DTCG de la marque.
 - L'analyseur affiche `Cannot resolve './x.js'` pour les sources TypeScript. Ce message est sans effet.
 
-## 9. Vérifiez
+## 9. Publiez les outils de documentation
 
-À la racine du dépôt du socle, lancez `npm run example`. La commande empaquette les trois packages du socle, puis installe, construit et teste ACME. Le test vérifie que :
+La marque publie sa commande et son serveur MCP, `acme` et `acme-mcp`, sur sa documentation : celle du socle, étendue par la sienne. Ils ne parlent que d'elle. Suivez la section 4 du guide [Consulter la documentation en ligne de commande et par MCP](?path=/docs/documentation-guides-consulter-la-documentation-en-ligne-de-commande-et-par-mcp--docs).
+
+- Gardez le catalogue et les textes de `designSystem()` dans un module sans import, `src/brand.ts` : la documentation les lit dans Node.
+- Écrivez les descriptions de ses composants pour leurs utilisateurs. Une note pour les auteurs de la marque va dans un commentaire du code.
+
+## 10. Vérifiez
+
+À la racine du dépôt du socle, lancez `npm run example`. La commande empaquette les six packages du socle, puis installe, construit et teste ACME. Le test vérifie que :
 
 - le `dist/` d'ACME importe `@unicorne/components` au lieu de le copier ;
 - `dist/theme.css` contient les seules valeurs d'ACME, sur `[data-brand="acme"]` ;
@@ -387,7 +395,10 @@ export default {
 - la page télécharge seulement les icônes du socle qu'elle affiche ;
 - la page ne télécharge pas Floating UI, car Chromium ancre les popovers en CSS ;
 - aucune balise `u-` n'est enregistrée ;
-- le manifest d'ACME documente ce qu'`AcmeButton` hérite du socle.
+- le manifest d'ACME documente ce qu'`AcmeButton` hérite du socle ;
+- `acme` liste le catalogue d'ACME, montre un composant avec ses textes, vérifie du markup, et a sa commande `texts` ;
+- `acme-mcp` répond à un client MCP, avec son outil `get_texts` ;
+- la documentation d'ACME ne nomme ni le socle, ni ses ADR, ni ses classes.
 
 Une marque dont une application rend ses pages sur un serveur suit le guide [Rendre une marque sur un serveur](?path=/docs/documentation-guides-rendre-une-marque-sur-un-serveur--docs).
 

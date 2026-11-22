@@ -17,6 +17,9 @@ export default defineConfig({
       entry: {
         index: resolve(root, "src/index.ts"),
         define: resolve(root, "src/define.ts"),
+        // ACME's catalog and texts, and its documentation, in Node (ADR 0039 of the base).
+        brand: resolve(root, "src/brand.ts"),
+        docs: resolve(root, "src/docs.ts"),
         // Also loaded on demand by src/design-system.ts: its own chunk.
         "acme-button": resolve(root, "src/components/acme-button/acme-button.ts"),
         styles: resolve(root, "src/styles.css"),
@@ -30,7 +33,8 @@ export default defineConfig({
     rolldownOptions: {
       // Republish, don't bundle: Lit and the base stay dependencies, so the
       // app gets a single copy of each.
-      external: [/^lit/, /^@unicorne\//],
+      // Node's modules stay imports: src/docs.ts runs in Node only.
+      external: [/^lit/, /^@unicorne\//, /^node:/],
     },
   },
 });

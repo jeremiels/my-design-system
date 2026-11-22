@@ -72,14 +72,15 @@ Un tableau Markdown à barres verticales s'affiche en texte brut. Écrivez le ta
 
 ## 3. Écrivez les règles d'usage d'un composant (DSDS, pilote)
 
-Les règles d'usage de `button` et `button-link` vivent dans leur document DSDS : `packages/components/src/components/button/<nom>.dsds.yaml`. `design-system.dsds.yaml` liste ces documents. La spec est sur [designsystemdocspec.org](https://designsystemdocspec.org), en version 0.23.1.
+Les règles d'usage d'un composant vivent dans son document DSDS : `packages/components/src/components/<nom>/<nom>.dsds.yaml`. `packages/components/design-system.dsds.yaml` liste ces documents. `unicorne` et `unicorne-mcp` les lisent, comme la commande et le serveur de chaque marque (ADR 0039). La spec est sur [designsystemdocspec.org](https://designsystemdocspec.org), en version 0.23.1.
 
 1. Écrivez chaque règle comme un élément de `guidelines` : un `level` (`must`, `should`, `may`, `should-not`, `must-not`) et un `statement` au présent, à l'impératif.
 2. Donnez un `checkedBy` à chaque règle. Une règle `automated` cite dans `checks` le test qui la vérifie : `./button.stories.ts#Disabled`.
 3. Réservez aux agents ce qui ne sert qu'à eux : une section `for: agent`. Storybook ne l'affiche pas.
 4. Ne recopiez jamais l'API : attributs, slots, parts et tokens restent dans `custom-elements.json`. Les `traits` donnent seulement le sens de chaque valeur.
-5. Mettez les champs dans l'ordre de la spec : `npx dsds-format <fichier>`.
-6. Lancez `npm run dsds`, puis `npx vitest run --project browser .storybook/dsds.test.ts`. Le test compare les traits au composant et vérifie chaque lien vers un fichier ou une story.
+5. Marquez une règle pour les seuls contributeurs du socle : `$extensions: { dev.unicorne: { context: …, audience: contributors } }`. La documentation d'une marque la laisse de côté.
+6. Mettez les champs dans l'ordre de la spec : `npx dsds-format <fichier>`.
+7. Lancez `npm run dsds`, puis `npx vitest run --project browser .storybook/dsds.test.ts`. Le test compare les traits au composant et vérifie chaque lien vers un fichier ou une story.
 
 `.storybook/dsds.ts` lit les documents, et `.storybook/DocumentationTemplate.mdx` affiche les règles dans la page du composant.
 

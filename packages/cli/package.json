@@ -1,0 +1,32 @@
+{
+  "name": "@unicorne/cli",
+  "version": "0.0.0",
+  "private": true,
+  "description": "The command line of a design system's documentation (ADR 0039): list, show, search and check. `unicorne` consults the base's; a design system builds its own with `createCli()`.",
+  "bin": {
+    "unicorne": "./dist/bin.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "@unicorne/source": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "prepack": "node ../../scripts/pack-manifest.mjs prepack",
+    "postpack": "node ../../scripts/pack-manifest.mjs postpack"
+  },
+  "dependencies": {
+    "@unicorne/catalog": "0.0.0"
+  },
+  "engines": {
+    "node": ">=26"
+  }
+}

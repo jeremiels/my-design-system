@@ -1,0 +1,116 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Documentation/Guides/Consulter la documentation en ligne de commande et par MCP" />
+
+# Consulter la documentation en ligne de commande et par MCP
+
+Ce guide consulte la documentation d'un design system dans un terminal, puis la donne à un agent par MCP. Les exemples utilisent ACME : `acme` et `acme-mcp`. Le socle a les siens, `unicorne` et `unicorne-mcp`. Les raisons de ces choix sont dans l'[ADR 0039](?path=/docs/documentation-adr-0039-outils-de-documentation--docs).
+
+## Prérequis
+
+- Node 26 et npm 11.12, ou une version plus récente.
+- Le package du design system, installé dans l'application : `@acme/design-system`.
+
+## 1. Consultez un composant
+
+1. Listez les composants : `npx acme list`.
+2. Lisez un composant : `npx acme show modal`.
+3. Cherchez le composant d'un besoin : `npx acme search période`.
+
+- `show` donne l'usage du composant, ses règles, son import, puis son API : attributs et leurs valeurs, propriétés, événements, slots, parts, custom properties.
+- `--json` donne la même chose en JSON, pour un script.
+- `npx acme help` liste les commandes. Une marque en ajoute : `npx acme texts` donne les textes d'ACME.
+
+## 2. Vérifiez votre markup
+
+Lancez `npx acme check src`. La commande lit les fichiers `.html` et `.vue` du dossier.
+
+```
+src/Requests.vue:12:20 error variant="big" on <acme-button>: expected "primary", "secondary", … (invalid-value)
+1 error, 0 warnings.
+```
+
+- Une balise inconnue, un attribut inconnu ou une valeur hors de celles d'un attribut sont des erreurs. Un événement ou un slot inconnu est un avertissement.
+- La commande lit les liaisons de Vue (`:variant`, `@u-sort`, `v-model`) et de Lit (`.options`, `?disabled`).
+- Elle sort avec le code 1 sur une erreur. Ajoutez-la au test de l'application, ou à l'intégration continue.
+
+## 3. Donnez la documentation à un agent
+
+1. Déclarez le serveur à l'agent, par sa commande : `npx acme-mcp`.
+2. Avec Claude Code : `claude mcp add acme -- npx acme-mcp`.
+3. Avec un autre client, ajoutez le serveur à sa configuration :
+
+```json
+{
+  "mcpServers": {
+    "acme": { "command": "npx", "args": ["acme-mcp"] }
+  }
+}
+```
+
+- Le serveur communique sur l'entrée et la sortie standard.
+- Ses instructions disent à l'agent de lister les composants, de lire chacun avant de l'utiliser, puis de vérifier son markup.
+
+<table>
+  <thead>
+    <tr>
+      <th>Outil</th>
+      <th>Ce qu'il donne</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>`list_components`</td>
+      <td>Les composants, leur balise et leur résumé</td>
+    </tr>
+    <tr>
+      <td>`get_component`</td>
+      <td>Tout ce que la documentation dit d'un composant, avec les règles pour les agents</td>
+    </tr>
+    <tr>
+      <td>`search_docs`</td>
+      <td>Les composants dont la documentation contient chaque mot</td>
+    </tr>
+    <tr>
+      <td>`check_markup`</td>
+      <td>Les problèmes d'un HTML ou d'un fichier Vue</td>
+    </tr>
+  </tbody>
+</table>
+
+Chaque composant est aussi une ressource : `acme://components/modal`.
+
+## 4. Publiez les outils d'un design system
+
+Une marque publie sa commande et son serveur, construits sur ceux du socle.
+
+1. Écrivez sa documentation : `extendDocs()` de `@unicorne/catalog`, sur `loadSocleDocs()`.
+2. Donnez-lui son nom, son préfixe, son package, son catalogue, ses textes, son manifest et ses documents DSDS.
+3. Écrivez ses deux commandes, avec `createCli()` et `serveStdio()`, et déclarez-les dans `bin` de son `package.json`.
+
+```ts
+// src/docs.ts
+export async function loadAcmeDocs() {
+  return extendDocs(await loadSocleDocs(), {
+    name: "ACME",
+    prefix: "acme",
+    package: "@acme/design-system",
+    catalog,
+    labels,
+    manifest: JSON.parse(await readFile(fileOf("custom-elements.json"), "utf8")),
+    usage: await readUsage(fileOf("design-system.dsds.yaml")),
+  });
+}
+```
+
+```js
+// bin/acme.js
+process.exitCode = await createCli({ name: "acme", docs: loadAcmeDocs }).run(process.argv.slice(2));
+```
+
+- `commands` de `createCli()` et `tools` de `createMcpServer()` ajoutent une commande ou un outil, en remplacent un par son nom, ou en retirent un avec `null`.
+- `rules` de `extendDocs()` ajoute des règles à `check`, `withoutRules` en retire.
+- La documentation d'une marque ne nomme pas le socle. Vérifiez-le dans son test : le `smoke.mjs` d'ACME cherche le socle, ses ADR et ses classes dans chaque composant.
+- Écrivez le document DSDS de chaque composant propre à la marque, et listez-les dans son `design-system.dsds.yaml`.
+
+L'exemple complet est `examples/acme-design-system` : `src/docs.ts`, `src/brand.ts`, `bin/`.

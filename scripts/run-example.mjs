@@ -12,7 +12,14 @@ import { join } from "node:path";
 const root = join(import.meta.dirname, "..");
 const example = join(root, "examples/acme-design-system");
 const app = join(root, "examples/acme-vue-app");
-const packages = ["@unicorne/tokens", "@unicorne/icons", "@unicorne/components"];
+const packages = [
+  "@unicorne/tokens",
+  "@unicorne/icons",
+  "@unicorne/components",
+  "@unicorne/catalog",
+  "@unicorne/cli",
+  "@unicorne/mcp",
+];
 const run = (args, cwd = root) => execFileSync("npm", args, { cwd, stdio: "inherit" });
 
 /** Empties `dir`/.base, where a project's package.json finds its tarballs. */
@@ -37,7 +44,7 @@ function checkManifests(dir) {
       throw new Error(`${tarball}: its package.json keeps the @unicorne/source condition.`);
     }
   }
-  for (const name of ["tokens", "icons", "components"]) {
+  for (const name of ["tokens", "icons", "components", "catalog", "cli", "mcp"]) {
     const dir = join(root, "packages", name);
     if (existsSync(join(dir, ".package.json.packing"))) {
       throw new Error(`packages/${name}: package.json wasn't put back after npm pack.`);

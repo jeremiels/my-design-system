@@ -5,7 +5,9 @@
   "description": "The web components of the base, built with Lit: classes without registration, a registration helper, and the tooling brands extend them with (ADR 0001, ADR 0003, ADR 0005).",
   "files": [
     "dist",
-    "custom-elements.json"
+    "custom-elements.json",
+    "design-system.dsds.yaml",
+    "src/components/*/*.dsds.yaml"
   ],
   "type": "module",
   "sideEffects": [
@@ -28,6 +30,7 @@
     "./styles.css": "./dist/styles.css",
     "./reset.css": "./dist/reset.css",
     "./custom-elements.json": "./custom-elements.json",
+    "./design-system.dsds.yaml": "./design-system.dsds.yaml",
     "./vite-plugin": {
       "types": "./dist/plugins/css-import-attributes.d.ts",
       "import": "./dist/plugins/css-import-attributes.js"

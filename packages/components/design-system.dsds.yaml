@@ -1,0 +1,53 @@
+# Documentation DSDS du socle (pilote) : https://designsystemdocspec.org.
+# Ce document racine liste les documents des composants. L'API des
+# composants vit dans custom-elements.json : DSDS n'en recopie rien.
+schemaVersion: "0.23.1"
+$schema: https://designsystemdocspec.org/v0.23.1/dsds.bundled.yaml
+name: My Design System
+entries:
+  - kind: system
+    id: my-design-system
+    name: My Design System
+    description: >-
+      Un socle marque blanche pour design systems : des composants Lit, des
+      tokens `--u-` et l'outillage pour les étendre.
+    metadata:
+      origin:
+        method: authored
+        author: assisted
+      platforms: [web-component]
+refs:
+  - href: ./src/components/button/button.dsds.yaml
+    rel: file
+  - href: ./src/components/button-link/button-link.dsds.yaml
+    rel: file
+  - href: ./src/components/link/link.dsds.yaml
+    rel: file
+  - href: ./src/components/notice/notice.dsds.yaml
+    rel: file
+  - href: ./src/components/toggle-button/toggle-button.dsds.yaml
+    rel: file
+  - href: ./src/components/combobox/combobox.dsds.yaml
+    rel: file
+  - href: ./src/components/table/table.dsds.yaml
+    rel: file
+  - href: ./src/components/page/page.dsds.yaml
+    rel: file
+  - href: ./src/components/modal/modal.dsds.yaml
+    rel: file
+  - href: ./src/components/autocomplete/autocomplete.dsds.yaml
+    rel: file
+  - href: ./src/components/select/select.dsds.yaml
+    rel: file
+  - href: ./src/components/drawer/drawer.dsds.yaml
+    rel: file
+  - href: ./src/components/pagination/pagination.dsds.yaml
+    rel: file
+  - href: ./src/components/checkbox/checkbox.dsds.yaml
+    rel: file
+  - href: ./src/components/switch/switch.dsds.yaml
+    rel: file
+  - href: ./src/components/alert/alert.dsds.yaml
+    rel: file
+  - href: ./src/components/toaster/toaster.dsds.yaml
+    rel: file

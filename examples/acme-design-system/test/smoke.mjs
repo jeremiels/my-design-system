@@ -180,5 +180,97 @@ try {
   server.close();
 }
 
+// --- ACME's documentation tools: `acme` and `acme-mcp`, as a user runs them.
+{
+  const { spawnSync } = await import("node:child_process");
+  const { mkdtemp, writeFile } = await import("node:fs/promises");
+  const { tmpdir } = await import("node:os");
+  const acmeCli = (...args) =>
+    spawnSync("node", [join(root, "bin/acme.js"), ...args], { encoding: "utf8" });
+
+  const listed = JSON.parse(acmeCli("list", "--json").stdout).map(({ tag }) => tag);
+  record(
+    "acme lists ACME's catalog under its prefix: its card, no button-link",
+    listed.includes("acme-card") &&
+      listed.includes("acme-button") &&
+      !listed.includes("acme-button-link"),
+    `${listed.length} components`,
+  );
+
+  const button = acmeCli("show", "button").stdout;
+  record(
+    "acme show: the button's rules, ACME's import, its look and its French texts",
+    button.includes("await acme.define(Button);") &&
+      button.includes("pill corners") &&
+      button.includes("## When to use"),
+    button.split("\n").slice(0, 3).join(" | "),
+  );
+  const modal = acmeCli("show", "modal").stdout;
+  record(
+    "acme show: ACME's texts are the defaults",
+    modal.includes('`"Fermer"`'),
+    'close-label = "Fermer"',
+  );
+
+  const folder = await mkdtemp(join(tmpdir(), "acme-"));
+  await writeFile(
+    join(folder, "page.html"),
+    `<acme-button variant="big">Go</acme-button>\n<u-button>x</u-button>\n`,
+  );
+  const checked = acmeCli("check", folder);
+  record(
+    "acme check: an error on a value ACME's button doesn't take, exit code 1",
+    checked.status === 1 &&
+      checked.stdout.includes('variant="big"') &&
+      checked.stdout.includes("1 error"),
+    checked.stdout.trim().split("\n").at(-1),
+  );
+  record(
+    "acme has ACME's own command, texts",
+    acmeCli("texts").stdout.includes("`closeLabel`: Fermer"),
+    "closeLabel: Fermer",
+  );
+
+  // Nothing of what ACME builds on, but the names of the events and tokens,
+  // which every design system shares.
+  const { loadAcmeDocs } = await import(pathToFileURL(join(root, "dist/docs.js")).href);
+  const { formatComponent } = await import("@unicorne/catalog");
+  const docs = await loadAcmeDocs();
+  const everything = docs.components
+    .map((component) => formatComponent(docs, component, "agent"))
+    .join("\n");
+  const leaks = everything
+    .replace(/`u-(?:close|cancel|select|toggle|sort|remove)`/g, "")
+    .replace(/--u-[\w-]+/g, "")
+    .match(/unicorne|socle|\bADR\b|<u-[a-z]|`u-[a-z]|`\w+(?:Base|Controller)`|the base/gi);
+  record(
+    "ACME's documentation says nothing of what it builds on",
+    leaks === null,
+    `leaks: ${leaks ?? "none"}`,
+  );
+
+  // acme-mcp, through an MCP client, over stdio.
+  const { Client } = await import("@modelcontextprotocol/sdk/client/index.js");
+  const { StdioClientTransport } = await import("@modelcontextprotocol/sdk/client/stdio.js");
+  const client = new Client({ name: "smoke", version: "1.0.0" });
+  await client.connect(
+    new StdioClientTransport({ command: "node", args: [join(root, "bin/acme-mcp.js")] }),
+  );
+  const instructions = client.getInstructions() ?? "";
+  const tools = (await client.listTools()).tools.map(({ name }) => name);
+  const card = await client.callTool({ name: "get_component", arguments: { name: "card" } });
+  const texts = await client.callTool({ name: "get_texts", arguments: {} });
+  await client.close();
+  record(
+    "acme-mcp serves ACME's documentation, and its own tool",
+    instructions.startsWith("ACME:") &&
+      tools.includes("check_markup") &&
+      tools.includes("get_texts") &&
+      card.content[0].text.includes("Utilisez `card` pour résumer") &&
+      texts.content[0].text.includes("Fermer"),
+    `tools: ${tools.join(", ")}`,
+  );
+}
+
 for (const { name, ok, detail } of results) console.log(`${ok ? "✓" : "✗"} ${name} — ${detail}`);
 process.exit(results.every((result) => result.ok) ? 0 : 1);

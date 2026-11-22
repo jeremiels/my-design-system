@@ -35,6 +35,9 @@
   "include": [
     ".storybook",
     "packages/components/src",
+    "packages/catalog/src",
+    "packages/cli/src",
+    "packages/mcp/src",
     "packages/components/plugins",
     "packages/icons/plugins",
     "packages/tokens/plugins",

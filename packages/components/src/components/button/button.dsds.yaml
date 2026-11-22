@@ -92,6 +92,10 @@ sections:
           - href: ../../composition.test.ts
             role: test
         checkedBy: automated
+        $extensions:
+          dev.unicorne:
+            context: Une règle des contributeurs du socle. La documentation d'un design system construit sur le socle la laisse de côté.
+            audience: contributors
 
 refs:
   - href: ./button.stories.ts

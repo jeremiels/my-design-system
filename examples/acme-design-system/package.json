@@ -2,10 +2,17 @@
   "name": "@acme/design-system",
   "version": "0.0.0",
   "private": true,
-  "description": "Example brand design system built on @unicorne/tokens, @unicorne/icons and @unicorne/components (ADR 0001, ADR 0003, ADR 0005): run `npm run example` from the repository root.",
+  "description": "Example brand design system built on @unicorne/tokens, @unicorne/icons and @unicorne/components (ADR 0001, ADR 0003, ADR 0005), with its own documentation tools, `acme` and `acme-mcp` (ADR 0039): run `npm run example` from the repository root.",
+  "bin": {
+    "acme": "./bin/acme.js",
+    "acme-mcp": "./bin/acme-mcp.js"
+  },
   "files": [
     "dist",
-    "custom-elements.json"
+    "bin",
+    "custom-elements.json",
+    "design-system.dsds.yaml",
+    "src/components/*/*.dsds.yaml"
   ],
   "type": "module",
   "sideEffects": [
@@ -20,6 +27,10 @@
     "./define": {
       "types": "./dist/define.d.ts",
       "import": "./dist/define.js"
+    },
+    "./docs": {
+      "types": "./dist/docs.d.ts",
+      "import": "./dist/docs.js"
     },
     "./acme-button": {
       "types": "./dist/components/acme-button/acme-button.d.ts",
@@ -38,11 +49,15 @@
     "test": "node test/smoke.mjs"
   },
   "dependencies": {
+    "@unicorne/catalog": "file:.base/unicorne-catalog-0.0.0.tgz",
+    "@unicorne/cli": "file:.base/unicorne-cli-0.0.0.tgz",
     "@unicorne/components": "file:.base/unicorne-components-0.0.0.tgz",
     "@unicorne/icons": "file:.base/unicorne-icons-0.0.0.tgz",
+    "@unicorne/mcp": "file:.base/unicorne-mcp-0.0.0.tgz",
     "@unicorne/tokens": "file:.base/unicorne-tokens-0.0.0.tgz"
   },
   "devDependencies": {
+    "@types/node": "^26.6.6",
     "vue": "^3.5.45"
   },
   "peerDependencies": {
