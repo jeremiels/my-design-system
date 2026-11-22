@@ -1,0 +1,113 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Documentation/ADR/0046 Règles d'usage des tokens" />
+
+# ADR 0046 — Règles d'usage des tokens
+
+**Statut :** accepté · **Date :** 22 novembre 2026
+
+## Contexte
+
+La commande et le serveur MCP donnent la valeur et la description de chaque token ([ADR 0042](?path=/docs/documentation-adr-0042-tokens-dans-les-outils-de-documentation--docs)). Ils ne disent pas sur quel fond poser une couleur.
+
+- `color.action.text` est blanc en thème clair : sur une surface blanche, le texte disparaît. Il va sur `color.action.background`.
+- `packages/tokens/testing/contrast.ts` mesure 57 paires de couleurs, dans les deux thèmes : `contrastPairs`. Une application et un agent ne lisent pas ce fichier.
+- Le site de l'[ADR 0041](?path=/docs/documentation-adr-0041-site-de-documentation-et-édition--docs) prévoit des entrées DSDS `token` pour l'usage, éditées par les designers.
+
+### Ce qui existe
+
+<table>
+  <thead>
+    <tr>
+      <th>Source</th>
+      <th>Les paires d'un token</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>DSDS 0.23.1</td>
+      <td>
+        Une entrée `token` a des `combos` : un sujet, un niveau et des éléments. `must` et `should`
+        autorisent les éléments, `should-not` et `must-not` les interdisent. `note` dit pourquoi.
+        Les règles d'usage vont dans les `sections` de l'entrée.
+      </td>
+    </tr>
+    <tr>
+      <td>Primer</td>
+      <td>
+        Un fond « emphasis » se combine toujours avec `fgColor-onEmphasis`, pour le texte et les
+        icônes. Les tokens de base ne s'utilisent jamais directement.
+      </td>
+    </tr>
+    <tr>
+      <td>Linters</td>
+      <td>Aucun linter vérifié ne contrôle une paire de premier plan et de fond.</td>
+    </tr>
+  </tbody>
+</table>
+
+## D1 — Les entrées DSDS des tokens
+
+- **Option A — Les règles dans la `$description` DTCG.** Une description n'a ni niveau, ni paire qu'un outil lit.
+- **Option B — Des entrées DSDS `token`**, à côté des sources DTCG, comme les documents des composants.
+
+**Décision : B.**
+
+- `packages/tokens/src/semantic/color.dsds.yaml` décrit les tokens sémantiques de couleur : 40 entrées. `packages/tokens/src/tokens.dsds.yaml` le liste avec les documents des autres familles ([ADR 0050](?path=/docs/documentation-adr-0050-règles-d-usage-des-espaces-de-la-typographie-et-du-mouvement--docs)).
+- La `description` d'une entrée dit comment utiliser le token. La description DTCG reste ce qu'il est, comme la JSDoc pour un composant.
+- `npm run dsds` valide et formate le document avec ceux des composants. DSDS ne résout un token cité par un combo que s'il a son entrée : chaque fond cité a la sienne.
+- `readTokenUsage()` de `@unicorne/catalog` lit les entrées `kind: token`. `extendDocs()` garde l'usage du socle sur les tokens d'une marque, et ajoute celui de ses propres entrées (`tokenUsage`).
+
+## D2 — Les paires, et le contraste mesuré
+
+- **Option A — Les paires dans `contrastPairs` seulement.** La commande, le serveur et `check` ne les lisent pas.
+- **Option B — Les paires dans les `combos` DSDS, et le test de contraste lit le document.** Le test tourne dans un navigateur, et une marque l'appelle depuis le sien.
+- **Option C — Les deux, et un test vérifie qu'ils disent la même chose.** C'est ce que fait `.storybook/dsds.test.ts` pour les traits d'un composant.
+
+**Décision : C.**
+
+- Chaque paire mesurée est un `combo` `must` ou `should`, et chaque `combo` est une paire mesurée. Le test de `@unicorne/catalog` échoue sinon.
+- `contrastPairs` garde le minimum de chaque paire : 4,5:1 pour un texte, 3:1 pour un élément d'interface. La `note` du combo le dit.
+
+## D3 — Les commandes et le serveur montrent l'usage
+
+- `token` et `get_token` donnent l'usage de l'entrée, ses règles, et une section « Pairs » : les tokens de chaque paire, et la note.
+- Une marque reçoit l'usage du socle sous ses noms, comme ses composants.
+
+## D4 — `check` vérifie une paire dans un bloc
+
+- **Option A — Aucune vérification.** Une paire interdite ne se voit qu'en mesurant le contraste de la page.
+- **Option B — Une règle CSS sur un bloc** qui déclare un premier plan et son fond.
+
+**Décision : B.**
+
+- `token-pair` lit une couleur (`color`, `border-color`, `outline-color`, `fill`, `stroke`) et le `background` du même bloc, chacun un seul token.
+- Elle signale un fond que les paires de la couleur n'autorisent pas, ou qu'elles interdisent.
+- Une paire `must` donne une erreur, une paire `should` un avertissement, comme une règle d'usage ([ADR 0040](?path=/docs/documentation-adr-0040-règles-d-usage-vérifiées--docs)).
+- Un fond hérité d'un parent, ou écrit dans un autre bloc, lui échappe.
+
+```
+src/app.css:1:6 error `--u-color-action-text` on `--u-color-surface-default`: it MUST be paired with `--u-color-action-background`, … (token-pair)
+```
+
+## Conséquences
+
+- **`@unicorne/tokens` :** `src/semantic/color.dsds.yaml`, publié avec les sources.
+- **`@unicorne/catalog` :** `readTokenUsage()`, `TokenDoc.usage`, `guidelines` et `combos`, `DocsSource.tokenUsage` et `DocsLayer.tokenUsage`, la règle `token-pair`. Le test d'accord avec `contrastPairs`.
+- **ACME :** son test lit les paires d'un token et vérifie une paire interdite.
+- **Limites :**
+  - Seuls les tokens sémantiques de couleur ont leurs entrées. Les espaces, la typographie et le mouvement ont les leurs dans l'[ADR 0050](?path=/docs/documentation-adr-0050-règles-d-usage-des-espaces-de-la-typographie-et-du-mouvement--docs).
+  - Une paire se vérifie dans un bloc, pas à travers la cascade.
+
+## Questions ouvertes
+
+- **Autres familles :** les espaces, la typographie et le mouvement sont décidés dans l'[ADR 0050](?path=/docs/documentation-adr-0050-règles-d-usage-des-espaces-de-la-typographie-et-du-mouvement--docs).
+- **Marques :** les entrées d'une marque pour ses propres tokens, et leurs paires dans son test de contraste.
+
+## Sources
+
+Consultées le 22 novembre 2026.
+
+- [Combo](https://designsystemdocspec.org/v0.23.1/common/combo.schema.yaml), [Token](https://designsystemdocspec.org/v0.23.1/entries/token.schema.yaml) et [Entry metadata](https://designsystemdocspec.org/v0.23.1/metadata/entry-metadata.schema.yaml) (DSDS 0.23.1). La règle `DSDS-09` est lue dans `conformance-rules.yaml` du package `design-system-documentation-schema`.
+- [Color usage](https://primer.style/foundations/color/overview) (Primer) : fonds « emphasis » et `fgColor-onEmphasis`.
+- [stylelint-config](https://github.com/primer/stylelint-config) (Primer) : `primer/colors`, sans règle de paire.

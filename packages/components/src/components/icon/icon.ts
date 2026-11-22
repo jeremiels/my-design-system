@@ -1,4 +1,10 @@
-import { icons, type IconLoader, type IconSet, type IconSource } from "@unicorne/icons";
+import {
+  iconAliases,
+  icons,
+  type IconLoader,
+  type IconSet,
+  type IconSource,
+} from "@unicorne/icons";
 import { html, isServer, nothing, type PropertyValues } from "lit";
 import { property, state } from "lit/decorators.js";
 import { html as staticHtml, unsafeStatic } from "lit/static-html.js";
@@ -48,6 +54,14 @@ export class Icon extends DSBaseElement {
   static icons: IconSet = icons;
 
   /**
+   * Other names of the set's icons: an old name → the icon it renders (ADR
+   * 0049). The default is the aliases of `@unicorne/icons`. An alias renders
+   * whatever icon its target name has: a brand's icon that replaces the
+   * base's renders under both names.
+   */
+  static aliases: Readonly<Record<string, string>> = iconAliases;
+
+  /**
    * Gives the markup of icons of the base, by name, from the module of a
    * component that draws them: `Icon.bundle({ "chevron-down": chevronDown })`,
    * with `import chevronDown from "@unicorne/icons/chevron-down"`. While the
@@ -66,15 +80,17 @@ export class Icon extends DSBaseElement {
    */
   static override forDesignSystem<T extends typeof DSBaseElement>(
     this: T,
-    { icons: designSystemIcons }: DesignSystemSettings,
+    { icons: designSystemIcons, iconAliases: designSystemAliases }: DesignSystemSettings,
   ): T {
-    if (!designSystemIcons) {
+    if (!designSystemIcons && !designSystemAliases) {
       return this;
     }
-    const set: IconSet = { ...(this as unknown as typeof Icon).icons, ...designSystemIcons };
     const base = this as unknown as typeof Icon;
+    const set: IconSet = { ...base.icons, ...designSystemIcons };
+    const aliases = { ...base.aliases, ...designSystemAliases };
     return class extends base {
       static override icons = set;
+      static override aliases = aliases;
     } as unknown as T;
   }
 
@@ -151,15 +167,17 @@ export class Icon extends DSBaseElement {
       : html`<span part="icon" class="icon" aria-hidden="true">${svg}</span>`;
   }
 
-  private sourceOf(name: string): IconSource | undefined {
-    const set = (this.constructor as typeof Icon).icons;
+  private sourceOf(requested: string): IconSource | undefined {
+    const { icons: set, aliases } = this.constructor as typeof Icon;
+    // An alias renders the icon it names (ADR 0049).
+    const name = Object.hasOwn(aliases, requested) ? aliases[requested]! : requested;
     if (Object.hasOwn(set, name)) {
       const source = set[name];
       // The base's own loader: the markup a component bundled, if any.
       return source === (icons as IconSet)[name] ? (bundled.get(name) ?? source) : source;
     }
-    if (name) {
-      this.warn(`no icon "${name}" in the set of <${this.localName}>; it renders empty.`);
+    if (requested) {
+      this.warn(`no icon "${requested}" in the set of <${this.localName}>; it renders empty.`);
     }
     return undefined;
   }

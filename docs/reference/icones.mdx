@@ -23,6 +23,19 @@ Les décisions sont dans l'[ADR 0005](?path=/docs/documentation-adr-0005-icônes
       <td>Non</td>
     </tr>
     <tr>
+      <td>`src/<nom>.json`</td>
+      <td>Les métadonnées de l'icône : son sens, ses mots-clés, ses catégories</td>
+      <td>Non</td>
+    </tr>
+    <tr>
+      <td>`icon-manifest.json`</td>
+      <td>
+        Chaque icône et ses métadonnées, pour les outils de documentation. Import :
+        `@unicorne/icons/icon-manifest.json`
+      </td>
+      <td>Oui, généré</td>
+    </tr>
+    <tr>
       <td>`js/index.js`</td>
       <td>`icons` : nom → fonction qui charge le module de l'icône. Import : `@unicorne/icons`</td>
       <td>Oui, généré</td>
@@ -45,9 +58,55 @@ Les décisions sont dans l'[ADR 0005](?path=/docs/documentation-adr-0005-icônes
   </tbody>
 </table>
 
-- `npm run icons` génère `js/` et `svg/` depuis `src/`.
-- `npm run icons:check` échoue si `js/` ou `svg/` diffère de ce que génèrent les sources.
-- Le nom d'une icône est une API : le renommer ou le retirer est une version majeure.
+- `npm run icons` génère `js/`, `svg/` et `icon-manifest.json` depuis `src/`.
+- `npm run icons:check` échoue si `js/`, `svg/` ou `icon-manifest.json` diffère de ce que génèrent les sources.
+- Le nom d'une icône est une API : le retirer est une version majeure. Pour la renommer, gardez l'ancien nom en alias `deprecated` ([ADR 0049](?path=/docs/documentation-adr-0049-alias-d-icônes--docs)).
+
+## Métadonnées
+
+Un fichier `<nom>.json`, à côté de `<nom>.svg`, décrit l'icône. Il est facultatif. La commande et le serveur MCP du design system le lisent par le manifest ([ADR 0044](?path=/docs/documentation-adr-0044-icônes-dans-les-outils-de-documentation--docs)).
+
+```json
+{
+  "description": "Closes a dialog or a message, or removes an item, like a tag.",
+  "tags": ["cross", "x", "dismiss", "remove", "clear"],
+  "categories": ["action"]
+}
+```
+
+<table>
+  <thead>
+    <tr>
+      <th>Champ</th>
+      <th>Contenu</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>`description`</td>
+      <td>Le sens de l'icône, ou son usage, en une phrase anglaise</td>
+    </tr>
+    <tr>
+      <td>`tags`</td>
+      <td>Les mots qui la trouvent, autres que son nom : `cross` trouve `close`</td>
+    </tr>
+    <tr>
+      <td>`categories`</td>
+      <td>Ses familles : `navigation`, `action`, `status`</td>
+    </tr>
+    <tr>
+      <td>`aliases`</td>
+      <td>
+        Ses autres noms : `name`, et `deprecated` pour un ancien nom, avec `deprecationReason`
+        (`alias.typo`, `alias.name`, `alias.duplicate`)
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+- Le générateur refuse un autre champ, un champ du mauvais type, et un `.json` sans son `.svg`. Il refuse un alias qui porte le nom d'une icône ou d'un autre alias.
+- `js/index.js` exporte la table des alias : `iconAliases`, ou `acmeIconAliases` pour `--export acmeIcons`. Le composant `icon` affiche l'icône d'un alias.
+- Une icône de marque sans `.json` garde les métadonnées de l'icône du socle qu'elle remplace.
 
 ## Règles des sources
 
@@ -141,7 +200,7 @@ SVGO optimise chaque source en plusieurs passes :
 ## Commande `unicorne-icons`
 
 ```sh
-unicorne-icons <sources> --out <dossier> [--svg-out <dossier>] [--export <nom>] [--max-bytes <n>]
+unicorne-icons <sources> --out <dossier> [--svg-out <dossier>] [--manifest <fichier>] [--export <nom>] [--max-bytes <n>]
 ```
 
 <table>
@@ -169,6 +228,11 @@ unicorne-icons <sources> --out <dossier> [--svg-out <dossier>] [--export <nom>] 
       <td>Aucun fichier SVG</td>
     </tr>
     <tr>
+      <td>`--manifest`</td>
+      <td>Le manifest d'icônes, pour les outils de documentation</td>
+      <td>Aucun manifest</td>
+    </tr>
+    <tr>
       <td>`--export`</td>
       <td>Le nom de la table exportée par `index.js`</td>
       <td>`icons`</td>
@@ -183,4 +247,4 @@ unicorne-icons <sources> --out <dossier> [--svg-out <dossier>] [--export <nom>] 
 
 - Un dossier de sortie contient seulement des fichiers générés. La commande refuse un dossier qui contient un autre fichier, et ne change rien.
 - La commande supprime les fichiers d'une icône retirée des sources.
-- `@unicorne/icons/icon-set` exporte les mêmes fonctions pour un script : `readIconSet()` et `writeIconSet()`.
+- `@unicorne/icons/icon-set` exporte les mêmes fonctions pour un script : `readIconSet()`, `writeIconSet()` et `writeIconManifest()`.

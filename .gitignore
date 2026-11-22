@@ -33,6 +33,8 @@ coverage
 # Example brand design system: packed base, generated manifest and token sheets
 examples/*/.base
 examples/*/custom-elements.json
+examples/*/token-manifest.json
+examples/*/icon-manifest.json
 examples/*/src/theme.css
 examples/*/tokens/.*.resolver.json
 examples/*/src/**/*.tokens.css

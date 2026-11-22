@@ -71,7 +71,7 @@ function prefill() {
 
 <template>
   <main class="page">
-    <h1>Créer un compte</h1>
+    <h1 class="acme-text-heading-xl">Créer un compte</h1>
     <p id="greeting">{{ greeting }}</p>
 
     <form class="form" @submit.prevent="submit" @reset="reset">

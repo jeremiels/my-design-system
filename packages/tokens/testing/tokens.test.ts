@@ -148,3 +148,37 @@ it("starts a brand container again from the base's primitives, not from the bran
     resolve("var(--u-color-action-background)"),
   );
 });
+
+describe("the text styles (ADR 0051)", () => {
+  /** The computed font of an element with `className`, inside `parent`. */
+  const font = (className: string, parent: Element = document.body) => {
+    const text = document.createElement("p");
+    text.className = className;
+    text.textContent = "Demandes";
+    parent.append(text);
+    const { fontSize, fontWeight, lineHeight, fontFamily, letterSpacing } = getComputedStyle(text);
+    return { fontSize, fontWeight, lineHeight, fontFamily, letterSpacing };
+  };
+
+  it("gives a class its size, weight, line height, family and letter spacing", () => {
+    expect(font("u-text-heading-xl")).toEqual({
+      fontSize: "32px",
+      fontWeight: "600",
+      lineHeight: "40px",
+      fontFamily: '"Helvetica Neue", sans-serif',
+      letterSpacing: "normal",
+    });
+    expect(font("u-text-body-sm")).toMatchObject({ fontSize: "14px", lineHeight: "21px" });
+  });
+
+  it("follows the values of a brand container", () => {
+    const brand = zone(document.body, { brand: "acme" });
+    brand.style.setProperty("--u-font-family-sans", "Georgia, serif");
+    brand.style.setProperty("--u-font-size-500", "3rem");
+    expect(font("u-text-heading-xl", brand)).toMatchObject({
+      fontSize: "48px",
+      lineHeight: "60px",
+      fontFamily: "Georgia, serif",
+    });
+  });
+});

@@ -1,0 +1,489 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Documentation/ADR/0041 Site de documentation et édition" />
+
+# ADR 0041 — Site de documentation et édition
+
+**Statut :** proposé · **Date :** 22 novembre 2026
+
+## Contexte
+
+Les applications d'une marque ont besoin d'une documentation complète : ses composants, leurs règles d'usage, ses fondations et ses patterns. Les designers de la marque écrivent une grande partie de ce contenu, et ils ne codent pas. La DSI veut une seule source de vérité.
+
+Le besoin a deux parties, qui se décident séparément :
+
+- **Lire :** un site par design system, au nom de la marque.
+- **Écrire :** un chemin d'édition pour les designers.
+
+### Ce qui existe dans le socle
+
+- `@unicorne/catalog` fusionne le manifest et les documents DSDS en un modèle : `DesignSystemDocs` ([ADR 0039](?path=/docs/documentation-adr-0039-outils-de-documentation--docs)).
+- `extendDocs()` donne la vue d'une marque. Elle ne nomme ni le socle, ni ses ADR, ni ses classes.
+- Deux outils lisent ce modèle : la commande (`unicorne`, `acme`) et le serveur MCP (`unicorne-mcp`, `acme-mcp`). `check` vérifie les règles d'usage que le markup montre ([ADR 0040](?path=/docs/documentation-adr-0040-règles-d-usage-vérifiées--docs)).
+- Storybook affiche les règles DSDS dans la page de chaque composant (`.storybook/dsds.ts`). Il montre les balises `u-` et les ADR du socle, et il s'adresse aux développeurs.
+- Storybook génère ses contrôles depuis le manifest (`setCustomElementsManifest`).
+- `@unicorne/tokens/dtcg-sources` lit un resolver et ses sources DTCG : chaque token, son niveau et son alias. Aucune source ne porte de `$description`.
+- `unicorne-icons` optimise les SVG du socle et ceux d'une marque. Le jeu d'une marque reprend celui du socle.
+- `@unicorne/catalog` ne lit ni les tokens ni les icônes.
+- ACME n'a aucun site.
+
+### Ce que DSDS décrit
+
+Faits vérifiés dans le schéma DSDS 0.23.1 :
+
+- **Entrées :** `system`, `component`, `token`, `theme` et `entry`. Une `entry` porte une fondation ou un pattern.
+- **Sections :** une section libre contient du Markdown, des sous-entrées et des `examples`.
+- **Règle :** une règle de `guidelines` a un `id` stable, facultatif, et un `example`. L'exemple suit le niveau de la règle : celui d'une règle `must-not` montre ce qu'il ne faut pas faire.
+- **Visuel :** le `showcase` d'un exemple est une image, une vidéo ou du `html`, désigné par une URL.
+- **Token :** une entrée `token` ne stocke pas la valeur. Son `source` pointe vers le fichier DTCG, et ses `combos` disent avec quels tokens il se combine.
+- **Groupe :** `metadata.group` range une entrée dans un groupe : `color.action` pour des tokens, `action` pour des composants.
+- **Outils :** DSDS est un format, pas un outil de publication. Il ne cite aucun générateur de site, et aucune plateforme de documentation qui l'importe.
+
+### Ce qui existe ailleurs
+
+<table>
+  <thead>
+    <tr>
+      <th>Outil</th>
+      <th>Où vit le contenu</th>
+      <th>Écriture depuis l'extérieur</th>
+      <th>Limite pour le socle</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>zeroheight</td>
+      <td>Dans zeroheight</td>
+      <td>
+        Son serveur MCP crée et modifie des pages, en brouillon (MCP-Write). Il ne crée ni
+        styleguide, ni token, ni fichier Storybook.
+      </td>
+      <td>
+        Une seconde source : `check` et le MCP du socle ne lisent pas ce que les designers y
+        écrivent. Un styleguide par marque, socle recopié compris.
+      </td>
+    </tr>
+    <tr>
+      <td>Supernova</td>
+      <td>Dans Supernova</td>
+      <td>Une synchronisation du Markdown d'un dépôt, d'après sa page produit</td>
+      <td>Une seconde source, comme zeroheight. Sa documentation technique n'est pas publique.</td>
+    </tr>
+    <tr>
+      <td>Knapsack</td>
+      <td>
+        Dans sa base, ou dans le dépôt de l'équipe : les pages en YAML et JSON, au format de
+        Knapsack
+      </td>
+      <td>
+        Chaque modification est un commit. Une branche de Knapsack est une branche git, et une
+        demande de relecture ouvre une PR.
+      </td>
+      <td>
+        Un second format à côté de DSDS. Les fichiers envoyés restent sur son CDN. Sa documentation
+        ne cite pas GitHub Enterprise.
+      </td>
+    </tr>
+    <tr>
+      <td>Decap CMS 3.18</td>
+      <td>Dans le dépôt : Markdown, YAML ou JSON</td>
+      <td>
+        Editorial workflow : une branche `cms/<collection>/<entrée>` et une PR par entrée.
+        GitHub Enterprise par `api_root`, avec un serveur OAuth à héberger.
+      </td>
+      <td>
+        Son format `yaml` change l'ordre des clés et replie les lignes longues (spike ci-dessous).
+      </td>
+    </tr>
+    <tr>
+      <td>Sveltia CMS</td>
+      <td>Dans le dépôt</td>
+      <td>
+        Editorial workflow, comme Decap. GitHub Enterprise par `api_root`, avec un token personnel
+        ou un authenticator sur Cloudflare Workers.
+      </td>
+      <td>
+        En bêta : la 1.0 est prévue fin 2026. Son mode local passe par l'API File System Access de
+        Chromium, sans proxy.
+      </td>
+    </tr>
+    <tr>
+      <td>Keystatic</td>
+      <td>Dans le dépôt : YAML ou JSON</td>
+      <td>Des branches, par une GitHub App</td>
+      <td>Sa documentation ne cite ni GitHub Enterprise, ni les PR.</td>
+    </tr>
+  </tbody>
+</table>
+
+### Exemples de composants ailleurs
+
+<table>
+  <thead>
+    <tr>
+      <th>Source</th>
+      <th>Exemple</th>
+      <th>Modifier l'exemple</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Web Awesome</td>
+      <td>Un aperçu en direct et son code. Bascule clair / sombre et LTR / RTL.</td>
+      <td>
+        « Edit » envoie le code à CodePen, par un formulaire POST, avec le CDN public de Web
+        Awesome. Aucun panneau de propriétés.
+      </td>
+    </tr>
+    <tr>
+      <td>Storybook du socle</td>
+      <td>Une story par cas. Les contrôles viennent du manifest.</td>
+      <td>Les contrôles changent les propriétés. Le code ne se modifie pas.</td>
+    </tr>
+    <tr>
+      <td>`playground-elements` (Lit)</td>
+      <td>Un éditeur CodeMirror 6, et un aperçu servi par un service worker.</td>
+      <td>
+        Les imports nus se chargent depuis unpkg par défaut. Sans unpkg, il demande une origine
+        séparée pour son bac à sable et un CDN interne.
+      </td>
+    </tr>
+    <tr>
+      <td>Spectrum Web Components</td>
+      <td>Un lien « Try it on Stackblitz » et un lien vers son Storybook</td>
+      <td>Non vérifié</td>
+    </tr>
+  </tbody>
+</table>
+
+### Spike du 22 novembre 2026
+
+Decap CMS 3.18, en mode local (`decap-server`), édite des copies de `button.dsds.yaml` et `modal.dsds.yaml`. La configuration déclare les champs d'un designer : nom, description, sections, règles, exemple et traits. Elle ne déclare ni `checks`, ni `$extensions`, ni `refs`, ni `metadata`. Un script Playwright édite, enregistre, puis le diff mesure le fichier écrit.
+
+<table>
+  <thead>
+    <tr>
+      <th>Mesure</th>
+      <th>Format `yaml` de Decap</th>
+      <th>Format `dsds`, enregistré par `registerCustomFormat`</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Champs non déclarés, même imbriqués : `checks`, `alternatives`, `$extensions`</td>
+      <td>Gardés</td>
+      <td>Gardés</td>
+    </tr>
+    <tr>
+      <td>Ordre des clés de premier niveau</td>
+      <td>Changé à chaque enregistrement</td>
+      <td>Celui de `dsds-format`</td>
+    </tr>
+    <tr>
+      <td>Lignes longues</td>
+      <td>Repliées à 80 colonnes</td>
+      <td>Gardées</td>
+    </tr>
+    <tr>
+      <td>Commentaire d'en-tête et lignes vides entre les sections</td>
+      <td>Perdus</td>
+      <td>Gardés</td>
+    </tr>
+    <tr>
+      <td>Diff d'un énoncé modifié</td>
+      <td>51 lignes ajoutées, 46 retirées</td>
+      <td>1 ligne</td>
+    </tr>
+    <tr>
+      <td>`dsds-format --check`</td>
+      <td>Échoue. Après `dsds-format`, il passe, et le diff d'une édition suivante est minimal.</td>
+      <td>Passe</td>
+    </tr>
+    <tr>
+      <td>Lecture puis écriture des 56 documents du socle, sans édition</td>
+      <td>Non mesuré</td>
+      <td>
+        54 identiques à l'octet. 2 changent les guillemets d'une chaîne qui contient `'` et `"`, à
+        valeur égale.
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+- **Données :** après la première édition, le YAML lu est identique à l'original, à l'énoncé modifié près.
+- **Validation :** `dsds-validate --strict` donne les mêmes erreurs que pour l'original copié seul : des références vers des fichiers absents de la copie.
+- **Règle ajoutée avec une image :** Decap écrit l'image à côté du document (`components/button/media/`) et le chemin relatif `media/do-primary.png`. Il n'écrit aucun `example` vide dans les autres règles.
+- **Objet facultatif :** Decap valide les champs obligatoires d'un objet facultatif vide. Un champ obligatoire dans `example` bloque l'enregistrement de toutes les règles sans exemple.
+- **Le format `dsds` :** 40 lignes de JavaScript sur la bibliothèque `yaml`. Il range les clés dans l'ordre de `dsds-format`, ne replie aucune ligne et garde le commentaire d'en-tête.
+- **Non mesurés :** l'editorial workflow en local, qui demande `decap-server` en mode `git`. Sveltia, dont le mode local ne s'automatise pas sans sélecteur de dossier.
+
+### Critères de décision
+
+1. Chaque fait a une seule source, dans git, relue par PR.
+2. La commande, le serveur MCP, `check` et le site lisent la même source.
+3. Un composant, un token ou une icône apparaît dans le site sans rédaction.
+4. Un designer modifie une règle, un texte ou un visuel sans éditer de YAML. Il ajoute une page et la place dans la navigation.
+5. Le site d'une marque ne nomme pas le socle, ni dans ses textes, ni dans ses visuels.
+6. Une marque étend le site du socle comme elle étend la commande et le serveur MCP.
+7. Le code d'un exemple ne quitte pas la DSI.
+8. Le dépôt est sur GitHub Enterprise, avec SSO.
+
+## D1 — Source du contenu éditorial
+
+- **Option A — Une plateforme est la source** : zeroheight ou Supernova. Un agent y pousse les documents DSDS par MCP. Ce que les designers y écrivent ne revient pas dans git : deux sources.
+- **Option B — Knapsack en mode git.** Le contenu vit dans le dépôt, au format de Knapsack. DSDS et ce format décrivent alors les mêmes règles.
+- **Option C — Les documents DSDS dans git**, pour tout le contenu éditorial.
+
+**Décision : C.**
+
+- Une fondation, un pattern ou une page libre est une `entry` DSDS. La commande et le serveur MCP la lisent comme un composant.
+- L'usage d'un token est une entrée `token`. Elle pointe vers sa source DTCG, et ne recopie pas sa valeur.
+- Le document d'un composant reste à côté de sa classe. Le site est une vue, pas une source.
+
+## D2 — Un site par design system
+
+- **Option A — Le Storybook de chaque marque.** Les stories du socle écrivent `u-button` en TypeScript : une marque les réécrit sous son préfixe.
+- **Option B — Une plateforme par marque**, alimentée par un agent. Le contenu du socle est recopié dans chaque plateforme.
+- **Option C — Un package `@unicorne/site`**, qui écrit le site d'un design system depuis `DesignSystemDocs`.
+
+**Décision : C.**
+
+- Le site a deux sortes de pages :
+  - les pages générées : chaque composant, chaque groupe de tokens, les icônes ;
+  - les pages éditoriales, écrites dans le CMS.
+- Une page de composant montre son usage, ses règles, ses exemples, son API (attributs, événements, slots, parts, tokens) et son code d'import.
+- `createSite()` ajoute une page, en remplace une par son nom, ou en retire une avec `null`, comme `createCli({ commands })`.
+- La commande du socle est `unicorne-site`. ACME publie `acme-site`.
+- Pagefind indexe le HTML construit. Il reconnaît le français et sa racinisation.
+- Storybook reste l'atelier des développeurs du socle. Le site renvoie à ses stories (`refs`, `rel: demo`).
+
+## D3 — Pages et navigation
+
+- **Option A — La navigation suit les dossiers des pages.** Déplacer une page change son fichier et son URL.
+- **Option B — Chaque page nomme sa page parente et son rang.** L'ordre d'une rubrique se lit alors dans plusieurs fichiers.
+- **Option C — Un fichier de navigation**, un arbre que le CMS édite.
+
+**Décision : C.**
+
+- `navigation.yaml`, à côté du document racine, a trois niveaux : les entrées de l'en-tête, leurs pages et leurs sous-pages.
+- Une entrée nomme une page par son `id`, une rubrique générée (`components`, `tokens`, `icons`) ou un lien.
+- Le designer crée une page dans le CMS : une collection de dossier, avec `create: true`. Chaque page est un document `entry`.
+- Il ajoute ensuite une entrée à la navigation, choisit la page dans une liste (widget `relation` de Decap) et la déplace dans l'arbre.
+- Une page éditoriale a des sections : du texte riche, des images et des exemples de composants.
+- L'URL d'une page vient de son `id`. Déplacer une page dans la navigation ne casse aucun lien.
+- La rubrique des composants les range par le `metadata.group` de leur document DSDS : « Actions », « Formulaires ».
+- La construction du site échoue sur une entrée qui nomme une page absente.
+
+## D4 — Exemples : propriétés et code
+
+- **Option A — Un panneau de propriétés**, comme les contrôles de Storybook. Le code ne se modifie pas.
+- **Option B — Un éditeur de code**, comme CodePen. Rien ne guide un designer.
+- **Option C — Les deux, dans un même bloc d'exemple**, sur le site.
+
+**Décision : C.**
+
+- Chaque exemple montre un aperçu en direct, et deux onglets : « Propriétés » et « Code ». Les deux partagent le même fragment HTML : changer une propriété réécrit le code.
+- **Propriétés :** les contrôles viennent du manifest, comme dans Storybook.
+  - Une union de chaînes donne un `select`, un booléen un `switch`, une chaîne un `text-field`, un nombre un `number-field`.
+  - Le texte du slot par défaut se modifie aussi. Les événements émis s'affichent dans un journal.
+  - Les contrôles sont les composants de la marque.
+  - Le panneau part d'un exemple du document DSDS, ou de la balise du composant seule. Il change les attributs de cet élément : un `tabs` garde ses `tab`.
+- **Code :** le fragment s'édite dans CodeMirror 6, et l'aperçu suit la saisie.
+  - `check` tourne dans le navigateur : il ne dépend que de `parse5`.
+  - L'éditeur souligne une erreur et cite la règle d'usage qu'elle enfreint.
+- **Aperçu :** il bascule entre clair et sombre (`data-theme`), et entre LTR et RTL, comme Web Awesome.
+- **Pas de CodePen :** les packages d'une marque sont privés, et le code d'un exemple ne quitte pas la DSI.
+- **Isolation :** l'aperçu d'un code modifié s'exécute dans une `iframe` `sandbox`, sans `allow-same-origin`.
+  - Le code saisi n'atteint ni la page, ni le token du CMS.
+  - Le site sert les modules de la marque avec un en-tête CORS.
+- **HTML seul :** un fragment n'a pas de script. Une modale ou un tiroir s'ouvre par `commandfor` ([ADR 0008](?path=/docs/documentation-adr-0008-commandes-et-modale--docs)).
+
+## D5 — Visuels
+
+- **Option A — Des captures, pour tous les exemples.** La capture d'un composant du socle montre ses couleurs : le site d'une marque montre alors le socle.
+- **Option B — Un fragment HTML pour un exemple de composant, une image pour le reste.**
+
+**Décision : B.**
+
+- Un exemple de composant est un fragment HTML (`showcase.kind: html`). Le site le rend avec les composants et le thème de la marque, sous son préfixe. `check` vérifie son markup.
+- Une image illustre ce qui n'est pas un composant : une fondation, un pattern d'écran, un contenu de la marque.
+- L'image vit à côté de son document, dans `media/`. La CI limite son poids.
+- Un designer choisit une image dans le CMS. Un fragment HTML s'écrit par un développeur ou un agent.
+
+## D6 — Tokens
+
+- **Option A — Des pages de tokens écrites à la main.** Elles recopient les valeurs.
+- **Option B — Les sources DTCG pour les valeurs, et des entrées DSDS `token` pour l'usage.**
+
+**Décision : B.**
+
+- Le site lit les tokens dans le modèle de `@unicorne/catalog`, depuis le manifest de tokens du design system ([ADR 0042](?path=/docs/documentation-adr-0042-tokens-dans-les-outils-de-documentation--docs)).
+- Pour chaque token, le manifest donne son niveau, son type, ses alias, sa custom property, sa description et sa valeur dans chaque contexte : clair et sombre, mouvement réduit, variante d'un composant.
+- Le site montre chaque groupe :
+  - une pastille par couleur, dans une zone claire et une zone sombre ;
+  - un texte d'exemple par typographie ;
+  - une barre par dimension ;
+  - une animation par mouvement.
+- L'aperçu lit la custom property elle-même : il montre la valeur que reçoit l'application.
+- Une entrée `token` donne l'usage d'un token, ou d'un groupe par `metadata.group` ([ADR 0046](?path=/docs/documentation-adr-0046-règles-d-usage-des-tokens--docs)).
+- Les `combos` d'une entrée disent les paires permises. Le site affiche leur contraste, calculé comme `contrastFailures()`.
+- Les tokens d'un composant figurent aussi sur sa page : le manifest les décrit.
+- La commande et le serveur MCP lisent les tokens ([ADR 0042](?path=/docs/documentation-adr-0042-tokens-dans-les-outils-de-documentation--docs)). Les entrées `token` s'ajoutent à leur réponse.
+
+## D7 — Icônes
+
+- Le site lit le jeu d'icônes du design system dans le modèle de `@unicorne/catalog`, depuis son manifest d'icônes ([ADR 0044](?path=/docs/documentation-adr-0044-icônes-dans-les-outils-de-documentation--docs)) : celles du socle, puis celles de la marque. Une icône de la marque gagne par son nom, comme dans `designSystem({ icons })`.
+- Une icône ajoutée au dossier des sources apparaît à la construction suivante. Aucune page ne s'écrit.
+- La page des icônes les montre toutes :
+  - une recherche par nom, mots-clés et catégories ;
+  - chaque icône à plusieurs tailles, en clair et en sombre ;
+  - le code à copier : `<acme-icon name="star">`.
+- La commande et le serveur MCP listent les icônes, et `check` refuse un nom hors du jeu ([ADR 0044](?path=/docs/documentation-adr-0044-icônes-dans-les-outils-de-documentation--docs)).
+
+## D8 — Moteur du site
+
+- **Option A — Astro 7**, sur Vite 8. Une intégration injecte des routes (`injectRoute`), et un loader lit n'importe quelle source. `@astrojs/lit` est déprécié depuis Astro 5 : les composants s'enregistrent dans le navigateur, par un `<script>`.
+- **Option B — VitePress.** Sa version 2 est en alpha. Il rend du Vue.
+- **Option C — Un rendu dans Node, par Lit SSR.** Le site rend ses pages avec les composants et le thème de la marque, comme `packages/components/src/ssr.test.ts` le vérifie pour le catalogue.
+
+**Décision : C.**
+
+- Le site est construit avec les composants de la marque : il les montre en usage réel.
+- Une marque n'adopte aucun framework de plus.
+- Le package écrit lui-même les routes, la mise en page et le rendu du Markdown.
+- Seuls les blocs d'exemple chargent un script de plus : CodeMirror et `check`, à la demande.
+
+## D9 — Édition par un CMS git
+
+- **Option A — Un éditeur dans le site.** Un outil de plus à maintenir : formulaires, authentification, PR.
+- **Option B — L'éditeur web de GitHub.** Le designer édite le YAML.
+- **Option C — Un CMS git**, configuré sur les documents DSDS.
+
+**Décision : C, avec Decap CMS.**
+
+- `@unicorne/site` génère la configuration du CMS depuis le document racine du design system : une collection par type d'entrée, un fichier par document.
+- Le package fournit le format `dsds` : chaque enregistrement touche les seules lignes modifiées.
+- L'editorial workflow ouvre une PR par document. `CODEOWNERS` demande la relecture d'un développeur et d'un designer, comme le prévoit l'[ADR 0016](?path=/docs/documentation-adr-0016-api-partagée-entre-le-code-et-figma--docs).
+- La CI lance un job de documentation sur ces PR : `npm run dsds`, les tests de `@unicorne/catalog` et la construction du site. Elle publie un aperçu du site.
+- Un agent est un second chemin : il écrit le document à la demande du designer, et ouvre la PR.
+- Sveltia CMS se réévalue à sa version 1.0 : son format de sortie est réglable, et il ne demande aucun proxy en local.
+
+### Ce que le CMS montre
+
+<table>
+  <thead>
+    <tr>
+      <th>Collection</th>
+      <th>Modifiable</th>
+      <th>Non déclaré : le CMS le garde tel quel</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Composants</td>
+      <td>
+        `name`, `description`, `metadata.group`, sections, `title`, `level`, `statement`, `example`,
+        description de chaque trait et de chaque valeur
+      </td>
+      <td>
+        `checks`, `checkedBy`, `$extensions`, `refs`, `sourceFiles`, `specs`, l'`id` d'un trait et
+        d'une valeur
+      </td>
+    </tr>
+    <tr>
+      <td>Pages</td>
+      <td>Tout : titre, sections, texte riche, images, exemples</td>
+      <td>`$extensions`</td>
+    </tr>
+    <tr>
+      <td>Tokens</td>
+      <td>`description`, `metadata.group`, sections, `combos`</td>
+      <td>`id`, `source`, `tokenType` : les sources DTCG les donnent</td>
+    </tr>
+    <tr>
+      <td>Navigation</td>
+      <td>L'arbre : ajouter, retirer, déplacer, choisir une page</td>
+      <td></td>
+    </tr>
+  </tbody>
+</table>
+
+Un champ dans un objet facultatif est facultatif : Decap le valide même quand l'objet est vide.
+
+## D10 — Marques
+
+- Le site d'ACME montre les règles du socle sous ses balises, en lecture seule. Son CMS édite les seuls documents d'ACME.
+- Changer une règle du socle demande une PR sur le socle.
+- `DocsLayer` retire ou remplace une règle du socle par son `id` DSDS. Une règle que retire une marque porte un `id` écrit : un `id` dérivé de l'énoncé change avec lui.
+- La navigation d'une marque est la sienne. Elle reprend une page du socle par son `id`, sous les balises de la marque.
+
+## D11 — Dépôt et package
+
+- **Option A — Un dépôt pour le site.** `@unicorne/catalog` se publie alors avec des versions, pour que le site le lise.
+- **Option B — `packages/site`, dans ce dépôt**, comme `packages/cli` et `packages/mcp`.
+
+**Décision : B.**
+
+- Le site lit le modèle de `@unicorne/catalog`, et ce modèle change avec lui. Le socle n'a pas de versions ([ADR 0001](?path=/docs/documentation-adr-0001-architecture-multi-marque--docs)).
+- `npm run example` construit le site d'ACME depuis les archives du socle. Le test de fuite y vérifie qu'aucune page ne nomme le socle.
+- Le contenu ne change pas de place : les documents DSDS restent dans `@unicorne/components`, ceux d'une marque dans son dépôt.
+
+## Conséquences
+
+- **Package :** `@unicorne/site` : `createSite()`, `unicorne-site`, le bloc d'exemple, la configuration du CMS et le format `dsds`.
+- **Catalog :** le modèle porte les pages et les exemples des règles. Les icônes y sont ([ADR 0044](?path=/docs/documentation-adr-0044-icônes-dans-les-outils-de-documentation--docs)), les tokens aussi ([ADR 0042](?path=/docs/documentation-adr-0042-tokens-dans-les-outils-de-documentation--docs)). `DocsLayer` retire ou remplace une règle par son `id`.
+- **Documents DSDS :**
+  - un `metadata.group` dans le document de chaque composant ;
+  - les fondations et les patterns du socle en `entry` ;
+  - des entrées `token` pour les groupes de tokens sémantiques ;
+  - un exemple de composant en fragment HTML.
+- **Navigation :** `navigation.yaml` dans le socle et dans ACME.
+- **ACME :** `acme-site`, sa navigation, et une page d'ACME au moins. Ses tokens et ses icônes s'affichent sans document de plus.
+- **CI :** un job de documentation, filtré sur les documents DSDS, la navigation et les `media/`. L'aperçu du site par PR.
+- **Dépôt :** `CODEOWNERS` pour `*.dsds.yaml`, `navigation.yaml` et `media/`.
+- **Limites :**
+  - Le CMS édite des formulaires, pas une page libre : la mise en page vient du site.
+  - Chaque designer a un compte GitHub Enterprise et le droit d'écrire dans le dépôt.
+  - Une modification attend la relecture de sa PR.
+  - Un commentaire à l'intérieur d'un document disparaît au premier enregistrement par le CMS. Seul le commentaire d'en-tête reste.
+  - Un exemple qui demande un script reste dans Storybook.
+
+## Questions ouvertes
+
+- **Authentification :** le serveur OAuth de Decap pour GitHub Enterprise, et son hébergement à la DSI.
+- **Hébergement :** le site de chaque design system, et l'aperçu par PR.
+- **Editorial workflow :** l'essai sur GitHub Enterprise, avec un job de CI qui pousse sur la branche du CMS.
+- **Images :** Git LFS, ou la seule limite de poids.
+- **Vue :** un onglet du code en syntaxe Vue (`:prop`, `@événement`), pour les applications Vue ([ADR 0014](?path=/docs/documentation-adr-0014-vue-et-rendu-serveur--docs)).
+- **Icônes :** des mots-clés par icône, pour la recherche.
+- **Figma :** un lien `rel: design` rendu en lien ou en aperçu intégré.
+
+## Sources
+
+Consultées le 22 novembre 2026.
+
+**Documentation**
+
+- [Interoperability](https://designsystemdocspec.org/interoperability.html) (DSDS 0.23.1) : Storybook et Figma en liens, aucun générateur de site. Le schéma est lu dans le package `design-system-documentation-schema` : `entries/entry.schema.yaml`, `sections/guidelines.schema.yaml`, `common/example.schema.yaml`, `common/showcase.schema.yaml`.
+- [MCP-Write: what changes when AI can write to your design system](https://zeroheight.com/blog/mcp-write-what-changes-when-ai-can-write-to-your-design-system/) (zeroheight, 15 octobre 2026) : pages créées et modifiées en brouillon, et ce que MCP-Write ne fait pas. La référence de l'API REST de zeroheight ne s'affiche pas sans navigateur.
+- [Documentation](https://supernova.io/documentation) et [Integrations](https://supernova.io/integrations) (Supernova, pages produit) : synchronisation du Markdown d'un dépôt.
+- [Storage options](https://docs.knapsack.cloud/get-started/storage-options.md), [Branching](https://docs.knapsack.cloud/branching.md) et [Supported Git providers](https://docs.knapsack.cloud/get-started/deploying-knapsack/supported-git-providers.md) (Knapsack).
+
+**Exemples de composants**
+
+- [code-examples.js](https://github.com/shoelace-style/webawesome/blob/next/packages/webawesome/docs/assets/scripts/code-examples.js) et [Button](https://webawesome.com/docs/components/button) (Web Awesome, branche `next`) : aperçu, code, bascules de thème et de direction, envoi à CodePen.
+- [README](https://github.com/google/playground-elements) (`playground-elements`) : service worker, unpkg par défaut, `sandboxBaseUrl` et `cdnBaseUrl`, CodeMirror 6.
+- [Button](https://opensource.adobe.com/spectrum-web-components/components/button/) (Spectrum Web Components) : liens vers Stackblitz et Storybook.
+- [Token](https://designsystemdocspec.org/v0.23.1/entries/token.schema.yaml) (DSDS 0.23.1) : `source`, `tokenType`, `combos`.
+
+**CMS git**
+
+- [Backends overview](https://decapcms.org/docs/backends-overview/), [Editorial workflows](https://decapcms.org/docs/editorial-workflows/), [Open authoring](https://decapcms.org/docs/open-authoring/), [Decap proxy](https://decapcms.org/docs/decap-proxy/), [Configuration options](https://decapcms.org/docs/configuration-options/), [Widgets](https://decapcms.org/docs/widgets/) (`relation`, `list`), [Variable type widgets](https://decapcms.org/docs/variable-type-widgets/) et [Releases](https://github.com/decaporg/decap-cms/releases) (Decap CMS, version 3.18.0).
+- [GitHub backend](https://sveltiacms.app/en/docs/backends/github), [Editorial workflow](https://sveltiacms.app/en/docs/workflows/editorial), [Local workflow](https://sveltiacms.app/en/docs/workflows/local), [Data output](https://sveltiacms.app/en/docs/data-output) et [Introduction](https://sveltiacms.app/en/docs/intro) (Sveltia CMS).
+- [GitHub mode](https://keystatic.com/docs/github-mode) et [Format options](https://keystatic.com/docs/format-options) (Keystatic).
+
+**Moteurs et recherche**
+
+- [Upgrade to Astro v7](https://docs.astro.build/en/guides/upgrade-to/v7/), [Lit](https://docs.astro.build/en/guides/integrations-guide/lit/), [Integration API](https://docs.astro.build/en/reference/integrations-reference/) et [Content Loader API](https://docs.astro.build/en/reference/content-loader-reference/) (Astro).
+- [Getting started](https://vitepress.dev/guide/getting-started) (VitePress).
+- [Pagefind](https://pagefind.app/docs/), [Multilingual](https://pagefind.app/docs/multilingual/) et [Releases](https://github.com/Pagefind/pagefind/releases) (Pagefind, version 1.6.0).

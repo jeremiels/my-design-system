@@ -1,0 +1,5 @@
+{
+  "description": "A link that leaves the application, or opens in a new tab.",
+  "tags": ["external", "new tab", "open", "outside"],
+  "categories": ["navigation"]
+}

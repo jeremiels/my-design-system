@@ -8,7 +8,7 @@
  */
 import { designSystem } from "@unicorne/components";
 // Generated from icons/*.svg by `unicorne-icons`, before the build.
-import { acmeIcons } from "./icons/index.js";
+import { acmeIconAliases, acmeIcons } from "./icons/index.js";
 // The catalog and the texts, plain data: ACME's documentation tools read them too.
 import { catalog, labels } from "./brand.js";
 
@@ -20,6 +20,8 @@ export const acme = designSystem({
       import("./components/acme-button/acme-button.js").then((module) => module.AcmeButton),
   },
   icons: acmeIcons,
+  // The old names of its renamed icons: `favorite`, renamed `star` (ADR 0049 of the base).
+  iconAliases: acmeIconAliases,
   labels,
   // Names this copy of ACME when another one registers the prefix (ADR 0012 of the base).
   version: __ACME_VERSION__,

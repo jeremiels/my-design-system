@@ -37,6 +37,12 @@ export interface DesignSystemOptions {
    */
   icons?: IconSet;
   /**
+   * Other names of icons, adding to the base's (ADR 0049): an old name → the
+   * icon it renders, so a renamed icon still renders. `unicorne-icons`
+   * writes them from the `aliases` of each icon's `.json`.
+   */
+  iconAliases?: Readonly<Record<string, string>>;
+  /**
    * The default value of some properties, by property name, for every
    * component that has the property: the texts of the design system's
    * language (`{ closeLabel: "Fermer", errorLabel: "Erreur :" }`). An
@@ -110,6 +116,7 @@ export function designSystem({
   catalog,
   overrides = {},
   icons,
+  iconAliases,
   labels,
   version,
 }: DesignSystemOptions): DesignSystem {
@@ -136,7 +143,7 @@ export function designSystem({
   const loaded = new Map<string, Promise<ComponentClass>>();
   // One class per component class: forDesignSystem() returns a new
   // subclass each call, and a tag is defined with one class.
-  const settings: DesignSystemSettings = { icons };
+  const settings: DesignSystemSettings = { icons, iconAliases };
   const configured = new WeakMap<ComponentClass, ComponentClass>();
 
   const load = (name: string, loader: () => Promise<ComponentClass>): Promise<ComponentClass> => {

@@ -3,11 +3,18 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import {
   checkMarkup,
   findComponent,
+  fixMarkup,
   formatComponent,
   formatComponentList,
   formatDiagnostics,
+  formatIconList,
   formatSearchResults,
+  formatToken,
+  formatTokenList,
+  findToken,
   searchDocs,
+  searchIcons,
+  searchTokens,
   type DesignSystemDocs,
 } from "@unicorne/catalog";
 import { z } from "zod";
@@ -51,26 +58,103 @@ export const builtinTools = {
   search_docs: defineTool({
     title: "Search the documentation",
     description:
-      "Finds the components whose documentation holds every word of the query, without case nor accents: names, descriptions, attributes, events, rules. Use it to find the component for a need: « date range », « upload ».",
+      "Finds the components, the tokens and the icons whose documentation holds every word of the query, without case nor accents: names, descriptions, attributes, events, rules. Use it to find the component for a need: « date range », « upload ». Given a value (#1c65c8, 16px, 150ms), it finds the tokens that hold it, semantic tokens first: use it for a value of a mockup.",
     input: {
-      query: z.string().describe("The words to find."),
+      query: z.string().describe("The words to find, or a CSS value."),
     },
-    run: ({ query }, docs) => formatSearchResults(query, searchDocs(docs, query)),
+    run: ({ query }, docs) =>
+      formatSearchResults(
+        query,
+        searchDocs(docs, query),
+        searchTokens(docs, query),
+        searchIcons(docs, query, { limit: 10 }),
+      ),
+  }),
+  list_icons: defineTool({
+    title: "List the icons",
+    description:
+      "Lists the icons of the design system's set: the values of the `name` of its icon component, with their meaning and the words they're found by. With a query, the icons whose name, tags, categories or description hold every word: « close », « status », « arrow ». Use only these names: check_markup reports any other.",
+    input: {
+      query: z.string().optional().describe("Words to find the icons by. Empty: every icon."),
+    },
+    run: ({ query }, docs) => formatIconList(docs, query ?? ""),
+  }),
+  list_tokens: defineTool({
+    title: "List the tokens",
+    description:
+      "Lists the design tokens, as CSS custom properties, with their values in the light and dark themes and what to use them for. Without a filter, the semantic tokens: the ones to use in an application's CSS, never a raw value. Filter by level, group (color.action, spacing) or DTCG type (color, dimension, shadow).",
+    input: {
+      level: z
+        .enum(["primitive", "semantic", "component"])
+        .optional()
+        .describe("primitive: raw values; semantic: intents; component: one component's settings."),
+      group: z.string().optional().describe("The start of the token IDs: `color`, `color.action`."),
+      type: z.string().optional().describe("The DTCG type: `color`, `dimension`, `duration`."),
+    },
+    run: ({ level, group, type }, docs) =>
+      formatTokenList(docs, {
+        ...(level ? { level } : {}),
+        ...(group ? { group } : {}),
+        ...(type ? { type } : {}),
+      }),
+  }),
+  get_token: defineTool({
+    title: "Get a token",
+    description:
+      "Returns a token: what to use it for, its custom property, its value in each context (theme, reduced motion, component variants) and the tokens it aliases. For a primitive, the semantic tokens to use instead.",
+    input: {
+      name: z
+        .string()
+        .describe(
+          "The token's ID or custom property: `color.action.background` or its `--…` name.",
+        ),
+    },
+    run: ({ name }, docs) => {
+      const token = findToken(docs, name);
+      return token
+        ? formatToken(docs, token)
+        : `${docs.name} has no token "${name}". Call list_tokens for the list.`;
+    },
   }),
   check_markup: defineTool({
     title: "Check markup",
     description:
-      "Checks the design system's elements in HTML, or in a Vue single-file component: unknown tags, attributes and properties, values outside an attribute's values, unknown events and slots, and the usage rules a tool can check: a missing label or name, an element outside its parent, a child a component doesn't take. Each problem quotes the rule it breaks. Call it on the markup you wrote, and fix what it reports.",
+      "Checks the design system's elements in HTML, or in a Vue single-file component: unknown tags, attributes and properties, values outside an attribute's values, unknown events and slots, and the usage rules a tool can check: a missing label or name, an element outside its parent, a child a component doesn't take. Each problem quotes the rule it breaks. It checks the CSS too: `style` attributes, the `<style>` of a Vue component, a CSS file (a file name ending with .css): a token that doesn't exist, a primitive where a semantic token fits, a raw value or color a token holds, with the token to use. Call it on the markup and the CSS you wrote, and fix what it reports.",
     input: {
-      markup: z.string().describe("The HTML, or the whole .vue file."),
+      markup: z.string().describe("The HTML, the whole .vue file, or the CSS."),
       file: z
         .string()
         .optional()
-        .describe("The file name: a name ending with .vue reads the markup as a Vue component."),
+        .describe(
+          "The file name: a name ending with .vue reads a Vue component, one ending with .css reads CSS.",
+        ),
+      fix: z
+        .enum(["safe", "all"])
+        .optional()
+        .describe(
+          "Apply the fixes and return the fixed text: `safe` keeps what the page shows, `all` also changes it as the rules intend (a color token follows the dark theme).",
+        ),
     },
-    run: ({ markup, file }, docs) => {
-      const diagnostics = checkMarkup(docs, markup, file ? { file } : {});
-      return diagnostics.length === 0 ? "No problem found." : formatDiagnostics(diagnostics);
+    run: ({ markup, file, fix }, docs) => {
+      const options = file ? { file } : {};
+      if (!fix) {
+        const diagnostics = checkMarkup(docs, markup, options);
+        return diagnostics.length === 0 ? "No problem found." : formatDiagnostics(diagnostics);
+      }
+      // The fixed text, then the problems left: the agent writes it back (ADR 0045).
+      const result = fixMarkup(docs, markup, { ...options, unsafe: fix === "all" });
+      const language = file?.endsWith(".css") ? "css" : file?.endsWith(".vue") ? "vue" : "html";
+      return [
+        `Fixed ${result.fixed} problem${result.fixed === 1 ? "" : "s"}:`,
+        "",
+        `\`\`\`${language}`,
+        result.output,
+        "```",
+        "",
+        result.diagnostics.length === 0
+          ? "No problem left."
+          : formatDiagnostics(result.diagnostics),
+      ].join("\n");
     },
   }),
 } satisfies Record<string, Tool<z.ZodRawShape>>;
@@ -94,13 +178,19 @@ export function defaultInstructions(docs: DesignSystemDocs): string {
     `${docs.name}: ${docs.components.length} web components, as <${docs.prefix}-…> elements, from ${docs.package}.`,
     "Before you write markup with them: list_components to find them, get_component to read each one, its rules and its attributes.",
     "After: check_markup on what you wrote, and fix each problem. Use only documented attributes, values, events and slots.",
+    ...(docs.tokens.length > 0
+      ? [
+          "For CSS: the semantic tokens, as var(--…), never a raw value. list_tokens to find them, get_token for one, search_docs with a value of a mockup (#1c65c8) for its token.",
+        ]
+      : []),
   ].join("\n");
 }
 
 /**
  * The MCP server of a design system's documentation (ADR 0039): its tools,
- * and a resource per component (`<prefix>://components/<name>`). The server,
- * its tools and their answers speak of that design system only.
+ * those of its tokens (ADR 0042) and its icons (ADR 0044), and a resource per component
+ * (`<prefix>://components/<name>`). The server, its tools and their answers
+ * speak of that design system only.
  */
 export async function createMcpServer(options: McpServerOptions): Promise<McpServer> {
   const docs = typeof options.docs === "function" ? await options.docs() : options.docs;

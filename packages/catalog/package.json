@@ -2,7 +2,7 @@
   "name": "@unicorne/catalog",
   "version": "0.0.0",
   "private": true,
-  "description": "The documentation of a design system built on the base, for tools (ADR 0039): its components from its Custom Elements Manifest, their usage rules from its DSDS documents, and queries on them. A design system extends the base's documentation with its own layer.",
+  "description": "The documentation of a design system built on the base, for tools (ADR 0039): its components from its Custom Elements Manifest, their usage rules from its DSDS documents, its tokens and its icons from their manifests (ADR 0042, ADR 0044), and queries on them. A design system extends the base's documentation with its own layer.",
   "files": [
     "dist"
   ],
@@ -27,10 +27,13 @@
   },
   "dependencies": {
     "parse5": "^7.3.0",
+    "postcss": "^8.5.32",
     "yaml": "^2.9.1"
   },
   "peerDependencies": {
-    "@unicorne/components": "0.0.0"
+    "@unicorne/components": "0.0.0",
+    "@unicorne/icons": "0.0.0",
+    "@unicorne/tokens": "0.0.0"
   },
   "engines": {
     "node": ">=26"

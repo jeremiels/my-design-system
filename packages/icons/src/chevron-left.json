@@ -1,0 +1,5 @@
+{
+  "description": "Goes back: the previous page, month or tab. In a right-to-left page, it points forward.",
+  "tags": ["arrow", "caret", "previous", "back"],
+  "categories": ["navigation"]
+}

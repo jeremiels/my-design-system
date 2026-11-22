@@ -1,9 +1,10 @@
 /* The page: ACME's components style themselves, the app styles its page with
-   ACME's semantic tokens. */
+   ACME's semantic tokens, and its text with ACME's text styles: the body text
+   here, its headings by their class (acme-text-heading-xl). */
 body {
   margin: 0;
-  font-family: var(--u-font-family-body);
-  line-height: var(--u-font-line-height-body);
+  font: var(--u-text-body-md);
+  letter-spacing: var(--u-font-letter-spacing-normal);
   color: var(--u-color-text-default);
   background-color: var(--u-color-surface-default);
 }

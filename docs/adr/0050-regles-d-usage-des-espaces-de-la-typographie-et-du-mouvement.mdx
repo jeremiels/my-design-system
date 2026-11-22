@@ -1,0 +1,142 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Documentation/ADR/0050 Règles d'usage des espaces, de la typographie et du mouvement" />
+
+# ADR 0050 — Règles d'usage des espaces, de la typographie et du mouvement
+
+**Statut :** accepté · **Date :** 22 novembre 2026
+
+## Contexte
+
+Les tokens sémantiques de couleur ont leurs règles d'usage et leurs paires ([ADR 0046](?path=/docs/documentation-adr-0046-règles-d-usage-des-tokens--docs)). Les espaces, la typographie et le mouvement n'en ont pas : l'ADR 0046 laissait cette question ouverte.
+
+- Une règle de ces familles vaut pour tous leurs tokens : « une marge s'écrit avec un token `spacing` ».
+- `raw-value` signale déjà une valeur brute que porte un token de ces familles ([ADR 0043](?path=/docs/documentation-adr-0043-tokens-vérifiés-dans-le-css--docs)).
+- Les composants du socle montrent l'usage de chaque token. Par exemple, 34 tokens de composant lisent `spacing.sm`, 4 lisent `spacing.xl`, et aucun ne lit `spacing.2xl`.
+- `motion.duration.fast` et `motion.duration.base` valent `0ms` en mouvement réduit. `motion.duration.loop` passe de `1000ms` à `2000ms`, et `motion.scale.enter` de `0.95` à `1`.
+
+### Ce qui existe
+
+<table>
+  <thead>
+    <tr>
+      <th>Source</th>
+      <th>Ce qu'elle dit</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Atlassian</td>
+      <td>
+        L'usage d'un espace dépend de sa taille. Un petit espace, jusqu'à 8 px, va dans un
+        composant. Un espace moyen, de 12 à 24 px, sert au padding d'un plus grand composant. Un
+        grand espace, de 32 à 80 px, sépare les contenus d'une page.
+      </td>
+    </tr>
+    <tr>
+      <td>Carbon, espaces</td>
+      <td>
+        Un token remplace les valeurs d'une marge et d'un padding. Le composant `Stack` donne
+        l'écart entre ses enfants : ses enfants n'ont pas de marge.
+      </td>
+    </tr>
+    <tr>
+      <td>Carbon, typographie</td>
+      <td>
+        Un style réunit une taille, un interligne, une graisse et un espacement des lettres. Un
+        titre se marie à un texte : `heading-01` « pairs with » `body-01`.
+      </td>
+    </tr>
+    <tr>
+      <td>WCAG 2.3.3 (AAA)</td>
+      <td>
+        Un mouvement déclenché par une interaction peut être désactivé, sauf s'il est essentiel. La
+        technique C39 utilise `prefers-reduced-motion`.
+      </td>
+    </tr>
+    <tr>
+      <td>WCAG 1.4.12 (AA)</td>
+      <td>Aucun contenu ne se perd quand l'utilisateur règle l'interligne à 1,5 fois la taille.</td>
+    </tr>
+  </tbody>
+</table>
+
+## D1 — Une entrée par famille
+
+- **Option A — Une entrée `token` par token**, comme pour les couleurs. Une règle de la famille se répète alors sur chacun de ses tokens.
+- **Option B — Une entrée de groupe** : `kind: entry` et `metadata.group`, l'id de la famille. Ses règles valent pour chaque token dont l'id commence par ce groupe.
+
+**Décision : B.** Une entrée `token` garde l'usage propre d'un token et ses paires.
+
+```yaml
+- kind: entry
+  id: spacing
+  name: "Espacement"
+  metadata:
+    group: spacing
+  sections:
+    - kind: guidelines
+      items:
+        - level: must
+          statement: "Écrivez une marge, un padding ou un écart avec un token `spacing`, jamais une longueur brute : …"
+          checks:
+            - href: npm:@unicorne/catalog#raw-value
+              role: lint-rule
+          checkedBy: assisted
+```
+
+- `packages/tokens/src/tokens.dsds.yaml` liste un document par famille : `color.dsds.yaml`, `spacing.dsds.yaml`, `typography.dsds.yaml` et `motion.dsds.yaml`, dans `src/semantic/`.
+- Un token reçoit les règles de sa famille avant les siennes.
+- Un token qu'une marque ajoute à une famille du socle reçoit les règles de cette famille.
+
+## D2 — Des règles tirées des composants
+
+- **Espaces :**
+  - de `spacing.2xs` à `spacing.sm` entre les parties d'un composant ;
+  - `spacing.md` et `spacing.lg` pour le padding d'une région ;
+  - `spacing.xl` et `spacing.2xl` entre les régions d'une page, comme les tailles d'Atlassian ;
+  - l'écart entre des éléments va au parent, par `gap`, comme le `Stack` de Carbon.
+- **Typographie :** le socle n'a pas de token composite comme les styles de Carbon. La paire d'un titre est donc un `combo` : `font.size.lg` va avec `font.weight.semibold`, comme les titres d'une modale, d'un tiroir et d'un tableau. Une règle interdit de fixer la hauteur d'un bloc de texte (WCAG 1.4.12).
+- **Mouvement :**
+  - une transition prend `motion.duration.fast` ou `motion.duration.base`, et leur `combo` est `motion.easing.standard` ;
+  - une animation qui dit qu'un chargement continue prend `motion.duration.loop` : elle ralentit sans s'arrêter, car elle est essentielle au sens de WCAG 2.3.3.
+
+## D3 — Ce que `check` en vérifie
+
+- La règle « jamais de valeur brute » de chaque famille cite `raw-value`.
+- `raw-value` signale seulement une valeur qu'un token porte : `padding: 13px` passe. La règle est donc `checkedBy: assisted`. Pour DSDS, un outil trouve alors les cas probables, et une personne décide.
+- `tokens` et `token` écrivent « _Partly checked by `check`._ » après une telle règle.
+
+## D4 — Où lire les règles
+
+- `unicorne tokens spacing` et `list_tokens` donnent les règles de la famille avant ses tokens. `tokens font.size` donne celles de `font`.
+- `unicorne tokens` nomme les familles qui ont des règles.
+- `token` et `get_token` donnent les règles de la famille avec celles du token.
+
+```
+## Rules of `spacing`
+
+- **MUST** Écrivez une marge, un padding ou un écart avec un token `spacing`, jamais une longueur brute : … _Partly checked by `check`._
+```
+
+## Conséquences
+
+- **`@unicorne/tokens` :** `src/tokens.dsds.yaml`, le document racine, et trois documents de famille. Le document des couleurs s'appelle `color.dsds.yaml`.
+- **`@unicorne/catalog` :** `DesignSystemDocs.tokenGroups` (`TokenGroupDoc`), les règles de groupe de `readTokenUsage()`, et « Partly checked » pour une règle `assisted`.
+- **Tests :** chaque token qu'une règle de famille nomme existe, et chaque règle de `check` qu'elle cite aussi.
+- **ACME :** son test lit les règles de `spacing`, et le test de fuite couvre la liste de chaque famille.
+
+## Questions ouvertes
+
+- **Tokens composites :** les styles de texte DTCG (`typography`) sont décidés dans l'[ADR 0051](?path=/docs/documentation-adr-0051-styles-de-texte--docs).
+- **Autres familles :** les rayons, les ombres, les tailles, les bordures et les plans (`z-index`).
+
+## Sources
+
+Consultées le 22 novembre 2026.
+
+- [Spacing](https://atlassian.design/foundations/spacing) (Atlassian) : tailles d'espace et leurs usages.
+- [Spacing overview](https://carbondesignsystem.com/elements/spacing/overview/) (Carbon) : tokens des marges et des paddings, `Stack`.
+- [Type sets](https://carbondesignsystem.com/elements/typography/type-sets/) (Carbon) : styles de texte, titres et textes qui vont ensemble.
+- [Understanding SC 2.3.3: Animation from Interactions](https://www.w3.org/WAI/WCAG22/Understanding/animation-from-interactions.html) (W3C) : mouvement désactivable, technique C39.
+- [Understanding SC 1.4.12: Text Spacing](https://www.w3.org/WAI/WCAG22/Understanding/text-spacing.html) (W3C) : interligne de 1,5 fois la taille.

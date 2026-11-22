@@ -1,0 +1,370 @@
+# Les règles d'usage des tokens sémantiques de couleur (DSDS), et leurs paires :
+# sur quel fond poser chaque couleur. Les valeurs et les descriptions vivent
+# dans les sources DTCG ; une entrée dit comment utiliser son token.
+# packages/tokens/testing/contrast.ts mesure le contraste de chaque paire,
+# dans les deux thèmes (ADR 0046).
+schemaVersion: "0.23.1"
+$schema: https://designsystemdocspec.org/v0.23.1/dsds.bundled.yaml
+name: Tokens sémantiques de couleur
+entries:
+  - kind: token
+    id: color.action.background
+    name: "Fond action"
+    description: "Le fond d'une action principale, au repos. Son texte et ses icônes sont `color.action.text`. Aussi la couleur d'un indicateur sur une surface : spinner, barre de progression, étapes."
+    source: ./theme.light.tokens.json
+    combos:
+      - subject: "{color.action.background}"
+        level: should
+        items:
+          - "{color.surface.default}"
+          - "{color.surface.raised}"
+        note: "Comme couleur d'un indicateur, le contraste de 3:1 (WCAG 1.4.11) est mesuré sur ces surfaces, dans les deux thèmes."
+  - kind: token
+    id: color.action.background-hover
+    name: "Fond action (survol)"
+    description: "Le fond d'une action principale, sous le pointeur. Son texte et ses icônes sont `color.action.text`."
+    source: ./theme.light.tokens.json
+  - kind: token
+    id: color.action.background-active
+    name: "Fond action (pressé)"
+    description: "Le fond d'une action principale, pendant qu'on le presse. Son texte et ses icônes sont `color.action.text`."
+    source: ./theme.light.tokens.json
+  - kind: token
+    id: color.action.text
+    name: "Texte sur action"
+    description: "Le texte et les icônes posés sur le fond d'une action principale, au repos, survolé et pressé."
+    source: ./theme.light.tokens.json
+    combos:
+      - subject: "{color.action.text}"
+        level: must
+        items:
+          - "{color.action.background}"
+          - "{color.action.background-hover}"
+          - "{color.action.background-active}"
+        note: "Le contraste de 4,5:1 est mesuré sur ces fonds, dans les deux thèmes."
+  - kind: token
+    id: color.action.foreground
+    name: "Premier plan d'action"
+    description: "Le texte et la bordure d'une action principale sur une surface, comme un bouton `outlined`."
+    source: ./theme.light.tokens.json
+    combos:
+      - subject: "{color.action.foreground}"
+        level: must
+        items:
+          - "{color.surface.default}"
+          - "{color.surface.raised}"
+          - "{color.neutral.background}"
+          - "{color.neutral.background-hover}"
+        note: "Le contraste de 4,5:1 est mesuré sur ces fonds, dans les deux thèmes."
+  - kind: token
+    id: color.secondary.background
+    name: "Fond secondaire"
+    description: "Le fond d'une action secondaire, au repos. Son texte et ses icônes sont `color.secondary.text`."
+    source: ./theme.light.tokens.json
+  - kind: token
+    id: color.secondary.background-hover
+    name: "Fond secondaire (survol)"
+    description: "Le fond d'une action secondaire, sous le pointeur. Son texte et ses icônes sont `color.secondary.text`."
+    source: ./theme.light.tokens.json
+  - kind: token
+    id: color.secondary.background-active
+    name: "Fond secondaire (pressé)"
+    description: "Le fond d'une action secondaire, pendant qu'on le presse. Son texte et ses icônes sont `color.secondary.text`."
+    source: ./theme.light.tokens.json
+  - kind: token
+    id: color.secondary.text
+    name: "Texte sur secondaire"
+    description: "Le texte et les icônes posés sur le fond d'une action secondaire, au repos, survolé et pressé."
+    source: ./theme.light.tokens.json
+    combos:
+      - subject: "{color.secondary.text}"
+        level: must
+        items:
+          - "{color.secondary.background}"
+          - "{color.secondary.background-hover}"
+          - "{color.secondary.background-active}"
+        note: "Le contraste de 4,5:1 est mesuré sur ces fonds, dans les deux thèmes."
+  - kind: token
+    id: color.secondary.foreground
+    name: "Premier plan secondaire"
+    description: "Le texte et la bordure d'une action secondaire sur une surface, comme un bouton `outlined`."
+    source: ./theme.light.tokens.json
+    combos:
+      - subject: "{color.secondary.foreground}"
+        level: must
+        items:
+          - "{color.surface.default}"
+          - "{color.surface.raised}"
+          - "{color.neutral.background}"
+          - "{color.neutral.background-hover}"
+        note: "Le contraste de 4,5:1 est mesuré sur ces fonds, dans les deux thèmes."
+  - kind: token
+    id: color.success.background
+    name: "Fond succès"
+    description: "Le fond d'un succès, au repos. Son texte et ses icônes sont `color.success.text`."
+    source: ./theme.light.tokens.json
+  - kind: token
+    id: color.success.background-hover
+    name: "Fond succès (survol)"
+    description: "Le fond d'un succès, sous le pointeur. Son texte et ses icônes sont `color.success.text`."
+    source: ./theme.light.tokens.json
+  - kind: token
+    id: color.success.background-active
+    name: "Fond succès (pressé)"
+    description: "Le fond d'un succès, pendant qu'on le presse. Son texte et ses icônes sont `color.success.text`."
+    source: ./theme.light.tokens.json
+  - kind: token
+    id: color.success.text
+    name: "Texte sur succès"
+    description: "Le texte et les icônes posés sur le fond d'un succès, au repos, survolé et pressé."
+    source: ./theme.light.tokens.json
+    combos:
+      - subject: "{color.success.text}"
+        level: must
+        items:
+          - "{color.success.background}"
+          - "{color.success.background-hover}"
+          - "{color.success.background-active}"
+        note: "Le contraste de 4,5:1 est mesuré sur ces fonds, dans les deux thèmes."
+  - kind: token
+    id: color.success.foreground
+    name: "Premier plan de succès"
+    description: "Le texte et la bordure d'un succès sur une surface, comme un bouton `outlined`."
+    source: ./theme.light.tokens.json
+    combos:
+      - subject: "{color.success.foreground}"
+        level: must
+        items:
+          - "{color.surface.default}"
+          - "{color.surface.raised}"
+          - "{color.neutral.background}"
+          - "{color.neutral.background-hover}"
+        note: "Le contraste de 4,5:1 est mesuré sur ces fonds, dans les deux thèmes."
+  - kind: token
+    id: color.warning.background
+    name: "Fond avertissement"
+    description: "Le fond d'un avertissement, au repos. Son texte et ses icônes sont `color.warning.text`."
+    source: ./theme.light.tokens.json
+  - kind: token
+    id: color.warning.background-hover
+    name: "Fond avertissement (survol)"
+    description: "Le fond d'un avertissement, sous le pointeur. Son texte et ses icônes sont `color.warning.text`."
+    source: ./theme.light.tokens.json
+  - kind: token
+    id: color.warning.background-active
+    name: "Fond avertissement (pressé)"
+    description: "Le fond d'un avertissement, pendant qu'on le presse. Son texte et ses icônes sont `color.warning.text`."
+    source: ./theme.light.tokens.json
+  - kind: token
+    id: color.warning.text
+    name: "Texte sur avertissement"
+    description: "Le texte et les icônes posés sur le fond d'un avertissement, au repos, survolé et pressé."
+    source: ./theme.light.tokens.json
+    combos:
+      - subject: "{color.warning.text}"
+        level: must
+        items:
+          - "{color.warning.background}"
+          - "{color.warning.background-hover}"
+          - "{color.warning.background-active}"
+        note: "Le contraste de 4,5:1 est mesuré sur ces fonds, dans les deux thèmes."
+  - kind: token
+    id: color.warning.foreground
+    name: "Premier plan d'avertissement"
+    description: "Le texte et la bordure d'un avertissement sur une surface, comme un bouton `outlined`."
+    source: ./theme.light.tokens.json
+    combos:
+      - subject: "{color.warning.foreground}"
+        level: must
+        items:
+          - "{color.surface.default}"
+          - "{color.surface.raised}"
+          - "{color.neutral.background}"
+          - "{color.neutral.background-hover}"
+        note: "Le contraste de 4,5:1 est mesuré sur ces fonds, dans les deux thèmes."
+  - kind: token
+    id: color.danger.background
+    name: "Fond danger"
+    description: "Le fond d'une action destructrice ou d'une erreur, au repos. Son texte et ses icônes sont `color.danger.text`."
+    source: ./theme.light.tokens.json
+  - kind: token
+    id: color.danger.background-hover
+    name: "Fond danger (survol)"
+    description: "Le fond d'une action destructrice ou d'une erreur, sous le pointeur. Son texte et ses icônes sont `color.danger.text`."
+    source: ./theme.light.tokens.json
+  - kind: token
+    id: color.danger.background-active
+    name: "Fond danger (pressé)"
+    description: "Le fond d'une action destructrice ou d'une erreur, pendant qu'on le presse. Son texte et ses icônes sont `color.danger.text`."
+    source: ./theme.light.tokens.json
+  - kind: token
+    id: color.danger.text
+    name: "Texte sur danger"
+    description: "Le texte et les icônes posés sur le fond d'une action destructrice ou d'une erreur, au repos, survolé et pressé."
+    source: ./theme.light.tokens.json
+    combos:
+      - subject: "{color.danger.text}"
+        level: must
+        items:
+          - "{color.danger.background}"
+          - "{color.danger.background-hover}"
+          - "{color.danger.background-active}"
+        note: "Le contraste de 4,5:1 est mesuré sur ces fonds, dans les deux thèmes."
+  - kind: token
+    id: color.danger.foreground
+    name: "Premier plan de danger"
+    description: "Le texte et la bordure d'une action destructrice ou d'une erreur sur une surface, comme un bouton `outlined`."
+    source: ./theme.light.tokens.json
+    combos:
+      - subject: "{color.danger.foreground}"
+        level: must
+        items:
+          - "{color.surface.default}"
+          - "{color.surface.raised}"
+          - "{color.neutral.background}"
+          - "{color.neutral.background-hover}"
+        note: "Le contraste de 4,5:1 est mesuré sur ces fonds, dans les deux thèmes."
+  - kind: token
+    id: color.information.background
+    name: "Fond information"
+    description: "Le fond d'une information, au repos. Son texte et ses icônes sont `color.information.text`."
+    source: ./theme.light.tokens.json
+  - kind: token
+    id: color.information.background-hover
+    name: "Fond information (survol)"
+    description: "Le fond d'une information, sous le pointeur. Son texte et ses icônes sont `color.information.text`."
+    source: ./theme.light.tokens.json
+  - kind: token
+    id: color.information.background-active
+    name: "Fond information (pressé)"
+    description: "Le fond d'une information, pendant qu'on le presse. Son texte et ses icônes sont `color.information.text`."
+    source: ./theme.light.tokens.json
+  - kind: token
+    id: color.information.text
+    name: "Texte sur information"
+    description: "Le texte et les icônes posés sur le fond d'une information, au repos, survolé et pressé."
+    source: ./theme.light.tokens.json
+    combos:
+      - subject: "{color.information.text}"
+        level: must
+        items:
+          - "{color.information.background}"
+          - "{color.information.background-hover}"
+          - "{color.information.background-active}"
+        note: "Le contraste de 4,5:1 est mesuré sur ces fonds, dans les deux thèmes."
+  - kind: token
+    id: color.information.foreground
+    name: "Premier plan d'information"
+    description: "Le texte et la bordure d'une information sur une surface, comme un bouton `outlined`."
+    source: ./theme.light.tokens.json
+    combos:
+      - subject: "{color.information.foreground}"
+        level: must
+        items:
+          - "{color.surface.default}"
+          - "{color.surface.raised}"
+          - "{color.neutral.background}"
+          - "{color.neutral.background-hover}"
+        note: "Le contraste de 4,5:1 est mesuré sur ces fonds, dans les deux thèmes."
+  - kind: token
+    id: color.neutral.background
+    name: "Fond neutre"
+    description: "Le fond d'un contrôle neutre, au repos. Son texte et ses icônes sont `color.neutral.text`."
+    source: ./theme.light.tokens.json
+  - kind: token
+    id: color.neutral.background-hover
+    name: "Fond neutre (survol)"
+    description: "Le fond d'un contrôle neutre, sous le pointeur. Son texte et ses icônes sont `color.neutral.text`."
+    source: ./theme.light.tokens.json
+  - kind: token
+    id: color.neutral.background-active
+    name: "Fond neutre (pressé)"
+    description: "Le fond d'un contrôle neutre, pendant qu'on le presse. Son texte et ses icônes sont `color.neutral.text`."
+    source: ./theme.light.tokens.json
+  - kind: token
+    id: color.neutral.text
+    name: "Texte sur neutre"
+    description: "Le texte et les icônes posés sur le fond d'un contrôle neutre, au repos, survolé et pressé."
+    source: ./theme.light.tokens.json
+    combos:
+      - subject: "{color.neutral.text}"
+        level: must
+        items:
+          - "{color.neutral.background}"
+          - "{color.neutral.background-hover}"
+          - "{color.neutral.background-active}"
+        note: "Le contraste de 4,5:1 est mesuré sur ces fonds, dans les deux thèmes."
+  - kind: token
+    id: color.surface.default
+    name: "Surface"
+    description: "Le fond de la page et des composants. Son texte est `color.text.default`."
+    source: ./theme.light.tokens.json
+  - kind: token
+    id: color.surface.raised
+    name: "Surface élevée"
+    description: "Une surface au-dessus de la page, comme une modale. Son texte est `color.text.default`."
+    source: ./theme.light.tokens.json
+  - kind: token
+    id: color.text.default
+    name: "Texte"
+    description: "Le texte de la page et des composants, sur une surface."
+    source: ./theme.light.tokens.json
+    combos:
+      - subject: "{color.text.default}"
+        level: must
+        items:
+          - "{color.surface.default}"
+          - "{color.surface.raised}"
+          - "{color.neutral.background}"
+          - "{color.neutral.background-hover}"
+        note: "Le contraste de 4,5:1 est mesuré sur ces fonds, dans les deux thèmes."
+  - kind: token
+    id: color.text.danger
+    name: "Texte d'erreur"
+    description: "Un message d'erreur, et la bordure d'un champ invalide, sur une surface."
+    source: ./theme.light.tokens.json
+    combos:
+      - subject: "{color.text.danger}"
+        level: must
+        items:
+          - "{color.surface.default}"
+          - "{color.surface.raised}"
+        note: "Le contraste de 4,5:1 est mesuré sur ces fonds, dans les deux thèmes."
+  - kind: token
+    id: color.focus-ring
+    name: "Anneau de focus"
+    description: "L'anneau de focus d'un élément, sur une surface."
+    sections:
+      - kind: guidelines
+        for: all
+        items:
+          - level: must
+            statement: "Dessinez l'anneau de focus d'un élément de l'application avec `color.focus-ring`, et son épaisseur avec `focus-ring.width`."
+            checkedBy: manual
+    source: ./theme.light.tokens.json
+    combos:
+      - subject: "{color.focus-ring}"
+        level: must
+        items:
+          - "{color.surface.default}"
+          - "{color.surface.raised}"
+        note: "Le contraste de 3:1 d'un élément d'interface (WCAG 1.4.11) est mesuré sur ces surfaces, dans les deux thèmes."
+  - kind: token
+    id: color.border.control
+    name: "Bordure de contrôle"
+    description: "La bordure d'un contrôle de formulaire, sur une surface."
+    sections:
+      - kind: guidelines
+        for: all
+        items:
+          - level: must
+            statement: "Bordez un contrôle de formulaire avec `color.border.control`, pas avec `color.border.default` : seule la première garde 3:1 sur les surfaces."
+            checkedBy: manual
+    source: ./theme.light.tokens.json
+    combos:
+      - subject: "{color.border.control}"
+        level: must
+        items:
+          - "{color.surface.default}"
+          - "{color.surface.raised}"
+        note: "Le contraste de 3:1 d'un élément d'interface (WCAG 1.4.11) est mesuré sur ces surfaces, dans les deux thèmes."

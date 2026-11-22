@@ -25,6 +25,8 @@ export interface Declaration {
   /** The raw `$value`: an alias (`"{palette.brand.600}"`) or a literal. */
   value: unknown;
   description: string | undefined;
+  /** The `$description` of its nearest group that has one, in the same file. */
+  groupDescription: string | undefined;
 }
 
 export interface Modifier {
@@ -58,6 +60,21 @@ export function aliasOf(value: unknown): string | undefined {
   return typeof value === "string" ? /^\{([^{}]+)\}$/.exec(value)?.[1] : undefined;
 }
 
+/**
+ * The parts of a composite value made of aliases, like a text style: its
+ * `fontSize`, `lineHeight`… Undefined for any other value: an alias, a
+ * literal, a DTCG dimension (`{ value, unit }`) or color.
+ */
+export function compositeParts(value: unknown): Map<string, unknown> | undefined {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    return undefined;
+  }
+  if ("value" in value || "colorSpace" in value) {
+    return undefined;
+  }
+  return new Map(Object.entries(value));
+}
+
 /** Every alias inside a value, composite values (a shadow's color) included. */
 function nestedAliases(value: unknown): string[] {
   if (typeof value === "string") {
@@ -69,24 +86,25 @@ function nestedAliases(value: unknown): string[] {
   return [];
 }
 
-function collect(node: unknown, path: string[], file: string, into: Declaration[]): void {
+function collect(
+  node: unknown,
+  path: string[],
+  file: string,
+  into: Declaration[],
+  groupDescription?: string,
+): void {
   if (!node || typeof node !== "object" || Array.isArray(node)) {
     return;
   }
   const record = node as Record<string, unknown>;
+  const description = typeof record.$description === "string" ? record.$description : undefined;
   if ("$value" in record) {
-    const description = record.$description;
-    into.push({
-      id: path.join("."),
-      file,
-      value: record.$value,
-      description: typeof description === "string" ? description : undefined,
-    });
+    into.push({ id: path.join("."), file, value: record.$value, description, groupDescription });
     return;
   }
   for (const [key, child] of Object.entries(record)) {
     if (!key.startsWith("$")) {
-      collect(child, [...path, key], file, into);
+      collect(child, [...path, key], file, into, description ?? groupDescription);
     }
   }
 }
@@ -171,8 +189,9 @@ export function levels(sources: ResolverSources): Map<string, Level> {
  * only primitives hold values; a semantic token aliases a primitive or another
  * semantic token; a component token aliases a semantic token, or a token
  * of its own component (an appearance reads the variant's color), and has a
- * description. Also: a token stays at one level, a context only changes tokens
- * that exist without it, and every theme declares the same tokens.
+ * description, like a semantic token. Also: a token stays at one level, a
+ * context only changes tokens that exist without it, and every theme declares
+ * the same tokens.
  */
 export function checkLevels(sources: ResolverSources): string[] {
   const errors: string[] = [];
@@ -219,7 +238,22 @@ export function checkLevels(sources: ResolverSources): string[] {
         }
       }
     } else if (level === "semantic") {
-      if (alias === undefined) {
+      // A text style (ADR 0051): a composite whose every part aliases a token.
+      const parts = alias === undefined ? compositeParts(declaration.value) : undefined;
+      if (parts !== undefined) {
+        for (const [part, value] of parts) {
+          const partAlias = aliasOf(value);
+          if (partAlias === undefined) {
+            errors.push(
+              `${where(declaration)}: each part of a semantic composite aliases a token, not a value (${part}).`,
+            );
+          } else if (levelOf.get(partAlias) === "component") {
+            errors.push(
+              `${where(declaration)}: a semantic token can't alias a component token (${part}).`,
+            );
+          }
+        }
+      } else if (alias === undefined) {
         errors.push(`${where(declaration)}: a semantic token aliases a primitive, not a value.`);
       } else if (target === "component") {
         errors.push(`${where(declaration)}: a semantic token can't alias a component token.`);
@@ -245,6 +279,18 @@ export function checkLevels(sources: ResolverSources): string[] {
   for (const id of new Set(component.map(({ id }) => id))) {
     if (!component.some((declaration) => declaration.id === id && declaration.description)) {
       errors.push(`${id}: a component token needs a $description (it documents the component).`);
+    }
+  }
+  // A semantic token tells an application what to use it for: the
+  // documentation tools give its description (ADR 0042).
+  const described = new Set(
+    allDeclarations(sources)
+      .filter(({ description }) => description)
+      .map(({ id }) => id),
+  );
+  for (const [id, level] of levelOf) {
+    if (level === "semantic" && !described.has(id)) {
+      errors.push(`${id}: a semantic token needs a $description (it says what to use it for).`);
     }
   }
 

@@ -1,0 +1,236 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Documentation/ADR/0051 Styles de texte" />
+
+# ADR 0051 — Styles de texte
+
+**Statut :** accepté · **Date :** 22 novembre 2026
+
+## Contexte
+
+La typographie du socle est faite de tokens séparés : une police, des tailles, des graisses, un interligne. Aucun token ne dit quelle taille va avec quelle graisse et quel interligne.
+
+- Chaque application assemble ses titres. L'application Vue d'exemple laissait ses `h1` au style du navigateur.
+- Les tailles s'arrêtent à `font.size.lg` (1,25 rem), celle du titre d'une modale. Un titre de page n'a pas de taille.
+- L'[ADR 0050](?path=/docs/documentation-adr-0050-règles-d-usage-des-espaces-de-la-typographie-et-du-mouvement--docs) laissait les tokens composites en question ouverte.
+- Figma n'a pas de variable de typographie ([ADR 0004](?path=/docs/documentation-adr-0004-plateformes-natives-et-figma--docs)). Une typographie y est un style de texte.
+
+### Ce qui existe
+
+<table>
+  <thead>
+    <tr>
+      <th>Source</th>
+      <th>Ce qu'elle fait d'une typographie</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>DTCG 2025.10</td>
+      <td>
+        Le type composite `typography` : `fontFamily`, `fontSize`, `fontWeight`, `letterSpacing` et
+        `lineHeight`. `lineHeight` est un nombre, un multiple de `fontSize`. Chaque partie peut être
+        une référence à un token de son type.
+      </td>
+    </tr>
+    <tr>
+      <td>Terrazzo 2.10</td>
+      <td>
+        La règle `core/valid-typography` exige les cinq parties. Son plugin CSS écrit une custom
+        property par partie, et son option `utility` écrit des classes `font`.
+      </td>
+    </tr>
+    <tr>
+      <td>Atlassian</td>
+      <td>
+        Un style est un raccourci `font` dans un seul token : `normal 653 24px/28px "Atlassian
+        Sans", …` pour `font.heading.large`. L'espacement des lettres est un autre token.
+      </td>
+    </tr>
+    <tr>
+      <td>Web Awesome</td>
+      <td>
+        Des classes `wa-heading-*`, `wa-body-*`, `wa-caption-*` et `wa-longform-*`, de `3xs` à
+        `5xl`.
+      </td>
+    </tr>
+    <tr>
+      <td>GOV.UK</td>
+      <td>
+        La balise d'un titre suit la page, une classe donne son style : `govuk-heading-l`. Le mixin
+        Sass `govuk-font` sert au CSS.
+      </td>
+    </tr>
+    <tr>
+      <td>Carbon</td>
+      <td>
+        Le mixin `type-classes` écrit des classes `.cds--type-{token}`. Le package donne aussi des
+        styles par défaut aux `h1`, `h2`, `p`.
+      </td>
+    </tr>
+    <tr>
+      <td>Figma</td>
+      <td>
+        Six types de variables, aucun composite. Un style de texte lie une variable à sa police, sa
+        graisse, sa taille, son interligne et son espacement des lettres. Une variable d'espacement
+        des lettres est lue en pixels.
+      </td>
+    </tr>
+    <tr>
+      <td>Tokens Studio</td>
+      <td>
+        Un token `typography` devient un style de texte, et ses parties des variables. Un interligne
+        en pourcentage reste une valeur du style. Un interligne sans unité est lu en pixels.
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## D1 — Un token composite par style de texte
+
+- **Option A — Des tokens séparés**, assemblés par chaque application (statu quo).
+- **Option B — Un token `typography` par style**, au niveau sémantique. Chaque partie est un alias d'un token primitif ou sémantique.
+
+**Décision : B.** Le groupe `text` a six styles.
+
+<table>
+  <thead>
+    <tr>
+      <th>Token</th>
+      <th>Taille</th>
+      <th>Graisse</th>
+      <th>Interligne</th>
+      <th>Usage</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>`text.heading.xl`</td>
+      <td>`font.size.2xl` (2 rem)</td>
+      <td>`semibold`</td>
+      <td>`heading` (1,25)</td>
+      <td>Le titre d'une page : son `h1`</td>
+    </tr>
+    <tr>
+      <td>`text.heading.lg`</td>
+      <td>`font.size.xl` (1,5 rem)</td>
+      <td>`semibold`</td>
+      <td>`heading` (1,25)</td>
+      <td>Le titre d'une section : un `h2`</td>
+    </tr>
+    <tr>
+      <td>`text.heading.md`</td>
+      <td>`font.size.lg` (1,25 rem)</td>
+      <td>`semibold`</td>
+      <td>`body` (1,5)</td>
+      <td>Le titre d'une région, comme celui d'une modale : un `h3`</td>
+    </tr>
+    <tr>
+      <td>`text.heading.sm`</td>
+      <td>`font.size.md` (1 rem)</td>
+      <td>`semibold`</td>
+      <td>`body` (1,5)</td>
+      <td>Un petit titre, de la taille du texte : un `h4`</td>
+    </tr>
+    <tr>
+      <td>`text.body.md`</td>
+      <td>`font.size.md` (1 rem)</td>
+      <td>`regular`</td>
+      <td>`body` (1,5)</td>
+      <td>Le texte de la page</td>
+    </tr>
+    <tr>
+      <td>`text.body.sm`</td>
+      <td>`font.size.sm` (0,875 rem)</td>
+      <td>`regular`</td>
+      <td>`body` (1,5)</td>
+      <td>Un texte secondaire : une légende, une aide</td>
+    </tr>
+  </tbody>
+</table>
+
+- `checkLevels()` accepte un composite sémantique dont chaque partie est un alias. Une partie littérale fait échouer le build, comme une valeur littérale hors des primitives.
+- Les tokens `font.size.xl`, `font.size.2xl`, `font.line-height.heading` et `font.letter-spacing.normal` complètent l'échelle. Terrazzo exige un espacement des lettres : il vaut 0.
+- `text.heading.md` garde l'interligne et la graisse du titre d'une modale ou d'un tiroir.
+
+## D2 — Sur le web : une custom property et une classe
+
+- **Option A — Une custom property par partie**, comme Terrazzo : `--u-text-heading-xl-font-size`. Cinq custom properties qui répètent cinq tokens.
+- **Option B — Un raccourci `font`**, comme Atlassian : `font: var(--u-text-heading-xl)`. Il sert dans une feuille CSS et dans un shadow DOM.
+- **Option C — Des classes**, comme Web Awesome et GOV.UK : `class="u-text-heading-xl"`. Elles servent dans le HTML, mais n'atteignent ni une feuille CSS ni un shadow DOM.
+
+**Décision : B et C.**
+
+```css
+:root,
+[data-brand] {
+  --u-text-heading-xl: var(--u-font-weight-semibold)
+    var(--u-font-size-2xl)/var(--u-font-line-height-heading) var(--u-font-family-body);
+}
+
+@layer u.utilities {
+  .u-text-heading-xl {
+    font: var(--u-text-heading-xl);
+    letter-spacing: var(--u-font-letter-spacing-normal);
+  }
+}
+```
+
+- Le raccourci `font` ne porte pas d'espacement des lettres : la classe l'écrit à part, et une feuille CSS aussi.
+- `tokensCss()` écrit les classes dans la feuille de page, dans la couche `u.utilities`. Les `var()` se résolvent sur l'élément : une classe suit la marque et le thème de sa zone ([ADR 0013](?path=/docs/documentation-adr-0013-portées-de-marque-et-de-thème--docs)).
+- Une classe porte le préfixe du design system, comme ses balises : `.acme-text-heading-xl` dans le `theme.css` d'ACME. Le préfixe évite un conflit avec une classe de l'application, comme `wa-` et `govuk-`.
+- Un composant garde ses tokens de composant : une classe de la page n'atteint pas son shadow DOM.
+
+## D3 — Les titres et le texte de la page
+
+- `reset.css`, optionnel, donne un style au texte de la page et à ses titres, comme les styles par défaut de Carbon : `body` prend `text.body.md`, `h1` prend `text.heading.xl`, `h2` prend `text.heading.lg`, `h3` prend `text.heading.md`, et `h4` à `h6` prennent `text.heading.sm`.
+- Ces styles sont dans la couche `u.base`, avant `u.utilities`. Une classe donne un autre style à un titre : `<h2 class="u-text-heading-xl">`. La balise suit la structure de la page, la classe son importance, comme chez GOV.UK.
+
+## D4 — Dans Figma : un style de texte
+
+- Un token `text.heading.xl` devient le style de texte `text/heading/xl`.
+- Sa police, sa graisse et sa taille se lient aux variables de leurs tokens.
+- Son interligne est un pourcentage du style, sans variable : 125 % ou 150 %. Tokens Studio lit un interligne sans unité en pixels.
+- Son espacement des lettres se lie à la variable de son token. Une variable d'espacement est lue en pixels : un espacement relatif n'a pas de variable.
+- Le build n'écrit pas les fichiers qu'importe Figma (ADR 0004, D2). Le manifest de tokens donne à un plugin Figma ce qu'il faut pour créer les styles : les parties de chaque style, et sa valeur.
+
+## D5 — Dans les outils de documentation
+
+- Le manifest de tokens donne à un style sa valeur `font` résolue, ses `parts` et sa `className`. `tokenManifest()` reçoit le préfixe de ses classes : `classPrefix`.
+- `token text.heading.xl` donne la classe, le CSS et les parties du style. `token u-text-heading-xl` trouve le style par sa classe.
+- `check` connaît les styles :
+  - `unknown-text-style` (erreur) signale une classe `<préfixe>-text-…` qu'aucun style ne porte, avec une suggestion ;
+  - `raw-value` lit le raccourci `font` : une valeur qu'un style porte donne sa correction, `var(--u-text-heading-xl)`.
+- Les règles d'usage du groupe `text` sont dans `typography.dsds.yaml` (ADR 0050). La vue d'une marque les donne avec ses classes.
+
+```
+src/App.vue:2:7 error ACME has no text style "acme-text-heading-xxl": the class sets nothing. Did you mean "acme-text-heading-xl"? (unknown-text-style) [suggestion]
+```
+
+## Conséquences
+
+- **`@unicorne/tokens` :** le groupe `text`, les quatre tokens de `font` qui complètent l'échelle, les styles et leurs classes dans `tokens.css`. `checkLevels()` lit un composite, `tokensCss()` et `tokenManifest()` reçoivent `classPrefix`.
+- **`@unicorne/components` :** `reset.css` donne leur style au texte de la page et aux titres.
+- **`@unicorne/catalog` :** `TokenDoc.parts` et `className`, la règle `unknown-text-style`, la famille `font` de `raw-value`. Le renommage d'une marque change le préfixe de ses classes.
+- **ACME :** ses classes `acme-text-*` sont dans son `theme.css`. Son test vérifie dans le navigateur qu'une classe prend sa police. L'application Vue donne leur style à ses `h1`.
+
+## Questions ouvertes
+
+- **Tailles selon l'écran :** un titre plus petit sur un téléphone, comme les tailles de GOV.UK sous 640 px.
+- **Styles Figma :** un plugin qui crée les styles de texte depuis le manifest de tokens.
+- **Composants :** les tokens d'un titre de composant, comme `modal.heading-font-size`, en alias d'un style de texte.
+- **Plateformes natives :** un style en `TextStyle` de Compose et en police de SwiftUI, dans les générateurs de l'ADR 0004 (D4).
+
+## Sources
+
+Consultées le 22 novembre 2026.
+
+- [Design Tokens Format Module 2025.10](https://www.designtokens.org/tr/2025.10/format/) (DTCG) : le type `typography`, et `lineHeight` en multiple de `fontSize`.
+- [CSS](https://terrazzo.app/docs/integrations/css/) (Terrazzo) : les custom properties d'une typographie, l'option `utility`. Le code de `core/valid-typography` dans `@terrazzo/parser` 2.10.0 : les cinq parties exigées.
+- [Typography](https://atlassian.design/foundations/typography) et [atlassian-typography.js](https://unpkg.com/@atlaskit/tokens/dist/esm/artifacts/tokens-raw/atlassian-typography.js) (Atlassian, `@atlaskit/tokens` 20.14.0) : un style en raccourci `font`.
+- [Text utilities](https://webawesome.com/docs/utilities/text/) (Web Awesome) : les classes de texte.
+- [Type scale](https://design-system.service.gov.uk/styles/type-scale/) et [Headings](https://design-system.service.gov.uk/styles/headings/) (GOV.UK) : les classes de titre, le mixin `govuk-font`.
+- [Typography code](https://carbondesignsystem.com/elements/typography/code/) (Carbon) : le mixin `type-classes`, les styles par défaut.
+- [TextStyle](https://developers.figma.com/docs/plugins/api/TextStyle/), [VariableBindableTextField](https://developers.figma.com/docs/plugins/api/VariableBindableTextField/) et [VariableResolvedDataType](https://developers.figma.com/docs/plugins/api/VariableResolvedDataType/) (API Plugin de Figma) : les champs d'un style liés à une variable, les types de variables.
+- [Overview of variables, collections, and modes](https://help.figma.com/hc/en-us/articles/14506821864087-Overview-of-variables-collections-and-modes) (Figma) : les variables d'un style de texte, l'espacement des lettres en pixels.
+- [Typography](https://docs.tokens.studio/manage-tokens/token-types/typography) (Tokens Studio) : un token `typography` en style de texte, l'interligne en pourcentage.

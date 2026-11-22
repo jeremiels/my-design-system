@@ -1,0 +1,5 @@
+{
+  "description": "Closes what is open below: a panel, a group. Also a column sorted in ascending order.",
+  "tags": ["arrow", "caret", "collapse", "close", "ascending"],
+  "categories": ["navigation"]
+}

@@ -1,0 +1,71 @@
+{
+  "schemaVersion": 1,
+  "icons": [
+    {
+      "name": "chevron-down",
+      "description": "Opens what is below or after: a list, a panel, a menu. Also a column sorted in descending order.",
+      "tags": ["arrow", "caret", "expand", "open", "descending"],
+      "categories": ["navigation"]
+    },
+    {
+      "name": "chevron-left",
+      "description": "Goes back: the previous page, month or tab. In a right-to-left page, it points forward.",
+      "tags": ["arrow", "caret", "previous", "back"],
+      "categories": ["navigation"]
+    },
+    {
+      "name": "chevron-right",
+      "description": "Goes forward: the next page, month or tab, or the next level of a breadcrumb. In a right-to-left page, it points back.",
+      "tags": ["arrow", "caret", "next", "forward"],
+      "categories": ["navigation"]
+    },
+    {
+      "name": "chevron-up",
+      "description": "Closes what is open below: a panel, a group. Also a column sorted in ascending order.",
+      "tags": ["arrow", "caret", "collapse", "close", "ascending"],
+      "categories": ["navigation"]
+    },
+    {
+      "name": "chevron-up-down",
+      "description": "A column a table can sort, not sorted yet.",
+      "tags": ["arrows", "sort", "unsorted"],
+      "categories": ["navigation"]
+    },
+    {
+      "name": "close",
+      "description": "Closes a dialog or a message, or removes an item, like a tag.",
+      "tags": ["cross", "x", "dismiss", "remove", "clear"],
+      "categories": ["action"]
+    },
+    {
+      "name": "danger",
+      "description": "An error, or a destructive action: the status of an alert, a message or a field.",
+      "tags": ["error", "alert", "invalid", "critical"],
+      "categories": ["status"]
+    },
+    {
+      "name": "external-link",
+      "description": "A link that leaves the application, or opens in a new tab.",
+      "tags": ["external", "new tab", "open", "outside"],
+      "categories": ["navigation"]
+    },
+    {
+      "name": "information",
+      "description": "Information: the status of an alert, a message or a badge.",
+      "tags": ["info", "help", "details", "notice"],
+      "categories": ["status"]
+    },
+    {
+      "name": "success",
+      "description": "A success or a confirmation: the status of an alert or a message.",
+      "tags": ["check", "done", "valid", "confirmed"],
+      "categories": ["status"]
+    },
+    {
+      "name": "warning",
+      "description": "A warning that asks for attention: the status of an alert or a message.",
+      "tags": ["caution", "alert", "attention"],
+      "categories": ["status"]
+    }
+  ]
+}

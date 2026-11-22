@@ -1,0 +1,12 @@
+{
+  "description": "A favorite: an item the user marks, or a rating.",
+  "tags": ["favorite", "rating", "bookmark"],
+  "categories": ["action"],
+  "aliases": [
+    {
+      "name": "favorite",
+      "deprecated": true,
+      "deprecationReason": "alias.name"
+    }
+  ]
+}

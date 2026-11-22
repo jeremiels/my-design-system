@@ -1,0 +1,191 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Documentation/ADR/0043 Tokens vérifiés dans le CSS" />
+
+# ADR 0043 — Tokens vérifiés dans le CSS
+
+**Statut :** accepté · **Date :** 22 novembre 2026
+
+## Contexte
+
+`check` vérifie le markup d'une application : ses balises, ses attributs, ses règles d'usage ([ADR 0040](?path=/docs/documentation-adr-0040-règles-d-usage-vérifiées--docs)). Il ne lit pas son CSS.
+
+- Le CSS d'une application lit les tokens du design system : `var(--u-spacing-md)`. Un nom faux ne lève aucune erreur. Le navigateur ignore la déclaration, et rien ne le signale.
+- Un agent invente parfois un nom plausible : `--u-spacing-medium`.
+- Une primitive (`--u-palette-brand-600`) ne suit pas les thèmes. Le token sémantique de l'intention les suit.
+- Une valeur brute (`#1c65c8`, `16px`) reste la même en thème sombre et dans une autre marque.
+- Les tokens sont dans le modèle des outils de documentation ([ADR 0042](?path=/docs/documentation-adr-0042-tokens-dans-les-outils-de-documentation--docs)). `check` peut les comparer au CSS.
+
+### Ce qui existe
+
+<table>
+  <thead>
+    <tr>
+      <th>Outil</th>
+      <th>Ce qu'il vérifie</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>`@primer/stylelint-config` (GitHub)</td>
+      <td>
+        `primer/colors` refuse une couleur brute dans `color`, `background`, `border-*-color`,
+        `fill` et `stroke`. `primer/spacing` donne la variable d'une marge ou d'un padding de même
+        valeur. `csstools/value-no-unknown-custom-properties` signale une custom property inconnue,
+        en avertissement.
+      </td>
+    </tr>
+    <tr>
+      <td>`stylelint-plugin-carbon-tokens` (IBM)</td>
+      <td>
+        Une règle par famille de propriétés : `theme-use` (couleurs), `layout-use` (espaces et
+        tailles), `type-use`, `motion-duration-use`, `motion-easing-use`. Une valeur codée en dur
+        est une erreur, sauf celles d'`acceptValues`.
+      </td>
+    </tr>
+    <tr>
+      <td>`stylelint-declaration-strict-value`</td>
+      <td>
+        Une variable, une fonction ou un mot-clé pour les propriétés choisies. Aucune valeur n'est
+        exemptée par défaut.
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+Ces outils sont des plugins de stylelint, liés à un design system. Le socle veut des règles qui lisent les tokens de chaque marque, dans la commande et le serveur MCP qu'elle publie déjà.
+
+## D1 — `check` lit le CSS
+
+- **Option A — Un plugin stylelint par design system**, comme Primer et Carbon. L'application installe et configure un outil de plus, et un agent ne l'appelle pas par MCP.
+- **Option B — `check` et `check_markup` lisent le CSS**, avec les tokens du modèle.
+
+**Décision : B.**
+
+- `check` lit les fichiers `.css`, les blocs `<style>` d'un composant Vue et l'attribut `style` de chaque élément.
+- Un bloc `<style lang="scss">` n'est pas du CSS : `check` le laisse.
+- postcss lit le CSS. Un CSS qui ne se lit pas donne l'erreur `css-syntax`.
+- `checkCss()` de `@unicorne/catalog` fait la même vérification sur une chaîne.
+
+## D2 — Trois règles
+
+<table>
+  <thead>
+    <tr>
+      <th>Règle</th>
+      <th>Gravité</th>
+      <th>Elle signale</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>`unknown-token`</td>
+      <td>Erreur</td>
+      <td>
+        Une custom property aux préfixes du design system qui n'est ni un token ni une custom
+        property d'un composant. Le message liste les tokens de son groupe.
+      </td>
+    </tr>
+    <tr>
+      <td>`primitive-token`</td>
+      <td>Avertissement</td>
+      <td>Une primitive. Le message donne les tokens sémantiques dont elle est l'alias.</td>
+    </tr>
+    <tr>
+      <td>`raw-value`</td>
+      <td>Avertissement</td>
+      <td>Une valeur brute qu'un token sémantique porte, ou une couleur brute.</td>
+    </tr>
+  </tbody>
+</table>
+
+- Une custom property de l'application (`--app-gap`) n'est pas vérifiée, ni sa déclaration.
+- Un nom faux est une erreur : la déclaration ne s'applique pas. Une valeur brute est un avertissement : elle s'applique, mais ne suit ni le thème ni la marque.
+- `cssRules` de `extendDocs()` ajoute les règles CSS d'une marque, et `withoutRules` retire une règle du socle par son `id`, comme pour le markup.
+
+## D3 — Les valeurs brutes, par famille de propriétés
+
+Comme Carbon, chaque famille de propriétés lit les tokens d'un groupe sémantique.
+
+<table>
+  <thead>
+    <tr>
+      <th>Propriétés</th>
+      <th>Tokens</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>`margin`, `padding`, `gap`, `inset`, `top`… et leurs côtés</td>
+      <td>`spacing`</td>
+    </tr>
+    <tr>
+      <td>`border-radius` et ses coins</td>
+      <td>`radius`</td>
+    </tr>
+    <tr>
+      <td>`font-size`, `font-weight`, `line-height`, `font-family`</td>
+      <td>`font.size`, `font.weight`, `font.line-height`, `font.family`</td>
+    </tr>
+    <tr>
+      <td>`border`, `outline` et leur épaisseur</td>
+      <td>`border`, `focus-ring`</td>
+    </tr>
+    <tr>
+      <td>`transition`, `animation`, leur durée et leur courbe</td>
+      <td>`motion.duration`, `motion.easing`</td>
+    </tr>
+    <tr>
+      <td>`box-shadow`, valeur entière</td>
+      <td>`shadow`</td>
+    </tr>
+  </tbody>
+</table>
+
+- Une valeur est signalée quand un token sémantique de la famille la porte : `16px` dans `padding` donne `var(--u-spacing-md)`. Les valeurs se comparent sous une forme : `1rem` vaut `16px`.
+- Une valeur qu'aucun token ne porte reste libre : `13px`, `0`, `auto`, `100%`. `width` et `height` ne sont pas vérifiées.
+- Une ombre entière donne son token, sans second message pour sa couleur.
+
+## D4 — Les couleurs brutes, et la plus proche
+
+- **Option A — Une couleur brute est signalée seulement si un token la porte**, comme une autre valeur.
+- **Option B — Toute couleur brute est signalée** : elle ne suit pas le thème sombre. Le message donne le token de la même couleur, ou les plus proches.
+
+**Décision : B.**
+
+- Les propriétés lues : `color`, `background`, `border` et ses côtés, `outline`, `fill`, `stroke`, les ombres, `text-decoration`, `caret-color`, `accent-color`.
+- Les couleurs lues : l'hexadécimal, `rgb()`, `hsl()`, `white` et `black`. `currentColor` et `transparent` restent libres.
+- La propriété donne un rôle : un texte pour `color`, un fond pour `background`, une bordure pour `border`. Le message cite d'abord les tokens de ce rôle.
+- Une couleur qu'un token d'un autre rôle porte le dit : `#1c65c8` dans `color` est la couleur d'un fond d'action.
+- La distance se mesure dans OKLab, multipliée par 100 : sous 2, l'œil voit à peine la différence. Le message donne les trois tokens les plus proches et leur distance.
+- La recherche par valeur de l'ADR 0042 trouve aussi les plus proches : `search "#1d66ca"` donne `--u-color-action-background` (ΔE 0.4).
+
+```
+app.css:4:3 warning `#d0d0d0` in border: a raw color doesn't follow the dark theme. Nearest tokens for border: `var(--u-color-border-default)` (ΔE 3.7), … (raw-value)
+```
+
+## Conséquences
+
+- **`@unicorne/catalog` :** `css-check.ts` (`checkCss()`, `vueStyles()`, les trois règles, `defaultCssRules`), `colors.ts` (`parseColor()`, `colorDistance()`). `cssRules` dans `DesignSystemDocs`, `DocsSource` et `DocsLayer`. Une dépendance à postcss.
+- **`checkMarkup()` :** un fichier `.css`, les blocs `<style>` d'un `.vue`, les attributs `style`.
+- **Commande :** `check` lit aussi les fichiers `.css` d'un dossier. **Serveur :** `check_markup` décrit le CSS, avec `file` en `.css`.
+- **ACME :** son test vérifie un CSS fautif. L'application Vue passe sans problème : son CSS ne lit que des tokens sémantiques.
+- **Limites :**
+  - Une valeur dans `calc()` ou une autre fonction n'est pas lue, sauf une couleur.
+  - Une liaison `:style` de Vue n'est pas lue.
+  - Les couleurs nommées autres que `white` et `black` ne sont pas lues.
+  - Un fichier Sass, ou un bloc `lang="scss"`, n'est pas lu.
+
+## Questions ouvertes
+
+- **Correction :** `check --fix` remplace une valeur par son token quand un seul token la porte. Décidé dans l'[ADR 0045](?path=/docs/documentation-adr-0045-corrections-de-check--docs).
+- **Templates de Lit :** le CSS des `css` de Lit dans un fichier TypeScript. Décidé dans l'[ADR 0048](?path=/docs/documentation-adr-0048-templates-lit-dans-check--docs).
+
+## Sources
+
+Consultées le 22 novembre 2026.
+
+- [stylelint-config](https://github.com/primer/stylelint-config) (GitHub, Primer) : `plugins/colors.js`, `plugins/spacing.js`, `index.js`.
+- [stylelint-plugin-carbon-tokens](https://github.com/carbon-design-system/stylelint-plugin-carbon-tokens) (IBM, Carbon) : règles, options, gravités.
+- [stylelint-declaration-strict-value](https://github.com/AndyOGo/stylelint-declaration-strict-value) (AndyOGo) : options par défaut.
+- [A perceptual color space for image processing](https://bottosson.github.io/posts/oklab/) (Björn Ottosson) : OKLab.

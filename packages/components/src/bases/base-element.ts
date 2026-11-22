@@ -11,6 +11,8 @@ import baseStyles from "./base-element.css" with { type: "css" };
 export interface DesignSystemSettings {
   /** Icons replacing or adding to the base's icons, by name (ADR 0005). */
   readonly icons?: IconSet;
+  /** Other names of icons, adding to the base's: an old name → the icon it renders (ADR 0049). */
+  readonly iconAliases?: Readonly<Record<string, string>>;
 }
 
 /**

@@ -96,7 +96,11 @@
     --u-font-size-100: 0.875rem;
     --u-font-size-200: 1rem;
     --u-font-size-300: 1.25rem;
+    --u-font-size-400: 1.5rem;
+    --u-font-size-500: 2rem;
+    --u-line-height-125: 1.25;
     --u-line-height-150: 1.5;
+    --u-letter-spacing-0: 0rem;
     --u-duration-0: 0ms;
     --u-duration-150: 150ms;
     --u-duration-250: 250ms;
@@ -141,10 +145,26 @@
     --u-font-size-sm: var(--u-font-size-100);
     --u-font-size-md: var(--u-font-size-200);
     --u-font-size-lg: var(--u-font-size-300);
+    --u-font-size-xl: var(--u-font-size-400);
+    --u-font-size-2xl: var(--u-font-size-500);
     --u-font-weight-regular: var(--u-font-weight-400);
     --u-font-weight-medium: var(--u-font-weight-500);
     --u-font-weight-semibold: var(--u-font-weight-600);
     --u-font-line-height-body: var(--u-line-height-150);
+    --u-font-line-height-heading: var(--u-line-height-125);
+    --u-font-letter-spacing-normal: var(--u-letter-spacing-0);
+    --u-text-heading-xl: var(--u-font-weight-semibold)
+      var(--u-font-size-2xl)/var(--u-font-line-height-heading) var(--u-font-family-body);
+    --u-text-heading-lg: var(--u-font-weight-semibold)
+      var(--u-font-size-xl)/var(--u-font-line-height-heading) var(--u-font-family-body);
+    --u-text-heading-md: var(--u-font-weight-semibold)
+      var(--u-font-size-lg)/var(--u-font-line-height-body) var(--u-font-family-body);
+    --u-text-heading-sm: var(--u-font-weight-semibold)
+      var(--u-font-size-md)/var(--u-font-line-height-body) var(--u-font-family-body);
+    --u-text-body-md: var(--u-font-weight-regular)
+      var(--u-font-size-md)/var(--u-font-line-height-body) var(--u-font-family-body);
+    --u-text-body-sm: var(--u-font-weight-regular)
+      var(--u-font-size-sm)/var(--u-font-line-height-body) var(--u-font-family-body);
     --u-border-width: var(--u-dimension-25);
     --u-border-width-thick: var(--u-dimension-50);
     --u-focus-ring-width: var(--u-dimension-50);
@@ -368,5 +388,37 @@
       --u-motion-duration-loop: var(--u-duration-2000);
       --u-motion-scale-enter: var(--u-scale-100);
     }
+  }
+}
+
+@layer u.utilities {
+  .u-text-heading-xl {
+    font: var(--u-text-heading-xl);
+    letter-spacing: var(--u-font-letter-spacing-normal);
+  }
+
+  .u-text-heading-lg {
+    font: var(--u-text-heading-lg);
+    letter-spacing: var(--u-font-letter-spacing-normal);
+  }
+
+  .u-text-heading-md {
+    font: var(--u-text-heading-md);
+    letter-spacing: var(--u-font-letter-spacing-normal);
+  }
+
+  .u-text-heading-sm {
+    font: var(--u-text-heading-sm);
+    letter-spacing: var(--u-font-letter-spacing-normal);
+  }
+
+  .u-text-body-md {
+    font: var(--u-text-body-md);
+    letter-spacing: var(--u-font-letter-spacing-normal);
+  }
+
+  .u-text-body-sm {
+    font: var(--u-text-body-sm);
+    letter-spacing: var(--u-font-letter-spacing-normal);
   }
 }

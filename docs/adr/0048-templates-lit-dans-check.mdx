@@ -1,0 +1,108 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Documentation/ADR/0048 Templates Lit dans check" />
+
+# ADR 0048 — Templates Lit dans check
+
+**Statut :** accepté · **Date :** 22 novembre 2026
+
+## Contexte
+
+`check` lit le HTML, les fichiers Vue et le CSS ([ADR 0039](?path=/docs/documentation-adr-0039-outils-de-documentation--docs), [ADR 0043](?path=/docs/documentation-adr-0043-tokens-vérifiés-dans-le-css--docs)). Il ne lit pas le markup écrit en Lit : les templates `html` et `css` d'un fichier TypeScript ou JavaScript.
+
+- Les stories du socle, les composants d'une marque et une application écrite en Lit écrivent leur markup dans ces templates.
+- Les ADR 0039, 0040, 0043 et 0047 laissaient cette question ouverte.
+- Un template contient des expressions : `${…}` dans une valeur, une propriété, un événement, un enfant, et à la place d'une balise avec `lit/static-html.js`.
+
+### Ce qui existe
+
+<table>
+  <thead>
+    <tr>
+      <th>Outil</th>
+      <th>Comment il lit un template</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>lit-analyzer 2.0.3</td>
+      <td>
+        Un plugin du compilateur TypeScript. Il lit les composants par web-component-analyzer et
+        `HTMLElementTagNameMap`, et vérifie le CSS par vscode-css-languageservice. Aucune règle
+        d'usage, aucun design system de marque.
+      </td>
+    </tr>
+    <tr>
+      <td>eslint-plugin-lit 2.3.1</td>
+      <td>
+        Il remplace chaque expression par un marqueur, puis lit le template avec parse5. Ses règles
+        portent sur le HTML et les liaisons, pas sur un design system.
+      </td>
+    </tr>
+    <tr>
+      <td>Lit</td>
+      <td>
+        Une expression va dans un enfant, une valeur d'attribut, une propriété (`.`), un attribut
+        booléen (`?`), un écouteur (`@`) ou un élément. Pas dans un nom de balise ou d'attribut,
+        sauf avec `literal` et `unsafeStatic`. Un template `css` n'accepte que du `css` ou des
+        nombres.
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## D1 — Lire un template sans le compilateur
+
+- **Option A — Le compilateur TypeScript**, comme lit-analyzer. `@unicorne/catalog` en dépend alors, avec toute application qui lance `check`.
+- **Option B — Un lecteur des littéraux de gabarit, et des marqueurs**, comme eslint-plugin-lit : il trouve chaque template `html` et `css`, et remplace chaque expression.
+
+**Décision : B.**
+
+- `scriptTemplates()` parcourt le fichier : chaînes, commentaires, expressions régulières et littéraux de gabarit, imbriqués compris. Il garde les templates dont la balise est `html` ou `css`.
+- Chaque expression devient un marqueur de la même longueur : `${____}` dans un template `html`, `/*__*/` dans un template `css`. Les positions du fichier restent justes, pour un diagnostic, une correction ou une suggestion.
+- Un template imbriqué, comme celui d'un `map()`, se lit à part.
+
+## D2 — Ce que `check` fait d'un marqueur
+
+- Une valeur liée (`variant="${v}"`, `.variant=${v}`) est une liaison : sa valeur ne se vérifie pas.
+- Une expression d'élément (`<div ${ref(box)}>`) n'est pas un attribut.
+- Une balise dynamique (`<${tag}>`) n'est pas un élément : `check` ne la lit pas.
+- Dans un template `css`, une expression devient un commentaire : la déclaration qui la contient ne se vérifie pas.
+
+## D3 — Les fichiers lus
+
+- `check` lit les fichiers `.ts`, `.mts`, `.cts`, `.tsx`, `.js`, `.mjs`, `.cjs` et `.jsx` d'un dossier, sauf les fichiers de déclaration (`.d.ts`).
+- `check_markup` lit un script quand son `file` en a l'extension.
+- Les corrections et les suggestions s'appliquent dans le fichier, comme pour le HTML ([ADR 0045](?path=/docs/documentation-adr-0045-corrections-de-check--docs), [ADR 0047](?path=/docs/documentation-adr-0047-suggestions-de-check--docs)).
+
+## D4 — Ce que la première lecture du socle a changé
+
+`unicorne check packages/components/src` lit les stories et les feuilles des composants du socle. Trois règles signalaient du code voulu :
+
+- **Couleurs forcées :** une feuille écrit des couleurs système et des épaisseurs brutes sous `@media (forced-colors: active)`. `raw-value` ne lit plus ces blocs.
+- **Repli d'un `var()` :** `var(--u-modal-backdrop-color, hsl(…))` donne une couleur à `::backdrop`, qui n'hérite de rien avant Chrome 122, Firefox 120 et Safari 17.4. `raw-value` ne lit plus la couleur de repli d'un `var()`.
+- **Événement qui remonte :** `u-tag-group` écoute le `u-remove` de ses `u-tag`. `unknown-event` ne signale plus un événement qu'un composant du design system émet.
+
+Il reste 21 avertissements dans les stories : des espaces bruts dans des attributs `style`, et des `spinner` sans `label`.
+
+## Conséquences
+
+- **`@unicorne/catalog` :** `templates.ts` (`scriptTemplates()`, `positionOf()`), `checkHtml()` pour une région d'un fichier, l'option `column` de `checkCss()`.
+- **Commande :** `check` lit les scripts d'un dossier.
+- **ACME :** son test vérifie un template Lit, avec la suggestion d'une balise.
+- **Limites :**
+  - Un template dont la balise a un autre nom (`const h = html`) n'est pas lu.
+  - Une expression régulière après un mot que le lecteur ne connaît pas peut passer pour une division. Le lecteur peut alors mal lire la suite du fichier.
+  - Une valeur calculée en TypeScript, avant le template, n'est pas connue.
+
+## Questions ouvertes
+
+- **Stories du socle :** lancer `check` sur les stories dans la CI, une fois leurs avertissements corrigés.
+
+## Sources
+
+Consultées le 22 novembre 2026.
+
+- [README](https://github.com/runem/lit-analyzer) et [rules](https://raw.githubusercontent.com/runem/lit-analyzer/master/docs/readme/rules.md) (lit-analyzer) : analyse, métadonnées des composants, règles.
+- [README](https://github.com/43081j/eslint-plugin-lit) et [template-analyzer.ts](https://raw.githubusercontent.com/43081j/eslint-plugin-lit/master/src/template-analyzer.ts) (eslint-plugin-lit) : parse5, marqueurs.
+- [Expressions](https://lit.dev/docs/templates/expressions/) et [Styles](https://lit.dev/docs/components/styles/) (Lit) : positions des expressions, `literal`, `unsafeStatic`, expressions d'un `css`.

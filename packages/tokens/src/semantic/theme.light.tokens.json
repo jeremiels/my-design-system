@@ -4,13 +4,16 @@
     "action": {
       "$description": "Primary actions, like the default button.",
       "background": {
-        "$value": "{palette.brand.600}"
+        "$value": "{palette.brand.600}",
+        "$description": "The background of a primary action, like the default button."
       },
       "background-hover": {
-        "$value": "{palette.brand.700}"
+        "$value": "{palette.brand.700}",
+        "$description": "The background of a primary action, like the default button, under the pointer."
       },
       "background-active": {
-        "$value": "{palette.brand.800}"
+        "$value": "{palette.brand.800}",
+        "$description": "The background of a primary action, like the default button, while it is pressed."
       },
       "text": {
         "$value": "{palette.neutral.0}",
@@ -24,13 +27,16 @@
     "secondary": {
       "$description": "Secondary actions.",
       "background": {
-        "$value": "{palette.accent.600}"
+        "$value": "{palette.accent.600}",
+        "$description": "The background of a secondary action."
       },
       "background-hover": {
-        "$value": "{palette.accent.700}"
+        "$value": "{palette.accent.700}",
+        "$description": "The background of a secondary action, under the pointer."
       },
       "background-active": {
-        "$value": "{palette.accent.800}"
+        "$value": "{palette.accent.800}",
+        "$description": "The background of a secondary action, while it is pressed."
       },
       "text": {
         "$value": "{palette.neutral.0}",
@@ -44,13 +50,16 @@
     "success": {
       "$description": "A success status.",
       "background": {
-        "$value": "{palette.success.600}"
+        "$value": "{palette.success.600}",
+        "$description": "The background of a success intent."
       },
       "background-hover": {
-        "$value": "{palette.success.700}"
+        "$value": "{palette.success.700}",
+        "$description": "The background of a success intent, under the pointer."
       },
       "background-active": {
-        "$value": "{palette.success.800}"
+        "$value": "{palette.success.800}",
+        "$description": "The background of a success intent, while it is pressed."
       },
       "text": {
         "$value": "{palette.neutral.0}",
@@ -64,13 +73,16 @@
     "warning": {
       "$description": "A warning status.",
       "background": {
-        "$value": "{palette.warning.600}"
+        "$value": "{palette.warning.600}",
+        "$description": "The background of a warning intent."
       },
       "background-hover": {
-        "$value": "{palette.warning.700}"
+        "$value": "{palette.warning.700}",
+        "$description": "The background of a warning intent, under the pointer."
       },
       "background-active": {
-        "$value": "{palette.warning.800}"
+        "$value": "{palette.warning.800}",
+        "$description": "The background of a warning intent, while it is pressed."
       },
       "text": {
         "$value": "{palette.neutral.0}",
@@ -84,13 +96,16 @@
     "danger": {
       "$description": "A destructive action or an error.",
       "background": {
-        "$value": "{palette.danger.600}"
+        "$value": "{palette.danger.600}",
+        "$description": "The background of a destructive action or an error."
       },
       "background-hover": {
-        "$value": "{palette.danger.700}"
+        "$value": "{palette.danger.700}",
+        "$description": "The background of a destructive action or an error, under the pointer."
       },
       "background-active": {
-        "$value": "{palette.danger.800}"
+        "$value": "{palette.danger.800}",
+        "$description": "The background of a destructive action or an error, while it is pressed."
       },
       "text": {
         "$value": "{palette.neutral.0}",
@@ -104,13 +119,16 @@
     "information": {
       "$description": "A neutral status.",
       "background": {
-        "$value": "{palette.information.600}"
+        "$value": "{palette.information.600}",
+        "$description": "The background of an information intent."
       },
       "background-hover": {
-        "$value": "{palette.information.700}"
+        "$value": "{palette.information.700}",
+        "$description": "The background of an information intent, under the pointer."
       },
       "background-active": {
-        "$value": "{palette.information.800}"
+        "$value": "{palette.information.800}",
+        "$description": "The background of an information intent, while it is pressed."
       },
       "text": {
         "$value": "{palette.neutral.0}",
@@ -124,13 +142,16 @@
     "neutral": {
       "$description": "Neutral actions and controls, without intent, like the remove button of a tag.",
       "background": {
-        "$value": "{palette.neutral.100}"
+        "$value": "{palette.neutral.100}",
+        "$description": "The background of a neutral control, like the remove button of a tag."
       },
       "background-hover": {
-        "$value": "{palette.neutral.200}"
+        "$value": "{palette.neutral.200}",
+        "$description": "The background of a neutral control, like the remove button of a tag, under the pointer."
       },
       "background-active": {
-        "$value": "{palette.neutral.300}"
+        "$value": "{palette.neutral.300}",
+        "$description": "The background of a neutral control, like the remove button of a tag, while it is pressed."
       },
       "text": {
         "$value": "{palette.neutral.950}",
@@ -159,7 +180,8 @@
     },
     "border": {
       "default": {
-        "$value": "{palette.neutral.300}"
+        "$value": "{palette.neutral.300}",
+        "$description": "Decorative borders and separators, like the edge of a popover or of a header. A form control uses color.border.control."
       },
       "control": {
         "$value": "{palette.neutral.600}",

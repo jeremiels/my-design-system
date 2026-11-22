@@ -36,6 +36,62 @@ export interface Icon {
   inline: string;
   /** A standalone `.svg` file, for `<img>`, CSS or native tooling. */
   standalone: string;
+  /** What `<name>.json` says of it, next to its SVG: how people find it (ADR 0044). */
+  metadata?: IconMetadata;
+}
+
+/**
+ * The metadata of an icon, in `<name>.json` next to its SVG, like Lucide's:
+ * what it means, and the words people search it by. Optional: the name
+ * alone documents an icon.
+ */
+export interface IconMetadata {
+  /** What it means, or where it goes, in a sentence: "Closes a dialog or removes an item." */
+  description?: string;
+  /** The words people search it by, other than its name: `cross`, `dismiss`. */
+  tags?: string[];
+  /** Its families: `navigation`, `status`, `action`. */
+  categories?: string[];
+  /**
+   * Its other names, like Lucide's (ADR 0049): an old name that still
+   * renders it, marked `deprecated` when the icon was renamed.
+   */
+  aliases?: IconAlias[];
+}
+
+/** Another name of an icon. */
+export interface IconAlias {
+  name: string;
+  /** The name is the old one: `check` asks for the new one. */
+  deprecated?: true;
+  /** Why it's deprecated, as Lucide says it. */
+  deprecationReason?: "alias.typo" | "alias.name" | "alias.duplicate";
+}
+
+/** The icon manifest: what the documentation tools read (ADR 0044). */
+export interface IconManifest {
+  schemaVersion: 1;
+  icons: {
+    name: string;
+    description?: string;
+    tags: string[];
+    categories: string[];
+    aliases?: IconAlias[];
+  }[];
+}
+
+/** The name of the aliases table that goes with a set's export: `iconAliases`, `acmeIconAliases`. */
+export function aliasesExportOf(exportName: string): string {
+  return exportName === "icons" ? "iconAliases" : `${exportName.replace(/Icons$/, "")}IconAliases`;
+}
+
+/** Each alias of a set → the icon it names. */
+function aliasesOf(icons: ReadonlyMap<string, Icon>): [alias: string, name: string][] {
+  return [...icons]
+    .flatMap(([name, icon]) =>
+      (icon.metadata?.aliases ?? []).map(({ name: alias }): [string, string] => [alias, name]),
+    )
+    .sort(([a], [b]) => a.localeCompare(b));
 }
 
 export interface ReadIconSetOptions {
@@ -114,6 +170,108 @@ function optimization(path: string, inline: boolean): Config {
   };
 }
 
+/** The fields of `<name>.json`, and the type of each. */
+const METADATA_FIELDS: Readonly<Record<keyof IconMetadata, "string" | "words" | "aliases">> = {
+  description: "string",
+  tags: "words",
+  categories: "words",
+  aliases: "aliases",
+};
+
+const DEPRECATION_REASONS = new Set(["alias.typo", "alias.name", "alias.duplicate"]);
+
+/** The problems of an `aliases` field: objects of a name, and a deprecation. */
+function aliasProblems(content: unknown): string[] {
+  if (!Array.isArray(content)) {
+    return [`"aliases" is a list of { "name", "deprecated", "deprecationReason" }`];
+  }
+  return content.flatMap((alias: unknown) => {
+    const { name, deprecated, deprecationReason, ...rest } = (alias ?? {}) as Record<
+      string,
+      unknown
+    >;
+    const problems: string[] = [];
+    if (typeof name !== "string" || !ICON_NAME.test(name)) {
+      problems.push(`alias ${JSON.stringify(name)} isn't an icon name`);
+    }
+    if (deprecated !== undefined && deprecated !== true) {
+      problems.push(`"deprecated" of alias ${JSON.stringify(name)} is true, or absent`);
+    }
+    if (
+      deprecationReason !== undefined &&
+      (deprecated !== true || !DEPRECATION_REASONS.has(String(deprecationReason)))
+    ) {
+      problems.push(
+        `"deprecationReason" of alias ${JSON.stringify(name)} goes with "deprecated": one of ${[...DEPRECATION_REASONS].join(", ")}`,
+      );
+    }
+    for (const field of Object.keys(rest)) {
+      problems.push(`"${field}" isn't a field of an alias`);
+    }
+    return problems;
+  });
+}
+
+/** The metadata of an icon, checked: a JSON object of known fields. */
+function readMetadata(source: string): IconMetadata {
+  let value: unknown;
+  try {
+    value = JSON.parse(source);
+  } catch {
+    throw new Error("its .json isn't JSON");
+  }
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    throw new Error("its .json isn't an object");
+  }
+  const problems: string[] = [];
+  for (const [field, content] of Object.entries(value)) {
+    const kind = METADATA_FIELDS[field as keyof IconMetadata];
+    if (!kind) {
+      problems.push(
+        `"${field}" isn't a field of an icon's .json (${Object.keys(METADATA_FIELDS).join(", ")})`,
+      );
+    } else if (kind === "string" && (typeof content !== "string" || !content.trim())) {
+      problems.push(`"${field}" is a sentence`);
+    } else if (
+      kind === "words" &&
+      !(Array.isArray(content) && content.every((word) => typeof word === "string" && word.trim()))
+    ) {
+      problems.push(`"${field}" is a list of words`);
+    } else if (kind === "aliases") {
+      problems.push(...aliasProblems(content));
+    }
+  }
+  if (problems.length > 0) {
+    throw new Error(problems.join("; "));
+  }
+  return value as IconMetadata;
+}
+
+/** The manifest of an icon set: each icon, by name, with its metadata. */
+export function iconManifestOf(icons: ReadonlyMap<string, Icon>): IconManifest {
+  return {
+    schemaVersion: 1,
+    icons: [...icons.keys()].sort().map((name) => {
+      const { description, tags = [], categories = [], aliases } = icons.get(name)!.metadata ?? {};
+      return {
+        name,
+        ...(description ? { description } : {}),
+        tags,
+        categories,
+        ...(aliases?.length ? { aliases } : {}),
+      };
+    }),
+  };
+}
+
+/** Writes the manifest of an icon set: a JSON file the documentation tools read (ADR 0044). */
+export async function writeIconManifest(
+  icons: ReadonlyMap<string, Icon>,
+  file: string,
+): Promise<void> {
+  await writeFile(file, `${JSON.stringify(iconManifestOf(icons), null, 2)}\n`);
+}
+
 /** One icon: checked, then optimized. Throws the list of its problems. */
 function readIcon(name: string, path: string, source: string, maxBytes: number): Icon {
   const problems = new Set<string>();
@@ -146,17 +304,39 @@ export async function readIconSet(
   dir: string,
   { maxBytes = MAX_BYTES }: ReadIconSetOptions = {},
 ): Promise<Map<string, Icon>> {
-  const files = (await readdir(dir)).filter((file) => file.endsWith(".svg")).sort();
+  const entries = await readdir(dir);
+  const files = entries.filter((file) => file.endsWith(".svg")).sort();
   const icons = new Map<string, Icon>();
   const errors: string[] = [];
   for (const file of files) {
     const path = join(dir, file);
     const name = file.slice(0, -".svg".length);
     try {
-      icons.set(name, readIcon(name, path, await readFile(path, "utf8"), maxBytes));
+      const icon = readIcon(name, path, await readFile(path, "utf8"), maxBytes);
+      if (entries.includes(`${name}.json`)) {
+        const metadataPath = join(dir, `${name}.json`);
+        icon.metadata = readMetadata(await readFile(metadataPath, "utf8"));
+      }
+      icons.set(name, icon);
     } catch (error) {
       errors.push(`${path}: ${error instanceof Error ? error.message : String(error)}`);
     }
+  }
+  for (const file of entries.filter((entry) => entry.endsWith(".json"))) {
+    if (!entries.includes(file.replace(/\.json$/, ".svg"))) {
+      errors.push(`${join(dir, file)}: no icon ${file.replace(/\.json$/, ".svg")} to describe`);
+    }
+  }
+  // An alias names one icon: neither an icon nor another alias has its name.
+  const seen = new Map<string, string>();
+  for (const [alias, name] of aliasesOf(icons)) {
+    const path = join(dir, `${name}.json`);
+    if (icons.has(alias)) {
+      errors.push(`${path}: alias "${alias}" is the name of an icon`);
+    } else if (seen.has(alias)) {
+      errors.push(`${path}: alias "${alias}" is already an alias of ${seen.get(alias)}`);
+    }
+    seen.set(alias, name);
   }
   if (errors.length > 0) {
     throw new Error(`Invalid icons:\n${errors.map((error) => `- ${error}`).join("\n")}`);
@@ -218,11 +398,17 @@ export async function writeIconSet(
   }
 
   const header = `${GENERATED}. Do not edit.\n`;
+  const aliases = aliasesOf(icons);
+  const aliasesExport = aliasesExportOf(exportName);
   await writeFile(
     join(out, "index.js"),
     `${header}/** Icon name → loader of its module: a page downloads only the icons it renders. */\n` +
       `export const ${exportName} = Object.freeze({\n` +
       names.map((name) => `  ${key(name)}: () => import("./${name}.js"),\n`).join("") +
+      `});\n` +
+      `/** Another name → the icon it renders (ADR 0049). */\n` +
+      `export const ${aliasesExport} = Object.freeze({\n` +
+      aliases.map(([alias, name]) => `  ${key(alias)}: ${JSON.stringify(name)},\n`).join("") +
       `});\n`,
   );
   await writeFile(
@@ -236,7 +422,11 @@ export async function writeIconSet(
       `/** The names of this set. */\n` +
       `export type IconName = ${names.length > 0 ? names.map((name) => JSON.stringify(name)).join(" | ") : "never"};\n` +
       `/** Icon name → loader of its module: a page downloads only the icons it renders. */\n` +
-      `export declare const ${exportName}: Readonly<Record<IconName, IconLoader>>;\n`,
+      `export declare const ${exportName}: Readonly<Record<IconName, IconLoader>>;\n` +
+      `/** The other names of this set's icons. */\n` +
+      `export type IconAlias = ${aliases.length > 0 ? aliases.map(([alias]) => JSON.stringify(alias)).join(" | ") : "never"};\n` +
+      `/** Another name → the icon it renders (ADR 0049). */\n` +
+      `export declare const ${aliasesExport}: Readonly<Record<IconAlias, IconName>>;\n`,
   );
 
   if (svgOut) {

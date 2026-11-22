@@ -63,7 +63,7 @@ export default defineConfig({
 
 - `cssImportAttributes()` compile les imports `with { type: "css" }`.
 - `external` garde Lit et le socle en dépendances : le build de la marque ne les copie pas.
-- Lancez Terrazzo et le générateur d'icônes avant Vite : `"build": "tz build && unicorne-icons icons --out src/icons --export acmeIcons && vite build && …"`.
+- Lancez Terrazzo et le générateur d'icônes avant Vite : `"build": "tz build && unicorne-icons icons --out src/icons --export acmeIcons --manifest icon-manifest.json && vite build && …"`.
 
 ## 3. Écrivez les tokens de la marque
 
@@ -108,12 +108,15 @@ Les règles des tokens et du format DTCG sont dans [Tokens et couches CSS](?path
    ```ts
    // terrazzo.config.ts
    import { defineConfig } from "@terrazzo/cli";
-   import { brandResolver, tokensCss } from "@unicorne/tokens/terrazzo-plugin";
+   import { brandResolver, tokenManifest, tokensCss } from "@unicorne/tokens/terrazzo-plugin";
 
    export default defineConfig({
      tokens: [brandResolver({ name: "acme", sources: "./tokens" })],
      outDir: "./src/",
-     plugins: [tokensCss({ brand: "acme", layer: "u.tokens.brand", page: "theme.css" })],
+     plugins: [
+       tokensCss({ brand: "acme", layer: "u.tokens.brand", page: "theme.css" }),
+       tokenManifest({ file: "../token-manifest.json", classPrefix: "acme" }),
+     ],
    });
    ```
 
@@ -121,8 +124,10 @@ Les règles des tokens et du format DTCG sont dans [Tokens et couches CSS](?path
    - `brand: "acme"` place vos tokens sur `[data-brand="acme"]`, et limite la sortie à vos fichiers.
    - `layer: "u.tokens.brand"` place les tokens de la marque après ceux du socle.
    - Un modifier d'un composant de la marque se déclare dans `brandResolver()` : `modifiers: { "card-size": { default: "medium" } }`.
+   - `tokenManifest()` écrit `token-manifest.json` : chaque token, avec les valeurs de la marque. Ses outils de documentation le lisent (section 9). Donnez-lui les mêmes `components` qu'à `tokensCss()`.
+   - `theme.css` contient une classe par style de texte, sous le préfixe de la marque : `.acme-text-heading-xl`. `classPrefix: "acme"` donne ces classes au manifest ([ADR 0051](?path=/docs/documentation-adr-0051-styles-de-texte--docs)).
 
-5. Ignorez `tokens/.*.resolver.json` et `src/theme.css` dans git : le build les écrit.
+5. Ignorez `tokens/.*.resolver.json`, `src/theme.css` et `token-manifest.json` dans git : le build les écrit. Publiez `token-manifest.json` : ajoutez-le aux `files` du `package.json`.
 
 6. Lancez `npx tz build`. Le plugin écrit `src/theme.css`, ou échoue si un token enfreint la règle de son niveau.
 
@@ -233,10 +238,11 @@ export class AcmeCard extends DSBaseElement {
 Les règles des fichiers SVG sont dans [Icônes](?path=/docs/documentation-référence-icônes--docs).
 
 1. Écrivez vos icônes dans `icons/`, un fichier `<nom>.svg` par icône, sur une grille de 24 × 24.
-2. Pour remplacer une icône du socle, donnez au fichier le nom de cette icône : `icons/information.svg`.
-3. Lancez `npx unicorne-icons icons --out src/icons --export acmeIcons`. La commande écrit `src/icons/`, ou liste les fichiers refusés.
-4. Ignorez `src/icons/` dans git : le build le génère.
-5. Passez-les à votre design system, à l'étape 7 : `icons: acmeIcons`.
+2. Décrivez chaque icône dans `icons/<nom>.json` : `description`, `tags`, `categories`. Une icône qui remplace celle du socle peut s'en passer : elle garde ses métadonnées.
+3. Pour remplacer une icône du socle, donnez au fichier le nom de cette icône : `icons/information.svg`.
+4. Lancez `npx unicorne-icons icons --out src/icons --export acmeIcons --manifest icon-manifest.json`. La commande écrit `src/icons/` et le manifest d'icônes, ou liste les fichiers refusés.
+5. Ignorez `src/icons/` et `icon-manifest.json` dans git : le build les génère. Publiez `icon-manifest.json` : ajoutez-le aux `files` du `package.json`.
+6. Passez-les à votre design system, à l'étape 7 : `icons: acmeIcons`, et leurs anciens noms : `iconAliases: acmeIconAliases` ([ADR 0049](?path=/docs/documentation-adr-0049-alias-d-icônes--docs)). Passez le manifest à sa documentation, à l'étape 9 : `icons: await readIconManifest(…)`.
 
 - Vos icônes passent par-dessus celles du socle, nom par nom.
 - Chaque composant de l'enregistrement rend vos icônes : `acme-alert` rend `acme-icon`, avec votre `information`.
@@ -367,7 +373,7 @@ export default {
 
 ## 9. Publiez les outils de documentation
 
-La marque publie sa commande et son serveur MCP, `acme` et `acme-mcp`, sur sa documentation : celle du socle, étendue par la sienne. Ils ne parlent que d'elle. Suivez la section 4 du guide [Consulter la documentation en ligne de commande et par MCP](?path=/docs/documentation-guides-consulter-la-documentation-en-ligne-de-commande-et-par-mcp--docs).
+La marque publie sa commande et son serveur MCP, `acme` et `acme-mcp`, sur sa documentation : celle du socle, étendue par la sienne : composants, tokens et icônes. Ils ne parlent que d'elle. Suivez la section 6 du guide [Consulter la documentation en ligne de commande et par MCP](?path=/docs/documentation-guides-consulter-la-documentation-en-ligne-de-commande-et-par-mcp--docs).
 
 - Gardez le catalogue et les textes de `designSystem()` dans un module sans import, `src/brand.ts` : la documentation les lit dans Node.
 - Écrivez les descriptions de ses composants pour leurs utilisateurs. Une note pour les auteurs de la marque va dans un commentaire du code.

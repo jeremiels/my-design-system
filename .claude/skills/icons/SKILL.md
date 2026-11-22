@@ -12,12 +12,14 @@ Exemples : `packages/icons/src/information.svg`, `packages/components/src/compon
 ## Ajouter ou changer une icône du socle
 
 1. Écrivez `packages/icons/src/<nom>.svg`, sur une grille de 24 × 24. Un export Figma convient tel quel.
-2. Lancez `npm run icons`. La commande écrit `packages/icons/js/` et `packages/icons/svg/`, ou liste les fichiers refusés.
-3. Corrigez chaque fichier refusé dans sa source. N'éditez jamais `js/` ni `svg/`.
-4. Ouvrez la story `Components/Icon/Gallery` : l'icône y apparaît.
-5. Indexez les sorties (`git add packages/icons`), puis lancez `npm run check`.
+2. Écrivez `packages/icons/src/<nom>.json` : `description` (son sens, en anglais), `tags` (les mots qui la trouvent), `categories`. Les agents choisissent une icône par ces mots (ADR 0044).
+3. Lancez `npm run icons`. La commande écrit `packages/icons/js/`, `packages/icons/svg/` et `packages/icons/icon-manifest.json`, ou liste les fichiers refusés.
+4. Corrigez chaque fichier refusé dans sa source. N'éditez jamais `js/`, `svg/` ni `icon-manifest.json`.
+5. Ouvrez la story `Components/Icon/Gallery` : l'icône y apparaît. `npx unicorne icons` la liste.
+6. Indexez les sorties (`git add packages/icons`), puis lancez `npm run check`.
 
-- Le nom d'une icône est une API. Le renommer ou le retirer est une rupture pour les marques : cherchez le nom dans `packages/`, `examples/` et `docs/`.
+- Le nom d'une icône est une API. La retirer est une rupture pour les marques : cherchez le nom dans `packages/`, `examples/` et `docs/`.
+- Pour renommer une icône, renommez ses fichiers, puis gardez l'ancien nom dans `aliases` de son `.json` : `{ "name": "<ancien>", "deprecated": true, "deprecationReason": "alias.name" }`. L'ancien nom s'affiche encore, et `check` le corrige (ADR 0049).
 - Une icône utilisée par un composant du socle ne se retire pas : `alert` affiche `information`, `success`, `warning` et `danger`, et `modal` affiche `close`.
 
 ## Rendre une icône dans un composant
@@ -44,9 +46,10 @@ render() {
 
 Le guide est `docs/guides/design-system-de-marque.mdx`, étape 6.
 
-1. Écrivez les icônes dans `icons/<nom>.svg`. Le nom d'une icône du socle la remplace.
-2. Générez-les avant Vite : `unicorne-icons icons --out src/icons --export acmeIcons`.
-3. Passez-les à `designSystem()` : `icons: acmeIcons`. Elles passent par-dessus les icônes du socle, nom par nom.
+1. Écrivez les icônes dans `icons/<nom>.svg`, et leurs métadonnées dans `icons/<nom>.json`. Le nom d'une icône du socle la remplace.
+2. Générez-les avant Vite : `unicorne-icons icons --out src/icons --export acmeIcons --manifest icon-manifest.json`.
+3. Passez-les à `designSystem()` : `icons: acmeIcons`, et leurs alias, `iconAliases: acmeIconAliases`. Elles passent par-dessus les icônes du socle, nom par nom.
+4. Publiez `icon-manifest.json`, et passez-le à `extendDocs()` : `icons: await readIconManifest(…)`. Ses outils de documentation listent alors ses icônes, et `check` refuse un nom inconnu.
 
 ## Vérifiez
 

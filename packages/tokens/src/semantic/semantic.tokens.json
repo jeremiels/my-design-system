@@ -3,25 +3,32 @@
     "$type": "dimension",
     "$description": "Space inside and between components.",
     "2xs": {
-      "$value": "{dimension.50}"
+      "$value": "{dimension.50}",
+      "$description": "The thinnest space, like the block padding of a badge or the gap under the text of a link."
     },
     "xs": {
-      "$value": "{dimension.100}"
+      "$value": "{dimension.100}",
+      "$description": "A tight space, like the gap between a field and its label, or the padding of a list option."
     },
     "sm": {
-      "$value": "{dimension.200}"
+      "$value": "{dimension.200}",
+      "$description": "The space between the parts of a component, like the items of a breadcrumb, and the padding of a control."
     },
     "md": {
-      "$value": "{dimension.400}"
+      "$value": "{dimension.400}",
+      "$description": "The padding of a region inside a component, like an alert or a drawer."
     },
     "lg": {
-      "$value": "{dimension.600}"
+      "$value": "{dimension.600}",
+      "$description": "A wide padding, like the inline padding of a large button."
     },
     "xl": {
-      "$value": "{dimension.800}"
+      "$value": "{dimension.800}",
+      "$description": "The space between the regions of a page, and their block padding."
     },
     "2xl": {
-      "$value": "{dimension.1200}"
+      "$value": "{dimension.1200}",
+      "$description": "The widest space, for the layout of a page: no component uses it."
     }
   },
   "size": {
@@ -80,16 +87,20 @@
     "$type": "dimension",
     "$description": "Corner radii.",
     "sm": {
-      "$value": "{dimension.50}"
+      "$value": "{dimension.50}",
+      "$description": "Small elements, like a badge, a checkbox or an option of a list."
     },
     "md": {
-      "$value": "{dimension.100}"
+      "$value": "{dimension.100}",
+      "$description": "Controls and their containers, like a button, a field or an alert."
     },
     "lg": {
-      "$value": "{dimension.200}"
+      "$value": "{dimension.200}",
+      "$description": "Large surfaces, like a modal."
     },
     "full": {
-      "$value": "{dimension.full}"
+      "$value": "{dimension.full}",
+      "$description": "Pill and circle shapes, like a switch, a tag or a progress bar."
     }
   },
   "font": {
@@ -103,31 +114,125 @@
     "size": {
       "$type": "dimension",
       "sm": {
-        "$value": "{font-size.100}"
+        "$value": "{font-size.100}",
+        "$description": "Secondary text, like a hint, an error message or a badge."
       },
       "md": {
-        "$value": "{font-size.200}"
+        "$value": "{font-size.200}",
+        "$description": "Body text, and the text of the controls."
       },
       "lg": {
-        "$value": "{font-size.300}"
+        "$value": "{font-size.300}",
+        "$description": "Headings inside a component, like the heading of a modal or of a drawer."
+      },
+      "xl": {
+        "$value": "{font-size.400}",
+        "$description": "The heading of a section of a page."
+      },
+      "2xl": {
+        "$value": "{font-size.500}",
+        "$description": "The heading of a page."
       }
     },
     "weight": {
       "$type": "fontWeight",
       "regular": {
-        "$value": "{font-weight.400}"
+        "$value": "{font-weight.400}",
+        "$description": "Body text."
       },
       "medium": {
-        "$value": "{font-weight.500}"
+        "$value": "{font-weight.500}",
+        "$description": "Labels, like the label of a field or of a button."
       },
       "semibold": {
-        "$value": "{font-weight.600}"
+        "$value": "{font-weight.600}",
+        "$description": "Headings and emphasis, like the heading of a modal or the current item of a navigation."
       }
     },
     "line-height": {
       "$type": "number",
       "body": {
-        "$value": "{line-height.150}"
+        "$value": "{line-height.150}",
+        "$description": "Body text, and the text of the controls."
+      },
+      "heading": {
+        "$value": "{line-height.125}",
+        "$description": "Large headings, from the heading of a section up: tighter than body text."
+      }
+    },
+    "letter-spacing": {
+      "$type": "dimension",
+      "normal": {
+        "$value": "{letter-spacing.0}",
+        "$description": "The letter spacing of the text styles."
+      }
+    }
+  },
+  "text": {
+    "$type": "typography",
+    "$description": "Text styles: a family, a size, a weight, a letter spacing and a line height that go together. Each one is also a class of the page sheet, and a text style in Figma.",
+    "heading": {
+      "xl": {
+        "$value": {
+          "fontFamily": "{font.family.body}",
+          "fontSize": "{font.size.2xl}",
+          "fontWeight": "{font.weight.semibold}",
+          "letterSpacing": "{font.letter-spacing.normal}",
+          "lineHeight": "{font.line-height.heading}"
+        },
+        "$description": "The heading of a page: its h1."
+      },
+      "lg": {
+        "$value": {
+          "fontFamily": "{font.family.body}",
+          "fontSize": "{font.size.xl}",
+          "fontWeight": "{font.weight.semibold}",
+          "letterSpacing": "{font.letter-spacing.normal}",
+          "lineHeight": "{font.line-height.heading}"
+        },
+        "$description": "The heading of a section of a page: an h2."
+      },
+      "md": {
+        "$value": {
+          "fontFamily": "{font.family.body}",
+          "fontSize": "{font.size.lg}",
+          "fontWeight": "{font.weight.semibold}",
+          "letterSpacing": "{font.letter-spacing.normal}",
+          "lineHeight": "{font.line-height.body}"
+        },
+        "$description": "The heading of a region, like a subsection, or the heading of a modal or of a drawer: an h3."
+      },
+      "sm": {
+        "$value": {
+          "fontFamily": "{font.family.body}",
+          "fontSize": "{font.size.md}",
+          "fontWeight": "{font.weight.semibold}",
+          "letterSpacing": "{font.letter-spacing.normal}",
+          "lineHeight": "{font.line-height.body}"
+        },
+        "$description": "A minor heading, the size of body text, like the heading of a group of fields: an h4."
+      }
+    },
+    "body": {
+      "md": {
+        "$value": {
+          "fontFamily": "{font.family.body}",
+          "fontSize": "{font.size.md}",
+          "fontWeight": "{font.weight.regular}",
+          "letterSpacing": "{font.letter-spacing.normal}",
+          "lineHeight": "{font.line-height.body}"
+        },
+        "$description": "Body text: the default text of the page."
+      },
+      "sm": {
+        "$value": {
+          "fontFamily": "{font.family.body}",
+          "fontSize": "{font.size.sm}",
+          "fontWeight": "{font.weight.regular}",
+          "letterSpacing": "{font.letter-spacing.normal}",
+          "lineHeight": "{font.line-height.body}"
+        },
+        "$description": "Secondary text, like a caption, a hint or a footnote."
       }
     }
   },
@@ -146,10 +251,12 @@
     "$type": "dimension",
     "$description": "The focus indicator, the same in every component.",
     "width": {
-      "$value": "{dimension.50}"
+      "$value": "{dimension.50}",
+      "$description": "The thickness of the focus ring."
     },
     "offset": {
-      "$value": "{dimension.50}"
+      "$value": "{dimension.50}",
+      "$description": "The space between a focused element and its focus ring."
     }
   },
   "opacity": {
@@ -182,10 +289,12 @@
       "$type": "duration",
       "$description": "Zero when the user asks for reduced motion (motion.reduced), but `loop`, slower.",
       "fast": {
-        "$value": "{duration.150}"
+        "$value": "{duration.150}",
+        "$description": "A small change, like the hover of a button or a popup that opens."
       },
       "base": {
-        "$value": "{duration.250}"
+        "$value": "{duration.250}",
+        "$description": "A larger change, like a modal or a drawer that enters."
       },
       "loop": {
         "$value": "{duration.1000}",
@@ -195,7 +304,8 @@
     "easing": {
       "$type": "cubicBezier",
       "standard": {
-        "$value": "{easing.ease}"
+        "$value": "{easing.ease}",
+        "$description": "The curve of every transition of the components."
       }
     },
     "scale": {

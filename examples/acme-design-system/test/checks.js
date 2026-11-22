@@ -139,6 +139,28 @@ await check("ACME's own icons render, by name", () => {
   ];
 });
 
+await check(
+  "A text style class takes ACME's values: its font, and the base's scale (ADR 0051 of the base)",
+  () => {
+    const { fontSize, lineHeight, fontWeight, fontFamily } = getComputedStyle($("#heading"));
+    return [
+      fontSize === "32px" &&
+        lineHeight === "40px" &&
+        fontWeight === "600" &&
+        fontFamily.includes("Georgia"),
+      `${fontWeight} ${fontSize}/${lineHeight} ${fontFamily}`,
+    ];
+  },
+);
+
+await check("An old icon name renders the icon it was renamed to (ADR 0049 of the base)", () => {
+  const markup = (id) => $(`#${id}`).shadowRoot.querySelector('[part~="icon"]').innerHTML;
+  return [
+    markup("favorite").includes("<svg") && markup("favorite") === markup("star"),
+    `favorite renders star: ${markup("favorite") === markup("star")}`,
+  ];
+});
+
 await check("acme-text-field is the base's field, in ACME's theme", () => {
   const field = $("#field");
   const input = field.shadowRoot.querySelector('[part~="input"]');

@@ -1,0 +1,189 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Documentation/ADR/0042 Tokens dans les outils de documentation" />
+
+# ADR 0042 — Tokens dans les outils de documentation
+
+**Statut :** accepté · **Date :** 22 novembre 2026
+
+## Contexte
+
+Un développeur, ou un agent, écrit le CSS d'une application. Il cherche le token de l'intention : la couleur d'une action, l'espace d'une région. Il lit parfois une valeur sur une maquette, `#7a4aba`, et cherche le token qui la porte.
+
+La commande et le serveur MCP d'un design system documentent ses composants ([ADR 0039](?path=/docs/documentation-adr-0039-outils-de-documentation--docs)). Ils ne documentent pas ses tokens.
+
+- Les tokens d'un composant sont dans le manifest des composants, avec leur description. Les primitives et les tokens sémantiques n'y sont pas.
+- Le socle a 630 tokens : 108 primitives, 87 tokens sémantiques et 435 tokens de composant. Un resolver DTCG les déclare, avec ses modifiers : `theme`, `motion` et une variante par composant.
+- Une marque calcule ses tokens avec son resolver : ceux du socle, puis ses fichiers ([ADR 0013](?path=/docs/documentation-adr-0013-portées-de-marque-et-de-thème--docs)). Elle ne publie ni ses sources DTCG ni ce resolver.
+- 42 des 87 tokens sémantiques ont une `$description`. Un agent ne sait pas à quoi servent les autres.
+- Le site de documentation de l'[ADR 0041](?path=/docs/documentation-adr-0041-site-de-documentation-et-édition--docs) affiche aussi les tokens.
+
+### Ce qui existe
+
+<table>
+  <thead>
+    <tr>
+      <th>Outil</th>
+      <th>Ce qu'il donne des tokens</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>`@adobe/design-data-mcp` (Spectrum)</td>
+      <td>
+        `design-data-query` filtre les tokens. `design-data-suggest` propose des tokens pour une
+        description en langage naturel. `design-data-resolve` donne la valeur d'un token dans un
+        mode (`colorScheme`, `scale`, `contrast`).
+      </td>
+    </tr>
+    <tr>
+      <td>`spectrum-design-data-mcp` (Spectrum, déprécié)</td>
+      <td>
+        `query-tokens-by-value` trouve les tokens d'une valeur, à travers les alias. Son successeur
+        ne l'a pas.
+      </td>
+    </tr>
+    <tr>
+      <td>Serveur MCP de Figma</td>
+      <td>`get_variable_defs` donne les variables et les styles d'une sélection.</td>
+    </tr>
+    <tr>
+      <td>Token Listing (Terrazzo)</td>
+      <td>
+        Un plugin expérimental et une proposition de format : par token, son nom CSS, sa valeur, sa
+        valeur d'origine et son fichier. Ni niveau, ni contexte d'un modifier.
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## D1 — Un manifest de tokens, généré
+
+- **Option A — Terrazzo à l'exécution.** La commande et le serveur résolvent le resolver à chaque lancement. Une marque publie alors ses sources, et chaque outil embarque Terrazzo.
+- **Option B — Lire le DTCG à l'exécution**, sans Terrazzo. Le catalog refait la résolution des alias et des contextes.
+- **Option C — Un manifest généré par le build**, comme `custom-elements.json` pour les composants.
+
+**Décision : C.**
+
+- Le plugin Terrazzo `tokenManifest()` de `@unicorne/tokens/terrazzo-plugin` écrit `token-manifest.json`.
+- Le socle le commite dans `@unicorne/tokens`, et `npm run tokens:check` le compare à l'index git. Une marque l'écrit à son build et le publie.
+- `@unicorne/catalog` le lit, sans Terrazzo : `readTokenManifest()`.
+
+## D2 — Le format du manifest
+
+- **Option A — Token Listing.** Le format n'a ni niveau ni contexte d'un modifier, et sa proposition change encore.
+- **Option B — Un format du socle**, avec un `schemaVersion`.
+
+**Décision : B.**
+
+```json
+{
+  "id": "color.action.background",
+  "name": "--u-color-action-background",
+  "level": "semantic",
+  "type": "color",
+  "group": "color.action",
+  "description": "The background of a primary action, like the default button.",
+  "value": "#1c65c8",
+  "aliasChain": ["palette.brand.600"],
+  "contexts": {
+    "theme:dark": { "value": "#9cc6ff", "aliasChain": ["palette.brand.300"] }
+  }
+}
+```
+
+- La valeur est du CSS, alias résolus : `#1c65c8`, `0px 12px 32px #0003`.
+- Un contexte figure s'il change la valeur ou la chaîne d'alias d'un token, même à travers un alias : le thème sombre change `button.background-color`.
+- Les contextes ne se combinent pas : le manifest n'a pas de valeur pour sombre et `danger` ensemble.
+- La description est celle du token, sinon celle de son groupe dans le même fichier. Une marque qui redéclare un token sans description garde celle du socle.
+- Le manifest liste aussi ses modifiers, avec leur contexte par défaut.
+
+## D3 — Les descriptions des tokens
+
+- Un token sémantique a une `$description` : quand l'utiliser. `checkLevels()` fait échouer le build sans elle, comme pour un token de composant.
+- La description reste dans la source DTCG : Figma et les plateformes natives la reçoivent aussi.
+- Les règles d'usage d'un token, et les paires qu'il forme avec d'autres, viennent des entrées DSDS `token` ([ADR 0046](?path=/docs/documentation-adr-0046-règles-d-usage-des-tokens--docs)).
+
+## D4 — La vue d'une marque
+
+- `DocsLayer.tokens` reçoit le manifest de la marque. Il remplace celui du socle.
+- Sans manifest, une marque garde les tokens du socle et leurs valeurs.
+- Les descriptions passent par le renommage de l'ADR 0039 dans les deux cas : le manifest d'une marque porte aussi les textes du socle.
+- Les custom properties gardent leur nom, `--u-…` : elles sont l'API de toute marque. Un composant propre à la marque a son préfixe : `--acme-card-padding`.
+
+## D5 — Commandes et outils
+
+<table>
+  <thead>
+    <tr>
+      <th>Commande</th>
+      <th>Outil MCP</th>
+      <th>Ce qu'il donne</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>`tokens [niveau] [groupe] [--type <type>]`</td>
+      <td>`list_tokens`</td>
+      <td>
+        Les tokens sémantiques, ou ceux d'un niveau, d'un groupe ou d'un type. Au-delà de 100, les
+        groupes.
+      </td>
+    </tr>
+    <tr>
+      <td>`token <nom>`</td>
+      <td>`get_token`</td>
+      <td>
+        Un token : son usage, sa valeur dans chaque contexte, ses alias. Pour une primitive, les
+        tokens sémantiques à utiliser.
+      </td>
+    </tr>
+    <tr>
+      <td>`search <mots ou valeur>`</td>
+      <td>`search_docs`</td>
+      <td>Les composants et les tokens d'une recherche</td>
+    </tr>
+  </tbody>
+</table>
+
+- Un token se nomme par son identifiant ou sa custom property : `color.action.background`, `--u-color-action-background`, `var(--u-color-action-background)`.
+- Sans filtre, la liste donne les tokens sémantiques : ceux qu'une application utilise.
+- Les instructions du serveur disent à l'agent d'écrire des tokens sémantiques dans le CSS, jamais une valeur.
+
+## D6 — Chercher un token par sa valeur
+
+- **Option A — Pas de recherche par valeur**, comme le successeur du serveur de Spectrum.
+- **Option B — Une valeur trouve les tokens qui la portent**, dans tous les contextes.
+
+**Décision : B.**
+
+- Une maquette dont les valeurs ne sont pas liées à des variables Figma donne des valeurs brutes. La recherche les traduit en tokens.
+- Les tokens sémantiques passent en tête, puis les primitives, puis les tokens de composant.
+- Les valeurs se comparent sous une forme : `#ABC` vaut `#aabbcc`, `1rem` vaut `16px`, `0.15s` vaut `150ms`.
+- Une couleur proche trouve les tokens les plus proches ([ADR 0043](?path=/docs/documentation-adr-0043-tokens-vérifiés-dans-le-css--docs)).
+
+## Conséquences
+
+- **`@unicorne/tokens` :** `tokenManifest()`, `token-manifest.json` publié et exporté, `Declaration.groupDescription`, et la règle des descriptions sémantiques.
+- **Sources DTCG :** 45 descriptions de tokens sémantiques.
+- **`@unicorne/catalog` :** `TokenDoc` et `tokens` dans `DesignSystemDocs`. `readTokenManifest()`, `findToken()`, `filterTokens()`, `searchTokens()`, `formatTokenList()`, `formatToken()`. Une peer dependency sur `@unicorne/tokens`.
+- **Commande et serveur :** `tokens` et `token`, `list_tokens` et `get_token`, et les tokens dans `search` et `search_docs`.
+- **ACME :** son build écrit son manifest, son package le publie, et `loadAcmeDocs()` le lit. Son test vérifie ses valeurs, et que ses tokens ne nomment pas le socle.
+- **Limites :**
+  - Le manifest du socle pèse environ 240 Ko.
+  - Une marque qui oublie son manifest montre les valeurs du socle.
+
+## Questions ouvertes
+
+- **Couleur proche :** trouver le token le plus proche d'une couleur de maquette. Décidé dans l'[ADR 0043](?path=/docs/documentation-adr-0043-tokens-vérifiés-dans-le-css--docs).
+- **CSS :** `check` sur le CSS d'une application, pour signaler une valeur qu'un token sémantique porte. Décidé dans l'[ADR 0043](?path=/docs/documentation-adr-0043-tokens-vérifiés-dans-le-css--docs).
+- **Usage :** les entrées DSDS `token` et leurs paires, dans la commande et le serveur. Décidé dans l'[ADR 0046](?path=/docs/documentation-adr-0046-règles-d-usage-des-tokens--docs).
+
+## Sources
+
+Consultées le 22 novembre 2026.
+
+- [design-data-mcp](https://github.com/adobe/spectrum-design-data/tree/main/tools/design-data-mcp) et [spectrum-design-data-mcp](https://github.com/adobe/spectrum-design-data/tree/main/tools/spectrum-design-data-mcp) (Adobe) : outils, et retrait de `query-tokens-by-value`.
+- [Tools and prompts](https://developers.figma.com/docs/figma-mcp-server/tools-and-prompts/) (Figma) : `get_variable_defs`.
+- [Token Listing](https://terrazzo.app/docs/integrations/token-listing/) (Terrazzo) : plugin expérimental, format proposé.
+- [JS API](https://terrazzo.app/docs/reference/js-api/) (Terrazzo) : `parse()`, `resolver.apply()`.

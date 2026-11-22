@@ -1,0 +1,30 @@
+# Les règles d'usage des tokens d'espacement (DSDS, ADR 0050) : elles valent pour chaque token `spacing`.
+schemaVersion: "0.23.1"
+$schema: https://designsystemdocspec.org/v0.23.1/dsds.bundled.yaml
+name: "Tokens d'espacement"
+entries:
+  - kind: entry
+    id: spacing
+    name: "Espacement"
+    description: "Les marges, les paddings et les écarts, dans un composant et entre les régions d'une page."
+    metadata:
+      group: spacing
+    sections:
+      - kind: guidelines
+        for: all
+        items:
+          - level: must
+            statement: "Écrivez une marge, un padding ou un écart avec un token `spacing`, jamais une longueur brute : une marque change son échelle, la page suit."
+            checks:
+              - href: npm:@unicorne/catalog#raw-value
+                role: lint-rule
+            checkedBy: assisted
+          - level: should
+            statement: "Choisissez l'espace selon ce qu'il sépare : de `spacing.2xs` à `spacing.sm` entre les parties d'un composant, `spacing.md` et `spacing.lg` pour le padding d'une région."
+            checkedBy: manual
+          - level: should
+            statement: "Écrivez `spacing.xl` et `spacing.2xl` entre les régions d'une page : aucun composant ne les prend pour ses parties."
+            checkedBy: manual
+          - level: should
+            statement: "Donnez l'écart entre des éléments à leur parent, par `gap`, plutôt qu'une marge à chacun."
+            checkedBy: manual

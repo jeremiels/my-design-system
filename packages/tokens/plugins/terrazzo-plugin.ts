@@ -1,5 +1,4 @@
 import { relative } from "node:path";
-import { fileURLToPath } from "node:url";
 import type { Plugin, Resolver, ResolverInput, TokenNormalized } from "@terrazzo/parser";
 import { transformCSSValue } from "@terrazzo/token-tools/css";
 import {
@@ -12,8 +11,17 @@ import {
   type Declaration,
   type ResolverSources,
 } from "./dtcg-sources.ts";
+import { cssVariable, fontShorthand, resolverFileOf, type PrefixedGroup } from "./shared.ts";
 
 export { brandResolver, type BrandResolverOptions } from "./dtcg-sources.ts";
+export {
+  tokenManifest,
+  tokenManifestOf,
+  type TokenManifest,
+  type TokenManifestEntry,
+  type TokenManifestModifier,
+  type TokenManifestOptions,
+} from "./token-manifest.ts";
 
 /**
  * Terrazzo plugin: the base's DTCG tokens (or a brand's) as CSS custom
@@ -41,6 +49,11 @@ export { brandResolver, type BrandResolverOptions } from "./dtcg-sources.ts";
  * - One sheet per component (`components`), adopted by its shadow root: its
  *   tokens on `:host`, then one `:host([attribute="context"])` rule per
  *   context of its modifiers.
+ *
+ * - The text styles (ADR 0051): a `typography` token is the value of the
+ *   `font` shorthand, and the page sheet has a class per text style, in the
+ *   layer `u.utilities`: `.u-text-heading-xl`, or `.acme-text-heading-xl` in
+ *   a brand's sheet.
  *
  * Aliases stay `var()` references, so a value redefined on a container
  * cascades. `emit` limits the output to the tokens of some files: a brand
@@ -72,13 +85,19 @@ export interface TokensCssOptions {
    * every file, or with `brand`, every file outside `@unicorne/tokens`.
    */
   emit?: (file: string) => boolean;
+  /**
+   * The prefix of the text style classes of the page sheet (ADR 0051):
+   * `acme` gives `.acme-text-heading-xl`. Default: the brand, or `prefix`.
+   */
+  classPrefix?: string;
 }
 
-export interface ComponentSheet {
+/** The layer of the classes of the page sheet: `u.utilities`, ordered by the base's `order.css`. */
+const UTILITIES_LAYER = "u.utilities";
+
+export interface ComponentSheet extends PrefixedGroup {
   /** The sheet, relative to Terrazzo's `outDir`. */
   file: string;
-  /** Custom property prefix, when not `prefix`: `acme` for a brand's own component. */
-  prefix?: string;
   /** Modifier → host attribute: `{ "button-variant": "variant" }` gives `:host([variant="danger"])`. */
   attributes?: Record<string, string>;
 }
@@ -90,13 +109,7 @@ export function tokensCss(options: TokensCssOptions): Plugin {
   return {
     name: NAME,
     config(config) {
-      const resolvers = config.tokens
-        .map((url) => fileURLToPath(url))
-        .filter((file) => file.endsWith(".resolver.json"));
-      if (resolvers.length !== 1 || config.tokens.length !== 1) {
-        throw new Error(`${NAME}: set the resolver (*.resolver.json) as the only token source.`);
-      }
-      resolverFile = resolvers[0];
+      resolverFile = resolverFileOf(config, NAME);
     },
     build({ resolver, outputFile }) {
       for (const [file, css] of tokensCssFiles(readResolver(resolverFile!), resolver, options)) {
@@ -129,8 +142,7 @@ export function tokensCssFiles(
   const errors = checkLevels(sources);
   const levelOf = levels(sources);
   const group = (id: string) => id.split(".")[0]!;
-  const variable = (id: string) =>
-    `--${components[group(id)]?.prefix ?? prefix}-${id.replaceAll(".", "-")}`;
+  const variable = (id: string) => cssVariable(id, prefix, components);
 
   // A build needs a selector for the tokens it outputs: a brand leaves the
   // base's components and variants to the base's sheets.
@@ -184,20 +196,54 @@ export function tokensCssFiles(
     return (id: string) => changed.has(id);
   };
 
-  function declarations(selected: string[], input: ResolverInput): string[] {
+  /** The CSS value of a token, its aliases as `var()`; a text style as its parts. */
+  function cssValue(id: string, input: ResolverInput): string | Record<string, string> {
     const tokens = resolver.apply(input);
+    return transformCSSValue(tokens[id] as TokenNormalized, {
+      tokensSet: tokens,
+      permutation: input,
+      transformAlias: (token) => `var(${variable(token.id)})`,
+      color: { legacyHex: true },
+    }) as string | Record<string, string>;
+  }
+
+  function declarations(selected: string[], input: ResolverInput): string[] {
     return selected.map((id) => {
-      const value = transformCSSValue(tokens[id] as TokenNormalized, {
-        tokensSet: tokens,
-        permutation: input,
-        transformAlias: (token) => `var(${variable(token.id)})`,
-        color: { legacyHex: true },
-      });
-      if (typeof value !== "string") {
-        throw new Error(`${NAME}: ${id} gives several CSS values; split it into tokens.`);
+      const value = cssValue(id, input);
+      if (typeof value === "string") {
+        return `${variable(id)}: ${value};`;
       }
-      return `${variable(id)}: ${value};`;
+      // A text style (ADR 0051): the `font` shorthand.
+      if (resolver.apply(input)[id]?.$type === "typography") {
+        return `${variable(id)}: ${fontShorthand(value)};`;
+      }
+      throw new Error(`${NAME}: ${id} gives several CSS values; split it into tokens.`);
     });
+  }
+
+  /**
+   * A class per text style, the base's and the brand's (ADR 0051): the
+   * `font` shorthand of its token, and its letter spacing. Its `var()` are
+   * resolved on the element, so a class follows the brand and the theme of
+   * its zone.
+   */
+  function textClasses(classPrefix: string): string {
+    const tokens = resolver.apply({});
+    const styles = ordered.filter(
+      (id) => levelOf.get(id) === "semantic" && tokens[id]?.$type === "typography",
+    );
+    return styles
+      .map((id) => {
+        const parts = cssValue(id, {}) as Record<string, string>;
+        return rule(
+          [`.${classPrefix}-${id.replaceAll(".", "-")}`],
+          [
+            `font: var(${variable(id)});`,
+            `letter-spacing: ${parts["letter-spacing"] ?? "normal"};`,
+          ],
+        );
+      })
+      .join("\n\n");
   }
 
   const header = `/* Generated from ${relative(process.cwd(), sources.file)} by @unicorne/tokens/terrazzo-plugin (ADR 0002). Do not edit: change the tokens. */\n`;
@@ -248,8 +294,15 @@ export function tokensCssFiles(
         rule(selectors.scope, declarations(reducedIds, { motion: "reduced" })),
       ),
     ].filter(Boolean);
-    if (pageRules.length > 0) {
-      files.set(page, `${header}${atRule(`@layer ${layer}`, pageRules.join("\n\n"))}\n`);
+    const classes = atRule(
+      `@layer ${UTILITIES_LAYER}`,
+      textClasses(options.classPrefix ?? brand ?? prefix),
+    );
+    if (pageRules.length > 0 || classes) {
+      files.set(
+        page,
+        `${header}${[atRule(`@layer ${layer}`, pageRules.join("\n\n")), classes].filter(Boolean).join("\n\n")}\n`,
+      );
     }
   }
 

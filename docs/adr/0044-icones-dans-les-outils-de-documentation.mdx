@@ -1,0 +1,132 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Documentation/ADR/0044 Icônes dans les outils de documentation" />
+
+# ADR 0044 — Icônes dans les outils de documentation
+
+**Statut :** accepté · **Date :** 22 novembre 2026
+
+## Contexte
+
+Un développeur, ou un agent, écrit `<acme-icon name="…">`. Il cherche l'icône d'un besoin : fermer, une erreur, une flèche. Il doit écrire un nom que le jeu d'icônes contient.
+
+- Le jeu du socle a 11 icônes, des fichiers SVG de `@unicorne/icons` ([ADR 0005](?path=/docs/documentation-adr-0005-icônes--docs)). Une marque ajoute les siennes, ou remplace une icône du socle par son nom.
+- Le nom est la seule donnée d'une icône. Rien ne dit son sens, ni les mots qui la trouvent.
+- `name` est un attribut de type `string`. `check` ne connaît pas ses valeurs.
+- Un nom inconnu n'affiche rien. Le composant le signale dans la console du navigateur, une fois.
+- La commande et le serveur MCP documentent les composants et les tokens ([ADR 0042](?path=/docs/documentation-adr-0042-tokens-dans-les-outils-de-documentation--docs)). Ils ne listent pas les icônes.
+
+### Ce qui existe
+
+<table>
+  <thead>
+    <tr>
+      <th>Source</th>
+      <th>Ce qu'elle dit d'une icône</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Lucide</td>
+      <td>
+        Un fichier JSON par icône, à côté du SVG : `tags`, `categories`, `contributors`, `aliases`.
+        Un alias porte sa dépréciation.
+      </td>
+    </tr>
+    <tr>
+      <td>Font Awesome</td>
+      <td>`icons.yml` : par icône, `label`, `search.terms`, `aliases`, `styles`, `unicode`.</td>
+    </tr>
+    <tr>
+      <td>Iconify</td>
+      <td>
+        L'API `/search` cherche une requête dans les icônes de ses collections. Une collection a une
+        catégorie.
+      </td>
+    </tr>
+    <tr>
+      <td>Web Awesome</td>
+      <td>
+        `wa-icon` lit une bibliothèque d'icônes enregistrée. Une icône qui ne se charge pas émet
+        `wa-error`. Les pages montrent des exemples choisis, sans recherche.
+      </td>
+    </tr>
+    <tr>
+      <td>lit-analyzer</td>
+      <td>Les balises, attributs, événements et slots inconnus. Aucune règle sur une valeur.</td>
+    </tr>
+    <tr>
+      <td>Serveurs MCP</td>
+      <td>
+        Des serveurs de la communauté listent et cherchent les icônes de Lucide. Aucun serveur
+        officiel trouvé.
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## D1 — Les métadonnées d'une icône
+
+- **Option A — Le nom seul.** Une recherche ne trouve `close` que par « close ».
+- **Option B — Un fichier `<nom>.json` à côté du SVG**, comme Lucide : `description`, `tags`, `categories`.
+- **Option C — Un fichier pour tout le jeu**, comme le `icons.yml` de Font Awesome. Une icône et sa description vivent dans deux fichiers.
+
+**Décision : B.**
+
+- Le fichier est facultatif. `unicorne-icons` refuse un champ inconnu, un champ du mauvais type, et un `.json` sans son `.svg`.
+- Les 11 icônes du socle ont le leur, en anglais, comme leur code.
+- Les alias et la dépréciation d'une icône sont décidés dans l'[ADR 0049](?path=/docs/documentation-adr-0049-alias-d-icônes--docs).
+
+## D2 — Un manifest d'icônes, généré
+
+- `unicorne-icons --manifest <fichier>` écrit `icon-manifest.json` : chaque icône du jeu, avec ses métadonnées.
+- Le socle le commite dans `@unicorne/icons`, et `npm run icons:check` le compare à l'index git. Une marque l'écrit à son build et le publie.
+- `@unicorne/catalog` le lit, comme le manifest de tokens : `readIconManifest()`.
+
+## D3 — Les icônes d'une marque
+
+- `DocsLayer.icons` reçoit le manifest de la marque : ses seules icônes. Elles s'ajoutent à celles du socle, ou remplacent une icône du même nom, comme dans `designSystem({ icons })`.
+- Une icône de la marque sans métadonnées garde celles de l'icône du socle qu'elle remplace.
+- Les descriptions passent par le renommage de l'[ADR 0039](?path=/docs/documentation-adr-0039-outils-de-documentation--docs).
+
+## D4 — Commandes, outils et recherche
+
+- **Commande :** `icons [mots]` liste les icônes par catégorie, ou celles qu'une recherche trouve. `search` cherche aussi les icônes.
+- **Serveur :** `list_icons { query? }`. `search_docs` cherche aussi les icônes.
+- **Recherche :** chaque mot doit se trouver dans le nom, les tags, les catégories ou la description. Le nom compte le plus, puis les tags.
+- `show icon` et `get_component icon` donnent les noms que prend `name`.
+
+## D5 — `check` vérifie le nom d'une icône
+
+- **Option A — Le type `IconName` dans le manifest des composants.** Le jeu d'une marque change les valeurs : son manifest des composants ne les connaît pas.
+- **Option B — Une règle de `check` qui lit le jeu du design system.**
+
+**Décision : B.**
+
+- `unknown-icon` signale un `name` que le jeu n'a pas, sur le composant `icon`. C'est une erreur : l'icône n'affiche rien.
+- Le message donne les noms proches : à peu de modifications du nom (`stra` donne `star`), puis ceux que ses mots trouvent (`cross` donne `close`).
+- Une liaison (`:name` de Vue, `.name` de Lit) n'est pas vérifiée.
+
+## Conséquences
+
+- **`@unicorne/icons` :** `<nom>.json` pour chaque icône, `--manifest`, `writeIconManifest()`, `icon-manifest.json` publié et exporté.
+- **`@unicorne/catalog` :** `IconDoc` et `icons` dans `DesignSystemDocs`. `readIconManifest()`, `searchIcons()`, `closeIcons()`, `formatIconList()`, la règle `unknown-icon`. Une peer dependency sur `@unicorne/icons`.
+- **Commande et serveur :** `icons`, `list_icons`, et les icônes dans `search` et `search_docs`.
+- **ACME :** son build écrit son manifest, son package le publie, `loadAcmeDocs()` le lit. Son icône `star` a ses métadonnées. Son test liste ses icônes et vérifie un nom faux.
+
+## Questions ouvertes
+
+- **Alias :** un ancien nom qui mène au nouveau, et sa dépréciation, comme Lucide. Décidé dans l'[ADR 0049](?path=/docs/documentation-adr-0049-alias-d-icônes--docs).
+- **Langue :** des mots-clés en français, pour une recherche en français.
+- **Site :** la page des icônes de l'[ADR 0041](?path=/docs/documentation-adr-0041-site-de-documentation-et-édition--docs) lit ce manifest.
+
+## Sources
+
+Consultées le 22 novembre 2026.
+
+- [house.json](https://raw.githubusercontent.com/lucide-icons/lucide/main/icons/house.json) et [CONTRIBUTING.md](https://github.com/lucide-icons/lucide/blob/main/CONTRIBUTING.md) (Lucide) : métadonnées d'une icône.
+- [icons.yml](https://raw.githubusercontent.com/FortAwesome/Font-Awesome/6.x/metadata/icons.yml) (Font Awesome, branche `6.x`) : champs d'une icône.
+- [Searching icons](https://iconify.design/docs/api/search.html) (Iconify) : API `/search`.
+- [Icon](https://webawesome.com/docs/components/icon) (Web Awesome) : bibliothèques, `wa-error`.
+- [Rules](https://raw.githubusercontent.com/runem/lit-analyzer/master/docs/readme/rules.md) (lit-analyzer) : règles des valeurs inconnues.
+- [Lucide Icons MCP](https://mcpservers.org/servers/SeeYangZhi/lucide-icons-mcp) (annuaire mcpservers.org) : un serveur MCP de la communauté.

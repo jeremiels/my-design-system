@@ -1,4 +1,33 @@
-/* Global element styles (headings, links…), loaded with the opt-in reset.css.
-   Nothing yet beyond what the reset sets. */
+/* Global element styles, loaded with the opt-in reset.css: the text of the
+   page and its headings take the text styles (ADR 0051). The level of a
+   heading gives its default style; a class of a text style gives another,
+   in u.utilities, after this layer: <h2 class="u-text-heading-xl">. The
+   `font` shorthand holds no letter spacing: each rule sets it apart. */
 @layer u.base {
+  body {
+    font: var(--u-text-body-md);
+    letter-spacing: var(--u-font-letter-spacing-normal);
+  }
+
+  h1 {
+    font: var(--u-text-heading-xl);
+    letter-spacing: var(--u-font-letter-spacing-normal);
+  }
+
+  h2 {
+    font: var(--u-text-heading-lg);
+    letter-spacing: var(--u-font-letter-spacing-normal);
+  }
+
+  h3 {
+    font: var(--u-text-heading-md);
+    letter-spacing: var(--u-font-letter-spacing-normal);
+  }
+
+  h4,
+  h5,
+  h6 {
+    font: var(--u-text-heading-sm);
+    letter-spacing: var(--u-font-letter-spacing-normal);
+  }
 }

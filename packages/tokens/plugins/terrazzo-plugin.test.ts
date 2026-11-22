@@ -2,9 +2,16 @@ import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "nod
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { pathToFileURL } from "node:url";
-import { build, defineConfig, parse } from "@terrazzo/parser";
+import { build, defineConfig, parse, type Plugin } from "@terrazzo/parser";
 import { afterEach, describe, expect, it } from "vitest";
-import { brandResolver, tokensCss, type TokensCssOptions } from "./terrazzo-plugin.ts";
+import {
+  brandResolver,
+  tokenManifest,
+  tokensCss,
+  type TokenManifest,
+  type TokenManifestEntry,
+  type TokensCssOptions,
+} from "./terrazzo-plugin.ts";
 
 const color = (hex: string) => ({
   $type: "color",
@@ -29,9 +36,11 @@ const BASE = {
     },
   },
   "base/semantic.tokens.json": {
-    motion: { duration: { fast: { $value: "{duration.150}" } } },
+    motion: { duration: { fast: { $value: "{duration.150}", $description: "A small change." } } },
   },
-  "base/light.tokens.json": { color: { action: { $value: "{palette.brand.600}" } } },
+  "base/light.tokens.json": {
+    color: { action: { $value: "{palette.brand.600}", $description: "Primary actions." } },
+  },
   "base/dark.tokens.json": { color: { action: { $value: "{palette.brand.300}" } } },
   "base/reduced.tokens.json": { motion: { duration: { fast: { $value: "{duration.0}" } } } },
   "base/button.tokens.json": {
@@ -41,7 +50,9 @@ const BASE = {
     },
   },
   "base/button.danger.tokens.json": { button: { background: { $value: "{color.danger}" } } },
-  "base/danger.tokens.json": { color: { danger: { $value: "{palette.danger.600}" } } },
+  "base/danger.tokens.json": {
+    color: { danger: { $value: "{palette.danger.600}", $description: "Destructive actions." } },
+  },
 };
 
 function resolverFor(files: {
@@ -108,9 +119,17 @@ afterEach(() => {
 });
 
 /** Runs Terrazzo with the plugin on these files: the CSS sheets, by name. */
-async function run(
+function run(
   files: Record<string, unknown>,
   options: TokensCssOptions = BASE_OPTIONS,
+): Promise<Record<string, string>> {
+  return runPlugins(files, [tokensCss(options)]);
+}
+
+/** Runs Terrazzo with these plugins on these files: the output files, by name. */
+async function runPlugins(
+  files: Record<string, unknown>,
+  plugins: Plugin[],
 ): Promise<Record<string, string>> {
   const directory = mkdtempSync(join(tmpdir(), "tokens-css-"));
   directories.push(directory);
@@ -120,7 +139,7 @@ async function run(
   }
   const resolver = join(directory, "test.resolver.json");
   const config = defineConfig(
-    { tokens: ["./test.resolver.json"], outDir: "./out/", plugins: [tokensCss(options)] },
+    { tokens: ["./test.resolver.json"], outDir: "./out/", plugins },
     { cwd: pathToFileURL(`${directory}/`) },
   );
   const parsed = await parse(
@@ -431,6 +450,11 @@ describe("the three-level rule", () => {
       "button.duration: a component token needs a $description",
     ],
     [
+      "a semantic token has no description",
+      { "base/light.tokens.json": { color: { action: { $value: "{palette.brand.600}" } } } },
+      "color.action: a semantic token needs a $description",
+    ],
+    [
       "the themes declare different tokens",
       { "base/dark.tokens.json": {} },
       `Themes "light" and "dark" don't declare the same tokens`,
@@ -518,5 +542,229 @@ describe("a brand's resolver (ADR 0013)", () => {
     expect(() => brandResolver({ name: "acme", sources: directory })).toThrow(
       'no modifier "card-size"',
     );
+  });
+});
+
+describe("the token manifest (ADR 0042)", () => {
+  /** The manifest of these files, and its tokens by ID. */
+  async function manifestOf(files: Record<string, unknown>, prefixes = {}) {
+    const output = await runPlugins(files, [
+      tokenManifest({ file: "token-manifest.json", components: prefixes }),
+    ]);
+    const manifest = JSON.parse(output["token-manifest.json"]!) as TokenManifest;
+    const tokens: Record<string, TokenManifestEntry> = Object.fromEntries(
+      manifest.tokens.map((token) => [token.id, token]),
+    );
+    return { manifest, tokens };
+  }
+
+  it("gives each token its custom property, level, type, value and aliases", async () => {
+    const { manifest, tokens } = await manifestOf({ ...BASE, "test.resolver.json": BASE_RESOLVER });
+    expect(manifest.schemaVersion).toBe(1);
+    expect(manifest.tokens.map(({ id }) => id).slice(0, 3)).toEqual([
+      "palette.brand.300",
+      "palette.brand.600",
+      "palette.danger.600",
+    ]);
+    expect(tokens["palette.brand.600"]).toEqual({
+      id: "palette.brand.600",
+      name: "--u-palette-brand-600",
+      level: "primitive",
+      type: "color",
+      group: "palette.brand",
+      value: "#1c65c8",
+      aliasChain: [],
+    });
+    expect(tokens["color.action"]).toMatchObject({
+      level: "semantic",
+      description: "Primary actions.",
+      value: "#1c65c8",
+      aliasChain: ["palette.brand.600"],
+    });
+    expect(tokens["button.duration"]).toMatchObject({
+      level: "component",
+      type: "duration",
+      value: "150ms",
+      aliasChain: ["motion.duration.fast", "duration.150"],
+    });
+  });
+
+  it("gives the value of each context that changes a token, through its aliases", async () => {
+    const { manifest, tokens } = await manifestOf({ ...BASE, "test.resolver.json": BASE_RESOLVER });
+    expect(tokens["color.action"]!.contexts).toEqual({
+      "theme:dark": { value: "#9cc6ff", aliasChain: ["palette.brand.300"] },
+    });
+    // The button reads color.action: the dark theme changes it too.
+    expect(tokens["button.background"]!.contexts).toEqual({
+      "theme:dark": { value: "#9cc6ff", aliasChain: ["color.action", "palette.brand.300"] },
+      "button-variant:danger": {
+        value: "#b6322d",
+        aliasChain: ["color.danger", "palette.danger.600"],
+      },
+    });
+    expect(tokens["motion.duration.fast"]!.contexts).toEqual({
+      "motion:reduced": { value: "0ms", aliasChain: ["duration.0"] },
+    });
+    expect(tokens["palette.brand.600"]!.contexts).toBeUndefined();
+    expect(manifest.modifiers).toEqual([
+      { name: "theme", default: "light", contexts: ["light", "dark"] },
+      { name: "motion", default: "full", contexts: ["full", "reduced"] },
+      { name: "button-variant", default: "primary", contexts: ["primary", "danger"] },
+    ]);
+  });
+
+  it("gives a brand's values, and keeps the base's descriptions it doesn't change", async () => {
+    const files = {
+      ...BASE,
+      "base/primitive.tokens.json": {
+        palette: {
+          $description: "Raw colors.",
+          ...BASE["base/primitive.tokens.json"].palette,
+        },
+        duration: BASE["base/primitive.tokens.json"].duration,
+      },
+      "brand/primitive.tokens.json": {
+        palette: { $description: "ACME purple.", brand: { 600: color("#801acc") } },
+      },
+      "brand/button.tokens.json": { button: { duration: { $value: "{motion.duration.fast}" } } },
+      "brand/card.tokens.json": {
+        card: { background: { $value: "{color.action}", $description: "Background." } },
+      },
+      "test.resolver.json": resolverFor({
+        primitive: ["base/primitive.tokens.json", "brand/primitive.tokens.json"],
+        semantic: ["base/semantic.tokens.json"],
+        component: [
+          "base/button.tokens.json",
+          "brand/button.tokens.json",
+          "brand/card.tokens.json",
+        ],
+        light: ["base/light.tokens.json", "base/danger.tokens.json"],
+        dark: ["base/dark.tokens.json", "base/danger.tokens.json"],
+        reduced: ["base/reduced.tokens.json"],
+        danger: ["base/button.danger.tokens.json"],
+      }),
+    };
+    const { tokens } = await manifestOf(files, { card: { prefix: "acme" } });
+    expect(tokens["palette.brand.600"]).toMatchObject({
+      value: "#801acc",
+      description: "ACME purple.",
+    });
+    // A group description belongs to its file: the brand's palette doesn't
+    // describe the base's danger colors.
+    expect(tokens["palette.danger.600"]!.description).toBe("Raw colors.");
+    expect(tokens["color.action"]!.value).toBe("#801acc");
+    expect(tokens["button.duration"]!.description).toBe("Transition.");
+    expect(tokens["card.background"]).toMatchObject({
+      name: "--acme-card-background",
+      value: "#801acc",
+    });
+  });
+
+  it("fails the build when the tokens break a rule", async () => {
+    await expect(
+      manifestOf({
+        ...BASE,
+        "base/light.tokens.json": { color: { action: { $value: "{palette.brand.600}" } } },
+        "test.resolver.json": BASE_RESOLVER,
+      }),
+    ).rejects.toThrow("color.action: a semantic token needs a $description");
+  });
+});
+
+describe("the text styles (ADR 0051)", () => {
+  const style = (parts: Record<string, string>) => ({
+    text: { body: { $type: "typography", $description: "Body text.", $value: parts } },
+  });
+  const parts = {
+    fontFamily: "{font-family.sans}",
+    fontSize: "{font-size.200}",
+    fontWeight: "{font-weight.400}",
+    letterSpacing: "{letter-spacing.0}",
+    lineHeight: "{line-height.150}",
+  };
+  const TEXT = {
+    ...BASE,
+    "base/primitive.tokens.json": {
+      ...BASE["base/primitive.tokens.json"],
+      "font-family": { $type: "fontFamily", sans: { $value: ["Helvetica Neue", "sans-serif"] } },
+      "font-size": { $type: "dimension", 200: { $value: { value: 1, unit: "rem" } } },
+      "font-weight": { $type: "fontWeight", 400: { $value: 400 } },
+      "line-height": { $type: "number", 150: { $value: 1.5 } },
+      "letter-spacing": { $type: "dimension", 0: { $value: { value: 0, unit: "rem" } } },
+    },
+    "base/semantic.tokens.json": { ...BASE["base/semantic.tokens.json"], ...style(parts) },
+    "test.resolver.json": BASE_RESOLVER,
+  };
+
+  it("writes a text style as the font shorthand, and a class of it in u.utilities", async () => {
+    const { "tokens.css": css } = await run(TEXT);
+    expect(css).toContain(
+      "--u-text-body: var(--u-font-weight-400) var(--u-font-size-200)/var(--u-line-height-150) var(--u-font-family-sans);",
+    );
+    expect(css).toContain(
+      "@layer u.utilities {\n  .u-text-body {\n    font: var(--u-text-body);\n    letter-spacing: var(--u-letter-spacing-0);\n  }\n}",
+    );
+  });
+
+  it("gives a brand's sheet a class of each text style under its prefix, the base's included", async () => {
+    const { "theme.css": css } = await run(TEXT, {
+      brand: "acme",
+      layer: "u.tokens.brand",
+      page: "theme.css",
+      emit: () => false,
+    });
+    expect(css).toContain(".acme-text-body {\n    font: var(--u-text-body);");
+    expect(css).not.toContain("--u-text-body:");
+  });
+
+  it.each([
+    ["a part holds a value", { fontSize: { value: 1, unit: "rem" } }, "not a value (fontSize)"],
+    [
+      "a part aliases a component token",
+      { fontSize: "{button.font-size}" },
+      "component token (fontSize)",
+    ],
+  ])("fails the build when %s", async (_, patch, message) => {
+    await expect(
+      run({
+        ...TEXT,
+        "base/semantic.tokens.json": {
+          ...BASE["base/semantic.tokens.json"],
+          font: {
+            size: { $type: "dimension", md: { $value: "{font-size.200}", $description: "Body." } },
+          },
+          ...style({ ...parts, ...patch } as Record<string, string>),
+        },
+        "base/button.tokens.json": {
+          button: {
+            ...BASE["base/button.tokens.json"].button,
+            "font-size": {
+              $type: "dimension",
+              $value: "{font.size.md}",
+              $description: "Its text.",
+            },
+          },
+        },
+      }),
+    ).rejects.toThrow(message);
+  });
+
+  it("gives a text style its font shorthand, its parts and its class in the manifest", async () => {
+    const output = await runPlugins(TEXT, [
+      tokenManifest({ file: "token-manifest.json", classPrefix: "acme" }),
+    ]);
+    const manifest = JSON.parse(output["token-manifest.json"]!) as TokenManifest;
+    expect(manifest.tokens.find(({ id }) => id === "text.body")).toMatchObject({
+      type: "typography",
+      value: '400 1rem/1.5 "Helvetica Neue", sans-serif',
+      parts: {
+        "font-family": "font-family.sans",
+        "font-size": "font-size.200",
+        "font-weight": "font-weight.400",
+        "letter-spacing": "letter-spacing.0",
+        "line-height": "line-height.150",
+      },
+      className: "acme-text-body",
+    });
   });
 });

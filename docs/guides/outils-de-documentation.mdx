@@ -4,7 +4,7 @@ import { Meta } from "@storybook/addon-docs/blocks";
 
 # Consulter la documentation en ligne de commande et par MCP
 
-Ce guide consulte la documentation d'un design system dans un terminal, puis la donne à un agent par MCP. Les exemples utilisent ACME : `acme` et `acme-mcp`. Le socle a les siens, `unicorne` et `unicorne-mcp`. Les raisons de ces choix sont dans l'[ADR 0039](?path=/docs/documentation-adr-0039-outils-de-documentation--docs).
+Ce guide consulte la documentation d'un design system dans un terminal, puis la donne à un agent par MCP : ses composants, ses tokens et ses icônes. Les exemples utilisent ACME : `acme` et `acme-mcp`. Le socle a les siens, `unicorne` et `unicorne-mcp`. Les raisons de ces choix sont dans l'[ADR 0039](?path=/docs/documentation-adr-0039-outils-de-documentation--docs) dans l'[ADR 0042](?path=/docs/documentation-adr-0042-tokens-dans-les-outils-de-documentation--docs) et dans l'[ADR 0044](?path=/docs/documentation-adr-0044-icônes-dans-les-outils-de-documentation--docs).
 
 ## Prérequis
 
@@ -21,9 +21,43 @@ Ce guide consulte la documentation d'un design system dans un terminal, puis la 
 - `--json` donne la même chose en JSON, pour un script.
 - `npx acme help` liste les commandes. Une marque en ajoute : `npx acme texts` donne les textes d'ACME.
 
-## 2. Vérifiez votre markup
+## 2. Trouvez un token
 
-Lancez `npx acme check src`. La commande lit les fichiers `.html` et `.vue` du dossier.
+1. Listez les tokens sémantiques : `npx acme tokens`.
+2. Listez ceux d'un niveau, d'un groupe ou d'un type : `npx acme tokens component button`, `npx acme tokens --type shadow`.
+3. Lisez un token : `npx acme token color.action.background`.
+4. Trouvez le token d'une valeur de maquette : `npx acme search "#7a4aba"`.
+
+```
+- `--u-color-action-background` `#7a4aba` · theme:dark `#ceb6fc` — The background of a primary action, like the default button.
+```
+
+- Écrivez un token sémantique dans le CSS de l'application, jamais une valeur : `var(--u-color-action-background)`.
+- Une ligne donne la custom property du token, sa valeur, sa valeur en thème sombre et son usage.
+- `token` donne sa valeur dans chaque contexte : thème, mouvement réduit, variante d'un composant. Il donne aussi les tokens dont il est l'alias.
+- Pour une primitive, `token` cite les tokens sémantiques à utiliser à sa place. Pour un token de composant, les composants qui le lisent.
+- Pour une couleur, `token` donne aussi son usage et ses paires : les fonds où son contraste est mesuré ([ADR 0046](?path=/docs/documentation-adr-0046-règles-d-usage-des-tokens--docs)).
+- `tokens spacing`, `tokens font` et `tokens motion` donnent les règles de la famille avant ses tokens. `token` les donne aussi ([ADR 0050](?path=/docs/documentation-adr-0050-règles-d-usage-des-espaces-de-la-typographie-et-du-mouvement--docs)).
+- `search` sur une valeur cherche dans tous les contextes, tokens sémantiques en tête. `1rem` vaut `16px`, et `rgb(122, 74, 186)` vaut `#7a4aba`.
+- Une couleur qu'aucun token ne porte donne les tokens sémantiques les plus proches, avec leur distance : `nearest color (ΔE 0.4)`. Sous 2, l'œil voit à peine la différence.
+
+## 3. Trouvez une icône
+
+1. Listez les icônes : `npx acme icons`.
+2. Cherchez celles d'un besoin : `npx acme icons cross`, `npx acme icons status`.
+
+```
+- `close` — Closes a dialog or a message, or removes an item, like a tag. (cross, x, dismiss, remove, clear)
+```
+
+- La liste range les icônes par catégorie, avec leur sens et les mots qui les trouvent.
+- Une recherche lit le nom, les mots-clés, les catégories et la description de chaque icône. Les mots sont en anglais : `cross` trouve `close`.
+- `show icon` donne aussi les noms que prend l'attribut `name`.
+- La liste d'une marque contient ses icônes et celles du socle qu'elle garde.
+
+## 4. Vérifiez votre markup et votre CSS
+
+Lancez `npx acme check src`. La commande lit les fichiers `.html`, `.vue` et `.css` du dossier, et les templates `html` et `css` de Lit de ses fichiers `.ts` et `.js` ([ADR 0048](?path=/docs/documentation-adr-0048-templates-lit-dans-check--docs)).
 
 ```
 src/Requests.vue:12:20 error variant="big" on <acme-button>: expected "primary", "secondary", … (invalid-value)
@@ -33,12 +67,40 @@ src/Requests.vue:18:5 error <acme-text-field> needs "label". (required-attribute
 ```
 
 - Une balise inconnue, un attribut inconnu ou une valeur hors de celles d'un attribut sont des erreurs. Un événement ou un slot inconnu est un avertissement.
+- Un nom d'icône que le jeu du design system n'a pas est une erreur. Le message donne les noms proches : `name="cross"` donne `"close"`.
+- Une classe `acme-text-…` qu'aucun style de texte ne porte est une erreur : elle ne donne aucun style. Le message donne le style probable ([ADR 0051](?path=/docs/documentation-adr-0051-styles-de-texte--docs)).
 - La commande vérifie aussi les règles d'usage que le markup montre : un libellé manquant, un composant hors de son parent, un enfant qu'un composant ne prend pas. Elle cite la règle sous le problème.
 - Une règle obligatoire donne une erreur, une règle recommandée un avertissement. `show` marque chaque règle vérifiée.
 - La commande lit les liaisons de Vue (`:variant`, `@u-sort`, `v-model`) et de Lit (`.options`, `?disabled`).
 - Elle sort avec le code 1 sur une erreur. Ajoutez-la au test de l'application, ou à l'intégration continue.
 
-## 3. Donnez la documentation à un agent
+La commande vérifie aussi l'usage des tokens dans le CSS : les fichiers `.css`, les blocs `<style>` des fichiers Vue et les attributs `style` ([ADR 0043](?path=/docs/documentation-adr-0043-tokens-vérifiés-dans-le-css--docs)).
+
+```
+src/app.css:2:3 error ACME has no token `--u-spacing-medium`. Its group has `--u-spacing-2xs`, … (unknown-token)
+src/app.css:3:3 warning `16px` in padding: use `var(--u-spacing-md)`. (raw-value)
+src/app.css:4:3 warning `#d0d0d0` in border: a raw color doesn't follow the dark theme. Nearest tokens for border: `var(--u-color-border-default)` (ΔE 3.7), … (raw-value)
+```
+
+- Une custom property du design system qui n'existe pas est une erreur : la déclaration ne s'applique pas.
+- Une primitive est un avertissement. Le message donne le token sémantique de l'intention.
+- Une valeur brute qu'un token sémantique porte est un avertissement. Le message donne le token. Un raccourci `font` brut donne son style de texte : `var(--u-text-heading-xl)`.
+- Une couleur brute est un avertissement : elle ne suit pas le thème sombre. Le message donne le token de la même couleur, ou les plus proches.
+- Une couleur sur un fond que ses paires n'autorisent pas, dans le même bloc, est une erreur : `color: var(--u-color-action-text)` sur `background: var(--u-color-surface-default)`.
+- Les custom properties de l'application (`--app-gap`) et les blocs `lang="scss"` ne sont pas vérifiés.
+
+Corrigez les problèmes qui ont une correction ([ADR 0045](?path=/docs/documentation-adr-0045-corrections-de-check--docs)) :
+
+1. Lancez `npx acme check src --fix`. La commande écrit les corrections sûres : la page reste la même dans chaque thème.
+2. Relisez le diff.
+3. Lancez `npx acme check src --fix --unsafe`. La commande écrit aussi les corrections qui changent la page en thème sombre ou en mouvement réduit, comme une couleur ou une durée.
+4. Relisez le diff, puis vérifiez le thème sombre de l'application.
+
+- Un diagnostic montre sa correction : `[fix]` ou `[unsafe fix]`. Sans marque, il n'en a pas : plusieurs tokens conviennent, ou le nom voulu reste à choisir.
+- Un nom mal écrit reçoit le nom probable : `Did you mean "primary"?`, et la marque `[suggestion]`. `--fix` ne l'applique pas : relisez-le, puis écrivez-le. La sortie `--json` donne ses modifications, pour un éditeur ([ADR 0047](?path=/docs/documentation-adr-0047-suggestions-de-check--docs)).
+- Un attribut `style` ne se corrige pas : déplacez sa déclaration dans une feuille.
+
+## 5. Donnez la documentation à un agent
 
 1. Déclarez le serveur à l'agent, par sa commande : `npx acme-mcp`.
 2. Avec Claude Code : `claude mcp add acme -- npx acme-mcp`.
@@ -53,7 +115,7 @@ src/Requests.vue:18:5 error <acme-text-field> needs "label". (required-attribute
 ```
 
 - Le serveur communique sur l'entrée et la sortie standard.
-- Ses instructions disent à l'agent de lister les composants, de lire chacun avant de l'utiliser, puis de vérifier son markup.
+- Ses instructions disent à l'agent de lister les composants, de lire chacun avant de l'utiliser, puis de vérifier son markup. Pour le CSS, elles lui disent d'utiliser les tokens sémantiques.
 
 <table>
   <thead>
@@ -73,23 +135,38 @@ src/Requests.vue:18:5 error <acme-text-field> needs "label". (required-attribute
     </tr>
     <tr>
       <td>`search_docs`</td>
-      <td>Les composants dont la documentation contient chaque mot</td>
+      <td>
+        Les composants, les tokens et les icônes dont la documentation contient chaque mot, ou les
+        tokens d'une valeur
+      </td>
+    </tr>
+    <tr>
+      <td>`list_icons`</td>
+      <td>Les icônes, ou celles qu'une recherche trouve</td>
+    </tr>
+    <tr>
+      <td>`list_tokens`</td>
+      <td>Les tokens sémantiques, ou ceux d'un niveau, d'un groupe ou d'un type</td>
+    </tr>
+    <tr>
+      <td>`get_token`</td>
+      <td>Un token : son usage, sa custom property, sa valeur dans chaque contexte, ses alias</td>
     </tr>
     <tr>
       <td>`check_markup`</td>
-      <td>Les problèmes d'un HTML ou d'un fichier Vue</td>
+      <td>Les problèmes d'un HTML, d'un fichier Vue ou d'un CSS. Avec `fix`, le texte corrigé.</td>
     </tr>
   </tbody>
 </table>
 
 Chaque composant est aussi une ressource : `acme://components/modal`.
 
-## 4. Publiez les outils d'un design system
+## 6. Publiez les outils d'un design system
 
 Une marque publie sa commande et son serveur, construits sur ceux du socle.
 
 1. Écrivez sa documentation : `extendDocs()` de `@unicorne/catalog`, sur `loadSocleDocs()`.
-2. Donnez-lui son nom, son préfixe, son package, son catalogue, ses textes, son manifest et ses documents DSDS.
+2. Donnez-lui son nom, son préfixe, son package, son catalogue, ses textes, son manifest, ses documents DSDS, et ses manifests de tokens et d'icônes.
 3. Écrivez ses deux commandes, avec `createCli()` et `serveStdio()`, et déclarez-les dans `bin` de son `package.json`.
 
 ```ts
@@ -103,6 +180,8 @@ export async function loadAcmeDocs() {
     labels,
     manifest: JSON.parse(await readFile(fileOf("custom-elements.json"), "utf8")),
     usage: await readUsage(fileOf("design-system.dsds.yaml")),
+    tokens: await readTokenManifest(fileOf("token-manifest.json")),
+    icons: await readIconManifest(fileOf("icon-manifest.json")),
   });
 }
 ```
@@ -130,7 +209,9 @@ process.exitCode = await createCli({ name: "acme", docs: loadAcmeDocs }).run(pro
 ```
 
 - Les règles et leurs options sont dans l'[ADR 0040](?path=/docs/documentation-adr-0040-règles-d-usage-vérifiées--docs).
-- La documentation d'une marque ne nomme pas le socle. Vérifiez-le dans son test : le `smoke.mjs` d'ACME cherche le socle, ses ADR et ses classes dans chaque composant.
+- Le build Terrazzo de la marque écrit son manifest de tokens, avec `tokenManifest()` de `@unicorne/tokens/terrazzo-plugin` : chaque token, avec les valeurs de la marque. Publiez-le dans `files`. Sans lui, la documentation de la marque donne les valeurs du socle.
+- La documentation d'une marque ne nomme pas le socle. Vérifiez-le dans son test : le `smoke.mjs` d'ACME cherche le socle, ses ADR et ses classes dans chaque composant et chaque token.
 - Écrivez le document DSDS de chaque composant propre à la marque, et listez-les dans son `design-system.dsds.yaml`.
+- Passez l'usage de ses tokens à `tokenUsage` : `await readTokenUsage(fileOf("tokens.dsds.yaml"))`. Une entrée `token` décrit un token, une entrée de groupe une famille ([ADR 0050](?path=/docs/documentation-adr-0050-règles-d-usage-des-espaces-de-la-typographie-et-du-mouvement--docs)).
 
-L'exemple complet est `examples/acme-design-system` : `src/docs.ts`, `src/brand.ts`, `bin/`.
+L'exemple complet est `examples/acme-design-system` : `src/docs.ts`, `src/brand.ts`, `terrazzo.config.ts`, `bin/`.

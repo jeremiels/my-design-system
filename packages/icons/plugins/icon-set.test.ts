@@ -2,7 +2,7 @@ import { mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "n
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
-import { readIconSet, writeIconSet } from "./icon-set.ts";
+import { iconManifestOf, readIconSet, writeIconManifest, writeIconSet } from "./icon-set.ts";
 
 /** An icon as Figma exports it: fixed dimensions and color, a title. */
 const FIGMA_EXPORT = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -162,5 +162,118 @@ describe("writeIconSet", () => {
     const out = join(folder(), "deep", "icons");
     await writeIconSet(icons, { out });
     expect(readdirSync(out)).toContain("index.js");
+  });
+});
+
+describe("the metadata and the manifest of a set (ADR 0044)", () => {
+  const close = svg('<path d="M6 6l12 12"/>');
+
+  it("reads the .json next to an icon, and writes the manifest of the set", async () => {
+    const dir = folder({
+      "close.svg": close,
+      "close.json": JSON.stringify({
+        description: "Closes a dialog.",
+        tags: ["cross", "dismiss"],
+        categories: ["action"],
+      }),
+      "star.svg": close,
+    });
+    const icons = await readIconSet(dir);
+    expect(icons.get("close")!.metadata).toEqual({
+      description: "Closes a dialog.",
+      tags: ["cross", "dismiss"],
+      categories: ["action"],
+    });
+    expect(iconManifestOf(icons)).toEqual({
+      schemaVersion: 1,
+      icons: [
+        {
+          name: "close",
+          description: "Closes a dialog.",
+          tags: ["cross", "dismiss"],
+          categories: ["action"],
+        },
+        { name: "star", tags: [], categories: [] },
+      ],
+    });
+    const file = join(dir, "icon-manifest.json");
+    await writeIconManifest(icons, file);
+    expect(JSON.parse(readFileSync(file, "utf8"))).toEqual(iconManifestOf(icons));
+  });
+
+  it("refuses a .json of unknown fields or types, and one without its icon", async () => {
+    await expect(
+      readIconSet(
+        folder({
+          "close.svg": close,
+          "close.json": JSON.stringify({ keywords: ["x"], tags: "cross" }),
+          "star.json": "{}",
+        }),
+      ),
+    ).rejects.toThrow(
+      /"keywords" isn't a field[\s\S]*"tags" is a list of words[\s\S]*star\.json: no icon star\.svg/,
+    );
+  });
+});
+
+describe("the aliases of a set (ADR 0049)", () => {
+  const close = svg('<path d="M6 6l12 12"/>');
+
+  it("exports each alias with the icon it names, and keeps them in the manifest", async () => {
+    const dir = folder({
+      "close.svg": close,
+      "close.json": JSON.stringify({
+        aliases: [
+          { name: "cross", deprecated: true, deprecationReason: "alias.name" },
+          { name: "x" },
+        ],
+      }),
+    });
+    const icons = await readIconSet(dir);
+    expect(iconManifestOf(icons).icons[0]!.aliases).toEqual([
+      { name: "cross", deprecated: true, deprecationReason: "alias.name" },
+      { name: "x" },
+    ]);
+    const out = join(dir, "out");
+    await writeIconSet(icons, { out, exportName: "acmeIcons" });
+    const index = readFileSync(join(out, "index.js"), "utf8");
+    expect(index).toContain(
+      'export const acmeIconAliases = Object.freeze({\n  cross: "close",\n  x: "close",\n});',
+    );
+    expect(readFileSync(join(out, "index.d.ts"), "utf8")).toContain(
+      'export type IconAlias = "cross" | "x";',
+    );
+  });
+
+  it("refuses an alias that isn't a name, or a reason without a deprecation", async () => {
+    await expect(
+      readIconSet(
+        folder({
+          "close.svg": close,
+          "close.json": JSON.stringify({ aliases: [{ name: "Bad Name" }] }),
+          "star.svg": close,
+          "star.json": JSON.stringify({
+            aliases: [{ name: "x", deprecationReason: "alias.name" }],
+          }),
+        }),
+      ),
+    ).rejects.toThrow(
+      /alias "Bad Name" isn't an icon name[\s\S]*"deprecationReason" of alias "x" goes with "deprecated"/,
+    );
+  });
+
+  it("refuses an alias that names an icon, or another icon's alias", async () => {
+    await expect(
+      readIconSet(
+        folder({
+          "close.svg": close,
+          "close.json": JSON.stringify({ aliases: [{ name: "star" }, { name: "x" }] }),
+          "star.svg": close,
+          "star.json": JSON.stringify({ aliases: [{ name: "x" }] }),
+        }),
+      ),
+    ).rejects.toThrow(
+      /alias "star" is the name of an icon[\s\S]*alias "x" is already an alias of close/,
+    );
   });
 });

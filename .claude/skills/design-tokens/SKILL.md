@@ -27,6 +27,8 @@ Ne mettez jamais de valeur littérale hors des primitives. Ne faites jamais poin
 - **Couleur de palette :** gardez l'échelle de clarté de 100 à 900. Un pas 600 porte un texte blanc, un pas 300 un texte presque noir.
 - **Token sémantique de couleur :** écrivez-le dans `theme.light.tokens.json` et dans `theme.dark.tokens.json`, avec un pas par thème. Le build échoue si les deux thèmes diffèrent.
 - **Token sémantique sans thème :** écrivez-le dans `semantic.tokens.json`. Une durée a aussi sa valeur dans `motion.reduced.tokens.json`.
+- **Style de texte :** un token `typography` du groupe `text`, dans `semantic.tokens.json`. Ses cinq parties (`fontFamily`, `fontSize`, `fontWeight`, `letterSpacing`, `lineHeight`) sont des alias de tokens `font`, jamais des valeurs. `npm run tokens` écrit son raccourci `font` et sa classe `.u-text-…`. Ajoutez son usage, en français, à `docs/reference/styles-de-texte.mdx` (ADR 0051).
+- **Description d'un token sémantique :** une `$description` en anglais, qui dit quand l'utiliser, avec un exemple de composant. Le build échoue sans elle. La commande et le serveur MCP la donnent aux agents (ADR 0042). Une couleur la répète dans ses deux thèmes.
 - **Token de composant :** un alias de token sémantique, avec `$type` et `$description` en anglais. La description documente le composant dans le manifest.
 - Donnez `$type` au groupe quand tous ses tokens ont le même type.
 
@@ -49,20 +51,23 @@ Ne mettez jamais de valeur littérale hors des primitives. Ne faites jamais poin
 ## 5. Générez et vérifiez
 
 ```sh
-npm run tokens                         # CSS des deux packages ; échoue si une règle des niveaux est enfreinte
+npm run tokens                         # CSS des deux packages et manifest de tokens ; échoue si une règle des niveaux est enfreinte
 npm run analyze                        # manifest : tokens de composant, défauts, descriptions
 git add packages
 npm run check                          # tokens:check, api:check, contrat, contraste clair et sombre
 npm run example                        # ACME, construit sur les sources du socle
 ```
 
-- N'éditez jamais un fichier généré : `packages/tokens/css/tokens.css`, les `*.tokens.css` de `packages/components/src/`.
+- N'éditez jamais un fichier généré : `packages/tokens/css/tokens.css`, `packages/tokens/token-manifest.json`, les `*.tokens.css` de `packages/components/src/`.
+- Relisez le diff de `token-manifest.json` : chaque token changé, et chaque contexte qui le change.
 - Un token renommé ou retiré est une rupture pour les marques et pour les plateformes natives : une version majeure de `@unicorne/tokens`. Relisez le diff de `packages/components/custom-elements.json`, et cherchez l'ancien nom dans `examples/` et `docs/`.
-- Une nouvelle paire de couleurs de premier plan et de fond va dans `contrastPairs` (`packages/tokens/testing/contrast.ts`).
+- Une nouvelle paire de couleurs de premier plan et de fond va dans `contrastPairs` (`packages/tokens/testing/contrast.ts`), et dans les `combos` de l'entrée DSDS du premier plan (`packages/tokens/src/semantic/color.dsds.yaml`). Un token cité par un combo a son entrée. Le test de `@unicorne/catalog` vérifie que les deux listes sont les mêmes (ADR 0046).
+- L'usage d'une famille (`spacing`, `font`, `motion`) est une entrée de groupe : `kind: entry` et `metadata.group`, dans `packages/tokens/src/semantic/<famille>.dsds.yaml`. Ses règles valent pour chaque token de la famille. Nommez dans une règle des tokens qui existent : le test de `@unicorne/catalog` le vérifie (ADR 0050).
+- Lancez `npm run dsds` après un changement d'un document `*.dsds.yaml` des tokens.
 
 ## Tokens d'une marque
 
-Une marque range ses fichiers comme le socle : `primitive/`, `semantic/`, `component/<composant>/`. `brandResolver()` (`@unicorne/tokens/terrazzo-plugin`) écrit son resolver : les sets et les modifiers du socle, puis ses fichiers. Sa config Terrazzo passe `brand: "<marque>"` et `layer: "u.tokens.brand"` à `tokensCss()` : la sortie vise `[data-brand="<marque>"]` et se limite à ses fichiers. Le guide est `docs/guides/design-system-de-marque.mdx`.
+Une marque range ses fichiers comme le socle : `primitive/`, `semantic/`, `component/<composant>/`. `brandResolver()` (`@unicorne/tokens/terrazzo-plugin`) écrit son resolver : les sets et les modifiers du socle, puis ses fichiers. Sa config Terrazzo passe `brand: "<marque>"` et `layer: "u.tokens.brand"` à `tokensCss()` : la sortie vise `[data-brand="<marque>"]` et se limite à ses fichiers. `tokenManifest()` écrit son manifest de tokens, avec tous ses tokens et ses valeurs : la marque le publie, ses outils de documentation le lisent. Le guide est `docs/guides/design-system-de-marque.mdx`.
 
 ## Thèmes et zones
 

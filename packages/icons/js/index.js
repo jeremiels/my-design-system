@@ -13,3 +13,5 @@ export const icons = Object.freeze({
   success: () => import("./success.js"),
   warning: () => import("./warning.js"),
 });
+/** Another name → the icon it renders (ADR 0049). */
+export const iconAliases = Object.freeze({});
