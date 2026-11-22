@@ -19,6 +19,7 @@ const packages = [
   "@unicorne/catalog",
   "@unicorne/cli",
   "@unicorne/mcp",
+  "@unicorne/a2ui",
 ];
 const run = (args, cwd = root) => execFileSync("npm", args, { cwd, stdio: "inherit" });
 
@@ -44,7 +45,7 @@ function checkManifests(dir) {
       throw new Error(`${tarball}: its package.json keeps the @unicorne/source condition.`);
     }
   }
-  for (const name of ["tokens", "icons", "components", "catalog", "cli", "mcp"]) {
+  for (const name of ["tokens", "icons", "components", "catalog", "cli", "mcp", "a2ui"]) {
     const dir = join(root, "packages", name);
     if (existsSync(join(dir, ".package.json.packing"))) {
       throw new Error(`packages/${name}: package.json wasn't put back after npm pack.`);

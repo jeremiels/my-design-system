@@ -9,6 +9,8 @@
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "types": ["vite/client"],
     "verbatimModuleSyntax": true,
+    // The A2UI catalog of ACME is a JSON file (src/agent.ts).
+    "resolveJsonModule": true,
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,

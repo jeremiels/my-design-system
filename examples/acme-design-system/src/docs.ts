@@ -18,6 +18,9 @@ import {
 import { loadSocleDocs } from "@unicorne/catalog/socle";
 import { catalog, labels } from "./brand.js";
 
+// Its A2UI catalog (ADR 0052 of the base): `acme a2ui` writes its document.
+export { acmeCatalogId, acmeMappings } from "./a2ui-mappings.js";
+
 /**
  * A file of the package, from src/ or dist/: at its root. Not `new URL(…,
  * import.meta.url)`: Vite would inline the file in the build.

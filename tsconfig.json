@@ -38,6 +38,8 @@
     "packages/catalog/src",
     "packages/cli/src",
     "packages/mcp/src",
+    "packages/a2ui/src",
+    "packages/a2ui/plugins",
     "packages/components/plugins",
     "packages/icons/plugins",
     "packages/tokens/plugins",
