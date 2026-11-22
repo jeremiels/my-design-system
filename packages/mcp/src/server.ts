@@ -60,7 +60,7 @@ export const builtinTools = {
   check_markup: defineTool({
     title: "Check markup",
     description:
-      "Checks the design system's elements in HTML, or in a Vue single-file component: unknown tags, attributes and properties, values outside an attribute's values, unknown events and slots. Call it on the markup you wrote, and fix what it reports.",
+      "Checks the design system's elements in HTML, or in a Vue single-file component: unknown tags, attributes and properties, values outside an attribute's values, unknown events and slots, and the usage rules a tool can check: a missing label or name, an element outside its parent, a child a component doesn't take. Each problem quotes the rule it breaks. Call it on the markup you wrote, and fix what it reports.",
     input: {
       markup: z.string().describe("The HTML, or the whole .vue file."),
       file: z
@@ -93,7 +93,7 @@ export function defaultInstructions(docs: DesignSystemDocs): string {
   return [
     `${docs.name}: ${docs.components.length} web components, as <${docs.prefix}-…> elements, from ${docs.package}.`,
     "Before you write markup with them: list_components to find them, get_component to read each one, its rules and its attributes.",
-    "After: check_markup on what you wrote. Use only documented attributes, values, events and slots.",
+    "After: check_markup on what you wrote, and fix each problem. Use only documented attributes, values, events and slots.",
   ].join("\n");
 }
 

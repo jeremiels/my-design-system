@@ -1,0 +1,77 @@
+# Quand utiliser tabs, et ses règles (DSDS). Son API vit dans custom-elements.json.
+kind: component
+id: tabs
+name: Tabs
+description: Une liste d'onglets, et le panneau de l'onglet choisi.
+metadata:
+  origin:
+    method: authored
+    author: assisted
+  status:
+    status: experimental
+
+sections:
+  - kind: guidelines
+    for: all
+    framing: when-to-use
+    items:
+      - level: must
+        statement: Utilisez `tabs` pour passer d'une vue à l'autre d'un même objet, sans quitter la page.
+        checkedBy: manual
+      - level: must-not
+        statement: N'utilisez pas `tabs` pour aller vers d'autres pages. Utilisez des liens.
+        checkedBy: manual
+      - level: should-not
+        statement: N'utilisez pas d'onglets pour un contenu que l'usager lit d'un bout à l'autre. Utilisez des titres, ou <dsds:details>.
+        alternatives:
+          - to: details
+        checkedBy: manual
+
+  - kind: guidelines
+    for: all
+    title: Onglets
+    items:
+      - level: must
+        statement: "Écrivez les onglets et leurs panneaux en enfants directs : <dsds:tab> et <dsds:tab-panel>."
+        checks:
+          - href: npm:@unicorne/catalog#allowed-children
+            role: lint-rule
+        checkedBy: automated
+        $extensions:
+          dev.unicorne:
+            check:
+              components:
+                - tab
+                - tab-panel
+      - level: must
+        statement: Donnez à chaque `tab` un `value`, et le même à son `tab-panel`.
+        checkedBy: manual
+      - level: should
+        statement: "Gardez des libellés courts : une liste plus large que la page défile."
+        checkedBy: manual
+
+  - kind: guidelines
+    for: all
+    title: Accessibilité
+    items:
+      - level: should
+        statement: Sans titre au-dessus des onglets, donnez à `tabs` un `label`. Il nomme la liste d'onglets.
+        checkedBy: manual
+
+refs:
+  - href: ./tabs.stories.ts
+    rel: demo
+    role: Stories (CSF)
+
+sourceFiles:
+  - platform: web-component
+    file: ./tabs.ts
+
+imports:
+  - platform: web-component
+    code: import "@unicorne/components/define";
+    package: "@unicorne/components"
+
+specs:
+  - href: ../../../custom-elements.json
+    role: Custom Elements Manifest

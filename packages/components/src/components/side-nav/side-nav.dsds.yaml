@@ -1,0 +1,73 @@
+# Quand utiliser side-nav, et ses règles (DSDS). Son API vit dans custom-elements.json.
+kind: component
+id: side-nav
+name: Side nav
+description: Les pages d'une rubrique, à côté du contenu.
+metadata:
+  origin:
+    method: authored
+    author: assisted
+  status:
+    status: experimental
+
+sections:
+  - kind: guidelines
+    for: all
+    framing: when-to-use
+    items:
+      - level: must
+        statement: Utilisez `side-nav` pour les pages d'une rubrique, à côté du contenu.
+        checkedBy: manual
+      - level: should
+        statement: Placez-la dans le slot `navigation` de <dsds:page>.
+        alternatives:
+          - to: page
+        checkedBy: manual
+
+  - kind: guidelines
+    for: all
+    title: Pages
+    items:
+      - level: must
+        statement: Écrivez chaque page dans un <dsds:side-nav-item>, enfant direct de la navigation ou d'un groupe.
+        checks:
+          - href: npm:@unicorne/catalog#allowed-children
+            role: lint-rule
+        checkedBy: automated
+        $extensions:
+          dev.unicorne:
+            check:
+              components:
+                - side-nav-item
+      - level: must
+        statement: "Posez `current` sur l'item de la page courante : ses groupes s'ouvrent."
+        checkedBy: manual
+      - level: should
+        statement: Limitez la navigation à trois niveaux.
+        checkedBy: manual
+
+  - kind: guidelines
+    for: all
+    title: Accessibilité
+    items:
+      - level: must
+        statement: "Traduisez `label` : le nom de la rubrique. Il nomme la navigation."
+        checkedBy: manual
+
+refs:
+  - href: ./side-nav.stories.ts
+    rel: demo
+    role: Stories (CSF)
+
+sourceFiles:
+  - platform: web-component
+    file: ./side-nav.ts
+
+imports:
+  - platform: web-component
+    code: import "@unicorne/components/define";
+    package: "@unicorne/components"
+
+specs:
+  - href: ../../../custom-elements.json
+    role: Custom Elements Manifest

@@ -1,0 +1,97 @@
+# Quand utiliser radio-group, et ses règles (DSDS). Son API vit dans custom-elements.json.
+kind: component
+id: radio-group
+name: Radio group
+description: Un groupe de boutons radio, pour choisir une option parmi quelques-unes.
+metadata:
+  origin:
+    method: authored
+    author: assisted
+  status:
+    status: experimental
+
+sections:
+  - kind: guidelines
+    for: all
+    framing: when-to-use
+    items:
+      - level: must
+        statement: Utilisez `radio-group` pour choisir une option parmi quelques-unes, toutes visibles.
+        checkedBy: manual
+      - level: should
+        statement: Au-delà de cinq ou six options, utilisez <dsds:select>.
+        alternatives:
+          - to: select
+        checkedBy: manual
+      - level: should
+        statement: Pour un choix oui ou non, utilisez <dsds:checkbox>.
+        alternatives:
+          - to: checkbox
+        checkedBy: manual
+
+  - kind: guidelines
+    for: all
+    title: Options
+    items:
+      - level: must
+        statement: Écrivez chaque option dans un <dsds:radio>, enfant direct du groupe.
+        checks:
+          - href: npm:@unicorne/catalog#allowed-children
+            role: lint-rule
+        checkedBy: automated
+        $extensions:
+          dev.unicorne:
+            check:
+              components:
+                - radio
+      - level: should
+        statement: Donnez une valeur par défaut avec `value`, sauf quand l'usager doit choisir lui-même.
+        checkedBy: manual
+
+  - kind: guidelines
+    for: all
+    title: Accessibilité
+    items:
+      - level: must
+        statement: "Donnez au groupe un `label` : il pose la question, et nomme le groupe."
+        checks:
+          - href: npm:@unicorne/catalog#required-attribute
+            role: lint-rule
+        checkedBy: automated
+        $extensions:
+          dev.unicorne:
+            check:
+              attributes:
+                - label
+      - level: should
+        statement: Écrivez dans `hint` le format attendu, et dans `error-message` comment corriger l'erreur.
+        checkedBy: manual
+      - level: must-not
+        statement: "N'enveloppez pas le champ dans un `<label>` : il rend son propre libellé."
+        checks:
+          - href: npm:@unicorne/catalog#forbidden-ancestor
+            role: lint-rule
+        checkedBy: automated
+        $extensions:
+          dev.unicorne:
+            check:
+              elements:
+                - label
+
+refs:
+  - href: ./radio-group.stories.ts
+    rel: demo
+    role: Stories (CSF)
+
+sourceFiles:
+  - platform: web-component
+    file: ./radio-group.ts
+
+imports:
+  - platform: web-component
+    code: import "@unicorne/components/define";
+    package: "@unicorne/components"
+
+specs:
+  - href: ../../../custom-elements.json
+    role: Custom Elements Manifest

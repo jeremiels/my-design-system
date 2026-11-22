@@ -1,0 +1,66 @@
+# Quand utiliser side-nav-item, et ses règles (DSDS). Son API vit dans custom-elements.json.
+kind: component
+id: side-nav-item
+name: Side nav item
+description: Une page d'une navigation latérale, ou un groupe de pages.
+metadata:
+  origin:
+    method: authored
+    author: assisted
+  status:
+    status: experimental
+
+sections:
+  - kind: guidelines
+    for: all
+    framing: when-to-use
+    items:
+      - level: must
+        statement: Utilisez `side-nav-item` comme une page de <dsds:side-nav>, son enfant direct ou celui d'un groupe.
+        checks:
+          - href: npm:@unicorne/catalog#required-parent
+            role: lint-rule
+        checkedBy: automated
+        $extensions:
+          dev.unicorne:
+            check:
+              components:
+                - side-nav
+                - side-nav-item
+
+  - kind: guidelines
+    for: all
+    title: Pages
+    items:
+      - level: must
+        statement: "Donnez à chaque item un `label` : le nom de sa page, ou de son groupe."
+        checks:
+          - href: npm:@unicorne/catalog#required-attribute
+            role: lint-rule
+        checkedBy: automated
+        $extensions:
+          dev.unicorne:
+            check:
+              attributes:
+                - label
+      - level: must
+        statement: "Donnez un `href` à une page. Un groupe n'en a pas : son bouton l'ouvre."
+        checkedBy: manual
+
+refs:
+  - href: ../side-nav/side-nav.stories.ts
+    rel: demo
+    role: Stories (CSF)
+
+sourceFiles:
+  - platform: web-component
+    file: ./side-nav-item.ts
+
+imports:
+  - platform: web-component
+    code: import "@unicorne/components/define";
+    package: "@unicorne/components"
+
+specs:
+  - href: ../../../custom-elements.json
+    role: Custom Elements Manifest

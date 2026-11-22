@@ -27,10 +27,14 @@ Lancez `npx acme check src`. La commande lit les fichiers `.html` et `.vue` du d
 
 ```
 src/Requests.vue:12:20 error variant="big" on <acme-button>: expected "primary", "secondary", … (invalid-value)
-1 error, 0 warnings.
+src/Requests.vue:18:5 error <acme-text-field> needs "label". (required-attribute)
+  Donnez au champ un `label` : il s'affiche, et nomme le contrôle.
+2 errors, 0 warnings.
 ```
 
 - Une balise inconnue, un attribut inconnu ou une valeur hors de celles d'un attribut sont des erreurs. Un événement ou un slot inconnu est un avertissement.
+- La commande vérifie aussi les règles d'usage que le markup montre : un libellé manquant, un composant hors de son parent, un enfant qu'un composant ne prend pas. Elle cite la règle sous le problème.
+- Une règle obligatoire donne une erreur, une règle recommandée un avertissement. `show` marque chaque règle vérifiée.
 - La commande lit les liaisons de Vue (`:variant`, `@u-sort`, `v-model`) et de Lit (`.options`, `?disabled`).
 - Elle sort avec le code 1 sur une erreur. Ajoutez-la au test de l'application, ou à l'intégration continue.
 
@@ -110,6 +114,22 @@ process.exitCode = await createCli({ name: "acme", docs: loadAcmeDocs }).run(pro
 
 - `commands` de `createCli()` et `tools` de `createMcpServer()` ajoutent une commande ou un outil, en remplacent un par son nom, ou en retirent un avec `null`.
 - `rules` de `extendDocs()` ajoute des règles à `check`, `withoutRules` en retire.
+- Une règle d'un document DSDS de la marque active une règle de `check`, sans code. La carte d'ACME exige son `heading` :
+
+```yaml
+- level: must
+  statement: "Donnez à la carte un `heading` : son titre, qui nomme l'élément."
+  checks:
+    - href: npm:@unicorne/catalog#required-attribute
+      role: lint-rule
+  checkedBy: automated
+  $extensions:
+    dev.unicorne:
+      check:
+        attributes: [heading]
+```
+
+- Les règles et leurs options sont dans l'[ADR 0040](?path=/docs/documentation-adr-0040-règles-d-usage-vérifiées--docs).
 - La documentation d'une marque ne nomme pas le socle. Vérifiez-le dans son test : le `smoke.mjs` d'ACME cherche le socle, ses ADR et ses classes dans chaque composant.
 - Écrivez le document DSDS de chaque composant propre à la marque, et listez-les dans son `design-system.dsds.yaml`.
 

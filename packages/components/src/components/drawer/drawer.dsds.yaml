@@ -24,6 +24,25 @@ sections:
           - to: modal
         checkedBy: manual
 
+  - kind: guidelines
+    for: all
+    title: Accessibilité
+    items:
+      - level: must
+        statement: Donnez au tiroir un `label`. Il s'affiche en titre, et nomme la boîte de dialogue.
+        checks:
+          - href: npm:@unicorne/catalog#required-attribute
+            role: lint-rule
+        checkedBy: automated
+        $extensions:
+          dev.unicorne:
+            check:
+              attributes:
+                - label
+      - level: must
+        statement: Traduisez `close-label`. Il nomme le bouton de fermeture, qui ne montre qu'une icône.
+        checkedBy: manual
+
 refs:
   - href: ./drawer.stories.ts
     rel: demo

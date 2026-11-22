@@ -57,8 +57,12 @@ describe("createMcpServer()", () => {
     expect(
       await call("check_markup", { markup: `<acme-button variant="big"></acme-button>` }),
     ).toContain("(invalid-value)");
-    expect(await call("check_markup", { markup: `<acme-button></acme-button>` })).toBe(
+    expect(await call("check_markup", { markup: `<acme-button>Send</acme-button>` })).toBe(
       "No problem found.",
+    );
+    // A usage rule of the DSDS documents, quoted under the problem.
+    expect(await call("check_markup", { markup: `<acme-button></acme-button>` })).toContain(
+      "(accessible-name)\n  Donnez au bouton un libellé",
     );
   });
 

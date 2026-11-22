@@ -1,0 +1,59 @@
+# Quand utiliser header, et ses règles (DSDS). Son API vit dans custom-elements.json.
+kind: component
+id: header
+name: Header
+description: "L'en-tête d'une page : le service, ses accès rapides et sa navigation."
+metadata:
+  origin:
+    method: authored
+    author: assisted
+  status:
+    status: experimental
+
+sections:
+  - kind: guidelines
+    for: all
+    framing: when-to-use
+    items:
+      - level: must
+        statement: Utilisez un seul `header` par page, dans le slot `header` de <dsds:page>.
+        alternatives:
+          - to: page
+        checkedBy: manual
+
+  - kind: guidelines
+    for: all
+    title: Contenu
+    items:
+      - level: should
+        statement: "Donnez `service-name` et `href` : le nom du service mène à son accueil."
+        checks:
+          - href: npm:@unicorne/catalog#required-attribute
+            role: lint-rule
+        checkedBy: automated
+        $extensions:
+          dev.unicorne:
+            check:
+              attributes:
+                - service-name
+      - level: should
+        statement: Placez la navigation principale dans le slot `navigation`, et les accès rapides dans le slot `actions`.
+        checkedBy: manual
+
+refs:
+  - href: ./header.stories.ts
+    rel: demo
+    role: Stories (CSF)
+
+sourceFiles:
+  - platform: web-component
+    file: ./header.ts
+
+imports:
+  - platform: web-component
+    code: import "@unicorne/components/define";
+    package: "@unicorne/components"
+
+specs:
+  - href: ../../../custom-elements.json
+    role: Custom Elements Manifest

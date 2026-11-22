@@ -1,0 +1,66 @@
+# Quand utiliser badge, et ses règles (DSDS). Son API vit dans custom-elements.json.
+kind: component
+id: badge
+name: Badge
+description: Un statut court, en texte coloré.
+metadata:
+  origin:
+    method: authored
+    author: assisted
+  status:
+    status: experimental
+
+sections:
+  - kind: guidelines
+    for: all
+    framing: when-to-use
+    items:
+      - level: must
+        statement: "Utilisez `badge` pour un statut court à côté de ce qu'il qualifie : « Envoyée », « Brouillon »."
+        checkedBy: manual
+      - level: should
+        statement: Pour un mot-clé, un filtre ou une valeur que l'usager retire, utilisez <dsds:tag>.
+        alternatives:
+          - to: tag
+        checkedBy: manual
+      - level: must-not
+        statement: "Ne faites pas d'un badge un bouton ou un lien : il n'a aucune interaction."
+        checkedBy: manual
+
+  - kind: guidelines
+    for: all
+    title: Accessibilité
+    items:
+      - level: must
+        statement: Écrivez le statut dans le badge. Sa couleur le répète, elle ne le dit pas seule.
+        checks:
+          - href: npm:@unicorne/catalog#accessible-name
+            role: lint-rule
+        checkedBy: automated
+        $extensions:
+          dev.unicorne:
+            check: {}
+      - level: should
+        statement: Choisissez `variant` pour l'intention du statut, pas pour sa couleur.
+        checkedBy: manual
+      - level: should
+        statement: Mettez plusieurs badges à la suite dans une liste, `<ul>`.
+        checkedBy: manual
+
+refs:
+  - href: ./badge.stories.ts
+    rel: demo
+    role: Stories (CSF)
+
+sourceFiles:
+  - platform: web-component
+    file: ./badge.ts
+
+imports:
+  - platform: web-component
+    code: import "@unicorne/components/define";
+    package: "@unicorne/components"
+
+specs:
+  - href: ../../../custom-elements.json
+    role: Custom Elements Manifest

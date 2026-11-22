@@ -1,0 +1,54 @@
+# Quand utiliser table-cell, et ses règles (DSDS). Son API vit dans custom-elements.json.
+kind: component
+id: table-cell
+name: Table cell
+description: Une cellule d'une ligne de tableau.
+metadata:
+  origin:
+    method: authored
+    author: assisted
+  status:
+    status: experimental
+
+sections:
+  - kind: guidelines
+    for: all
+    framing: when-to-use
+    items:
+      - level: must
+        statement: Utilisez `table-cell` comme une cellule de <dsds:table-row>, son enfant direct.
+        checks:
+          - href: npm:@unicorne/catalog#required-parent
+            role: lint-rule
+        checkedBy: automated
+        $extensions:
+          dev.unicorne:
+            check:
+              components:
+                - table-row
+
+  - kind: guidelines
+    for: all
+    title: Contenu
+    items:
+      - level: should
+        statement: Alignez les nombres à la fin avec `align="end"`, et leur en-tête aussi.
+        checkedBy: manual
+
+refs:
+  - href: ../table/table.stories.ts
+    rel: demo
+    role: Stories (CSF)
+
+sourceFiles:
+  - platform: web-component
+    file: ./table-cell.ts
+
+imports:
+  - platform: web-component
+    code: import "@unicorne/components/define";
+    package: "@unicorne/components"
+
+specs:
+  - href: ../../../custom-elements.json
+    role: Custom Elements Manifest

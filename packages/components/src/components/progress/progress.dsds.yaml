@@ -1,0 +1,67 @@
+# Quand utiliser progress, et ses règles (DSDS). Son API vit dans custom-elements.json.
+kind: component
+id: progress
+name: Progress
+description: Une barre qui montre l'avancement d'une tâche.
+metadata:
+  origin:
+    method: authored
+    author: assisted
+  status:
+    status: experimental
+
+sections:
+  - kind: guidelines
+    for: all
+    framing: when-to-use
+    items:
+      - level: must
+        statement: "Utilisez `progress` pour l'avancement d'une tâche dont on connaît la part faite : l'envoi d'un fichier."
+        checkedBy: manual
+      - level: should
+        statement: Pour une attente courte, de durée inconnue, près d'un contrôle, utilisez <dsds:spinner>.
+        alternatives:
+          - to: spinner
+        checkedBy: manual
+
+  - kind: guidelines
+    for: all
+    title: Accessibilité
+    items:
+      - level: should
+        statement: "Donnez à la barre un `label` : ce qui avance. Il s'affiche au-dessus d'elle, et la nomme."
+        checks:
+          - href: npm:@unicorne/catalog#required-attribute
+            role: lint-rule
+        checkedBy: automated
+        $extensions:
+          dev.unicorne:
+            check:
+              attributes:
+                - label
+      - level: must
+        statement: Annoncez la fin de la tâche dans une région live, une <dsds:alert> par exemple.
+        alternatives:
+          - to: alert
+        checkedBy: manual
+      - level: must
+        statement: Traduisez `loading-label`. Il nomme la barre sans `label`.
+        checkedBy: manual
+
+refs:
+  - href: ./progress.stories.ts
+    rel: demo
+    role: Stories (CSF)
+
+sourceFiles:
+  - platform: web-component
+    file: ./progress.ts
+
+imports:
+  - platform: web-component
+    code: import "@unicorne/components/define";
+    package: "@unicorne/components"
+
+specs:
+  - href: ../../../custom-elements.json
+    role: Custom Elements Manifest

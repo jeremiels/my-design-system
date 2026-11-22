@@ -1,0 +1,54 @@
+# Quand utiliser calendar, et ses règles (DSDS). Son API vit dans custom-elements.json.
+kind: component
+id: calendar
+name: Calendar
+description: Les jours d'un mois, pour choisir une date dans la page.
+metadata:
+  origin:
+    method: authored
+    author: assisted
+  status:
+    status: experimental
+
+sections:
+  - kind: guidelines
+    for: all
+    framing: when-to-use
+    items:
+      - level: must
+        statement: Utilisez `calendar` pour montrer un mois dans la page, et y choisir une date ou une période.
+        checkedBy: manual
+      - level: should
+        statement: "Dans un formulaire, utilisez <dsds:date-picker> : il envoie sa valeur avec le formulaire."
+        alternatives:
+          - to: date-picker
+        checkedBy: manual
+
+  - kind: guidelines
+    for: all
+    title: Accessibilité
+    items:
+      - level: must
+        statement: Traduisez `previous-month-label` et `next-month-label`. Ils nomment les boutons du mois précédent et suivant.
+        checkedBy: manual
+      - level: must
+        statement: "Donnez sa langue à la page avec `lang` : les noms des mois, des jours et le premier jour de la semaine la suivent."
+        checkedBy: manual
+
+refs:
+  - href: ./calendar.stories.ts
+    rel: demo
+    role: Stories (CSF)
+
+sourceFiles:
+  - platform: web-component
+    file: ./calendar.ts
+
+imports:
+  - platform: web-component
+    code: import "@unicorne/components/define";
+    package: "@unicorne/components"
+
+specs:
+  - href: ../../../custom-elements.json
+    role: Custom Elements Manifest

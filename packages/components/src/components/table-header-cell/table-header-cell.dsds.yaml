@@ -1,0 +1,66 @@
+# Quand utiliser table-header-cell, et ses règles (DSDS). Son API vit dans custom-elements.json.
+kind: component
+id: table-header-cell
+name: Table header cell
+description: Une cellule d'en-tête d'une ligne de tableau.
+metadata:
+  origin:
+    method: authored
+    author: assisted
+  status:
+    status: experimental
+
+sections:
+  - kind: guidelines
+    for: all
+    framing: when-to-use
+    items:
+      - level: must
+        statement: Utilisez `table-header-cell` comme un en-tête de <dsds:table-row>, son enfant direct.
+        checks:
+          - href: npm:@unicorne/catalog#required-parent
+            role: lint-rule
+        checkedBy: automated
+        $extensions:
+          dev.unicorne:
+            check:
+              components:
+                - table-row
+
+  - kind: guidelines
+    for: all
+    title: En-têtes
+    items:
+      - level: must
+        statement: Écrivez le nom de la colonne, ou de la ligne, dans la cellule.
+        checks:
+          - href: npm:@unicorne/catalog#accessible-name
+            role: lint-rule
+        checkedBy: automated
+        $extensions:
+          dev.unicorne:
+            check: {}
+      - level: must
+        statement: Marquez l'en-tête de chaque ligne avec `scope="row"`. Il nomme la case de la ligne.
+        checkedBy: manual
+      - level: may
+        statement: Donnez `sort-key` aux colonnes que l'usager trie. Le tableau émet `u-sort`.
+        checkedBy: manual
+
+refs:
+  - href: ../table/table.stories.ts
+    rel: demo
+    role: Stories (CSF)
+
+sourceFiles:
+  - platform: web-component
+    file: ./table-header-cell.ts
+
+imports:
+  - platform: web-component
+    code: import "@unicorne/components/define";
+    package: "@unicorne/components"
+
+specs:
+  - href: ../../../custom-elements.json
+    role: Custom Elements Manifest

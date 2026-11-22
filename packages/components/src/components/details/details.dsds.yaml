@@ -1,0 +1,65 @@
+# Quand utiliser details, et ses règles (DSDS). Son API vit dans custom-elements.json.
+kind: component
+id: details
+name: Details
+description: Un résumé qui montre ou cache son contenu.
+metadata:
+  origin:
+    method: authored
+    author: assisted
+  status:
+    status: experimental
+
+sections:
+  - kind: guidelines
+    for: all
+    framing: when-to-use
+    items:
+      - level: must
+        statement: "Utilisez `details` pour montrer à la demande un contenu secondaire : une aide, des précisions."
+        checkedBy: manual
+      - level: must-not
+        statement: Ne cachez pas dans `details` ce que tout usager doit lire.
+        checkedBy: manual
+      - level: should
+        statement: Pour des vues de même niveau d'un même objet, utilisez <dsds:tabs>.
+        alternatives:
+          - to: tabs
+        checkedBy: manual
+      - level: may
+        statement: "Donnez le même `name` à plusieurs `details` pour un accordéon : un seul reste ouvert."
+        checkedBy: manual
+
+  - kind: guidelines
+    for: all
+    title: Accessibilité
+    items:
+      - level: must
+        statement: "Donnez à `details` un `label` : le résumé, qui dit de quoi parle le contenu."
+        checks:
+          - href: npm:@unicorne/catalog#required-attribute
+            role: lint-rule
+        checkedBy: automated
+        $extensions:
+          dev.unicorne:
+            check:
+              attributes:
+                - label
+
+refs:
+  - href: ./details.stories.ts
+    rel: demo
+    role: Stories (CSF)
+
+sourceFiles:
+  - platform: web-component
+    file: ./details.ts
+
+imports:
+  - platform: web-component
+    code: import "@unicorne/components/define";
+    package: "@unicorne/components"
+
+specs:
+  - href: ../../../custom-elements.json
+    role: Custom Elements Manifest

@@ -34,8 +34,22 @@ sections:
     title: Accessibilité
     items:
       - level: must
+        statement: "Donnez au lien un `href` : sans lui, il ne mène nulle part."
+        checks:
+          - href: npm:@unicorne/catalog#required-attribute
+            role: lint-rule
+        checkedBy: automated
+        $extensions:
+          dev.unicorne:
+            check:
+              attributes:
+                - href
+      - level: must
         statement: Écrivez un texte qui dit où va le lien, compris hors de sa phrase. Évitez « cliquez ici ».
-        checkedBy: manual
+        checks:
+          - href: npm:@unicorne/catalog#accessible-name
+            role: lint-rule
+        checkedBy: assisted
       - level: should-not
         statement: N'ouvrez pas de nouvelle fenêtre, sauf si l'usager y perdrait sa saisie.
         checkedBy: manual

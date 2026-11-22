@@ -1,0 +1,54 @@
+# Quand utiliser tab-panel, et ses règles (DSDS). Son API vit dans custom-elements.json.
+kind: component
+id: tab-panel
+name: Tab panel
+description: Le panneau d'un onglet.
+metadata:
+  origin:
+    method: authored
+    author: assisted
+  status:
+    status: experimental
+
+sections:
+  - kind: guidelines
+    for: all
+    framing: when-to-use
+    items:
+      - level: must
+        statement: Utilisez `tab-panel` pour le contenu d'un onglet de <dsds:tabs>, son enfant direct.
+        checks:
+          - href: npm:@unicorne/catalog#required-parent
+            role: lint-rule
+        checkedBy: automated
+        $extensions:
+          dev.unicorne:
+            check:
+              components:
+                - tabs
+
+  - kind: guidelines
+    for: all
+    title: Contenu
+    items:
+      - level: must
+        statement: Donnez au panneau le `value` de son onglet.
+        checkedBy: manual
+
+refs:
+  - href: ../tabs/tabs.stories.ts
+    rel: demo
+    role: Stories (CSF)
+
+sourceFiles:
+  - platform: web-component
+    file: ./tab-panel.ts
+
+imports:
+  - platform: web-component
+    code: import "@unicorne/components/define";
+    package: "@unicorne/components"
+
+specs:
+  - href: ../../../custom-elements.json
+    role: Custom Elements Manifest

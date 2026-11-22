@@ -1,0 +1,90 @@
+# Quand utiliser date-picker, et ses règles (DSDS). Son API vit dans custom-elements.json.
+kind: component
+id: date-picker
+name: Date picker
+description: Un champ qui choisit une date, ou une période, dans un calendrier.
+metadata:
+  origin:
+    method: authored
+    author: assisted
+  status:
+    status: experimental
+
+sections:
+  - kind: guidelines
+    for: all
+    framing: when-to-use
+    items:
+      - level: must
+        statement: "Utilisez `date-picker` pour choisir une date proche dans un calendrier : un rendez-vous, une échéance."
+        checkedBy: manual
+      - level: should
+        statement: Pour une date que l'usager connaît et tape, une date de naissance, utilisez <dsds:date-field>.
+        alternatives:
+          - to: date-field
+        checkedBy: manual
+      - level: may
+        statement: "Pour une période, posez `range` : la valeur va d'un premier à un dernier jour."
+        checkedBy: manual
+
+  - kind: guidelines
+    for: all
+    title: Calendrier
+    items:
+      - level: should
+        statement: Bornez les dates possibles avec `min` et `max`, au format `YYYY-MM-DD`.
+        checkedBy: manual
+      - level: must
+        statement: Traduisez `previous-month-label` et `next-month-label`. Ils nomment les boutons du calendrier.
+        checkedBy: manual
+
+  - kind: guidelines
+    for: all
+    title: Accessibilité
+    items:
+      - level: must
+        statement: "Donnez au champ un `label` : il s'affiche, et nomme le contrôle."
+        checks:
+          - href: npm:@unicorne/catalog#required-attribute
+            role: lint-rule
+        checkedBy: automated
+        $extensions:
+          dev.unicorne:
+            check:
+              attributes:
+                - label
+      - level: should
+        statement: Écrivez dans `hint` le format attendu, et dans `error-message` comment corriger l'erreur.
+        checkedBy: manual
+      - level: may
+        statement: Masquez le libellé avec `label-hidden` quand la mise en page dit le but du champ. Il nomme toujours le contrôle.
+        checkedBy: manual
+      - level: must-not
+        statement: "N'enveloppez pas le champ dans un `<label>` : il rend son propre libellé."
+        checks:
+          - href: npm:@unicorne/catalog#forbidden-ancestor
+            role: lint-rule
+        checkedBy: automated
+        $extensions:
+          dev.unicorne:
+            check:
+              elements:
+                - label
+
+refs:
+  - href: ./date-picker.stories.ts
+    rel: demo
+    role: Stories (CSF)
+
+sourceFiles:
+  - platform: web-component
+    file: ./date-picker.ts
+
+imports:
+  - platform: web-component
+    code: import "@unicorne/components/define";
+    package: "@unicorne/components"
+
+specs:
+  - href: ../../../custom-elements.json
+    role: Custom Elements Manifest

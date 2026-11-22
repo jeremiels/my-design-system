@@ -1,4 +1,4 @@
-# Quand utiliser card (DSDS). Son API vit dans custom-elements.json.
+# Quand utiliser card, et ses règles (DSDS). Son API vit dans custom-elements.json.
 kind: component
 id: card
 name: Card
@@ -26,6 +26,17 @@ sections:
     for: all
     title: Contenu
     items:
+      - level: must
+        statement: "Donnez à la carte un `heading` : son titre, qui nomme l'élément."
+        checks:
+          - href: npm:@unicorne/catalog#required-attribute
+            role: lint-rule
+        checkedBy: automated
+        $extensions:
+          dev.unicorne:
+            check:
+              attributes:
+                - heading
       - level: should
         statement: Donnez à la carte une seule action, celle qui mène à l'élément.
         checkedBy: manual

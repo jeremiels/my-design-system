@@ -1,0 +1,83 @@
+# Quand utiliser menu, et ses règles (DSDS). Son API vit dans custom-elements.json.
+kind: component
+id: menu
+name: Menu
+description: Un bouton qui ouvre une liste d'actions.
+metadata:
+  origin:
+    method: authored
+    author: assisted
+  status:
+    status: experimental
+
+sections:
+  - kind: guidelines
+    for: all
+    framing: when-to-use
+    items:
+      - level: must
+        statement: Utilisez `menu` pour une liste d'actions sur un objet, derrière un bouton.
+        checkedBy: manual
+      - level: must-not
+        statement: N'utilisez pas `menu` pour aller vers d'autres pages. Utilisez des liens, ou <dsds:side-nav>.
+        alternatives:
+          - to: side-nav
+        checkedBy: manual
+      - level: should
+        statement: Pour choisir une valeur d'un formulaire, utilisez <dsds:select>.
+        alternatives:
+          - to: select
+        checkedBy: manual
+
+  - kind: guidelines
+    for: all
+    title: Actions
+    items:
+      - level: must
+        statement: Écrivez chaque action dans un <dsds:menu-item>, enfant direct du menu.
+        checks:
+          - href: npm:@unicorne/catalog#allowed-children
+            role: lint-rule
+        checkedBy: automated
+        $extensions:
+          dev.unicorne:
+            check:
+              components:
+                - menu-item
+      - level: should
+        statement: Limitez le menu à une dizaine d'actions, groupées par leur usage.
+        checkedBy: manual
+
+  - kind: guidelines
+    for: all
+    title: Accessibilité
+    items:
+      - level: must
+        statement: "Donnez au menu un `label` : il nomme le bouton et la liste d'actions."
+        checks:
+          - href: npm:@unicorne/catalog#required-attribute
+            role: lint-rule
+        checkedBy: automated
+        $extensions:
+          dev.unicorne:
+            check:
+              attributes:
+                - label
+
+refs:
+  - href: ./menu.stories.ts
+    rel: demo
+    role: Stories (CSF)
+
+sourceFiles:
+  - platform: web-component
+    file: ./menu.ts
+
+imports:
+  - platform: web-component
+    code: import "@unicorne/components/define";
+    package: "@unicorne/components"
+
+specs:
+  - href: ../../../custom-elements.json
+    role: Custom Elements Manifest

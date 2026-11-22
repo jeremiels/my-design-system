@@ -56,7 +56,15 @@ sections:
     items:
       - level: must
         statement: Donnez au tableau un `label`. Il le nomme, et s'affiche en légende.
-        checkedBy: manual
+        checks:
+          - href: npm:@unicorne/catalog#required-attribute
+            role: lint-rule
+        checkedBy: automated
+        $extensions:
+          dev.unicorne:
+            check:
+              attributes:
+                - label
       - level: must
         statement: Marquez l'en-tête de chaque ligne avec `scope="row"`. Il nomme la case de la ligne.
         checkedBy: manual

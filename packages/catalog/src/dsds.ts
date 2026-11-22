@@ -1,7 +1,7 @@
 import { readFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { parse } from "yaml";
-import type { Guideline, GuidelineLevel } from "./model.ts";
+import type { Guideline, GuidelineCheck, GuidelineLevel } from "./model.ts";
 
 /** What the DSDS documents of a design system say of one of its components. */
 export interface ComponentUsage {
@@ -18,13 +18,14 @@ export const EXTENSIONS_NAMESPACE = "dev.unicorne";
 
 // The few shapes of a DSDS document this module reads.
 interface Extensions {
-  [namespace: string]: { audience?: string } | undefined;
+  [namespace: string]: { audience?: string; check?: Record<string, unknown> } | undefined;
 }
 interface DsdsItem {
   level?: string;
   statement?: string;
   alternatives?: { to?: string }[];
   checkedBy?: string;
+  checks?: ({ href?: string; role?: string } | string)[];
   $extensions?: Extensions;
 }
 interface DsdsSection {
@@ -55,6 +56,24 @@ const plain = (statement: string) => statement.replace(/<dsds:([\w-]+)>/g, "`$1`
 const forContributors = (extensions: Extensions | undefined) =>
   extensions?.[EXTENSIONS_NAMESPACE]?.audience === "contributors";
 
+/**
+ * The rule of `check` an item turns on: its `checks` pointer with
+ * `role: lint-rule`, whose fragment is the id of the rule, and the options
+ * of its extensions.
+ */
+function checkOf(item: DsdsItem): GuidelineCheck | undefined {
+  for (const pointer of item.checks ?? []) {
+    if (typeof pointer === "string" || pointer.role !== "lint-rule" || !pointer.href) {
+      continue;
+    }
+    const rule = pointer.href.split("#")[1];
+    if (rule) {
+      return { rule, options: item.$extensions?.[EXTENSIONS_NAMESPACE]?.check ?? {} };
+    }
+  }
+  return undefined;
+}
+
 /** The usage of the component entries of a document, merged into `usage`. */
 function collect(document: DsdsEntry, usage: Map<string, ComponentUsage>): void {
   if (document.kind !== "component" || !document.id) {
@@ -69,6 +88,7 @@ function collect(document: DsdsEntry, usage: Map<string, ComponentUsage>): void 
       if (!item.statement || !item.level || !LEVELS.has(item.level)) {
         continue;
       }
+      const check = checkOf(item);
       guidelines.push({
         level: item.level as GuidelineLevel,
         statement: plain(item.statement),
@@ -81,6 +101,7 @@ function collect(document: DsdsEntry, usage: Map<string, ComponentUsage>): void 
             : "users",
         alternatives: (item.alternatives ?? []).flatMap(({ to }) => (to ? [to] : [])),
         ...(item.checkedBy ? { checkedBy: item.checkedBy } : {}),
+        ...(check ? { check } : {}),
       });
     }
   }

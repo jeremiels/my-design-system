@@ -1,0 +1,175 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Documentation/ADR/0040 Règles d'usage vérifiées" />
+
+# ADR 0040 — Règles d'usage vérifiées
+
+**Statut :** accepté · **Date :** 22 novembre 2026
+
+## Contexte
+
+`check` et `check_markup` vérifient le markup contre l'API : balises, attributs, valeurs, événements et slots ([ADR 0039](?path=/docs/documentation-adr-0039-outils-de-documentation--docs)). Les règles d'usage vivent dans les documents DSDS, que seules les personnes et les agents lisent.
+
+- 17 composants sur 56 ont un document DSDS. Pour les autres, un agent ne reçoit que l'API.
+- Certaines règles se lisent dans le markup : une modale sans `label`, un bouton sans nom, un `radio` hors de son `radio-group`, un `u-button` dans un `<a>`.
+- Le schéma DSDS prévoit ce lien. Le champ `checks` d'une règle pointe vers ce qui la vérifie : un test, une règle de lint (`role: lint-rule`) ou une évaluation d'agent.
+
+### Ce qui existe
+
+<table>
+  <thead>
+    <tr>
+      <th>Outil</th>
+      <th>Ce qu'il vérifie</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>`eslint-plugin-primer-react` (GitHub)</td>
+      <td>
+        Des règles écrites par composant : `direct-slot-children` (un sous-composant, enfant direct
+        de son parent), `a11y-tooltip-interactive-trigger` (le déclencheur d'une infobulle est
+        interactif). Dans du JSX.
+      </td>
+    </tr>
+    <tr>
+      <td>axe-core (Deque)</td>
+      <td>
+        `aria-required-parent` et `aria-required-children` : un rôle dans son parent. Sur le DOM
+        rendu, pas sur le markup.
+      </td>
+    </tr>
+    <tr>
+      <td>`lit-analyzer`</td>
+      <td>
+        L'API dans les templates de Lit : `no-unknown-attribute`, `no-unknown-event`,
+        `no-incompatible-type-binding`. Aucune règle d'usage.
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+Primer écrit le code d'une règle par composant. Le socle veut qu'une marque ajoute une règle à son composant sans écrire de code.
+
+## D1 — Un document DSDS par composant
+
+- Chacun des 56 composants a son document, sous-composants compris : `radio`, `tab`, `table-cell`.
+- Un sous-composant a ses propres règles : `check` les applique à ses éléments, et `get_component radio` les donne à un agent.
+- Le test de `@unicorne/catalog` vérifie qu'aucun composant du socle n'en manque.
+
+## D2 — Une règle d'usage active une règle de `check`
+
+- **Option A — Une règle de `check` par composant, dans le code**, comme Primer. La règle et son énoncé vivent dans deux fichiers.
+- **Option B — La règle d'usage nomme une règle générique de `check`, et lui donne ses options.** La règle et son énoncé vivent dans le document DSDS.
+
+**Décision : B.**
+
+```yaml
+- level: must
+  statement: "Donnez au champ un `label` : il s'affiche, et nomme le contrôle."
+  checks:
+    - href: npm:@unicorne/catalog#required-attribute
+      role: lint-rule
+  checkedBy: automated
+  $extensions:
+    dev.unicorne:
+      check:
+        attributes: [label]
+```
+
+- Le fragment du pointeur `lint-rule` nomme la règle. `$extensions` donne ses options, sous l'espace de noms du socle.
+- Une marque active une règle dans ses propres documents, sans code : ACME exige le `heading` de sa carte.
+- Une règle de code reste possible : `rules` de `extendDocs()` ([ADR 0039](?path=/docs/documentation-adr-0039-outils-de-documentation--docs), D5).
+
+## D3 — Cinq règles génériques
+
+<table>
+  <thead>
+    <tr>
+      <th>Règle</th>
+      <th>Options</th>
+      <th>Elle signale</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>`required-attribute`</td>
+      <td>`attributes`</td>
+      <td>Aucun de ces attributs, ou un attribut vide : le `label` d'un champ.</td>
+    </tr>
+    <tr>
+      <td>`accessible-name`</td>
+      <td>`attributes`</td>
+      <td>Ni texte, ni l'un de ces attributs : un bouton qui ne montre qu'une icône.</td>
+    </tr>
+    <tr>
+      <td>`required-parent`</td>
+      <td>`components`</td>
+      <td>Un parent direct qui n'est pas l'un de ces composants : un `radio` dans un `div`.</td>
+    </tr>
+    <tr>
+      <td>`forbidden-ancestor`</td>
+      <td>`elements`, `components`</td>
+      <td>Un ancêtre interdit : un `button` dans un `<a>`, un champ dans un `<label>`.</td>
+    </tr>
+    <tr>
+      <td>`allowed-children`</td>
+      <td>`elements`, `components`</td>
+      <td>
+        Un enfant du slot par défaut hors de cette liste : un `u-button` en déclencheur de
+        `tooltip`.
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+- `elements` nomme des éléments HTML, `components` des composants. Une marque reçoit ses balises : `acme-radio-group`.
+- Un attribut se lit sous toutes ses formes : `label="…"`, `:label` de Vue, `.label` de Lit.
+
+## D4 — Le diagnostic cite la règle
+
+- Une règle `must` ou `must-not` donne une erreur, `should` ou `should-not` un avertissement. Une règle `may` ne vérifie rien.
+- Le diagnostic porte l'énoncé de la règle d'usage, dans la vue de la marque. La commande l'écrit sous la ligne du problème.
+- `show` et `get_component` marquent chaque règle vérifiée : _Checked by check_markup._ Un agent sait que l'outil la contrôle.
+
+```
+src/Form.vue:12:5 error <acme-text-field> needs "label". (required-attribute)
+  Donnez au champ un `label` : il s'affiche, et nomme le contrôle.
+```
+
+## D5 — Pas de faux positif sur un template partiel
+
+Un template de Vue rend une partie de la page. Son parent est dans un autre fichier.
+
+- `required-parent` ignore un élément en haut du markup, et un parent inconnu : `<RequestRow>` peut rendre `<acme-table-row>`.
+- `allowed-children` ignore un enfant inconnu, un composant de Vue.
+- Un `<template>`, de `v-for` ou de Lit, disparaît du DOM : ses enfants comptent comme ceux de son parent.
+- Une balise auto-fermante de Vue (`<acme-icon />`) se ferme. Le HTML ne la ferme pas, et y imbriquerait la suite.
+- `v-bind="attrs"` cache les attributs, `v-html` et `v-text` le texte : la règle ne dit rien.
+
+## Conséquences
+
+- **Documents :** 39 documents DSDS de plus. Douze documents existants activent leurs règles vérifiables : le libellé des champs, de `modal`, de `drawer` et de `table`, le nom des boutons et des liens, les options de `select`.
+- **Catalog :** `usage-rules.ts` et ses cinq règles, dans `defaultRules`. `Guideline.check`, `Diagnostic.guideline`, `MarkupElement.text` et `RuleContext.ancestors`.
+- **Storybook :** la page d'un composant montre _Vérifié par `unicorne check`_ (`required-attribute`).
+- **ACME :** sa carte exige un `heading`. Son test lance `acme check` et `check_markup` sur des erreurs du socle et de la carte.
+- **Application Vue :** ses templates passent les règles sans changement.
+- **Limites :**
+  - `check` lit le markup écrit. Un attribut posé par un script, ou un parent dans un autre fichier, lui échappe.
+  - Une règle vérifie la présence d'un libellé, pas sa qualité. `link` vérifie un texte, et marque sa règle `assisted`.
+  - Une même erreur peut donner deux diagnostics : un `div` dans `radio-group`, et le `radio` qu'il contient.
+
+## Questions ouvertes
+
+- **Valeurs liées :** le `value` de chaque `tab` et de son `tab-panel`, celui de chaque `radio` d'un groupe.
+- **Templates de Lit :** les stories et les composants d'une marque, dans `check` ([ADR 0039](?path=/docs/documentation-adr-0039-outils-de-documentation--docs)).
+- **Évaluation :** mesurer les erreurs d'un agent avec et sans `check_markup`.
+
+## Sources
+
+Consultées le 22 novembre 2026.
+
+- [direct-slot-children](https://github.com/primer/eslint-plugin-primer-react/blob/main/docs/rules/direct-slot-children.md) et [a11y-tooltip-interactive-trigger](https://github.com/primer/eslint-plugin-primer-react/blob/main/docs/rules/a11y-tooltip-interactive-trigger.md) (GitHub, `eslint-plugin-primer-react`).
+- [aria-required-parent](https://dequeuniversity.com/rules/axe/4.9/aria-required-parent) (Deque, axe-core 4.9).
+- [lit-analyzer](https://npmjs.com/package/lit-analyzer) (Rune Mehlsen).
+- [Design System Documentation Schema](https://github.com/somerandomdude/design-system-documentation-schema), version 0.23.1 : `checks`, `role: lint-rule`, règle DSDS-03, `$extensions`.

@@ -16,13 +16,17 @@ const LEVELS: Record<Guideline["level"], string> = {
   "must-not": "MUST NOT",
 };
 
+/** What reports a broken rule, for its audience: the tool of an agent, the command of people. */
+const CHECKER: Record<Audience, string> = { agent: "check_markup", human: "`check`" };
+
 /** A rule, as a line of a list. */
-function ruleLine(rule: Guideline): string {
+function ruleLine(rule: Guideline, audience: Audience): string {
   const instead =
     rule.alternatives.length > 0
       ? ` Instead: ${rule.alternatives.map((name) => `\`${name}\``).join(", ")}.`
       : "";
-  return `- **${LEVELS[rule.level]}** ${rule.statement}${instead}`;
+  const checked = rule.check ? ` _Checked by ${CHECKER[audience]}._` : "";
+  return `- **${LEVELS[rule.level]}** ${rule.statement}${instead}${checked}`;
 }
 
 /** A member, as a line of a list. */
@@ -85,8 +89,15 @@ export function formatComponent(
     "```js",
     docs.importCode(component),
     "```",
-    ...(whenToUse.length > 0 ? ["", "## When to use", "", ...whenToUse.map(ruleLine)] : []),
-    ...[...sections].flatMap(([title, list]) => ["", `## ${title}`, "", ...list.map(ruleLine)]),
+    ...(whenToUse.length > 0
+      ? ["", "## When to use", "", ...whenToUse.map((rule) => ruleLine(rule, audience))]
+      : []),
+    ...[...sections].flatMap(([title, list]) => [
+      "",
+      `## ${title}`,
+      "",
+      ...list.map((rule) => ruleLine(rule, audience)),
+    ]),
     ...membersSection("Attributes", component.attributes),
     ...membersSection("Properties", component.properties),
     ...membersSection("Events", component.events),
@@ -114,13 +125,15 @@ export function formatSearchResults(query: string, results: readonly SearchResul
     .join("\n");
 }
 
-/** Diagnostics, one line each, then a count. */
+/** Diagnostics, one line each, the usage rule they break under them, then a count. */
 export function formatDiagnostics(diagnostics: readonly Diagnostic[]): string {
   const errors = diagnostics.filter(({ severity }) => severity === "error").length;
   const warnings = diagnostics.length - errors;
   const lines = diagnostics.map(
-    ({ file, line, column, severity, message, rule }) =>
-      `${file ? `${file}:` : ""}${line}:${column} ${severity} ${message} (${rule})`,
+    ({ file, line, column, severity, message, rule, guideline }) =>
+      `${file ? `${file}:` : ""}${line}:${column} ${severity} ${message} (${rule})${
+        guideline ? `\n  ${guideline.replace(/\s*\n\s*/g, " ")}` : ""
+      }`,
   );
   return [
     ...lines,

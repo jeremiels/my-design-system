@@ -43,6 +43,21 @@ export interface Guideline {
   readonly alternatives: readonly string[];
   /** How the rule is checked: `automated`, `manual`. */
   readonly checkedBy?: string;
+  /** The rule of `check` that verifies it in markup, if any. */
+  readonly check?: GuidelineCheck;
+}
+
+/**
+ * The rule of `check` a usage rule turns on, from its DSDS document: a
+ * `checks` pointer with `role: lint-rule`, whose fragment names the rule
+ * (`npm:@unicorne/catalog#required-attribute`), and its options, under
+ * `$extensions: { dev.unicorne: { check: … } }`.
+ */
+export interface GuidelineCheck {
+  /** The `id` of the rule: `required-attribute`. */
+  readonly rule: string;
+  /** What the rule checks for this component: `{ attributes: ["label"] }`. */
+  readonly options: Readonly<Record<string, unknown>>;
 }
 
 /** A component of a design system. */
@@ -75,6 +90,8 @@ export interface Diagnostic {
   readonly rule: string;
   readonly severity: "error" | "warning";
   readonly message: string;
+  /** The usage rule it breaks, from the DSDS documents, for a rule that checks one. */
+  readonly guideline?: string;
   readonly file?: string;
   readonly line: number;
   readonly column: number;
@@ -101,6 +118,8 @@ export interface MarkupElement {
   readonly attributes: readonly MarkupAttribute[];
   readonly line: number;
   readonly column: number;
+  /** Its own text, without that of its children, trimmed: `{{ count }} results`. */
+  readonly text: string;
   /** Its child elements. */
   readonly children: readonly MarkupElement[];
 }
@@ -110,6 +129,8 @@ export interface RuleContext {
   readonly docs: DesignSystemDocs;
   /** The component of the element. */
   readonly component: ComponentDoc;
+  /** The elements around the element, its parent first. */
+  readonly ancestors: readonly MarkupElement[];
   report(diagnostic: Omit<Diagnostic, "rule" | "file">): void;
 }
 

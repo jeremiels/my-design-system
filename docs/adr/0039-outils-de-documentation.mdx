@@ -11,7 +11,7 @@ import { Meta } from "@storybook/addon-docs/blocks";
 Un développeur, ou un agent, écrit une page avec les composants d'un design system. Il cherche le bon composant, ses attributs et leurs valeurs, ses règles d'usage. Il vérifie son markup.
 
 - `custom-elements.json`, le Custom Elements Manifest, décrit l'API de chaque composant : attributs, propriétés, événements, slots, parts, tokens.
-- Les documents DSDS décrivent son usage : quand l'utiliser, ses règles, les composants à utiliser à sa place. Dix-sept composants en ont un.
+- Les documents DSDS décrivent son usage : quand l'utiliser, ses règles, les composants à utiliser à sa place. Dix-sept composants en avaient un ; tous en ont un depuis l'[ADR 0040](?path=/docs/documentation-adr-0040-règles-d-usage-vérifiées--docs).
 - Le socle est extensible : une marque l'étend, l'enregistre sous son préfixe et le republie ([ADR 0001](?path=/docs/documentation-adr-0001-architecture-multi-marque--docs)). L'application d'ACME écrit `<acme-button>`, importe `@acme/design-system`, et ne connaît rien d'autre.
 - Le manifest d'ACME décrit ses seuls composants : sa carte, et la surcharge de son bouton. Les autres sont ceux du socle, sous le préfixe `u`, dans le manifest du socle.
 
@@ -139,7 +139,7 @@ Les noms des événements (`u-close`) et des tokens des composants du socle (`--
 
 - **Serveur de langage :** les mêmes règles dans l'éditeur, comme `cem lsp`.
 - **Templates de Lit :** `check` sur les `html` des fichiers TypeScript.
-- **Règles d'usage vérifiables :** une règle de `check` par règle DSDS automatisable, `label` obligatoire sur `modal` par exemple.
+- **Règles d'usage vérifiables :** une règle de `check` par règle DSDS automatisable, `label` obligatoire sur `modal` par exemple. Décidé dans l'[ADR 0040](?path=/docs/documentation-adr-0040-règles-d-usage-vérifiées--docs).
 
 ## Sources
 

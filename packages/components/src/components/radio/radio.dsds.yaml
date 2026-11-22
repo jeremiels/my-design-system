@@ -1,0 +1,65 @@
+# Quand utiliser radio, et ses règles (DSDS). Son API vit dans custom-elements.json.
+kind: component
+id: radio
+name: Radio
+description: Une option d'un groupe de boutons radio.
+metadata:
+  origin:
+    method: authored
+    author: assisted
+  status:
+    status: experimental
+
+sections:
+  - kind: guidelines
+    for: all
+    framing: when-to-use
+    items:
+      - level: must
+        statement: Utilisez `radio` comme une option d'un <dsds:radio-group>, son enfant direct. Seul, il n'a pas d'usage.
+        checks:
+          - href: npm:@unicorne/catalog#required-parent
+            role: lint-rule
+        checkedBy: automated
+        $extensions:
+          dev.unicorne:
+            check:
+              components:
+                - radio-group
+
+  - kind: guidelines
+    for: all
+    title: Accessibilité
+    items:
+      - level: must
+        statement: "Donnez à chaque radio un `label` : il s'affiche à côté du cercle, et nomme l'option."
+        checks:
+          - href: npm:@unicorne/catalog#required-attribute
+            role: lint-rule
+        checkedBy: automated
+        $extensions:
+          dev.unicorne:
+            check:
+              attributes:
+                - label
+      - level: must
+        statement: Donnez à chaque radio d'un groupe un `value` différent.
+        checkedBy: manual
+
+refs:
+  - href: ../radio-group/radio-group.stories.ts
+    rel: demo
+    role: Stories (CSF)
+
+sourceFiles:
+  - platform: web-component
+    file: ./radio.ts
+
+imports:
+  - platform: web-component
+    code: import "@unicorne/components/define";
+    package: "@unicorne/components"
+
+specs:
+  - href: ../../../custom-elements.json
+    role: Custom Elements Manifest

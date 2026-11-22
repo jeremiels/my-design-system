@@ -34,6 +34,17 @@ sections:
     for: all
     title: Accessibilité
     items:
+      - level: must
+        statement: Donnez au bouton un libellé dans son slot. Un bouton qui ne montre qu'une icône reçoit son nom par `label`.
+        checks:
+          - href: npm:@unicorne/catalog#accessible-name
+            role: lint-rule
+        checkedBy: automated
+        $extensions:
+          dev.unicorne:
+            check:
+              attributes:
+                - label
       - level: must-not
         statement: Ne changez pas le libellé avec l'état. `aria-pressed` dit l'état.
         checkedBy: manual

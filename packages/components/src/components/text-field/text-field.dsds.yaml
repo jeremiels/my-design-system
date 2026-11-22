@@ -1,0 +1,97 @@
+# Quand utiliser text-field, et ses règles (DSDS). Son API vit dans custom-elements.json.
+kind: component
+id: text-field
+name: Text field
+description: Un champ de saisie d'une ligne de texte, avec son libellé.
+metadata:
+  origin:
+    method: authored
+    author: assisted
+  status:
+    status: experimental
+
+sections:
+  - kind: guidelines
+    for: all
+    framing: when-to-use
+    items:
+      - level: must
+        statement: "Utilisez `text-field` pour une saisie libre sur une ligne : un nom, une adresse e-mail."
+        checkedBy: manual
+      - level: should
+        statement: Pour un texte sur plusieurs lignes, utilisez <dsds:textarea>.
+        alternatives:
+          - to: textarea
+        checkedBy: manual
+      - level: should
+        statement: Pour une quantité ou un montant, utilisez <dsds:number-field>. Un code fait de chiffres, un code postal, reste un `text-field`.
+        alternatives:
+          - to: number-field
+        checkedBy: manual
+      - level: should
+        statement: Pour une valeur parmi des suggestions, utilisez <dsds:autocomplete>.
+        alternatives:
+          - to: autocomplete
+        checkedBy: manual
+
+  - kind: guidelines
+    for: all
+    title: Saisie
+    items:
+      - level: should
+        statement: "Choisissez le `type` de la donnée : `email`, `tel`, `url`. Le clavier des mobiles et la validation le suivent."
+        checkedBy: manual
+      - level: should
+        statement: "Donnez un `autocomplete` aux données de l'usager, `email` ou `name` : le navigateur les remplit."
+        checkedBy: manual
+
+  - kind: guidelines
+    for: all
+    title: Accessibilité
+    items:
+      - level: must
+        statement: "Donnez au champ un `label` : il s'affiche, et nomme le contrôle."
+        checks:
+          - href: npm:@unicorne/catalog#required-attribute
+            role: lint-rule
+        checkedBy: automated
+        $extensions:
+          dev.unicorne:
+            check:
+              attributes:
+                - label
+      - level: should
+        statement: Écrivez dans `hint` le format attendu, et dans `error-message` comment corriger l'erreur.
+        checkedBy: manual
+      - level: may
+        statement: Masquez le libellé avec `label-hidden` quand la mise en page dit le but du champ. Il nomme toujours le contrôle.
+        checkedBy: manual
+      - level: must-not
+        statement: "N'enveloppez pas le champ dans un `<label>` : il rend son propre libellé."
+        checks:
+          - href: npm:@unicorne/catalog#forbidden-ancestor
+            role: lint-rule
+        checkedBy: automated
+        $extensions:
+          dev.unicorne:
+            check:
+              elements:
+                - label
+
+refs:
+  - href: ./text-field.stories.ts
+    rel: demo
+    role: Stories (CSF)
+
+sourceFiles:
+  - platform: web-component
+    file: ./text-field.ts
+
+imports:
+  - platform: web-component
+    code: import "@unicorne/components/define";
+    package: "@unicorne/components"
+
+specs:
+  - href: ../../../custom-elements.json
+    role: Custom Elements Manifest

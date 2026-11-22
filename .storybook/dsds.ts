@@ -83,6 +83,17 @@ const pointerText = (pointer: Pointer | string) =>
   typeof pointer === "string" ? pointer : (pointer.href ?? pointer.to ?? "");
 
 /**
+ * A check, as the docs page names it: a file, or a rule of `unicorne check`
+ * for a `lint-rule` (`npm:@unicorne/catalog#required-attribute`, ADR 0040).
+ */
+function checkText(check: Pointer | string): string {
+  if (typeof check !== "string" && check.role === "lint-rule" && check.href?.includes("#")) {
+    return `\`unicorne check\` (\`${check.href.split("#")[1]}\`)`;
+  }
+  return `\`${pointerText(check).replace(/^(\.\.?\/)+/, "")}\``;
+}
+
+/**
  * The guidelines of the component `tag` (`u-button`), in Markdown, for a
  * docs page: every section but those `for: agent`, which DSDS keeps out of
  * what people read. Empty when the component has no DSDS document.
@@ -99,7 +110,7 @@ export function guidelinesMarkdown(tag: string | undefined): string {
         section.framing === "when-to-use" ? "Quand l'utiliser" : (section.title ?? "Règles");
       const items = (section.items ?? []).map((item) => {
         const checks = item.checks?.length
-          ? ` _Vérifié par ${item.checks.map((check) => `\`${pointerText(check).replace(/^(\.\.?\/)+/, "")}\``).join(", ")}._`
+          ? ` _Vérifié par ${item.checks.map(checkText).join(", ")}._`
           : "";
         return `- **${LEVELS[item.level ?? "should"]} :** ${resolveLinks(item.statement ?? "")}${checks}`;
       });

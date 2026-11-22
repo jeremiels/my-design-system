@@ -1,0 +1,70 @@
+# Quand utiliser breadcrumb, et ses règles (DSDS). Son API vit dans custom-elements.json.
+kind: component
+id: breadcrumb
+name: Breadcrumb
+description: Les liens vers les pages au-dessus de la page courante.
+metadata:
+  origin:
+    method: authored
+    author: assisted
+  status:
+    status: experimental
+
+sections:
+  - kind: guidelines
+    for: all
+    framing: when-to-use
+    items:
+      - level: must
+        statement: Utilisez `breadcrumb` pour situer la page dans l'arborescence du site, sous l'en-tête.
+        checkedBy: manual
+      - level: should-not
+        statement: N'utilisez pas `breadcrumb` sur la page d'accueil, ni pour les étapes d'une tâche. Utilisez <dsds:stepper>.
+        alternatives:
+          - to: stepper
+        checkedBy: manual
+
+  - kind: guidelines
+    for: all
+    title: Pages
+    items:
+      - level: must
+        statement: Écrivez chaque page dans un <dsds:breadcrumb-item>, enfant direct du fil.
+        checks:
+          - href: npm:@unicorne/catalog#allowed-children
+            role: lint-rule
+        checkedBy: automated
+        $extensions:
+          dev.unicorne:
+            check:
+              components:
+                - breadcrumb-item
+      - level: must
+        statement: Listez les pages dans l'ordre, de l'accueil à la page courante.
+        checkedBy: manual
+
+  - kind: guidelines
+    for: all
+    title: Accessibilité
+    items:
+      - level: must
+        statement: "Traduisez `label` : « Fil d'Ariane » en français. Il nomme la navigation."
+        checkedBy: manual
+
+refs:
+  - href: ./breadcrumb.stories.ts
+    rel: demo
+    role: Stories (CSF)
+
+sourceFiles:
+  - platform: web-component
+    file: ./breadcrumb.ts
+
+imports:
+  - platform: web-component
+    code: import "@unicorne/components/define";
+    package: "@unicorne/components"
+
+specs:
+  - href: ../../../custom-elements.json
+    role: Custom Elements Manifest

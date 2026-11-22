@@ -1,0 +1,76 @@
+# Quand utiliser stepper, et ses règles (DSDS). Son API vit dans custom-elements.json.
+kind: component
+id: stepper
+name: Stepper
+description: Les étapes d'une tâche, et l'étape courante.
+metadata:
+  origin:
+    method: authored
+    author: assisted
+  status:
+    status: experimental
+
+sections:
+  - kind: guidelines
+    for: all
+    framing: when-to-use
+    items:
+      - level: must
+        statement: "Utilisez `stepper` pour situer l'usager dans une tâche en plusieurs étapes : un formulaire sur plusieurs pages."
+        checkedBy: manual
+      - level: must
+        statement: "Placez les boutons Précédent et Suivant dans la page : le stepper montre les étapes, il ne navigue pas."
+        checkedBy: manual
+
+  - kind: guidelines
+    for: all
+    title: Étapes
+    items:
+      - level: must
+        statement: Écrivez chaque étape dans un <dsds:step>, enfant direct du stepper, dans l'ordre.
+        checks:
+          - href: npm:@unicorne/catalog#allowed-children
+            role: lint-rule
+        checkedBy: automated
+        $extensions:
+          dev.unicorne:
+            check:
+              components:
+                - step
+      - level: must
+        statement: Donnez à `value` le `value` de l'étape courante.
+        checkedBy: manual
+
+  - kind: guidelines
+    for: all
+    title: Accessibilité
+    items:
+      - level: should
+        statement: "Donnez au stepper un `label` : la tâche des étapes, « Votre demande »."
+        checks:
+          - href: npm:@unicorne/catalog#required-attribute
+            role: lint-rule
+        checkedBy: automated
+        $extensions:
+          dev.unicorne:
+            check:
+              attributes:
+                - label
+
+refs:
+  - href: ./stepper.stories.ts
+    rel: demo
+    role: Stories (CSF)
+
+sourceFiles:
+  - platform: web-component
+    file: ./stepper.ts
+
+imports:
+  - platform: web-component
+    code: import "@unicorne/components/define";
+    package: "@unicorne/components"
+
+specs:
+  - href: ../../../custom-elements.json
+    role: Custom Elements Manifest

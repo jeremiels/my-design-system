@@ -215,15 +215,27 @@ try {
   const folder = await mkdtemp(join(tmpdir(), "acme-"));
   await writeFile(
     join(folder, "page.html"),
-    `<acme-button variant="big">Go</acme-button>\n<u-button>x</u-button>\n`,
+    [
+      `<acme-button variant="big">Go</acme-button>`,
+      `<u-button>x</u-button>`,
+      `<acme-text-field></acme-text-field>`,
+      `<acme-card></acme-card>`,
+    ].join("\n"),
   );
   const checked = acmeCli("check", folder);
   record(
     "acme check: an error on a value ACME's button doesn't take, exit code 1",
-    checked.status === 1 &&
-      checked.stdout.includes('variant="big"') &&
-      checked.stdout.includes("1 error"),
+    checked.status === 1 && checked.stdout.includes('variant="big"'),
     checked.stdout.trim().split("\n").at(-1),
+  );
+  record(
+    "acme check: the usage rules of the base and of ACME, with their guidelines",
+    checked.stdout.includes('<acme-text-field> needs "label". (required-attribute)') &&
+      checked.stdout.includes("Donnez au champ un `label`") &&
+      checked.stdout.includes('<acme-card> needs "heading". (required-attribute)') &&
+      checked.stdout.includes("Donnez à la carte un `heading`") &&
+      checked.stdout.includes("3 errors"),
+    "text-field label, card heading",
   );
   record(
     "acme has ACME's own command, texts",
@@ -260,6 +272,12 @@ try {
   const tools = (await client.listTools()).tools.map(({ name }) => name);
   const card = await client.callTool({ name: "get_component", arguments: { name: "card" } });
   const texts = await client.callTool({ name: "get_texts", arguments: {} });
+  const markup = await client.callTool({
+    name: "check_markup",
+    arguments: {
+      markup: `<acme-modal><acme-button><acme-icon name="x"></acme-icon></acme-button></acme-modal>`,
+    },
+  });
   await client.close();
   record(
     "acme-mcp serves ACME's documentation, and its own tool",
@@ -269,6 +287,15 @@ try {
       card.content[0].text.includes("Utilisez `card` pour résumer") &&
       texts.content[0].text.includes("Fermer"),
     `tools: ${tools.join(", ")}`,
+  );
+  const reported = markup.content[0].text;
+  record(
+    "acme-mcp check_markup reports the usage rules, with their guidelines",
+    reported.includes('<acme-modal> needs "label".') &&
+      reported.includes("<acme-button> has no name") &&
+      reported.includes("Donnez à la modale un `label`") &&
+      !/unicorne|socle/i.test(reported),
+    reported.split("\n").at(-1),
   );
 }
 
